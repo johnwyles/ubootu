@@ -1,0 +1,117 @@
+---
+# Set up dotfiles management tool
+
+- name: Install GNU Stow
+  ansible.builtin.apt:
+    name: stow
+    state: present
+  become: yes
+  when: dotfiles_manager == 'stow'
+
+- name: Install chezmoi
+  block:
+    - name: Download chezmoi installer
+      ansible.builtin.get_url:
+        url: https://get.chezmoi.io
+        dest: /tmp/install-chezmoi.sh
+        mode: '0755'
+
+    - name: Install chezmoi
+      ansible.builtin.shell: /tmp/install-chezmoi.sh -b /usr/local/bin
+      become: yes
+      args:
+        creates: /usr/local/bin/chezmoi
+
+    - name: Initialize chezmoi
+      ansible.builtin.shell: chezmoi init
+      args:
+        creates: "{{ ansible_env.HOME }}/.local/share/chezmoi"
+  when: dotfiles_manager == 'chezmoi'
+
+- name: Install yadm
+  block:
+    - name: Install yadm dependencies
+      ansible.builtin.apt:
+        name:
+          - git
+          - python3
+        state: present
+      become: yes
+
+    - name: Download yadm
+      ansible.builtin.get_url:
+        url: https://github.com/TheLocehiliosan/yadm/raw/master/yadm
+        dest: /usr/local/bin/yadm
+        mode: '0755'
+      become: yes
+  when: dotfiles_manager == 'yadm'
+
+# Set up dotfiles structure for stow
+- name: Set up stow directory structure
+  block:
+    - name: Create stow directory
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/dotfiles"
+        state: directory
+        mode: '0755'
+
+    - name: Create package directories
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/dotfiles/{{ item }}"
+        state: directory
+        mode: '0755'
+      loop: "{{ managed_dotfiles }}"
+
+    - name: Create README for stow usage
+      ansible.builtin.copy:
+        dest: "{{ ansible_env.HOME }}/dotfiles/README.md"
+        content: |
+          # Dotfiles Management with GNU Stow
+
+          This directory contains your dotfiles organized for use with GNU Stow.
+
+          ## Usage
+
+          To stow a package (create symlinks):
+          ```bash
+          cd ~/dotfiles
+          stow <package-name>
+          ```
+
+          To unstow a package (remove symlinks):
+          ```bash
+          cd ~/dotfiles
+          stow -D <package-name>
+          ```
+
+          To restow a package (remove and recreate symlinks):
+          ```bash
+          cd ~/dotfiles
+          stow -R <package-name>
+          ```
+
+          ## Available packages:
+          {% for package in managed_dotfiles %}
+          - {{ package }}
+          {% endfor %}
+        mode: '0644'
+  when: dotfiles_manager == 'stow'
+
+# Create initial dotfiles structure examples
+- name: Create example dotfiles structure
+  ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/dotfiles/.gitignore"
+    content: |
+      # Ignore common files
+      *.swp
+      *.swo
+      *~
+      .DS_Store
+      .directory
+
+      # Ignore sensitive files
+      *_history
+      .lesshst
+      .wget-hsts
+    mode: '0644'
+  when: dotfiles_use_manager

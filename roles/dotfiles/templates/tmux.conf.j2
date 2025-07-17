@@ -1,0 +1,106 @@
+# Ansible managed tmux configuration
+
+# Change prefix key
+unbind C-b
+set-option -g prefix {{ tmux_prefix_key }}
+bind-key {{ tmux_prefix_key }} send-prefix
+
+# Basic settings
+set -g default-terminal "screen-256color"
+set -ga terminal-overrides ",*256col*:Tc"
+set -g history-limit 10000
+set -g base-index 1
+setw -g pane-base-index 1
+set -g renumber-windows on
+set -s escape-time 0
+
+# Mouse support
+{% if tmux_enable_mouse %}
+set -g mouse on
+{% else %}
+set -g mouse off
+{% endif %}
+
+# Status bar
+set -g status-position {{ tmux_status_position }}
+set -g status-interval 5
+set -g status-left-length 30
+set -g status-right-length 150
+set -g status-style "bg=black,fg=white"
+
+# Status bar content
+set -g status-left "#[fg=green]#H #[fg=black]• #[fg=blue]#S "
+set -g status-right "#[fg=yellow]#(uptime | cut -d ',' -f 3- | cut -d ':' -f 2) #[fg=black]• #[fg=green]%d %b %Y #[fg=black]• #[fg=blue]%H:%M"
+
+# Window status
+setw -g window-status-format "#[fg=white,bg=black] #I #W "
+setw -g window-status-current-format "#[fg=black,bg=blue] #I #W "
+
+# Pane borders
+set -g pane-border-style "fg=grey"
+set -g pane-active-border-style "fg=blue"
+
+# Key bindings
+# Reload config
+bind r source-file ~/.tmux.conf \; display-message "Config reloaded!"
+
+# Split panes
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+
+# Navigate panes with vim-like keys
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+
+# Resize panes
+bind -r H resize-pane -L 5
+bind -r J resize-pane -D 5
+bind -r K resize-pane -U 5
+bind -r L resize-pane -R 5
+
+# Navigate windows
+bind -r C-h select-window -t :-
+bind -r C-l select-window -t :+
+
+# Copy mode
+setw -g mode-keys vi
+bind-key -T copy-mode-vi v send-keys -X begin-selection
+bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
+bind-key -T copy-mode-vi r send-keys -X rectangle-toggle
+
+# Integration with system clipboard
+{% if ansible_os_family == "Debian" %}
+bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "xclip -in -selection clipboard"
+{% endif %}
+
+# Activity monitoring
+setw -g monitor-activity on
+set -g visual-activity off
+
+# Automatic window renaming
+setw -g automatic-rename on
+
+{% if tmux_plugins | length > 0 %}
+# Tmux Plugin Manager
+# List of plugins
+{% for plugin in tmux_plugins %}
+set -g @plugin '{{ plugin }}'
+{% endfor %}
+
+# Plugin settings
+{% if 'tmux-plugins/tmux-resurrect' in tmux_plugins %}
+set -g @resurrect-capture-pane-contents 'on'
+set -g @resurrect-strategy-vim 'session'
+set -g @resurrect-strategy-nvim 'session'
+{% endif %}
+
+{% if 'tmux-plugins/tmux-continuum' in tmux_plugins %}
+set -g @continuum-restore 'on'
+set -g @continuum-save-interval '15'
+{% endif %}
+
+# Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)
+run '~/.tmux/plugins/tpm/tpm'
+{% endif %}

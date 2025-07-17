@@ -1,0 +1,45 @@
+---
+# Install debugging tools
+
+- name: Install GDB (GNU Debugger)
+  ansible.builtin.apt:
+    name:
+      - gdb
+      - gdb-multiarch
+    state: present
+  become: yes
+  when: devtools_install_gdb
+
+- name: Install Valgrind
+  ansible.builtin.apt:
+    name: valgrind
+    state: present
+  become: yes
+  when: devtools_install_valgrind
+
+- name: Install strace
+  ansible.builtin.apt:
+    name: strace
+    state: present
+  become: yes
+  when: devtools_install_strace
+
+- name: Install ltrace
+  ansible.builtin.apt:
+    name: ltrace
+    state: present
+  become: yes
+  when: devtools_install_ltrace
+
+# Additional debugging tools
+- name: Install additional debugging tools
+  ansible.builtin.apt:
+    name:
+      - gdbserver    # Remote debugging
+      - cgdb         # Curses-based interface to GDB
+      - ddd          # Data Display Debugger (GUI)
+      - nemiver      # GNOME debugger
+      - rr           # Record and replay debugger
+    state: present
+  become: yes
+  when: devtools_install_gdb  # Install these if GDB is selected

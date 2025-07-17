@@ -1,0 +1,52 @@
+---
+# Install AI coding assistants
+
+- name: Install Cursor editor
+  block:
+    - name: Download Cursor AppImage
+      ansible.builtin.get_url:
+        url: https://downloader.cursor.sh/linux/appImage/x64
+        dest: "/home/{{ primary_user }}/.local/bin/cursor.AppImage"
+        mode: '0755'
+      become: yes
+      become_user: "{{ primary_user }}"
+
+    - name: Create Cursor desktop entry
+      ansible.builtin.template:
+        src: cursor.desktop.j2
+        dest: "/home/{{ primary_user }}/.local/share/applications/cursor.desktop"
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0644'
+      become: yes
+  when: devtools_install_cursor
+
+- name: Install Aider CLI tool
+  ansible.builtin.pip:
+    name: aider-chat
+    state: latest
+    executable: pip3
+  become: yes
+  when: devtools_install_aider
+
+- name: Create Aider configuration
+  ansible.builtin.template:
+    src: aider.conf.j2
+    dest: "/home/{{ primary_user }}/.aider.conf"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+  when: devtools_install_aider
+
+- name: Install Continue.dev for VS Code
+  ansible.builtin.shell: code --install-extension continue.continue --force
+  become: yes
+  become_user: "{{ primary_user }}"
+  environment:
+    DISPLAY: ":0"
+  when: "'vscode' in devtools_editors"
+  failed_when: false
+  changed_when: true
+
+# Note: GitHub Copilot and Codeium are installed via VS Code extensions in vscode-config.yml

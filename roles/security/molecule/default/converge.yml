@@ -1,0 +1,20 @@
+---
+- name: Converge
+  hosts: all
+  become: yes
+
+  pre_tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    # Include common role as dependency
+    - name: Include common role tasks
+      ansible.builtin.include_role:
+        name: common
+      vars:
+        enable_third_party_repos: false
+
+  roles:
+    - role: security

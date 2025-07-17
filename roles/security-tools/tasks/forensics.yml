@@ -1,0 +1,226 @@
+---
+# Install digital forensics tools
+
+# Autopsy from official repository
+- name: Download Autopsy
+  ansible.builtin.get_url:
+    url: "https://github.com/sleuthkit/autopsy/releases/download/autopsy-4.21.0/autopsy-4.21.0.zip"
+    dest: /tmp/autopsy.zip
+    mode: '0644'
+  become: yes
+  when: "'autopsy' in sectools_forensics_tools"
+
+- name: Install Autopsy dependencies
+  ansible.builtin.apt:
+    name:
+      - testdisk
+      - sleuthkit
+      - default-jre
+      - default-jdk
+      - libpostgresql-jdbc-java
+    state: present
+  become: yes
+  when: "'autopsy' in sectools_forensics_tools"
+
+- name: Extract Autopsy
+  ansible.builtin.unarchive:
+    src: /tmp/autopsy.zip
+    dest: /opt/
+    remote_src: yes
+    owner: root
+    group: root
+  become: yes
+  when: "'autopsy' in sectools_forensics_tools"
+  args:
+    creates: /opt/autopsy-4.21.0
+
+- name: Create Autopsy wrapper script
+  ansible.builtin.copy:
+    content: |
+      #!/bin/bash
+      cd /opt/autopsy-4.21.0
+      sh bin/autopsy "$@"
+    dest: /usr/local/bin/autopsy
+    mode: '0755'
+  become: yes
+  when: "'autopsy' in sectools_forensics_tools"
+
+# Sleuth Kit
+- name: Install The Sleuth Kit
+  ansible.builtin.apt:
+    name:
+      - sleuthkit
+      - sleuthkit-gui
+      - ewf-tools     # Expert Witness Format support
+      - afflib-tools  # Advanced Forensic Format support
+    state: present
+  become: yes
+  when: "'sleuthkit' in sectools_forensics_tools"
+
+# Volatility 3 from GitHub
+- name: Clone Volatility 3
+  ansible.builtin.git:
+    repo: https://github.com/volatilityfoundation/volatility3.git
+    dest: /opt/volatility3
+    version: stable
+  become: yes
+  when: "'volatility3' in sectools_forensics_tools"
+
+- name: Install Volatility 3 dependencies
+  ansible.builtin.pip:
+    requirements: /opt/volatility3/requirements.txt
+    virtualenv: /opt/volatility3/venv
+    virtualenv_command: python3 -m venv
+  become: yes
+  when: "'volatility3' in sectools_forensics_tools"
+
+- name: Create Volatility 3 wrapper
+  ansible.builtin.copy:
+    content: |
+      #!/bin/bash
+      cd /opt/volatility3
+      source venv/bin/activate
+      python vol.py "$@"
+    dest: /usr/local/bin/volatility3
+    mode: '0755'
+  become: yes
+  when: "'volatility3' in sectools_forensics_tools"
+
+# Ghidra from NSA
+- name: Download Ghidra
+  ansible.builtin.get_url:
+    url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_11.0.1_build/ghidra_11.0.1_PUBLIC_20240130.zip"
+    dest: /tmp/ghidra.zip
+    mode: '0644'
+  become: yes
+  when: "'ghidra' in sectools_forensics_tools"
+
+- name: Install Ghidra dependencies
+  ansible.builtin.apt:
+    name:
+      - default-jdk
+      - default-jre
+    state: present
+  become: yes
+  when: "'ghidra' in sectools_forensics_tools"
+
+- name: Extract Ghidra
+  ansible.builtin.unarchive:
+    src: /tmp/ghidra.zip
+    dest: /opt/
+    remote_src: yes
+    owner: root
+    group: root
+  become: yes
+  when: "'ghidra' in sectools_forensics_tools"
+  args:
+    creates: /opt/ghidra_11.0.1_PUBLIC
+
+- name: Create Ghidra symlink
+  ansible.builtin.file:
+    src: /opt/ghidra_11.0.1_PUBLIC
+    dest: /opt/ghidra
+    state: link
+  become: yes
+  when: "'ghidra' in sectools_forensics_tools"
+
+- name: Create Ghidra desktop entry
+  ansible.builtin.copy:
+    dest: /usr/share/applications/ghidra.desktop
+    content: |
+      [Desktop Entry]
+      Name=Ghidra
+      Comment=Software Reverse Engineering Framework
+      Exec=/opt/ghidra/ghidraRun
+      Icon=/opt/ghidra/docs/images/GHIDRA_1.png
+      Terminal=false
+      Type=Application
+      Categories=Development;Security;
+    mode: '0644'
+  become: yes
+  when: "'ghidra' in sectools_forensics_tools"
+
+# Radare2 from official repository
+- name: Install Radare2
+  ansible.builtin.apt:
+    name:
+      - radare2
+      - radare2-cutter  # GUI for radare2
+    state: present
+  become: yes
+  when: "'radare2' in sectools_forensics_tools"
+
+# Additional forensics tools
+- name: Install additional forensics tools
+  ansible.builtin.apt:
+    name:
+      - foremost      # File recovery
+      - scalpel       # File carving
+      - binwalk       # Firmware analysis
+      - hexedit       # Hex editor
+      - bless         # Hex editor GUI
+      - ghex          # GNOME hex editor
+      - xxd           # Hex dump
+      - photorec      # Photo recovery
+      - rkhunter      # Rootkit hunter
+      - chkrootkit    # Check for rootkits
+      - dc3dd         # Enhanced dd
+      - dcfldd        # Enhanced dd with hashing
+      - ddrescue      # Data recovery tool
+      - gddrescue     # GNU ddrescue
+      - safecopy      # Data recovery tool
+      - forensics-all # Debian forensics metapackage
+      - yara          # Pattern matching engine
+      - ssdeep        # Fuzzy hashing
+      - md5deep       # Recursive hashing
+      - hashdeep      # Cross-platform hashing
+      - exiftool      # Metadata reader/writer
+      - pdfid         # PDF analysis
+      - pdf-parser    # PDF analysis
+      - peepdf        # PDF analysis
+      - volatility    # Memory forensics (v2)
+      - rekall        # Memory forensics
+      - lime-forensics-dkms  # Linux memory capture
+      - guymager      # Forensic imager GUI
+      - forensic-artifacts  # Digital forensics artifacts
+    state: present
+  become: yes
+  failed_when: false
+
+# SIFT Workstation tools (subset)
+- name: Install SIFT-like tools
+  ansible.builtin.apt:
+    name:
+      - python3-plaso    # Log2timeline
+      - python3-dfvfs    # Digital Forensics Virtual File System
+      - python3-artifacts # ForensicArtifacts definitions
+      - libbde-utils     # BitLocker Drive Encryption access
+      - libewf-dev       # Expert Witness Compression Format
+      - libsmdev-utils   # Storage media device access
+      - libsmraw-utils   # Split RAW image format access
+      - libqcow-utils    # QEMU Copy-On-Write image access
+      - libvhdi-utils    # Virtual Hard Disk image access
+      - libvmdk-utils    # VMware Virtual Disk format access
+      - libvshadow-utils # Volume Shadow Snapshots access
+      - tsk-full         # Full Sleuth Kit installation
+    state: present
+  become: yes
+  failed_when: false
+
+# Memory analysis tools
+- name: Create memory dumps directory
+  ansible.builtin.file:
+    path: /opt/memory-samples
+    state: directory
+    mode: '0755'
+  become: yes
+
+# Install Rekall from GitHub
+- name: Clone Rekall
+  ansible.builtin.git:
+    repo: https://github.com/google/rekall.git
+    dest: /opt/rekall
+    version: master
+  become: yes
+  when: "'rekall' in sectools_forensics_tools"
+  failed_when: false

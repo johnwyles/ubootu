@@ -1,0 +1,8 @@
+---
+# Production environment specific variables
+ansible_user: ubuntu
+ansible_ssh_private_key_file: "{{ vault_ssh_private_key_file | default('~/.ssh/id_rsa') }}"
+
+# Production defaults
+enable_security: true
+enable_development_tools: false

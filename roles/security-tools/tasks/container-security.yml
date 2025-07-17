@@ -1,0 +1,202 @@
+---
+# Install container and cloud security tools
+
+# Trivy from official repository
+- name: Add Trivy GPG key
+  apt_key:
+    url: https://aquasecurity.github.io/trivy-repo/deb/public.key
+    state: present
+  become: yes
+  when: "'trivy' in sectools_container_tools and sectools_use_official_repos"
+
+- name: Add Trivy repository
+  apt_repository:
+    repo: "deb https://aquasecurity.github.io/trivy-repo/deb {{ ansible_distribution_release }} main"
+    state: present
+    filename: trivy
+  become: yes
+  when: "'trivy' in sectools_container_tools and sectools_use_official_repos"
+
+- name: Install Trivy
+  ansible.builtin.apt:
+    name: trivy
+    state: present
+    update_cache: yes
+  become: yes
+  when: "'trivy' in sectools_container_tools"
+
+# Grype from GitHub releases
+- name: Install Grype via script
+  ansible.builtin.shell: |
+    curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+  become: yes
+  when: "'grype' in sectools_container_tools"
+  args:
+    creates: /usr/local/bin/grype
+  changed_when: true
+
+# Syft from GitHub releases
+- name: Install Syft via script
+  ansible.builtin.shell: |
+    curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+  become: yes
+  when: "'syft' in sectools_container_tools"
+  args:
+    creates: /usr/local/bin/syft
+  changed_when: true
+
+# Docker Bench Security
+- name: Clone Docker Bench Security
+  ansible.builtin.git:
+    repo: https://github.com/docker/docker-bench-security.git
+    dest: /opt/docker-bench-security
+    version: master
+  become: yes
+  when: "'docker-bench' in sectools_container_tools"
+
+- name: Create Docker Bench wrapper
+  ansible.builtin.copy:
+    content: |
+      #!/bin/bash
+      cd /opt/docker-bench-security
+      sudo sh docker-bench-security.sh "$@"
+    dest: /usr/local/bin/docker-bench-security
+    mode: '0755'
+  become: yes
+  when: "'docker-bench' in sectools_container_tools"
+
+# Dive - Docker image explorer
+- name: Check latest Dive release
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/wagoodman/dive/releases/latest
+    return_content: yes
+  register: dive_release
+  when: "'dive' in sectools_container_tools"
+
+- name: Download and install Dive
+  ansible.builtin.get_url:
+    url: "{{ dive_release.json.assets | selectattr('name', 'match', '.*linux_amd64\\.deb$') | map(attribute='browser_download_url') | first }}"
+    dest: /tmp/dive.deb
+    mode: '0644'
+  become: yes
+  when: "'dive' in sectools_container_tools and dive_release is succeeded"
+
+- name: Install Dive package
+  ansible.builtin.apt:
+    deb: /tmp/dive.deb
+    state: present
+  become: yes
+  when: "'dive' in sectools_container_tools and dive_release is succeeded"
+
+# Additional container security tools
+- name: Install additional container security tools
+  ansible.builtin.apt:
+    name:
+      - skopeo         # Container image operations
+      - buildah        # Build containers
+      - podman         # Run containers
+      - umoci          # Container image manipulation
+    state: present
+  become: yes
+  failed_when: false
+
+# Clair scanner from CoreOS
+- name: Download Clair
+  ansible.builtin.get_url:
+    url: "https://github.com/quay/clair/releases/latest/download/clair-linux-amd64"
+    dest: /usr/local/bin/clair
+    mode: '0755'
+  become: yes
+  when: "'clair' in sectools_container_tools"
+
+# Hadolint - Dockerfile linter
+- name: Download Hadolint
+  ansible.builtin.get_url:
+    url: "https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64"
+    dest: /usr/local/bin/hadolint
+    mode: '0755'
+  become: yes
+
+# Dockle - Container image linter
+- name: Check latest Dockle release
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/goodwithtech/dockle/releases/latest
+    return_content: yes
+  register: dockle_release
+
+- name: Download and install Dockle
+  ansible.builtin.get_url:
+    url: "{{ dockle_release.json.assets | selectattr('name', 'match', '.*Linux-64bit\\.deb$') | map(attribute='browser_download_url') | first }}"
+    dest: /tmp/dockle.deb
+    mode: '0644'
+  become: yes
+  when: dockle_release is succeeded
+
+- name: Install Dockle package
+  ansible.builtin.apt:
+    deb: /tmp/dockle.deb
+    state: present
+  become: yes
+  when: dockle_release is succeeded
+
+# Container-diff from Google
+- name: Download container-diff
+  ansible.builtin.get_url:
+    url: "https://storage.googleapis.com/container-diff/latest/container-diff-linux-amd64"
+    dest: /usr/local/bin/container-diff
+    mode: '0755'
+  become: yes
+
+# Cosign for container signing
+- name: Install Cosign via script
+  ansible.builtin.shell: |
+    curl -sSfL https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64 -o /usr/local/bin/cosign
+    chmod +x /usr/local/bin/cosign
+  become: yes
+  args:
+    creates: /usr/local/bin/cosign
+  changed_when: true
+
+# Falco - Runtime security
+- name: Add Falco GPG key
+  apt_key:
+    url: https://falco.org/repo/falcosecurity-packages.asc
+    state: present
+  become: yes
+  when: "'falco' in sectools_container_tools"
+
+- name: Add Falco repository
+  apt_repository:
+    repo: "deb https://download.falco.org/packages/deb stable main"
+    state: present
+    filename: falco
+  become: yes
+  when: "'falco' in sectools_container_tools"
+
+- name: Install Falco
+  ansible.builtin.apt:
+    name:
+      - linux-headers-{{ ansible_kernel }}
+      - falco
+    state: present
+    update_cache: yes
+  become: yes
+  when: "'falco' in sectools_container_tools"
+
+# Kubescape
+- name: Install Kubescape
+  ansible.builtin.shell: |
+    curl -s https://raw.githubusercontent.com/kubescape/kubescape/master/install.sh | /bin/bash
+  become: yes
+  args:
+    creates: /usr/local/bin/kubescape
+  changed_when: true
+
+# kubectl-who-can
+- name: Install kubectl-who-can
+  ansible.builtin.shell: |
+    curl -sSL https://github.com/aquasecurity/kubectl-who-can/releases/latest/download/kubectl-who-can_linux_x86_64.tar.gz | tar xz -C /usr/local/bin kubectl-who-can
+  become: yes
+  args:
+    creates: /usr/local/bin/kubectl-who-can
+  changed_when: true

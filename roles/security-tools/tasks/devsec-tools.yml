@@ -1,0 +1,248 @@
+---
+# Install development security tools
+
+# Gitleaks from GitHub releases
+- name: Check latest Gitleaks release
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/gitleaks/gitleaks/releases/latest
+    return_content: yes
+  register: gitleaks_release
+  when: "'gitleaks' in sectools_devsec_tools"
+
+- name: Download and extract Gitleaks
+  ansible.builtin.unarchive:
+    src: "{{ gitleaks_release.json.assets | selectattr('name', 'match', '.*linux_x64\\.tar\\.gz$') | map(attribute='browser_download_url') | first }}"
+    dest: /usr/local/bin
+    remote_src: yes
+    mode: '0755'
+    owner: root
+    group: root
+    extra_opts:
+      - gitleaks
+  become: yes
+  when: "'gitleaks' in sectools_devsec_tools and gitleaks_release is succeeded"
+
+# TruffleHog from GitHub releases
+- name: Check latest TruffleHog release
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/trufflesecurity/trufflehog/releases/latest
+    return_content: yes
+  register: trufflehog_release
+  when: "'trufflehog' in sectools_devsec_tools"
+
+- name: Download and extract TruffleHog
+  ansible.builtin.unarchive:
+    src: "{{ trufflehog_release.json.assets | selectattr('name', 'match', '.*linux_amd64\\.tar\\.gz$') | map(attribute='browser_download_url') | first }}"
+    dest: /usr/local/bin
+    remote_src: yes
+    mode: '0755'
+    owner: root
+    group: root
+    extra_opts:
+      - trufflehog
+  become: yes
+  when: "'trufflehog' in sectools_devsec_tools and trufflehog_release is succeeded"
+
+# Semgrep from official install script
+- name: Install Semgrep
+  ansible.builtin.shell: |
+    python3 -m pip install semgrep
+  become: yes
+  when: "'semgrep' in sectools_devsec_tools"
+  changed_when: true
+
+# Bandit for Python
+- name: Install Bandit
+  ansible.builtin.pip:
+    name: bandit[toml]
+    state: present
+    executable: pip3
+  become: yes
+  when: "'bandit' in sectools_devsec_tools"
+
+# Safety for Python dependencies
+- name: Install Safety
+  ansible.builtin.pip:
+    name: safety
+    state: present
+    executable: pip3
+  become: yes
+  when: "'safety' in sectools_devsec_tools"
+
+# Snyk CLI from official npm
+- name: Install Snyk CLI
+  npm:
+    name: snyk
+    global: yes
+    state: present
+  become: yes
+  when: "'snyk' in sectools_devsec_tools and 'nodejs' in development_languages"
+
+# GitGuardian CLI
+- name: Install GitGuardian CLI
+  ansible.builtin.pip:
+    name: ggshield
+    state: present
+    executable: pip3
+  become: yes
+  when: "'gitguardian' in sectools_devsec_tools"
+
+# Horusec from GitHub releases
+- name: Install Horusec
+  ansible.builtin.shell: |
+    curl -fsSL https://raw.githubusercontent.com/ZupIT/horusec/main/deployments/scripts/install.sh | bash -s latest
+  become: yes
+  when: "'horusec' in sectools_devsec_tools"
+  args:
+    creates: /usr/local/bin/horusec
+  changed_when: true
+
+# Additional development security tools
+- name: Install additional devsec tools
+  ansible.builtin.apt:
+    name:
+      - pylint         # Python code analyzer
+      - flake8         # Python style checker
+      - mypy           # Python type checker
+      - black          # Python formatter
+      - yamllint       # YAML linter
+      - shellcheck     # Shell script analyzer
+      - ansible-lint   # Ansible linter
+      - tflint         # Terraform linter
+      - checkov        # Infrastructure as code scanner
+      - cppcheck       # C/C++ static analyzer
+      - clang-tools    # C/C++ tools including scan-build
+      - valgrind       # Memory error detector
+      - splint         # C code analyzer
+    state: present
+  become: yes
+  failed_when: false
+
+# OWASP Dependency Check
+- name: Download OWASP Dependency Check
+  ansible.builtin.get_url:
+    url: "https://github.com/jeremylong/DependencyCheck/releases/download/v9.0.9/dependency-check-9.0.9-release.zip"
+    dest: /tmp/dependency-check.zip
+    mode: '0644'
+  become: yes
+  when: "'dependency-check' in sectools_devsec_tools"
+
+- name: Extract OWASP Dependency Check
+  ansible.builtin.unarchive:
+    src: /tmp/dependency-check.zip
+    dest: /opt/
+    remote_src: yes
+    owner: root
+    group: root
+  become: yes
+  when: "'dependency-check' in sectools_devsec_tools"
+  args:
+    creates: /opt/dependency-check
+
+- name: Create Dependency Check wrapper
+  ansible.builtin.copy:
+    content: |
+      #!/bin/bash
+      /opt/dependency-check/bin/dependency-check.sh "$@"
+    dest: /usr/local/bin/dependency-check
+    mode: '0755'
+  become: yes
+  when: "'dependency-check' in sectools_devsec_tools"
+
+# NodeJsScan
+- name: Clone NodeJsScan
+  ansible.builtin.git:
+    repo: https://github.com/ajinabraham/nodejsscan.git
+    dest: /opt/nodejsscan
+    version: master
+  become: yes
+  when: "'nodejsscan' in sectools_devsec_tools"
+
+- name: Install NodeJsScan dependencies
+  ansible.builtin.pip:
+    requirements: /opt/nodejsscan/requirements.txt
+    virtualenv: /opt/nodejsscan/venv
+    virtualenv_command: python3 -m venv
+  become: yes
+  when: "'nodejsscan' in sectools_devsec_tools"
+
+# PHP Security tools
+- name: Install PHP security tools
+  block:
+    - name: Install PHPCS
+      ansible.builtin.shell: |
+        curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar
+        chmod +x phpcs.phar
+        mv phpcs.phar /usr/local/bin/phpcs
+      become: yes
+      args:
+        creates: /usr/local/bin/phpcs
+
+    - name: Install PHP Security Checker
+      ansible.builtin.shell: |
+        curl -OL https://github.com/fabpot/local-php-security-checker/releases/download/v2.0.6/local-php-security-checker_2.0.6_linux_amd64
+        chmod +x local-php-security-checker_2.0.6_linux_amd64
+        mv local-php-security-checker_2.0.6_linux_amd64 /usr/local/bin/local-php-security-checker
+      become: yes
+      args:
+        creates: /usr/local/bin/local-php-security-checker
+  when: "'php' in development_languages"
+
+# GitLab Secret Detection
+- name: Install GitLab Secret Detection
+  docker_container:
+    name: gitlab-secrets
+    image: "registry.gitlab.com/gitlab-org/security-products/analyzers/secrets:latest"
+    state: stopped
+    ansible.builtin.command: /bin/true
+  become: yes
+  when: "install_docker | default(false) and 'gitlab-secrets' in sectools_devsec_tools"
+
+# Create scripts directory for custom security scripts
+- name: Create security scripts directory
+  ansible.builtin.file:
+    path: /opt/security-scripts
+    state: directory
+    mode: '0755'
+  become: yes
+
+# Create a git pre-commit hook template
+- name: Create git pre-commit security hook
+  ansible.builtin.copy:
+    dest: /opt/security-scripts/pre-commit-security
+    content: |
+      #!/bin/bash
+      # Security pre-commit hook
+
+      # Run gitleaks
+      if command -v gitleaks &> /dev/null; then
+          gitleaks protect --verbose --redact --staged
+          if [ $? -ne 0 ]; then
+              echo "WARNING: gitleaks has detected sensitive information in your changes."
+              exit 1
+          fi
+      fi
+
+      # Run trufflehog
+      if command -v trufflehog &> /dev/null; then
+          trufflehog git file://. --since-commit HEAD --only-verified
+      fi
+
+      # Language specific checks
+      for file in $(git diff --cached --name-only); do
+          if [[ "$file" =~ \.py$ ]] && command -v bandit &> /dev/null; then
+              bandit "$file"
+          fi
+
+          if [[ "$file" =~ \.sh$ ]] && command -v shellcheck &> /dev/null; then
+              shellcheck "$file"
+          fi
+
+          if [[ "$file" =~ \.ya?ml$ ]] && command -v yamllint &> /dev/null; then
+              yamllint "$file"
+          fi
+      done
+
+      exit 0
+    mode: '0755'
+  become: yes

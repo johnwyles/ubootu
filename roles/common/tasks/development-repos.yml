@@ -1,0 +1,146 @@
+---
+# Development-specific repositories
+
+# Go
+- name: Add Go repository
+  block:
+    - name: Add Go PPA
+      apt_repository:
+        repo: "ppa:longsleep/golang-backports"
+        state: present
+      become: yes
+  when: "'go' in development_languages | default([])"
+
+# Rust
+- name: Install Rust via rustup
+  block:
+    - name: Download rustup installer
+      ansible.builtin.get_url:
+        url: https://sh.rustup.rs
+        dest: /tmp/rustup.sh
+        mode: '0755'
+      become: yes
+      become_user: "{{ primary_user }}"
+
+    - name: Install Rust
+      ansible.builtin.shell: /tmp/rustup.sh -y
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        creates: "/home/{{ primary_user }}/.cargo/bin/rustc"
+  when: "'rust' in development_languages | default([])"
+
+# .NET
+- name: Add Microsoft .NET repository
+  block:
+    - name: Add Microsoft package repository
+      ansible.builtin.shell: |
+        wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb
+        dpkg -i /tmp/packages-microsoft-prod.deb
+      become: yes
+      args:
+        creates: /etc/apt/sources.list.d/microsoft-prod.list
+  when: "'dotnet' in development_languages | default([])"
+
+# PHP (Ondrej's PPA for latest versions)
+- name: Add PHP repository
+  block:
+    - name: Add PHP PPA
+      apt_repository:
+        repo: "ppa:ondrej/php"
+        state: present
+      become: yes
+  when: "'php' in development_languages | default([])"
+
+# Ruby (via RVM or rbenv)
+- name: Install Ruby via rbenv
+  block:
+    - name: Install rbenv dependencies
+      ansible.builtin.apt:
+        name:
+          - autoconf
+          - bison
+          - build-essential
+          - libssl-dev
+          - libyaml-dev
+          - libreadline6-dev
+          - zlib1g-dev
+          - libncurses5-dev
+          - libffi-dev
+          - libgdbm6
+          - libgdbm-dev
+          - libdb-dev
+        state: present
+      become: yes
+
+    - name: Clone rbenv
+      ansible.builtin.git:
+        repo: https://github.com/rbenv/rbenv.git
+        dest: "/home/{{ primary_user }}/.rbenv"
+        version: master
+      become: yes
+      become_user: "{{ primary_user }}"
+
+    - name: Clone ruby-build
+      ansible.builtin.git:
+        repo: https://github.com/rbenv/ruby-build.git
+        dest: "/home/{{ primary_user }}/.rbenv/plugins/ruby-build"
+        version: master
+      become: yes
+      become_user: "{{ primary_user }}"
+  when: "'ruby' in development_languages | default([])"
+
+# Java (AdoptOpenJDK/Temurin)
+- name: Add Adoptium (Eclipse Temurin) repository
+  block:
+    - name: Add Adoptium GPG key
+      apt_key:
+        url: https://packages.adoptium.net/artifactory/api/gpg/key/public
+        state: present
+      become: yes
+
+    - name: Add Adoptium repository
+      apt_repository:
+        repo: "deb https://packages.adoptium.net/artifactory/deb {{ ansible_distribution_release }} main"
+        state: present
+        filename: adoptium
+      become: yes
+  when: "'java' in development_languages | default([])"
+
+# Python (deadsnakes PPA for multiple versions)
+- name: Add Python PPA for multiple versions
+  block:
+    - name: Add deadsnakes PPA
+      apt_repository:
+        repo: "ppa:deadsnakes/ppa"
+        state: present
+      become: yes
+  when:
+    - "'python' in development_languages | default([])"
+    - install_multiple_python_versions | default(false)
+
+# Erlang/Elixir
+- name: Add Erlang Solutions repository
+  block:
+    - name: Add Erlang Solutions GPG key
+      apt_key:
+        url: https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc
+        state: present
+      become: yes
+
+    - name: Add Erlang Solutions repository
+      apt_repository:
+        repo: "deb https://packages.erlang-solutions.com/ubuntu {{ ansible_distribution_release }} contrib"
+        state: present
+        filename: erlang-solutions
+      become: yes
+  when: "'elixir' in development_languages | default([])"
+
+# Clojure (via Leiningen)
+- name: Install Leiningen for Clojure
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein
+    dest: /usr/local/bin/lein
+    mode: '0755'
+  become: yes
+  when: "'clojure' in development_languages | default([])"

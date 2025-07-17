@@ -1,0 +1,17 @@
+---
+- name: Install Cinnamon desktop environment
+  ansible.builtin.apt:
+    name: "{{ de_packages.cinnamon }}"
+    state: present
+    install_recommends: yes
+  become: yes
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+
+- name: Set LightDM as default display manager
+  debconf:
+    name: lightdm
+    question: shared/default-x-display-manager
+    value: lightdm
+    vtype: select
+  become: yes

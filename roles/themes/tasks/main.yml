@@ -1,0 +1,66 @@
+---
+- name: Check if theme is selected
+  ansible.builtin.set_fact:
+    apply_theme: "{{ themes_global_theme != 'none' }}"
+  tags: always
+
+- name: Create themes directory
+  ansible.builtin.file:
+    path: "/home/{{ primary_user }}/.themes"
+    state: directory
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0755'
+  become: yes
+  when: apply_theme
+
+- name: Install theme for desktop environment
+  ansible.builtin.include_tasks: "desktop-theme-{{ desktop_environment }}.yml"
+  when:
+    - apply_theme
+    - desktop_environment is defined
+  tags: ['desktop-theme']
+
+- name: Configure terminal theme
+  ansible.builtin.include_tasks: terminal-theme.yml
+  when: apply_theme
+  tags: ['terminal-theme']
+
+- name: Configure application dark modes
+  ansible.builtin.include_tasks: app-dark-mode.yml
+  tags: ['dark-mode']
+
+- name: Configure application themes
+  ansible.builtin.include_tasks: app-themes.yml
+  when: apply_theme or themes_mode == 'dark'
+  tags: ['app-themes']
+
+- name: Configure VS Code theme
+  ansible.builtin.include_tasks: vscode-theme.yml
+  when:
+    - apply_theme or themes_mode == 'dark'
+    - "'vscode' in code_editors | default([])"
+  tags: ['vscode-theme']
+
+- name: Configure browser themes
+  ansible.builtin.include_tasks: browser-themes.yml
+  when: apply_theme or themes_mode == 'dark'
+  tags: ['browser-theme']
+
+- name: Configure shell prompt theme
+  ansible.builtin.include_tasks: prompt-theme.yml
+  when:
+    - apply_theme
+    - prompt_decorator is defined
+    - prompt_decorator != 'none'
+  tags: ['prompt-theme']
+
+- name: Configure file manager theme
+  ansible.builtin.include_tasks: file-manager-theme.yml
+  when: apply_theme or themes_mode == 'dark'
+  tags: ['file-manager-theme']
+
+- name: Configure media player themes
+  ansible.builtin.include_tasks: media-player-theme.yml
+  when: apply_theme or themes_mode == 'dark'
+  tags: ['media-theme']

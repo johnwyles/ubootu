@@ -1,0 +1,224 @@
+---
+# Install privacy and encryption tools
+
+# Tor from official repository
+- name: Add Tor Project GPG key
+  apt_key:
+    url: https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc
+    state: present
+  become: yes
+  when: "'tor' in sectools_privacy_tools and sectools_use_official_repos"
+
+- name: Add Tor repository
+  apt_repository:
+    repo: "deb https://deb.torproject.org/torproject.org {{ ansible_distribution_release }} main"
+    state: present
+    filename: tor
+  become: yes
+  when: "'tor' in sectools_privacy_tools and sectools_use_official_repos"
+
+- name: Install Tor and related tools
+  ansible.builtin.apt:
+    name:
+      - tor
+      - tor-geoipdb
+      - torsocks
+      - obfs4proxy    # Pluggable transport
+      - tor-arm       # Tor monitor
+    state: present
+    update_cache: yes
+  become: yes
+  when: "'tor' in sectools_privacy_tools"
+
+# Tor Browser Launcher from official repository
+- name: Add Tor Browser Launcher PPA
+  apt_repository:
+    repo: "ppa:micahflee/ppa"
+    state: present
+  become: yes
+  when: "'torbrowser' in sectools_privacy_tools and ansible_distribution_version is version('22.04', '>=')"
+
+- name: Install Tor Browser Launcher
+  ansible.builtin.apt:
+    name: torbrowser-launcher
+    state: present
+    update_cache: yes
+  become: yes
+  when: "'torbrowser' in sectools_privacy_tools"
+
+# VeraCrypt from official PPA
+- name: Add VeraCrypt PPA
+  apt_repository:
+    repo: "ppa:unit193/encryption"
+    state: present
+  become: yes
+  when: "'veracrypt' in sectools_privacy_tools and ansible_distribution_version is version('22.04', '>=')"
+
+- name: Install VeraCrypt
+  ansible.builtin.apt:
+    name: veracrypt
+    state: present
+    update_cache: yes
+  become: yes
+  when: "'veracrypt' in sectools_privacy_tools"
+
+# Cryptomator from official repository
+- name: Add Cryptomator PPA
+  apt_repository:
+    repo: "ppa:sebastian-stenzel/cryptomator"
+    state: present
+  become: yes
+  when: "'cryptomator' in sectools_privacy_tools"
+
+- name: Install Cryptomator
+  ansible.builtin.apt:
+    name: cryptomator
+    state: present
+    update_cache: yes
+  become: yes
+  when: "'cryptomator' in sectools_privacy_tools"
+
+# ProxyChains-NG from GitHub (newer version)
+- name: Clone ProxyChains-NG
+  ansible.builtin.git:
+    repo: https://github.com/rofl0r/proxychains-ng.git
+    dest: /opt/proxychains-ng
+    version: master
+  become: yes
+  when: "'proxychains' in sectools_privacy_tools"
+
+- name: Build ProxyChains-NG
+  ansible.builtin.shell: |
+    cd /opt/proxychains-ng
+    ./configure --prefix=/usr --sysconfdir=/etc
+    make
+    make install
+    make install-config
+  become: yes
+  when: "'proxychains' in sectools_privacy_tools"
+  args:
+    creates: /usr/bin/proxychains4
+  changed_when: true
+
+# OnionShare from official repository
+- name: Install OnionShare
+  ansible.builtin.apt:
+    name:
+      - onionshare
+      - onionshare-gui
+    state: present
+  become: yes
+  when: "'onionshare' in sectools_privacy_tools"
+
+# MAT2 (Metadata Anonymisation Toolkit)
+- name: Install MAT2
+  ansible.builtin.apt:
+    name:
+      - mat2
+      - mat2-gui
+    state: present
+  become: yes
+  when: "'mat2' in sectools_privacy_tools"
+
+# Additional privacy tools
+- name: Install additional privacy tools
+  ansible.builtin.apt:
+    name:
+      - secure-delete    # Secure file deletion
+      - wipe            # Secure file wiping
+      - bleachbit       # System cleaner
+      - gnupg           # GNU Privacy Guard
+      - gnupg2          # GnuPG 2
+      - gpa             # GNU Privacy Assistant GUI
+      - kleopatra       # Certificate manager
+      - enigmail        # Thunderbird encryption
+      - nautilus-wipe   # Nautilus secure delete
+      - metadata-cleaner # GUI metadata remover
+      - exiftool        # Metadata manipulation
+      - pdf-redact-tools # PDF redaction
+      - steghide        # Steganography
+      - outguess        # Steganography tool
+      - stegosuite      # Steganography GUI
+      - zulucrypt-gui   # LUKS/TrueCrypt GUI
+      - sirikali        # GUI for various crypto backends
+      - tomb            # File encryption
+      - encfs           # Encrypted filesystem
+      - gocryptfs       # Encrypted overlay filesystem
+      - ecryptfs-utils  # eCryptfs utilities
+      - cryptsetup      # LUKS encryption
+      - cryptmount      # Encrypted filesystem mounter
+    state: present
+  become: yes
+  failed_when: false
+
+# I2P from official repository
+- name: Add I2P GPG key
+  apt_key:
+    url: https://geti2p.net/en/download/debian-repo-key.asc
+    state: present
+  become: yes
+  when: "'i2p' in sectools_privacy_tools"
+
+- name: Add I2P repository
+  apt_repository:
+    repo: "deb https://deb.i2p2.de/ {{ ansible_distribution_release }} main"
+    state: present
+    filename: i2p
+  become: yes
+  when: "'i2p' in sectools_privacy_tools"
+
+- name: Install I2P
+  ansible.builtin.apt:
+    name:
+      - i2p
+      - i2p-keyring
+    state: present
+    update_cache: yes
+  become: yes
+  when: "'i2p' in sectools_privacy_tools"
+
+# DNSCrypt-proxy from GitHub releases
+- name: Check latest DNSCrypt-proxy release
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/DNSCrypt/dnscrypt-proxy/releases/latest
+    return_content: yes
+  register: dnscrypt_release
+  when: "'dnscrypt' in sectools_privacy_tools"
+
+- name: Download and extract DNSCrypt-proxy
+  ansible.builtin.unarchive:
+    src: "{{ dnscrypt_release.json.assets | selectattr('name', 'match', '.*linux_x86_64\\.tar\\.gz$') | map(attribute='browser_download_url') | first }}"
+    dest: /opt/
+    remote_src: yes
+    owner: root
+    group: root
+  become: yes
+  when: "'dnscrypt' in sectools_privacy_tools and dnscrypt_release is succeeded"
+
+# Anonsurf from Parrot
+- name: Clone Anonsurf
+  ansible.builtin.git:
+    repo: https://github.com/Und3rf10w/kali-anonsurf.git
+    dest: /opt/anonsurf
+    version: master
+  become: yes
+  when: "'anonsurf' in sectools_privacy_tools"
+
+- name: Install Anonsurf
+  ansible.builtin.shell: |
+    cd /opt/anonsurf
+    ./installer.sh
+  become: yes
+  when: "'anonsurf' in sectools_privacy_tools"
+  args:
+    creates: /usr/bin/anonsurf
+  changed_when: true
+
+# Create privacy tools directory
+- name: Create privacy tools config directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/privacy-tools"
+    state: directory
+    mode: '0700'
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"

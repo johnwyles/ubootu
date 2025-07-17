@@ -1,0 +1,127 @@
+---
+# Install modern CLI tools - always get latest versions
+
+- name: Get latest GitHub releases for CLI tools
+  ansible.builtin.uri:
+    url: "https://api.github.com/repos/{{ item.repo }}/releases/latest"
+    headers:
+      Accept: application/vnd.github.v3+json
+  register: github_releases
+  loop:
+    - { name: ripgrep, repo: "BurntSushi/ripgrep" }
+    - { name: fd, repo: "sharkdp/fd" }
+    - { name: bat, repo: "sharkdp/bat" }
+    - { name: eza, repo: "eza-community/eza" }
+    - { name: delta, repo: "dandavison/delta" }
+    - { name: bottom, repo: "ClementTsang/bottom" }
+    - { name: dust, repo: "bootandy/dust" }
+    - { name: procs, repo: "dalance/procs" }
+    - { name: sd, repo: "chmln/sd" }
+    - { name: lazygit, repo: "jesseduffield/lazygit" }
+    - { name: hyperfine, repo: "sharkdp/hyperfine" }
+    - { name: zoxide, repo: "ajeetdsouza/zoxide" }
+    - { name: mcfly, repo: "cantino/mcfly" }
+  when: item.name in devtools_modern_cli_tools or item.name in ['hyperfine', 'zoxide', 'mcfly']
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Download and install CLI tools from GitHub
+  block:
+    - name: Download tool packages
+      ansible.builtin.get_url:
+        url: "{{ item.json.assets | selectattr('name', 'match', '.*amd64\\.deb$') | map(attribute='browser_download_url') | first }}"
+        dest: "/tmp/{{ item.item.name }}.deb"
+        mode: '0644'
+      loop: "{{ github_releases.results }}"
+      when:
+        - item.item.name in devtools_modern_cli_tools
+        - not item.failed
+      loop_control:
+        label: "{{ item.item.name }}"
+      become: yes
+
+    - name: Install downloaded packages
+      ansible.builtin.apt:
+        deb: "/tmp/{{ item.item.name }}.deb"
+        state: present
+      loop: "{{ github_releases.results }}"
+      when:
+        - item.item.name in devtools_modern_cli_tools
+        - not item.failed
+      loop_control:
+        label: "{{ item.item.name }}"
+      become: yes
+
+- name: Install fzf from git
+  block:
+    - name: Clone fzf repository
+      ansible.builtin.git:
+        repo: https://github.com/junegunn/fzf.git
+        dest: "/home/{{ primary_user }}/.fzf"
+        depth: 1
+      become: yes
+      become_user: "{{ primary_user }}"
+
+    - name: Install fzf
+      ansible.builtin.shell: "/home/{{ primary_user }}/.fzf/install --all --no-update-rc"
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        creates: "/home/{{ primary_user }}/.fzf/bin/fzf"
+  when: "'fzf' in devtools_modern_cli_tools"
+
+- name: Install jq (latest from GitHub)
+  block:
+    - name: Get latest jq release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/stedolan/jq/releases/latest
+      register: jq_release
+
+    - name: Download jq binary
+      ansible.builtin.get_url:
+        url: "{{ jq_release.json.assets | selectattr('name', 'match', 'jq-linux64') | map(attribute='browser_download_url') | first }}"
+        dest: /usr/local/bin/jq
+        mode: '0755'
+      become: yes
+  when: "'jq' in devtools_modern_cli_tools"
+
+- name: Install tools via pip (latest versions)
+  ansible.builtin.pip:
+    name: "{{ item }}"
+    state: latest
+    executable: pip3
+  become: yes
+  loop:
+    - httpie
+    - tldr
+    - cheat
+  when: item in devtools_modern_cli_tools or item in ['tldr', 'cheat']
+
+- name: Install additional terminal tools
+  block:
+    - name: Install zoxide
+      ansible.builtin.shell: |
+        curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+      become: yes
+      become_user: "{{ primary_user }}"
+      when: devtools_install_zoxide
+      args:
+        creates: "/home/{{ primary_user }}/.local/bin/zoxide"
+
+    - name: Install mcfly
+      ansible.builtin.shell: |
+        curl -LSfs https://raw.githubusercontent.com/cantino/mcfly/master/ci/install.sh | sh -s -- --git cantino/mcfly
+      become: yes
+      become_user: "{{ primary_user }}"
+      when: devtools_install_mcfly
+      environment:
+        MCFLY_INSTALL_DIR: "/home/{{ primary_user }}/.local/bin"
+
+- name: Create shell aliases for modern tools
+  ansible.builtin.template:
+    src: modern-cli-aliases.sh.j2
+    dest: "/home/{{ primary_user }}/.config/modern-cli-aliases.sh"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes

@@ -1,0 +1,33 @@
+# USBGuard rules configuration
+# This file is managed by Ansible - do not edit manually
+
+# Rule format:
+# allow|block|reject [OPTIONS] [ATTRIBUTES]
+
+{% if usbguard_allow_existing %}
+# Allow all currently connected USB devices
+allow id *:* hash "*" parent-hash "*" via-port "*" with-interface "*"
+{% endif %}
+
+# Allow USB hubs (required for basic functionality)
+allow with-interface equals { 09:00:* }
+
+# Allow HID devices (keyboard, mouse, etc.)
+allow with-interface equals { 03:*:* }
+
+# Allow USB mass storage devices only from specific vendors (example)
+# Uncomment and modify vendor IDs as needed
+# allow with-interface equals { 08:*:* } if vendor-id equals { "0781" "058f" "090c" }
+
+# Allow specific webcams (example)
+# allow with-interface equals { 0e:*:* } if vendor-id equals { "046d" }
+
+# Allow printers
+allow with-interface equals { 07:01:* }
+
+# Block all other devices by default
+{% if usbguard_block_unknown %}
+block
+{% else %}
+allow
+{% endif %}

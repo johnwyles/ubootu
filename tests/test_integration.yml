@@ -1,0 +1,36 @@
+---
+# Integration test playbook
+# This tests the full bootstrap process with minimal configuration
+
+- name: Integration test for bootstrap-ubuntu
+  hosts: localhost
+  connection: local
+  become: yes
+
+  vars:
+    # Minimal test configuration
+    enable_security: true
+    enable_firewall: false  # Disabled for local testing
+    enable_fail2ban: false  # Disabled for local testing
+    install_desktop_environment: false
+    enable_development_tools: true
+    install_applications: false
+    install_security_tools: false
+    configure_dotfiles: true
+    enable_super_hardening: false
+
+    # Skip time-consuming installations
+    modern_cli_tools: []
+    password_managers: []
+
+  tasks:
+    - name: Verify essential packages
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - curl
+        - wget
+        - git
+      register: result
+      failed_when: result is failed

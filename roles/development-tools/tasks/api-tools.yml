@@ -1,0 +1,119 @@
+---
+# Install API testing tools
+
+- name: Install Postman
+  block:
+    - name: Download Postman
+      ansible.builtin.get_url:
+        url: https://dl.pstmn.io/download/latest/linux64
+        dest: /tmp/postman.tar.gz
+        mode: '0644'
+      become: yes
+
+    - name: Extract Postman
+      ansible.builtin.unarchive:
+        src: /tmp/postman.tar.gz
+        dest: /opt/
+        creates: /opt/Postman
+        remote_src: yes
+      become: yes
+
+    - name: Create Postman desktop entry
+      ansible.builtin.copy:
+        content: |
+          [Desktop Entry]
+          Version=1.0
+          Type=Application
+          Name=Postman
+          Icon=/opt/Postman/app/resources/app/assets/icon.png
+          Exec=/opt/Postman/Postman
+          Comment=API Development Environment
+          Categories=Development;WebDevelopment;
+          Terminal=false
+          StartupWMClass=Postman
+        dest: /usr/share/applications/postman.desktop
+        mode: '0644'
+      become: yes
+
+    - name: Create Postman symlink
+      ansible.builtin.file:
+        src: /opt/Postman/Postman
+        dest: /usr/local/bin/postman
+        state: link
+      become: yes
+  when: "'postman' in devtools_api_tools or devtools_install_postman"
+
+- name: Install Insomnia
+  block:
+    - name: Add Insomnia GPG key
+      apt_key:
+        url: https://insomnia.rest/keys/debian-public.key.asc
+        state: present
+      become: yes
+
+    - name: Add Insomnia repository
+      apt_repository:
+        repo: "deb [trusted=yes arch=amd64] https://download.konghq.com/insomnia-ubuntu/ default all"
+        state: present
+        filename: insomnia
+      become: yes
+
+    - name: Install Insomnia
+      ansible.builtin.apt:
+        name: insomnia
+        state: present
+        update_cache: yes
+      become: yes
+  when: "'insomnia' in devtools_api_tools or devtools_install_insomnia"
+
+- name: Install Bruno (lightweight API client)
+  block:
+    - name: Get latest Bruno release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/usebruno/bruno/releases/latest
+      register: bruno_release
+
+    - name: Download Bruno AppImage
+      ansible.builtin.get_url:
+        url: "{{ bruno_release.json.assets | selectattr('name', 'match', '.*\\.AppImage$') | map(attribute='browser_download_url') | first }}"
+        dest: "/home/{{ primary_user }}/.local/bin/bruno.AppImage"
+        mode: '0755'
+      become: yes
+      become_user: "{{ primary_user }}"
+
+    - name: Create Bruno desktop entry
+      ansible.builtin.template:
+        src: bruno.desktop.j2
+        dest: "/home/{{ primary_user }}/.local/share/applications/bruno.desktop"
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0644'
+      become: yes
+  when: "'bruno' in devtools_api_tools"
+
+- name: Install HTTPie CLI
+  ansible.builtin.apt:
+    name: httpie
+    state: present
+  become: yes
+  when: devtools_install_httpie
+
+- name: Install HTTPie desktop
+  snap:
+    name: httpie
+    state: present
+  become: yes
+  when:
+    - "'httpie-desktop' in devtools_api_tools"
+    - enable_snap | default(true)
+
+# Additional API tools
+- name: Install curl (enhanced)
+  ansible.builtin.apt:
+    name: 
+      - curl
+      - jq          # JSON processor
+      - wget        # Alternative downloader
+    state: present
+  become: yes
+  when: devtools_install_httpie

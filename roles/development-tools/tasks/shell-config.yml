@@ -1,0 +1,117 @@
+---
+# Configure shell integrations for development tools
+
+- name: Create development PATH configuration
+  ansible.builtin.template:
+    src: dev-path-config.sh.j2
+    dest: "/home/{{ primary_user }}/.config/dev-path-config.sh"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+
+- name: Source development PATH configuration in bashrc
+  ansible.builtin.lineinfile:
+    path: "/home/{{ primary_user }}/.bashrc"
+    line: "[ -f ~/.config/dev-path-config.sh ] && source ~/.config/dev-path-config.sh"
+    create: yes
+  become: yes
+  become_user: "{{ primary_user }}"
+
+- name: Source development PATH configuration in zshrc
+  ansible.builtin.lineinfile:
+    path: "/home/{{ primary_user }}/.zshrc"
+    line: "[ -f ~/.config/dev-path-config.sh ] && source ~/.config/dev-path-config.sh"
+    create: yes
+  become: yes
+  become_user: "{{ primary_user }}"
+  when: primary_user_shell == '/usr/bin/zsh'
+
+- name: Source modern CLI aliases in bashrc
+  ansible.builtin.lineinfile:
+    path: "/home/{{ primary_user }}/.bashrc"
+    line: "[ -f ~/.config/modern-cli-aliases.sh ] && source ~/.config/modern-cli-aliases.sh"
+    create: yes
+  become: yes
+  become_user: "{{ primary_user }}"
+  when: devtools_install_modern_cli
+
+- name: Configure shell for version managers
+  ansible.builtin.blockinfile:
+    path: "/home/{{ primary_user }}/.bashrc"
+    marker: "# {mark} ANSIBLE MANAGED - Version Managers"
+    block: |
+      # NVM
+      {% if devtools_install_nvm %}
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+      {% endif %}
+
+      # Rust
+      {% if devtools_install_rustup %}
+      [ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
+      {% endif %}
+
+      # SDKMAN
+      {% if devtools_install_sdkman %}
+      export SDKMAN_DIR="$HOME/.sdkman"
+      [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
+      {% endif %}
+
+      # direnv
+      {% if devtools_install_direnv %}
+      eval "$(direnv hook bash)"
+      {% endif %}
+  become: yes
+  become_user: "{{ primary_user }}"
+
+- name: Configure Zsh shell integrations
+  ansible.builtin.blockinfile:
+    path: "/home/{{ primary_user }}/.zshrc"
+    marker: "# {mark} ANSIBLE MANAGED - Development Tools"
+    block: |
+      # Modern CLI aliases
+      {% if devtools_install_modern_cli %}
+      [ -f ~/.config/modern-cli-aliases.sh ] && source ~/.config/modern-cli-aliases.sh
+      {% endif %}
+
+      # NVM
+      {% if devtools_install_nvm %}
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      {% endif %}
+
+      # Rust
+      {% if devtools_install_rustup %}
+      [ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
+      {% endif %}
+
+      # SDKMAN
+      {% if devtools_install_sdkman %}
+      export SDKMAN_DIR="$HOME/.sdkman"
+      [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
+      {% endif %}
+
+      # direnv
+      {% if devtools_install_direnv %}
+      eval "$(direnv hook zsh)"
+      {% endif %}
+  become: yes
+  become_user: "{{ primary_user }}"
+  when: primary_user_shell == '/usr/bin/zsh'
+
+- name: Configure git to use delta
+  community.general.git_config:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    scope: global
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { name: "core.pager", value: "delta" }
+    - { name: "interactive.diffFilter", value: "delta --color-only" }
+    - { name: "delta.navigate", value: "true" }
+    - { name: "delta.light", value: "false" }
+    - { name: "delta.side-by-side", value: "true" }
+  when: "'delta' in devtools_modern_cli_tools"

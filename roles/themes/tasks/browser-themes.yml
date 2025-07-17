@@ -1,0 +1,44 @@
+---
+- name: Download Firefox theme add-on
+  ansible.builtin.get_url:
+    url: "{{ themes_sources[themes_global_theme].firefox }}"
+    dest: "/tmp/firefox-{{ themes_global_theme }}-theme.xpi"
+    mode: '0644'
+  when:
+    - themes_global_theme in themes_sources
+    - "'firefox' in productivity_apps or 'firefox' in web_browsers | default([])"
+  failed_when: false
+
+- name: Configure Chrome/Chromium dark mode
+  block:
+    - name: Create Chrome config directory
+      ansible.builtin.file:
+        path: "/home/{{ primary_user }}/.config/google-chrome/Default"
+        state: directory
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0755'
+        recurse: yes
+      become: yes
+
+    - name: Set Chrome dark mode flags
+      ansible.builtin.lineinfile:
+        path: "/home/{{ primary_user }}/.config/google-chrome-flags.conf"
+        line: "--force-dark-mode --enable-features=WebUIDarkMode"
+        create: yes
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0644'
+      become: yes
+  when: "'google-chrome' in web_browsers | default([]) or 'chromium' in web_browsers | default([])"
+
+- name: Configure Brave dark mode
+  ansible.builtin.lineinfile:
+    path: "/home/{{ primary_user }}/.config/brave-flags.conf"
+    line: "--force-dark-mode --enable-features=WebUIDarkMode"
+    create: yes
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+  when: "'brave' in web_browsers | default([])"

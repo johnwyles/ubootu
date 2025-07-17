@@ -1,0 +1,122 @@
+---
+# Default variables for security-tools role
+
+# WARNING: These tools should only be used for authorized security testing
+sectools_enable_warning: true
+
+# Network security tools
+sectools_install_network_tools: false
+sectools_network_tools:
+  - nmap          # Network scanner
+  - zenmap        # Nmap GUI
+  - masscan       # Fast port scanner
+  - netcat        # Network utility
+  - socat         # Multipurpose relay
+  - tcpdump       # Packet analyzer
+  - tshark        # Terminal Wireshark
+  - arp-scan      # ARP scanner
+  - netdiscover   # Network address discovery
+  - dnsenum       # DNS enumeration
+  - dnsrecon      # DNS reconnaissance
+  - fierce        # Domain scanner
+
+# Vulnerability scanners
+sectools_install_vuln_scanners: false
+sectools_vuln_scanners:
+  - metasploit    # Penetration testing framework
+  - sqlmap        # SQL injection tool
+  - nikto         # Web server scanner
+  - openvas       # Vulnerability scanner
+  - lynis         # Security auditing tool
+
+# Web security tools
+sectools_install_web_tools: false
+sectools_web_tools:
+  - burpsuite     # Web vulnerability scanner
+  - zaproxy       # OWASP ZAP
+  - dirb          # Web content scanner
+  - gobuster      # Directory/file brute forcer
+  - wpscan        # WordPress scanner
+  - whatweb       # Web scanner
+  - wafw00f       # WAF detector
+  - sslyze        # SSL/TLS scanner
+
+# Wireless security tools
+sectools_install_wireless_tools: false
+sectools_wireless_tools:
+  - aircrack-ng   # WiFi security suite
+  - kismet        # Wireless detector
+  - wifite        # Automated wireless attacker
+  - bettercap     # Network attack framework
+  - fern          # WiFi cracker GUI
+
+# Password and hash cracking tools
+sectools_install_password_tools: false
+sectools_password_tools:
+  - john          # John the Ripper
+  - hashcat       # Password recovery
+  - hydra         # Network login cracker
+  - medusa        # Parallel login brute forcer
+  - ophcrack      # Windows password cracker GUI
+  - rainbowcrack  # Rainbow table generator
+
+# Forensics tools
+sectools_install_forensics: false
+sectools_forensics_tools:
+  - autopsy       # Digital forensics GUI
+  - sleuthkit     # File system tools
+  - volatility3   # Memory forensics
+  - foremost      # File recovery
+  - binwalk       # Firmware analysis
+  - ghidra        # Reverse engineering
+  - radare2       # RE framework
+  - hexedit       # Hex editor
+
+# Privacy and encryption tools
+sectools_install_privacy_tools: false
+sectools_privacy_tools:
+  - tor           # Tor client
+  - torbrowser    # Tor Browser
+  - torsocks      # Use SOCKS with apps
+  - proxychains   # Proxy chains
+  - veracrypt     # Disk encryption GUI
+  - cryptomator   # Cloud encryption GUI
+  - onionshare    # Secure file sharing
+  - mat2          # Metadata removal
+
+# Container security tools
+sectools_install_container_tools: false
+sectools_container_tools:
+  - trivy         # Container scanner
+  - grype         # Vulnerability scanner
+  - syft          # SBOM generator
+  - dive          # Docker image explorer
+
+# System auditing tools
+sectools_install_audit_tools: false
+sectools_audit_tools:
+  - lynis         # Security auditing
+  - chkrootkit    # Rootkit detector
+  - rkhunter      # Rootkit hunter
+  - ossec         # Host IDS
+  - aide          # Intrusion detection
+  - auditd        # Audit daemon
+
+# Development security tools
+sectools_install_devsec_tools: false
+sectools_devsec_tools:
+  - gitleaks      # Secret scanner
+  - trufflehog    # Secret finder
+  - semgrep       # Static analysis
+  - bandit        # Python security
+  - safety        # Python checker
+  - snyk          # Vulnerability scanner
+
+# Official repository preferences
+sectools_use_official_repos: true
+
+# Kali Linux tools repository (optional)
+sectools_enable_kali_repo: false
+
+# Parrot Security tools repository (optional)
+sectools_enable_parrot_repo: false

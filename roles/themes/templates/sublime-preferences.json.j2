@@ -1,0 +1,14 @@
+{
+    "theme": "{% if themes_mode == 'dark' %}Adaptive.sublime-theme{% else %}Default.sublime-theme{% endif %}",
+    "color_scheme": "{% if themes_global_theme == 'dracula' %}Dracula.sublime-color-scheme{% elif themes_global_theme == 'catppuccin' %}Catppuccin.sublime-color-scheme{% elif themes_global_theme == 'tokyo-night' %}Tokyo Night.sublime-color-scheme{% elif themes_mode == 'dark' %}Monokai.sublime-color-scheme{% else %}Breakers.sublime-color-scheme{% endif %}",
+    "font_size": 11,
+    "font_face": "{% if 'firacode' in programming_fonts | default([]) %}Fira Code{% elif 'jetbrains-mono' in programming_fonts | default([]) %}JetBrains Mono{% elif 'cascadia-code' in programming_fonts | default([]) %}Cascadia Code{% else %}monospace{% endif %}",
+    "font_options": ["subpixel_antialias"],
+    "line_padding_bottom": 3,
+    "line_padding_top": 3,
+    "highlight_line": true,
+    "caret_style": "smooth",
+    "theme_font_options": ["gray_antialias"],
+    "dark_theme": "Adaptive.sublime-theme",
+    "light_theme": "Default.sublime-theme"
+}

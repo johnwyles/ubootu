@@ -1,0 +1,23 @@
+[DEFAULT]
+# Ban time (in seconds)
+bantime = {{ fail2ban_bantime }}
+
+# Time window for failures (in seconds)
+findtime = {{ fail2ban_findtime }}
+
+# Number of failures before ban
+maxretry = {{ fail2ban_maxretry }}
+
+# Backend for monitoring
+backend = systemd
+
+# Email notifications
+destemail = root@localhost
+sender = root@{{ ansible_hostname }}
+
+# Ban action
+banaction = ufw
+banaction_allports = ufw
+
+# Ignore localhost
+ignoreip = 127.0.0.1/8 ::1

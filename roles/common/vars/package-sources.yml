@@ -1,0 +1,108 @@
+---
+# Package to repository mapping
+# This ensures we use official repositories for packages when available
+
+package_sources:
+  # Browsers
+  google-chrome-stable:
+    repo_needed: true
+    package_name: google-chrome-stable
+  brave-browser:
+    repo_needed: true
+    package_name: brave-browser
+  vivaldi-stable:
+    repo_needed: true
+    package_name: vivaldi-stable
+  microsoft-edge-stable:
+    repo_needed: true
+    package_name: microsoft-edge-stable
+
+  # Development Tools
+  code:  # VS Code
+    repo_needed: true
+    package_name: code
+  sublime-text:
+    repo_needed: true
+    package_name: sublime-text
+  docker-ce:
+    repo_needed: true
+    package_name: docker-ce
+    additional_packages:
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+  nodejs:
+    repo_needed: true
+    package_name: nodejs
+
+  # Communication
+  signal-desktop:
+    repo_needed: true
+    package_name: signal-desktop
+  slack-desktop:
+    repo_needed: true
+    package_name: slack-desktop
+  discord:
+    repo_needed: false  # Installed via deb file
+    deb_url: "https://discord.com/api/download?platform=linux&format=deb"
+  zoom:
+    repo_needed: false  # Installed via deb file
+    deb_url: "https://zoom.us/client/latest/zoom_amd64.deb"
+  teams:
+    repo_needed: false  # Now a PWA, not a desktop app
+
+  # Multimedia
+  spotify-client:
+    repo_needed: true
+    package_name: spotify-client
+
+  # Database Tools
+  postgresql-client:
+    repo_needed: true
+    package_name: postgresql-client-16
+  mongodb-mongosh:
+    repo_needed: true
+    package_name: mongodb-mongosh
+
+  # DevOps Tools
+  kubectl:
+    repo_needed: true
+    package_name: kubectl
+  helm:
+    repo_needed: true  # Uses Kubernetes repo
+    package_name: helm
+  terraform:
+    repo_needed: true
+    package_name: terraform
+  vagrant:
+    repo_needed: true
+    package_name: vagrant
+  gh:  # GitHub CLI
+    repo_needed: true
+    package_name: gh
+
+  # Other
+  winehq-stable:
+    repo_needed: true
+    package_name: winehq-stable
+
+  # Packages that use Ubuntu repos (no third-party repo needed)
+  firefox:
+    repo_needed: false
+    package_name: firefox
+  thunderbird:
+    repo_needed: false
+    package_name: thunderbird
+  libreoffice:
+    repo_needed: false
+    package_name: libreoffice
+  gimp:
+    repo_needed: false
+    package_name: gimp
+  vlc:
+    repo_needed: false
+    package_name: vlc
+  chromium-browser:
+    repo_needed: false
+    package_name: chromium-browser

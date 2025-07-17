@@ -1,0 +1,220 @@
+---
+# Install network security tools
+
+# Nmap from official repository
+- name: Add Nmap official repository key
+  apt_key:
+    url: https://nmap.org/data/nmap-key.gpg
+    state: present
+  become: yes
+  when: sectools_use_official_repos
+  failed_when: false
+
+- name: Install Nmap and Zenmap
+  ansible.builtin.apt:
+    name:
+      - nmap
+      - zenmap-kbx  # Modern Zenmap replacement
+      - ndiff       # Nmap diff utility
+      - ncat        # Modern netcat
+    state: present
+  become: yes
+
+# Wireshark from official PPA
+- name: Add Wireshark stable PPA
+  apt_repository:
+    repo: "ppa:wireshark-dev/stable"
+    state: present
+  become: yes
+  when: sectools_use_official_repos and ansible_distribution_version is version('22.04', '>=')
+
+- name: Pre-configure Wireshark to allow non-root capture
+  debconf:
+    name: wireshark-common
+    question: wireshark-common/install-setuid
+    value: 'true'
+    vtype: boolean
+  become: yes
+
+- name: Install Wireshark and related tools
+  ansible.builtin.apt:
+    name:
+      - wireshark
+      - wireshark-qt
+      - tshark
+      - tcpdump
+      - termshark    # Terminal UI for tshark
+    state: present
+  become: yes
+
+- name: Add user to wireshark group
+  ansible.builtin.user:
+    name: "{{ ansible_env.USER }}"
+    groups: wireshark
+    append: yes
+  become: yes
+
+# Masscan from GitHub releases
+- name: Check latest Masscan release
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/robertdavidgraham/masscan/releases/latest
+    return_content: yes
+  register: masscan_release
+  when: "'masscan' in sectools_network_tools"
+
+- name: Install Masscan build dependencies
+  ansible.builtin.apt:
+    name:
+      - git
+      - gcc
+      - make
+      - libpcap-dev
+    state: present
+  become: yes
+  when: "'masscan' in sectools_network_tools"
+
+- name: Clone and build Masscan
+  block:
+    - name: Clone Masscan repository
+      ansible.builtin.git:
+        repo: https://github.com/robertdavidgraham/masscan
+        dest: /tmp/masscan
+        version: "{{ masscan_release.json.tag_name }}"
+
+    - name: Build Masscan
+      make:
+        chdir: /tmp/masscan
+
+    - name: Install Masscan
+      ansible.builtin.copy:
+        src: /tmp/masscan/bin/masscan
+        dest: /usr/local/bin/masscan
+        mode: '0755'
+        remote_src: yes
+      become: yes
+  when: "'masscan' in sectools_network_tools"
+
+# RustScan from GitHub releases
+- name: Check latest RustScan release
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/RustScan/RustScan/releases/latest
+    return_content: yes
+  register: rustscan_release
+  when: "'rustscan' in sectools_network_tools"
+
+- name: Download and install RustScan
+  ansible.builtin.get_url:
+    url: "{{ rustscan_release.json.assets | selectattr('name', 'match', '.*amd64\\.deb$') | map(attribute='browser_download_url') | first }}"
+    dest: /tmp/rustscan.deb
+    mode: '0644'
+  become: yes
+  when: "'rustscan' in sectools_network_tools and rustscan_release is succeeded"
+
+- name: Install RustScan package
+  ansible.builtin.apt:
+    deb: /tmp/rustscan.deb
+    state: present
+  become: yes
+  when: "'rustscan' in sectools_network_tools and rustscan_release is succeeded"
+
+# Other network tools from standard repos
+- name: Install additional network security tools
+  ansible.builtin.apt:
+    name:
+      - netcat-openbsd
+      - socat
+      - arp-scan
+      - netdiscover
+      - nbtscan
+      - enum4linux
+      - smbclient
+      - smbmap
+      - onesixtyone   # SNMP scanner
+      - snmpcheck
+      - ike-scan      # IPsec VPN scanner
+      - cisco-torch   # Cisco scanner
+      - arping
+      - fping
+      - hping3
+      - mtr-tiny
+      - traceroute
+      - whois
+      - dnsutils      # dig, nslookup, etc.
+      - dnsmap
+      - dnstracer
+      - dnswalk
+    state: present
+  become: yes
+
+# DNSrecon from GitHub
+- name: Clone DNSrecon
+  ansible.builtin.git:
+    repo: https://github.com/darkoperator/dnsrecon.git
+    dest: /opt/dnsrecon
+    version: master
+  become: yes
+  when: "'dnsrecon' in sectools_network_tools"
+
+- name: Install DNSrecon dependencies
+  ansible.builtin.pip:
+    requirements: /opt/dnsrecon/requirements.txt
+    virtualenv: /opt/dnsrecon/venv
+    virtualenv_command: python3 -m venv
+  become: yes
+  when: "'dnsrecon' in sectools_network_tools"
+
+- name: Create DNSrecon wrapper script
+  ansible.builtin.copy:
+    content: |
+      #!/bin/bash
+      cd /opt/dnsrecon
+      source venv/bin/activate
+      python dnsrecon.py "$@"
+    dest: /usr/local/bin/dnsrecon
+    mode: '0755'
+  become: yes
+  when: "'dnsrecon' in sectools_network_tools"
+
+# Fierce from pip
+- name: Install Fierce DNS scanner
+  ansible.builtin.pip:
+    name: fierce
+    state: present
+    executable: pip3
+  become: yes
+  when: "'fierce' in sectools_network_tools"
+
+# Bettercap from official releases
+- name: Check latest Bettercap release
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/bettercap/bettercap/releases/latest
+    return_content: yes
+  register: bettercap_release
+  when: "'bettercap' in sectools_network_tools"
+
+- name: Download and extract Bettercap
+  ansible.builtin.unarchive:
+    src: "{{ bettercap_release.json.assets | selectattr('name', 'match', '.*linux_amd64.*\\.tar\\.gz$') | map(attribute='browser_download_url') | first }}"
+    dest: /usr/local/bin
+    remote_src: yes
+    mode: '0755'
+    owner: root
+    group: root
+  become: yes
+  when: "'bettercap' in sectools_network_tools and bettercap_release is succeeded"
+
+# Install GUI tools
+- name: Install EtherApe (graphical network monitor)
+  ansible.builtin.apt:
+    name: etherape
+    state: present
+  become: yes
+  when: desktop_environment is defined
+
+- name: Install NetworkMiner (if available)
+  snap:
+    name: networkminer
+    state: present
+  become: yes
+  when: enable_snap | default(true)
+  failed_when: false

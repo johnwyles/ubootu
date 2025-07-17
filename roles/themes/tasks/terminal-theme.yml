@@ -1,0 +1,77 @@
+---
+- name: Get list of terminal profiles for GNOME Terminal
+  ansible.builtin.command: dconf list /org/gnome/terminal/legacy/profiles:/
+  register: terminal_profiles
+  become: yes
+  become_user: "{{ primary_user }}"
+  when: desktop_environment == 'gnome'
+  changed_when: false
+
+- name: Get default profile ID
+  ansible.builtin.shell: |
+    dconf read /org/gnome/terminal/legacy/profiles:/default | tr -d "'"
+  register: default_profile
+  become: yes
+  become_user: "{{ primary_user }}"
+  when: desktop_environment == 'gnome'
+  changed_when: false
+
+- name: Apply theme colors to GNOME Terminal
+  community.general.dconf:
+    key: "/org/gnome/terminal/legacy/profiles:/{{ default_profile.stdout }}/{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { key: "use-theme-colors", value: "false" }
+    - { key: "background-color", value: "'{{ themes_terminal_profiles[themes_global_theme].background }}'" }
+    - { key: "foreground-color", value: "'{{ themes_terminal_profiles[themes_global_theme].foreground }}'" }
+    - key: "palette"
+      value: >-
+        ['{{ themes_terminal_profiles[themes_global_theme].black }}',
+         '{{ themes_terminal_profiles[themes_global_theme].red }}',
+         '{{ themes_terminal_profiles[themes_global_theme].green }}',
+         '{{ themes_terminal_profiles[themes_global_theme].yellow }}',
+         '{{ themes_terminal_profiles[themes_global_theme].blue }}',
+         '{{ themes_terminal_profiles[themes_global_theme].magenta }}',
+         '{{ themes_terminal_profiles[themes_global_theme].cyan }}',
+         '{{ themes_terminal_profiles[themes_global_theme].white }}',
+         '{{ themes_terminal_profiles[themes_global_theme].black }}',
+         '{{ themes_terminal_profiles[themes_global_theme].red }}',
+         '{{ themes_terminal_profiles[themes_global_theme].green }}',
+         '{{ themes_terminal_profiles[themes_global_theme].yellow }}',
+         '{{ themes_terminal_profiles[themes_global_theme].blue }}',
+         '{{ themes_terminal_profiles[themes_global_theme].magenta }}',
+         '{{ themes_terminal_profiles[themes_global_theme].cyan }}',
+         '{{ themes_terminal_profiles[themes_global_theme].white }}']
+  when:
+    - desktop_environment == 'gnome'
+    - themes_global_theme in themes_terminal_profiles
+    - default_profile.stdout != ""
+
+- name: Configure Alacritty theme
+  ansible.builtin.template:
+    src: alacritty-theme.yml.j2
+    dest: "/home/{{ primary_user }}/.config/alacritty/themes/{{ themes_global_theme }}.yml"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+  when:
+    - terminal_emulator is defined
+    - terminal_emulator == 'alacritty'
+    - themes_global_theme in themes_terminal_profiles
+
+- name: Configure Kitty theme
+  ansible.builtin.get_url:
+    url: "https://github.com/kovidgoyal/kitty-themes/raw/master/themes/{{ themes_global_theme | capitalize }}.conf"
+    dest: "/home/{{ primary_user }}/.config/kitty/theme.conf"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+  when:
+    - terminal_emulator is defined
+    - terminal_emulator == 'kitty'
+    - themes_global_theme != 'none'

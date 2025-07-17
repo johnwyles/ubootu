@@ -1,0 +1,95 @@
+---
+# Install and configure ClamAV antivirus
+
+- name: Install ClamAV packages
+  ansible.builtin.apt:
+    name:
+      - clamav
+      - clamav-daemon
+      - clamav-freshclam
+      - clamtk  # GUI for ClamAV
+    state: present
+  become: yes
+
+- name: Stop freshclam service for initial update
+  ansible.builtin.systemd:
+    name: clamav-freshclam
+    state: stopped
+  become: yes
+
+- name: Update ClamAV database
+  ansible.builtin.shell: freshclam
+  become: yes
+  register: freshclam_update
+  failed_when: false
+  changed_when: "'Database updated' in freshclam_update.stdout"
+
+- name: Start and enable freshclam service
+  ansible.builtin.systemd:
+    name: clamav-freshclam
+    enabled: yes
+    state: started
+  become: yes
+
+- name: Configure ClamAV daemon
+  ansible.builtin.lineinfile:
+    path: /etc/clamav/clamd.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  become: yes
+  loop:
+    - { regexp: '^#?LocalSocket', line: 'LocalSocket /var/run/clamav/clamd.ctl' }
+    - { regexp: '^#?FixStaleSocket', line: 'FixStaleSocket true' }
+    - { regexp: '^#?LocalSocketGroup', line: 'LocalSocketGroup clamav' }
+    - { regexp: '^#?LocalSocketMode', line: 'LocalSocketMode 666' }
+  notify: restart clamav-daemon
+
+- name: Enable ClamAV daemon
+  ansible.builtin.systemd:
+    name: clamav-daemon
+    enabled: "{{ clamav_enable_daemon }}"
+    state: "{{ 'started' if clamav_enable_daemon else 'stopped' }}"
+  become: yes
+  when: clamav_enable_daemon is defined
+
+- name: Create ClamAV scan script
+  ansible.builtin.template:
+    src: clamav-scan.sh.j2
+    dest: /usr/local/bin/clamav-scan
+    mode: '0755'
+  become: yes
+
+- name: Set up ClamAV scheduled scans
+  ansible.builtin.cron:
+    name: "ClamAV scheduled scan"
+    job: "/usr/local/bin/clamav-scan"
+    special_time: "{{ clamav_scan_schedule }}"
+    ansible.builtin.user: root
+  become: yes
+  when: clamav_scan_schedule in ['daily', 'weekly', 'monthly']
+
+- name: Create ClamAV log directory
+  ansible.builtin.file:
+    path: /var/log/clamav-scan
+    state: directory
+    owner: clamav
+    group: adm
+    mode: '0755'
+  become: yes
+
+- name: Configure logrotate for ClamAV scan logs
+  ansible.builtin.copy:
+    dest: /etc/logrotate.d/clamav-scan
+    content: |
+      /var/log/clamav-scan/*.log {
+          weekly
+          rotate 4
+          compress
+          delaycompress
+          missingok
+          notifempty
+          create 0644 clamav adm
+      }
+    mode: '0644'
+  become: yes

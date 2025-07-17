@@ -1,0 +1,13 @@
+[Unit]
+Description=Glances Web Server
+After=network.target
+
+[Service]
+Type=simple
+User={{ primary_user }}
+ExecStart=/usr/local/bin/glances -w -p 61208
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

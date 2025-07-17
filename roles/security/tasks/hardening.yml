@@ -1,0 +1,164 @@
+---
+# System hardening tasks
+
+- name: Configure kernel parameters for security
+  ansible.builtin.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    sysctl_file: /etc/sysctl.d/99-security.conf
+    reload: yes
+  become: yes
+  loop:
+    # Network security
+    - { key: 'net.ipv4.ip_forward', value: '0' }
+    - { key: 'net.ipv4.conf.all.send_redirects', value: '0' }
+    - { key: 'net.ipv4.conf.default.send_redirects', value: '0' }
+    - { key: 'net.ipv4.conf.all.accept_source_route', value: '0' }
+    - { key: 'net.ipv4.conf.default.accept_source_route', value: '0' }
+    - { key: 'net.ipv4.conf.all.accept_redirects', value: '0' }
+    - { key: 'net.ipv4.conf.default.accept_redirects', value: '0' }
+    - { key: 'net.ipv4.conf.all.secure_redirects', value: '0' }
+    - { key: 'net.ipv4.conf.default.secure_redirects', value: '0' }
+    - { key: 'net.ipv4.icmp_echo_ignore_broadcasts', value: '1' }
+    - { key: 'net.ipv4.icmp_ignore_bogus_error_responses', value: '1' }
+    - { key: 'net.ipv4.conf.all.rp_filter', value: '1' }
+    - { key: 'net.ipv4.conf.default.rp_filter', value: '1' }
+    - { key: 'net.ipv4.tcp_syncookies', value: '1' }
+    # IPv6 security
+    - { key: 'net.ipv6.conf.all.accept_ra', value: '0' }
+    - { key: 'net.ipv6.conf.default.accept_ra', value: '0' }
+    - { key: 'net.ipv6.conf.all.accept_redirects', value: '0' }
+    - { key: 'net.ipv6.conf.default.accept_redirects', value: '0' }
+  when: enable_network_hardening | default(true)
+
+- name: Configure kernel hardening parameters
+  ansible.builtin.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    sysctl_file: /etc/sysctl.d/99-kernel.conf
+    reload: yes
+  become: yes
+  loop:
+    - { key: 'kernel.randomize_va_space', value: '2' }
+    - { key: 'kernel.dmesg_restrict', value: '1' }
+    - { key: 'kernel.kptr_restrict', value: '2' }
+    - { key: 'kernel.yama.ptrace_scope', value: '1' }
+    - { key: 'fs.suid_dumpable', value: '0' }
+  when: enable_kernel_hardening | default(true)
+
+- name: Disable unused network protocols
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/disable-unused-protocols.conf
+    content: |
+      # Disable rare network protocols
+      install dccp /bin/true
+      install sctp /bin/true
+      install rds /bin/true
+      install tipc /bin/true
+    mode: '0644'
+  become: yes
+  when: disable_unused_filesystems | default(true)
+
+- name: Disable unused filesystems
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/disable-unused-filesystems.conf
+    content: |
+      # Disable unused filesystems
+      install cramfs /bin/true
+      install freevxfs /bin/true
+      install jffs2 /bin/true
+      install hfs /bin/true
+      install hfsplus /bin/true
+      install squashfs /bin/true
+      install udf /bin/true
+    mode: '0644'
+  become: yes
+  when: disable_unused_filesystems | default(true)
+
+- name: Set security limits
+  pam_limits:
+    domain: '*'
+    limit_type: "{{ item.type }}"
+    limit_item: "{{ item.item }}"
+    value: "{{ item.value }}"
+  become: yes
+  loop:
+    - { type: 'hard', item: 'core', value: '0' }
+    - { type: 'hard', item: 'nproc', value: '{{ limits_hard_nproc }}' }
+    - { type: 'soft', item: 'nproc', value: '{{ limits_soft_nproc }}' }
+    - { type: 'hard', item: 'nofile', value: '{{ limits_hard_nofile }}' }
+    - { type: 'soft', item: 'nofile', value: '{{ limits_soft_nofile }}' }
+
+- name: Secure shared memory
+  ansible.builtin.mount:
+    name: /run/shm
+    src: none
+    fstype: tmpfs
+    opts: defaults,noexec,nosuid,nodev
+    state: mounted
+  become: yes
+
+- name: Enable AppArmor
+  block:
+    - name: Install AppArmor
+      ansible.builtin.apt:
+        name:
+          - apparmor
+          - apparmor-utils
+          - apparmor-profiles
+          - apparmor-profiles-extra
+        state: present
+      become: yes
+
+    - name: Enable AppArmor service
+      ansible.builtin.systemd:
+        name: apparmor
+        enabled: yes
+        state: started
+      become: yes
+
+    - name: Set AppArmor to enforce mode
+      ansible.builtin.shell: aa-enforce /etc/apparmor.d/*
+      become: yes
+      register: apparmor_enforce
+      failed_when: false
+      changed_when: "'Setting' in apparmor_enforce.stdout"
+  when: enable_apparmor | default(true)
+
+- name: Configure login defs
+  ansible.builtin.lineinfile:
+    path: /etc/login.defs
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  become: yes
+  loop:
+    - { regexp: '^PASS_MAX_DAYS', line: 'PASS_MAX_DAYS   90' }
+    - { regexp: '^PASS_MIN_DAYS', line: 'PASS_MIN_DAYS   7' }
+    - { regexp: '^PASS_WARN_AGE', line: 'PASS_WARN_AGE   14' }
+    - { regexp: '^UMASK', line: 'UMASK           077' }
+    - { regexp: '^ENCRYPT_METHOD', line: 'ENCRYPT_METHOD SHA512' }
+
+- name: Disable Ctrl+Alt+Del reboot
+  ansible.builtin.systemd:
+    name: ctrl-alt-del.target
+    masked: yes
+  become: yes
+
+- name: Set permissions on sensitive files
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode }}"
+  become: yes
+  loop:
+    - { path: '/etc/passwd', mode: '0644' }
+    - { path: '/etc/shadow', mode: '0640', group: 'shadow' }
+    - { path: '/etc/group', mode: '0644' }
+    - { path: '/etc/gshadow', mode: '0640', group: 'shadow' }
+    - { path: '/etc/ssh/sshd_config', mode: '0600' }
+    - { path: '/boot/grub/grub.cfg', mode: '0600' }
+  failed_when: false

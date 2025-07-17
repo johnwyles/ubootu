@@ -1,0 +1,69 @@
+---
+# Smart package installation that uses official repositories when available
+
+- name: Load package source mappings
+  include_vars: package-sources.yml
+
+- name: Install packages with third-party repositories
+  block:
+    - name: Install packages from third-party repos
+      ansible.builtin.apt:
+        name: "{{ item.value.package_name }}"
+        state: present
+        update_cache: yes
+      become: yes
+      loop: "{{ package_sources | dict2items }}"
+      when:
+        - item.value.repo_needed | default(false)
+        - item.key in packages_to_install
+      loop_control:
+        label: "{{ item.key }}"
+
+    - name: Install additional packages for complex software
+      ansible.builtin.apt:
+        name: "{{ item.value.additional_packages }}"
+        state: present
+      become: yes
+      loop: "{{ package_sources | dict2items }}"
+      when:
+        - item.value.repo_needed | default(false)
+        - item.key in packages_to_install
+        - item.value.additional_packages is defined
+      loop_control:
+        label: "{{ item.key }}"
+
+- name: Install packages from .deb files
+  block:
+    - name: Download .deb packages
+      ansible.builtin.get_url:
+        url: "{{ item.value.deb_url }}"
+        dest: "/tmp/{{ item.key }}.deb"
+        mode: '0644'
+      become: yes
+      loop: "{{ package_sources | dict2items }}"
+      when:
+        - not item.value.repo_needed | default(true)
+        - item.value.deb_url is defined
+        - item.key in packages_to_install
+      loop_control:
+        label: "{{ item.key }}"
+
+    - name: Install downloaded .deb packages
+      ansible.builtin.apt:
+        deb: "/tmp/{{ item.key }}.deb"
+        state: present
+      become: yes
+      loop: "{{ package_sources | dict2items }}"
+      when:
+        - not item.value.repo_needed | default(true)
+        - item.value.deb_url is defined
+        - item.key in packages_to_install
+      loop_control:
+        label: "{{ item.key }}"
+
+- name: Install packages from Ubuntu repositories
+  ansible.builtin.apt:
+    name: "{{ packages_from_ubuntu_repos }}"
+    state: present
+  become: yes
+  when: packages_from_ubuntu_repos | length > 0

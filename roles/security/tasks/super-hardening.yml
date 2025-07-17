@@ -1,0 +1,428 @@
+---
+# Super tight security hardening
+
+# Kernel hardening - additional parameters
+- name: Apply aggressive kernel security parameters
+  ansible.builtin.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    sysctl_file: /etc/sysctl.d/99-super-hardening.conf
+    reload: yes
+  become: yes
+  loop:
+    # Kernel security
+    - { key: 'kernel.kptr_restrict', value: '{{ super_hardening_kernel.kptr_restrict }}' }
+    - { key: 'kernel.dmesg_restrict', value: '{{ super_hardening_kernel.dmesg_restrict }}' }
+    - { key: 'kernel.printk', value: '3 3 3 3' }
+    - { key: 'kernel.unprivileged_bpf_disabled', value: '{{ super_hardening_kernel.unprivileged_bpf_disabled }}' }
+    - { key: 'net.core.bpf_jit_harden', value: '2' }
+    - { key: 'dev.tty.ldisc_autoload', value: '0' }
+    - { key: 'vm.unprivileged_userfaultfd', value: '{{ super_hardening_kernel.unprivileged_userfaultfd }}' }
+    - { key: 'kernel.kexec_load_disabled', value: '{{ super_hardening_kernel.kexec_load_disabled }}' }
+    - { key: 'kernel.sysrq', value: '{{ super_hardening_kernel.sysrq }}' }
+    - { key: 'kernel.unprivileged_userns_clone', value: '{{ super_hardening_kernel.unprivileged_userns_clone }}' }
+    - { key: 'kernel.perf_event_paranoid', value: '{{ super_hardening_kernel.perf_event_paranoid }}' }
+    - { key: 'kernel.core_uses_pid', value: '{{ super_hardening_kernel.core_uses_pid }}' }
+    - { key: 'kernel.numa_balancing', value: '0' }
+    - { key: 'kernel.randomize_va_space', value: '{{ super_hardening_kernel.randomize_va_space }}' }
+    - { key: 'fs.suid_dumpable', value: '0' }
+    - { key: 'fs.protected_hardlinks', value: '1' }
+    - { key: 'fs.protected_symlinks', value: '1' }
+    - { key: 'fs.protected_fifos', value: '2' }
+    - { key: 'fs.protected_regular', value: '2' }
+    - { key: 'kernel.yama.ptrace_scope', value: '{{ super_hardening_kernel.yama_ptrace_scope }}' }
+    - { key: 'user.max_user_namespaces', value: '{{ super_hardening_kernel.user_max_namespaces }}' }
+    - { key: 'kernel.modules_disabled', value: '{{ super_hardening_kernel.kernel_modules_disabled }}' }
+    # Network hardening
+    - { key: 'net.ipv4.tcp_rfc1337', value: '{{ super_hardening_network.tcp_rfc1337 }}' }
+    - { key: 'net.ipv4.tcp_timestamps', value: '{{ super_hardening_network.tcp_timestamps }}' }
+    - { key: 'net.ipv4.tcp_syn_retries', value: '2' }
+    - { key: 'net.ipv4.tcp_synack_retries', value: '2' }
+    - { key: 'net.ipv4.tcp_max_syn_backlog', value: '4096' }
+    - { key: 'net.ipv4.tcp_syncookies', value: '{{ super_hardening_network.tcp_syncookies }}' }
+    - { key: 'net.ipv4.tcp_keepalive_time', value: '300' }
+    - { key: 'net.ipv4.tcp_keepalive_probes', value: '5' }
+    - { key: 'net.ipv4.tcp_keepalive_intvl', value: '15' }
+    - { key: 'net.ipv4.conf.all.log_martians', value: '{{ super_hardening_network.log_martians }}' }
+    - { key: 'net.ipv4.conf.default.log_martians', value: '{{ super_hardening_network.log_martians }}' }
+    - { key: 'net.ipv4.conf.all.send_redirects', value: '{{ super_hardening_network.send_redirects }}' }
+    - { key: 'net.ipv4.conf.default.send_redirects', value: '{{ super_hardening_network.send_redirects }}' }
+    - { key: 'net.ipv4.icmp_echo_ignore_all', value: '{{ super_hardening_network.icmp_echo_ignore_all }}' }
+    - { key: 'net.ipv4.icmp_ignore_bogus_error_responses', value: '1' }
+    - { key: 'net.ipv4.conf.all.accept_source_route', value: '{{ super_hardening_network.accept_source_route }}' }
+    - { key: 'net.ipv4.conf.default.accept_source_route', value: '0' }
+    - { key: 'net.ipv6.conf.all.accept_source_route', value: '0' }
+    - { key: 'net.ipv6.conf.default.accept_source_route', value: '0' }
+    - { key: 'net.ipv4.conf.all.arp_ignore', value: '1' }
+    - { key: 'net.ipv4.conf.all.arp_announce', value: '2' }
+    - { key: 'net.ipv4.conf.all.shared_media', value: '0' }
+    - { key: 'net.ipv4.conf.default.shared_media', value: '0' }
+    - { key: 'net.ipv4.route.flush', value: '1' }
+    - { key: 'net.ipv6.route.flush', value: '1' }
+
+# Disable IPv6 if not needed
+- name: Disable IPv6
+  ansible.builtin.sysctl:
+    name: "{{ item }}"
+    value: '1'
+    state: present
+    sysctl_file: /etc/sysctl.d/99-disable-ipv6.conf
+    reload: yes
+  become: yes
+  loop:
+    - net.ipv6.conf.all.disable_ipv6
+    - net.ipv6.conf.default.disable_ipv6
+    - net.ipv6.conf.lo.disable_ipv6
+  when: disable_ipv6 | default(false)
+
+# Secure boot configuration
+- name: Set GRUB password
+  block:
+    - name: Generate GRUB password hash
+      ansible.builtin.shell: |
+        echo -e "{{ vault_grub_password | default('changeme123') }}\n{{ vault_grub_password | default('changeme123') }}" | grub-mkpasswd-pbkdf2 | grep -oP '(?<=is ).*'
+      register: grub_password_hash
+      changed_when: false
+      no_log: true
+
+    - name: Create GRUB custom configuration
+      ansible.builtin.copy:
+        dest: /etc/grub.d/40_custom_security
+        content: |
+          #!/bin/sh
+          set -e
+
+          cat <<EOF
+          set superusers="root"
+          password_pbkdf2 root {{ grub_password_hash.stdout }}
+          EOF
+        mode: '0755'
+      become: yes
+
+    - name: Update GRUB configuration
+      ansible.builtin.command: update-grub
+      become: yes
+  when: enable_grub_password | default(true)
+
+# Restrict kernel module loading
+- name: Disable kernel module loading
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/99-disable-modules.conf
+    content: |
+      # Disable kernel module loading after boot
+      kernel.modules_disabled = 1
+    mode: '0644'
+  become: yes
+  when: super_hardening_kernel.kernel_modules_disabled == 1
+  notify: reload sysctl
+
+# Configure secure mount options
+- name: Set secure mount options for /tmp
+  ansible.builtin.mount:
+    name: /tmp
+    src: tmpfs
+    fstype: tmpfs
+    opts: "{{ secure_mount_options.tmp.options }},mode=1777,size=2G"
+    state: mounted
+  become: yes
+  notify: remount tmp
+
+- name: Set secure mount options for /var/tmp
+  ansible.builtin.mount:
+    name: /var/tmp
+    src: tmpfs
+    fstype: tmpfs
+    opts: "{{ secure_mount_options.var_tmp.options }},mode=1777,size=2G"
+    state: mounted
+  become: yes
+  notify: remount var_tmp
+
+- name: Set secure mount options for /dev/shm
+  ansible.builtin.mount:
+    name: /dev/shm
+    src: tmpfs
+    fstype: tmpfs
+    opts: "{{ secure_mount_options.dev_shm.options }}"
+    state: mounted
+  become: yes
+  notify: remount dev_shm
+
+# Harden user environment
+- name: Set restrictive umask in shell configs
+  ansible.builtin.lineinfile:
+    path: "{{ item }}"
+    line: 'umask 077'
+    create: yes
+  become: yes
+  loop:
+    - /etc/bash.bashrc
+    - /etc/profile
+    - /etc/zsh/zshrc
+
+- name: Disable core dumps
+  block:
+    - name: Set core dump limits
+      pam_limits:
+        domain: '*'
+        limit_type: "{{ item }}"
+        limit_item: core
+        value: '0'
+      become: yes
+      loop:
+        - hard
+        - soft
+
+    - name: Disable core dumps in sysctl
+      ansible.builtin.sysctl:
+        name: kernel.core_pattern
+        value: '|/bin/false'
+        state: present
+        sysctl_file: /etc/sysctl.d/99-disable-coredumps.conf
+      become: yes
+
+    - name: Disable systemd core dumps
+      ansible.builtin.lineinfile:
+        path: /etc/systemd/coredump.conf
+        regexp: '^#?Storage='
+        line: 'Storage=none'
+      become: yes
+
+# Remove unnecessary packages
+- name: Remove unnecessary packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: absent
+    purge: yes
+  become: yes
+  loop: "{{ packages_to_remove }}"
+  failed_when: false
+
+# Harden systemd services
+- name: Harden systemd services
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/{{ item }}.d/hardening.conf
+    content: |
+      [Service]
+      NoNewPrivileges=true
+      PrivateTmp=true
+      ProtectSystem=strict
+      ProtectHome=true
+      ProtectKernelTunables=true
+      ProtectKernelModules=true
+      ProtectControlGroups=true
+      RestrictRealtime=true
+      RestrictSUIDSGID=true
+      LockPersonality=true
+      MemoryDenyWriteExecute=true
+      RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+      SystemCallFilter=@system-service
+      SystemCallErrorNumber=EPERM
+    mode: '0644'
+  become: yes
+  loop:
+    - nginx
+    - apache2
+    - mysql
+    - postgresql
+  failed_when: false
+  notify: reload systemd
+
+# Configure auditd rules
+- name: Configure comprehensive audit rules
+  ansible.builtin.template:
+    src: audit.rules.j2
+    dest: /etc/audit/rules.d/hardening.rules
+    mode: '0640'
+  become: yes
+  notify: restart auditd
+
+
+# PAM hardening
+- name: Configure PAM password requirements
+  ansible.builtin.template:
+    src: pam-password.j2
+    dest: /etc/pam.d/common-password
+    mode: '0644'
+    backup: yes
+  become: yes
+  notify: reload pam
+
+- name: Configure PAM authentication with faillock
+  ansible.builtin.template:
+    src: pam-auth.j2
+    dest: /etc/pam.d/common-auth
+    mode: '0644'
+    backup: yes
+  become: yes
+  notify: reload pam
+
+# Configure login.defs for strong security
+- name: Configure strong login.defs
+  ansible.builtin.lineinfile:
+    path: /etc/login.defs
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  become: yes
+  loop:
+    - { regexp: '^PASS_MAX_DAYS', line: 'PASS_MAX_DAYS   60' }
+    - { regexp: '^PASS_MIN_DAYS', line: 'PASS_MIN_DAYS   1' }
+    - { regexp: '^PASS_MIN_LEN', line: 'PASS_MIN_LEN    14' }
+    - { regexp: '^PASS_WARN_AGE', line: 'PASS_WARN_AGE   7' }
+    - { regexp: '^LOGIN_RETRIES', line: 'LOGIN_RETRIES   3' }
+    - { regexp: '^LOGIN_TIMEOUT', line: 'LOGIN_TIMEOUT   60' }
+    - { regexp: '^ENCRYPT_METHOD', line: 'ENCRYPT_METHOD  YESCRYPT' }
+    - { regexp: '^YESCRYPT_COST_FACTOR', line: 'YESCRYPT_COST_FACTOR  11' }
+    - { regexp: '^UMASK', line: 'UMASK           077' }
+    - { regexp: '^USERGROUPS_ENAB', line: 'USERGROUPS_ENAB no' }
+
+# Restrict su command
+- name: Restrict su to wheel group
+  block:
+    - name: Create wheel group
+      group:
+        name: wheel
+        state: present
+      become: yes
+
+    - name: Configure PAM for su restriction
+      ansible.builtin.lineinfile:
+        path: /etc/pam.d/su
+        line: 'auth required pam_wheel.so use_uid'
+        insertafter: '^#.*pam_wheel\.so'
+      become: yes
+
+# Remove unnecessary network protocols
+- name: Blacklist unnecessary network protocols
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/blacklist-rare-network.conf
+    content: |
+      # Blacklist rare network protocols
+      blacklist dccp
+      blacklist sctp
+      blacklist rds
+      blacklist tipc
+      blacklist n-hdlc
+      blacklist ax25
+      blacklist netrom
+      blacklist x25
+      blacklist rose
+      blacklist decnet
+      blacklist econet
+      blacklist af_802154
+      blacklist ipx
+      blacklist appletalk
+      blacklist psnap
+      blacklist p8023
+      blacklist p8022
+      blacklist can
+      blacklist atm
+    mode: '0644'
+  become: yes
+
+# Configure process accounting
+- name: Enable process accounting
+  block:
+    - name: Install process accounting
+      ansible.builtin.apt:
+        name: acct
+        state: present
+      become: yes
+
+    - name: Enable process accounting service
+      ansible.builtin.systemd:
+        name: acct
+        enabled: yes
+        state: started
+      become: yes
+  when: enable_process_accounting | default(true)
+  notify: restart acct
+
+# Set file permissions on sensitive files
+- name: Set restrictive permissions on sensitive files
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode }}"
+  become: yes
+  loop:
+    - { path: '/etc/passwd', mode: '0644' }
+    - { path: '/etc/passwd-', mode: '0600' }
+    - { path: '/etc/shadow', mode: '0640', group: 'shadow' }
+    - { path: '/etc/shadow-', mode: '0640', group: 'shadow' }
+    - { path: '/etc/group', mode: '0644' }
+    - { path: '/etc/group-', mode: '0600' }
+    - { path: '/etc/gshadow', mode: '0640', group: 'shadow' }
+    - { path: '/etc/gshadow-', mode: '0640', group: 'shadow' }
+    - { path: '/etc/ssh/sshd_config', mode: '0600' }
+    - { path: '/etc/sudoers', mode: '0440' }
+    - { path: '/boot/grub/grub.cfg', mode: '0600' }
+    - { path: '/etc/hosts.allow', mode: '0644' }
+    - { path: '/etc/hosts.deny', mode: '0644' }
+    - { path: '/etc/crontab', mode: '0600' }
+    - { path: '/etc/cron.hourly', mode: '0700' }
+    - { path: '/etc/cron.daily', mode: '0700' }
+    - { path: '/etc/cron.weekly', mode: '0700' }
+    - { path: '/etc/cron.monthly', mode: '0700' }
+    - { path: '/etc/cron.d', mode: '0700' }
+    - { path: '/etc/at.allow', mode: '0600' }
+    - { path: '/etc/at.deny', mode: '0600' }
+  failed_when: false
+
+# Configure secure DNS
+- name: Configure secure DNS
+  ansible.builtin.copy:
+    dest: /etc/systemd/resolved.conf
+    content: |
+      [Resolve]
+      DNS={{ secure_dns_servers | join(' ') }}
+      FallbackDNS=8.8.8.8 8.8.4.4 2001:4860:4860::8888 2001:4860:4860::8844
+      Domains=~.
+      DNSSEC=yes
+      DNSOverTLS=yes
+      Cache=yes
+      DNSStubListener=yes
+    mode: '0644'
+  become: yes
+  notify: restart systemd-resolved
+
+# Install and configure USBGuard
+- name: Install and configure USBGuard
+  block:
+    - name: Install USBGuard
+      ansible.builtin.apt:
+        name:
+          - usbguard
+          - usbguard-applet-qt
+        state: present
+      become: yes
+
+    - name: Configure USBGuard rules
+      ansible.builtin.template:
+        src: usbguard-rules.conf.j2
+        dest: /etc/usbguard/rules.conf
+        mode: '0600'
+        owner: root
+        group: root
+      become: yes
+      notify: restart usbguard
+
+    - name: Start USBGuard service
+      ansible.builtin.systemd:
+        name: usbguard
+        enabled: yes
+        state: started
+      become: yes
+  when: enable_usbguard | default(true)
+
+# Configure spectre/meltdown mitigations
+- name: Enable CPU vulnerability mitigations
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
+    line: 'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash mitigations={{ cpu_mitigations }}"'
+    backup: yes
+  become: yes
+  notify: update grub

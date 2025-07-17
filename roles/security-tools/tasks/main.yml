@@ -1,0 +1,60 @@
+---
+# Main tasks file for security-tools role
+# WARNING: These tools should only be used for authorized security testing and educational purposes
+
+- name: Display security tools warning
+  ansible.builtin.debug:
+    msg: |
+      WARNING: Security testing tools should only be used on systems you own or have
+      explicit written permission to test. Unauthorized use may be illegal.
+  tags: ['always']
+
+- name: Install network security tools
+  ansible.builtin.include_tasks: network-security.yml
+  when: sectools_install_network_tools | default(false)
+  tags: ['network-security']
+
+- name: Install vulnerability scanners
+  ansible.builtin.include_tasks: vulnerability-scanners.yml
+  when: sectools_install_vuln_scanners | default(false)
+  tags: ['vuln-scanners']
+
+- name: Install web security tools
+  ansible.builtin.include_tasks: web-security.yml
+  when: sectools_install_web_tools | default(false)
+  tags: ['web-security']
+
+- name: Install wireless security tools
+  ansible.builtin.include_tasks: wireless-security.yml
+  when: sectools_install_wireless_tools | default(false)
+  tags: ['wireless']
+
+- name: Install password cracking tools
+  ansible.builtin.include_tasks: password-tools.yml
+  when: sectools_install_password_tools | default(false)
+  tags: ['password-tools']
+
+- name: Install forensics tools
+  ansible.builtin.include_tasks: forensics.yml
+  when: sectools_install_forensics | default(false)
+  tags: ['forensics']
+
+- name: Install privacy tools
+  ansible.builtin.include_tasks: privacy-tools.yml
+  when: sectools_install_privacy_tools | default(false)
+  tags: ['privacy']
+
+- name: Install container security tools
+  ansible.builtin.include_tasks: container-security.yml
+  when: sectools_install_container_tools | default(false)
+  tags: ['container-security']
+
+- name: Install system auditing tools
+  ansible.builtin.include_tasks: system-audit.yml
+  when: sectools_install_audit_tools | default(false)
+  tags: ['audit']
+
+- name: Install development security tools
+  ansible.builtin.include_tasks: devsec-tools.yml
+  when: sectools_install_devsec_tools | default(false)
+  tags: ['devsec']

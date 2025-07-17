@@ -1,0 +1,30 @@
+---
+- name: Configure swappiness
+  ansible.builtin.sysctl:
+    name: vm.swappiness
+    value: "{{ common_swappiness }}"
+    state: present
+    reload: yes
+  become: yes
+  when: common_configure_swappiness
+
+- name: Disable unnecessary services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: no
+    state: stopped
+  become: yes
+  loop:
+    - bluetooth.service
+    - cups.service
+    - avahi-daemon.service
+  failed_when: false
+  when: false  # Disabled by default, users can enable by overriding
+
+- name: Enable fstrim timer for SSD optimization
+  ansible.builtin.systemd:
+    name: fstrim.timer
+    enabled: yes
+    state: started
+  become: yes
+  when: ansible_devices.sda is defined and ansible_devices.sda.rotational == "0"

@@ -1,0 +1,27 @@
+---
+- name: Create user desktop directories
+  ansible.builtin.command: xdg-user-dirs-update
+  become: yes
+  become_user: "{{ primary_user }}"
+  environment:
+    DISPLAY: ":0"
+  failed_when: false
+  changed_when: true
+
+- name: Set default applications
+  ansible.builtin.template:
+    src: mimeapps.list.j2
+    dest: "/home/{{ primary_user }}/.config/mimeapps.list"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+
+- name: Create autostart directory
+  ansible.builtin.file:
+    path: "/home/{{ primary_user }}/.config/autostart"
+    state: directory
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0755'
+  become: yes

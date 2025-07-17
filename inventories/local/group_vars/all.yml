@@ -1,0 +1,7 @@
+---
+# Local environment specific variables
+ansible_become_password: "{{ vault_ansible_become_password | default(omit) }}"
+
+# Override any defaults for local development
+enable_development_tools: true
+configure_dotfiles: true

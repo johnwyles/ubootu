@@ -1,0 +1,60 @@
+---
+# Install programming languages
+
+- name: Install Python and pip
+  ansible.builtin.apt:
+    name:
+      - python3
+      - python3-pip
+      - python3-venv
+      - python3-dev
+    state: present
+  become: yes
+  when: "'python' in devtools_languages"
+
+- name: Install Node.js from NodeSource
+  ansible.builtin.apt:
+    name: nodejs
+    state: present
+  become: yes
+  when:
+    - "'nodejs' in devtools_languages"
+    - use_third_party_repos | default(true)
+
+- name: Install Go
+  ansible.builtin.apt:
+    name: golang-go
+    state: present
+  become: yes
+  when: "'go' in devtools_languages"
+
+- name: Install Java (OpenJDK)
+  ansible.builtin.apt:
+    name: "{{ 'temurin-17-jdk' if use_third_party_repos else 'openjdk-17-jdk' }}"
+    state: present
+  become: yes
+  when: "'java' in devtools_languages"
+
+- name: Install .NET SDK
+  ansible.builtin.apt:
+    name: dotnet-sdk-8.0
+    state: present
+  become: yes
+  when: "'dotnet' in devtools_languages"
+
+- name: Install PHP
+  ansible.builtin.apt:
+    name:
+      - php
+      - php-cli
+      - php-common
+      - php-mbstring
+      - php-xml
+      - php-curl
+      - composer
+    state: present
+  become: yes
+  when: "'php' in devtools_languages"
+
+# Note: Rust is installed via rustup in version-managers.yml
+# Note: Ruby is installed via rbenv in version-managers.yml

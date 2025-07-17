@@ -1,0 +1,17 @@
+---
+- name: Install KDE Plasma desktop environment
+  ansible.builtin.apt:
+    name: "{{ de_packages.kde }}"
+    state: present
+    install_recommends: yes
+  become: yes
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+
+- name: Set SDDM as default display manager
+  debconf:
+    name: sddm
+    question: shared/default-x-display-manager
+    value: sddm
+    vtype: select
+  become: yes

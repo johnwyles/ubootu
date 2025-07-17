@@ -1,0 +1,14 @@
+# PAM auth configuration for super hardening
+# This file is managed by Ansible - do not edit manually
+
+# Authentication with faillock
+auth required pam_faillock.so preauth silent audit deny={{ pam_faillock_deny }} unlock_time={{ pam_faillock_unlock_time }}{% if pam_faillock_even_deny_root %} even_deny_root root_unlock_time={{ pam_faillock_root_unlock_time }}{% endif %}
+
+auth [success=1 default=bad] pam_unix.so nullok
+auth [default=die] pam_faillock.so authfail audit deny={{ pam_faillock_deny }} unlock_time={{ pam_faillock_unlock_time }}{% if pam_faillock_even_deny_root %} even_deny_root root_unlock_time={{ pam_faillock_root_unlock_time }}{% endif %}
+
+auth sufficient pam_faillock.so authsucc audit deny={{ pam_faillock_deny }} unlock_time={{ pam_faillock_unlock_time }}{% if pam_faillock_even_deny_root %} even_deny_root root_unlock_time={{ pam_faillock_root_unlock_time }}{% endif %}
+
+auth requisite pam_deny.so
+auth required pam_permit.so
+auth optional pam_cap.so

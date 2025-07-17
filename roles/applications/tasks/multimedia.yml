@@ -1,0 +1,99 @@
+---
+# Install multimedia applications
+
+- name: Install VLC media player
+  ansible.builtin.apt:
+    name:
+      - vlc
+      - vlc-plugin-access-extra
+      - vlc-plugin-video-splitter
+      - vlc-plugin-visualization
+    state: present
+  become: yes
+  when: "'vlc' in multimedia_apps"
+
+- name: Install Spotify
+  snap:
+    name: spotify
+    state: present
+  become: yes
+  when: "'spotify' in multimedia_apps and enable_snap | default(true)"
+
+- name: Install GIMP
+  ansible.builtin.apt:
+    name:
+      - gimp
+      - gimp-data-extras
+      - gimp-plugin-registry
+    state: present
+  become: yes
+  when: "'gimp' in multimedia_apps"
+
+- name: Install Inkscape
+  ansible.builtin.apt:
+    name: inkscape
+    state: present
+  become: yes
+  when: "'inkscape' in multimedia_apps"
+
+- name: Install OBS Studio
+  block:
+    - name: Add OBS Studio PPA
+      apt_repository:
+        repo: "ppa:obsproject/obs-studio"
+        state: present
+      become: yes
+
+    - name: Install OBS Studio
+      ansible.builtin.apt:
+        name: obs-studio
+        state: present
+        update_cache: yes
+      become: yes
+  when: "'obs-studio' in multimedia_apps"
+
+- name: Install Kdenlive
+  ansible.builtin.apt:
+    name: kdenlive
+    state: present
+  become: yes
+  when: "'kdenlive' in multimedia_apps"
+
+- name: Install Audacity
+  ansible.builtin.apt:
+    name: audacity
+    state: present
+  become: yes
+  when: "'audacity' in multimedia_apps"
+
+# Install multimedia codecs
+- name: Install multimedia codecs and tools
+  ansible.builtin.apt:
+    name:
+      - ubuntu-restricted-extras
+      - ffmpeg
+      - gstreamer1.0-plugins-base
+      - gstreamer1.0-plugins-good
+      - gstreamer1.0-plugins-bad
+      - gstreamer1.0-plugins-ugly
+      - gstreamer1.0-libav
+      - gstreamer1.0-tools
+      - gstreamer1.0-pulseaudio
+      - libavcodec-extra
+      - libdvd-pkg
+    state: present
+  become: yes
+
+# Configure libdvd-pkg
+- name: Configure libdvd-pkg
+  debconf:
+    name: libdvd-pkg
+    question: libdvd-pkg/post-invoke_hook
+    value: 'true'
+    vtype: boolean
+  become: yes
+
+- name: Reconfigure libdvd-pkg
+  ansible.builtin.shell: dpkg-reconfigure -f noninteractive libdvd-pkg
+  become: yes
+  changed_when: false

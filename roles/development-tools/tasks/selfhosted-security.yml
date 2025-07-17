@@ -1,0 +1,404 @@
+---
+# Install self-hosted security and privacy services
+
+# Vaultwarden (Bitwarden compatible server)
+- name: Install Vaultwarden
+  block:
+    - name: Pull Vaultwarden Docker image
+      docker_image:
+        name: vaultwarden/server:latest
+        source: pull
+      become: yes
+      when: install_docker | default(false)
+
+    - name: Create Vaultwarden data directory
+      ansible.builtin.file:
+        path: /opt/vaultwarden
+        state: directory
+        mode: '0750'
+        owner: root
+        group: docker
+      become: yes
+
+    - name: Run Vaultwarden container
+      docker_container:
+        name: vaultwarden
+        image: vaultwarden/server:latest
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "8080:80"
+          - "3012:3012"  # WebSocket
+        volumes:
+          - /opt/vaultwarden:/data
+        env:
+          WEBSOCKET_ENABLED: "true"
+          SIGNUPS_ALLOWED: "false"  # Disable after initial setup
+          INVITATIONS_ALLOWED: "true"
+          DOMAIN: "https://{{ ansible_fqdn | default('localhost') }}"
+      become: yes
+      when: install_docker | default(false)
+
+    - name: Install Vaultwarden backup script
+      ansible.builtin.copy:
+        dest: /usr/local/bin/vaultwarden-backup
+        content: |
+          #!/bin/bash
+          BACKUP_DIR="/opt/vaultwarden-backups"
+          mkdir -p "$BACKUP_DIR"
+          sqlite3 /opt/vaultwarden/db.sqlite3 ".backup '$BACKUP_DIR/backup-$(date +%Y%m%d-%H%M%S).sqlite3'"
+          find "$BACKUP_DIR" -name "backup-*.sqlite3" -mtime +7 -delete
+        mode: '0755'
+      become: yes
+  when: "'vaultwarden' in devtools_selfhosted_services"
+
+# Pi-hole (Network-wide ad blocker)
+- name: Install Pi-hole
+  block:
+    - name: Download Pi-hole installer
+      ansible.builtin.get_url:
+        url: https://install.pi-hole.net
+        dest: /tmp/pihole-install.sh
+        mode: '0755'
+      become: yes
+
+    - name: Create Pi-hole setup vars
+      ansible.builtin.copy:
+        dest: /etc/pihole/setupVars.conf
+        content: |
+          WEBPASSWORD={{ vault_pihole_password | default('changeme123') | hash('sha256') | hash('sha256') }}
+          PIHOLE_INTERFACE={{ ansible_default_ipv4.interface }}
+          IPV4_ADDRESS={{ ansible_default_ipv4.address }}/{{ ansible_default_ipv4.prefix }}
+          IPV6_ADDRESS={{ ansible_default_ipv6.address | default('') }}
+          QUERY_LOGGING=true
+          INSTALL_WEB=true
+          DNSMASQ_LISTENING=single
+          PIHOLE_DNS_1=1.1.1.1
+          PIHOLE_DNS_2=1.0.0.1
+          DNS_FQDN_REQUIRED=true
+          DNS_BOGUS_PRIV=true
+          DNSSEC=true
+          TEMPERATUREUNIT=C
+          WEBUIBOXEDLAYOUT=traditional
+          API_EXCLUDE_DOMAINS=
+          API_EXCLUDE_CLIENTS=
+          API_QUERY_LOG_SHOW=all
+          API_PRIVACY_MODE=false
+        mode: '0644'
+      become: yes
+
+    - name: Install Pi-hole
+      ansible.builtin.shell: /tmp/pihole-install.sh --unattended
+      become: yes
+      args:
+        creates: /usr/local/bin/pihole
+
+    - name: Add Pi-hole update cron
+      ansible.builtin.cron:
+        name: "Update Pi-hole"
+        job: "/usr/local/bin/pihole updatePihole"
+        special_time: weekly
+        ansible.builtin.user: root
+      become: yes
+  when: "'pihole' in devtools_selfhosted_services"
+
+# WireGuard VPN Server
+- name: Install WireGuard server
+  block:
+    - name: Install WireGuard
+      ansible.builtin.apt:
+        name:
+          - wireguard
+          - wireguard-tools
+          - qrencode  # For QR codes
+        state: present
+      become: yes
+
+    - name: Generate WireGuard server keys
+      ansible.builtin.shell: |
+        cd /etc/wireguard
+        wg genkey | tee server_private.key | wg pubkey > server_public.key
+        chmod 600 server_private.key
+      become: yes
+      args:
+        creates: /etc/wireguard/server_private.key
+
+    - name: Create WireGuard server config
+      ansible.builtin.template:
+        src: wg0.conf.j2
+        dest: /etc/wireguard/wg0.conf
+        mode: '0600'
+      become: yes
+
+    - name: Enable IP forwarding
+      ansible.builtin.sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        sysctl_file: /etc/sysctl.d/99-wireguard.conf
+        reload: yes
+      become: yes
+
+    - name: Start WireGuard
+      ansible.builtin.systemd:
+        name: wg-quick@wg0
+        enabled: yes
+        state: started
+      become: yes
+
+    - name: Install WireGuard UI (wg-easy)
+      docker_container:
+        name: wg-easy
+        image: weejewel/wg-easy:latest
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "51821:51821/udp"
+          - "51820:51820/tcp"
+        volumes:
+          - /etc/wireguard:/etc/wireguard
+        env:
+          WG_HOST: "{{ ansible_default_ipv4.address }}"
+          PASSWORD: "{{ vault_wg_easy_password | default('changeme123') }}"
+        capabilities:
+          - NET_ADMIN
+          - SYS_MODULE
+        sysctls:
+          net.ipv4.conf.all.src_valid_mark: "1"
+          net.ipv4.ip_forward: "1"
+      become: yes
+      when: install_docker | default(false)
+  when: "'wireguard-server' in devtools_selfhosted_services"
+
+# Authelia (Authentication server)
+- name: Install Authelia
+  block:
+    - name: Create Authelia directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0750'
+      become: yes
+      loop:
+        - /opt/authelia
+        - /opt/authelia/config
+
+    - name: Create Authelia configuration
+      ansible.builtin.template:
+        src: authelia-config.yml.j2
+        dest: /opt/authelia/config/configuration.yml
+        mode: '0600'
+      become: yes
+
+    - name: Run Authelia container
+      docker_container:
+        name: authelia
+        image: authelia/authelia:latest
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "9091:9091"
+        volumes:
+          - /opt/authelia/config:/config
+        env:
+          TZ: "{{ ansible_date_time.tz }}"
+      become: yes
+      when: install_docker | default(false)
+  when: "'authelia' in devtools_selfhosted_services"
+
+# Uptime Kuma (Status monitoring)
+- name: Install Uptime Kuma
+  block:
+    - name: Create Uptime Kuma directory
+      ansible.builtin.file:
+        path: /opt/uptime-kuma
+        state: directory
+        mode: '0755'
+      become: yes
+
+    - name: Run Uptime Kuma container
+      docker_container:
+        name: uptime-kuma
+        image: louislam/uptime-kuma:latest
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "3001:3001"
+        volumes:
+          - /opt/uptime-kuma:/app/data
+      become: yes
+      when: install_docker | default(false)
+  when: "'uptime-kuma' in devtools_selfhosted_services"
+
+# AdGuard Home (Alternative to Pi-hole)
+- name: Install AdGuard Home
+  block:
+    - name: Download AdGuard Home
+      ansible.builtin.get_url:
+        url: https://static.adguard.com/adguardhome/release/AdGuardHome_linux_amd64.tar.gz
+        dest: /tmp/AdGuardHome.tar.gz
+        mode: '0644'
+      become: yes
+
+    - name: Extract AdGuard Home
+      ansible.builtin.unarchive:
+        src: /tmp/AdGuardHome.tar.gz
+        dest: /opt/
+        remote_src: yes
+        owner: root
+        group: root
+      become: yes
+      args:
+        creates: /opt/AdGuardHome/AdGuardHome
+
+    - name: Install AdGuard Home service
+      ansible.builtin.shell: /opt/AdGuardHome/AdGuardHome -s install
+      become: yes
+      args:
+        creates: /etc/systemd/system/AdGuardHome.service
+
+    - name: Start AdGuard Home
+      ansible.builtin.systemd:
+        name: AdGuardHome
+        enabled: yes
+        state: started
+      become: yes
+  when: "'adguard' in devtools_selfhosted_services"
+
+# Gitea (Git service)
+- name: Install Gitea
+  block:
+    - name: Create git user
+      ansible.builtin.user:
+        name: git
+        home: /home/git
+        ansible.builtin.shell: /bin/bash
+        state: present
+      become: yes
+
+    - name: Download Gitea binary
+      ansible.builtin.get_url:
+        url: https://dl.gitea.com/gitea/1.21.4/gitea-1.21.4-linux-amd64
+        dest: /usr/local/bin/gitea
+        mode: '0755'
+      become: yes
+
+    - name: Create Gitea directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: git
+        group: git
+        mode: '0750'
+      become: yes
+      loop:
+        - /var/lib/gitea
+        - /var/lib/gitea/custom
+        - /var/lib/gitea/data
+        - /var/lib/gitea/log
+        - /etc/gitea
+
+    - name: Create Gitea service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/gitea.service
+        content: |
+          [Unit]
+          Description=Gitea
+          After=syslog.target
+          After=network.target
+          After=mariadb.service
+
+          [Service]
+          RestartSec=2s
+          Type=simple
+          User=git
+          Group=git
+          WorkingDirectory=/var/lib/gitea/
+          ExecStart=/usr/local/bin/gitea web --config /etc/gitea/app.ini
+          Restart=always
+          Environment=USER=git HOME=/home/git GITEA_WORK_DIR=/var/lib/gitea
+
+          [Install]
+          WantedBy=multi-user.target
+        mode: '0644'
+      become: yes
+
+    - name: Start Gitea
+      ansible.builtin.systemd:
+        name: gitea
+        enabled: yes
+        state: started
+        daemon_reload: yes
+      become: yes
+  when: "'gitea' in devtools_selfhosted_services"
+
+# Outline (Knowledge base)
+- name: Install Outline
+  block:
+    - name: Run Outline with Docker Compose
+      docker_container:
+        name: outline
+        image: outlinewiki/outline:latest
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "3000:3000"
+        env:
+          NODE_ENV: production
+          SECRET_KEY: "{{ vault_outline_secret | default(lookup('password', '/dev/null chars=ascii_letters,digits length=32')) }}"
+          UTILS_SECRET: "{{ vault_outline_utils | default(lookup('password', '/dev/null chars=ascii_letters,digits length=32')) }}"
+          DATABASE_URL: "postgres://outline:{{ vault_outline_db_pass | default('changeme123') }}@postgres:5432/outline"
+          PGSSLMODE: disable
+          REDIS_URL: redis://redis:6379
+          URL: "http://{{ ansible_default_ipv4.address }}:3000"
+          DEPLOYMENT: self
+          ENABLE_UPDATES: "true"
+          WEB_CONCURRENCY: "1"
+          MAXIMUM_IMPORT_SIZE: "5120000"
+          FILE_STORAGE: local
+          FILE_STORAGE_LOCAL_ROOT_DIR: /var/lib/outline/data
+      become: yes
+      when: install_docker | default(false)
+  when: "'outline' in devtools_selfhosted_services"
+
+# Wallabag (Read-it-later service)
+- name: Install Wallabag
+  block:
+    - name: Run Wallabag container
+      docker_container:
+        name: wallabag
+        image: wallabag/wallabag:latest
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "8082:80"
+        volumes:
+          - /opt/wallabag/data:/var/www/wallabag/data
+          - /opt/wallabag/images:/var/www/wallabag/web/assets/images
+        env:
+          SYMFONY__ENV__DOMAIN_NAME: "http://{{ ansible_default_ipv4.address }}:8082"
+          SYMFONY__ENV__SERVER_NAME: "Wallabag"
+          SYMFONY__ENV__FOSUSER_REGISTRATION: "false"
+      become: yes
+      when: install_docker | default(false)
+  when: "'wallabag' in devtools_selfhosted_services"
+
+# FreshRSS (RSS aggregator)
+- name: Install FreshRSS
+  block:
+    - name: Run FreshRSS container
+      docker_container:
+        name: freshrss
+        image: freshrss/freshrss:latest
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "8083:80"
+        volumes:
+          - /opt/freshrss/data:/var/www/FreshRSS/data
+          - /opt/freshrss/extensions:/var/www/FreshRSS/extensions
+        env:
+          TZ: "{{ ansible_date_time.tz }}"
+          CRON_MIN: "1,31"
+      become: yes
+      when: install_docker | default(false)
+  when: "'freshrss' in devtools_selfhosted_services"

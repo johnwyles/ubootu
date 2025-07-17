@@ -1,0 +1,81 @@
+categories:
+  app-browsers:
+  - firefox
+  app-media:
+  - vlc
+  app-productivity:
+  - libreoffice
+  desktop-env:
+  - gnome
+  desktop-settings:
+  - mouse-settings
+  - keyboard-settings
+  - display-settings
+  desktop-themes:
+  - dark-theme
+  dev-containers:
+  - docker-desktop
+  dev-ides:
+  - intellij
+  - pycharm
+  - vscode
+  dev-languages:
+  - java
+  - nodejs
+  - python
+  dev-tools:
+  - docker
+  - git
+  - curl
+  security-basic:
+  - ufw-firewall
+  - auto-updates
+  security-privacy:
+  - keepassxc
+  system-hardware:
+  - bluetooth
+  system-perf:
+  - preload
+  system-services:
+  - cups
+configurable_values:
+  display-settings:
+    type: slider
+    unit: '%'
+    value: 100
+  keyboard-settings:
+    type: slider
+    unit: ''
+    value: 6
+  mouse-settings:
+    type: slider
+    unit: ''
+    value: 5
+configuration_date: '2025-07-17T07:25:25.238414'
+generated_by: Ubootu - Professional Ubuntu Desktop Configuration Tool
+selected_items:
+- mouse-settings
+- firefox
+- cups
+- ufw-firewall
+- preload
+- docker-desktop
+- keyboard-settings
+- intellij
+- keepassxc
+- libreoffice
+- dark-theme
+- docker
+- display-settings
+- pycharm
+- java
+- gnome
+- nodejs
+- vlc
+- vscode
+- git
+- python
+- bluetooth
+- auto-updates
+- curl
+ui_version: 2.0_unbootu

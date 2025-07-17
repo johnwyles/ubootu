@@ -1,0 +1,216 @@
+---
+# Install system auditing and monitoring tools
+
+# Lynis - already in vulnerability-scanners.yml but can be referenced here too
+- name: Ensure Lynis is installed
+  ansible.builtin.apt:
+    name: lynis
+    state: present
+  become: yes
+  when: "'lynis' in sectools_audit_tools"
+
+# Chkrootkit
+- name: Install chkrootkit
+  ansible.builtin.apt:
+    name: chkrootkit
+    state: present
+  become: yes
+  when: "'chkrootkit' in sectools_audit_tools"
+
+# rkhunter
+- name: Install rkhunter
+  ansible.builtin.apt:
+    name: rkhunter
+    state: present
+  become: yes
+  when: "'rkhunter' in sectools_audit_tools"
+
+- name: Update rkhunter database
+  ansible.builtin.shell: rkhunter --update
+  become: yes
+  when: "'rkhunter' in sectools_audit_tools"
+  changed_when: false
+  failed_when: false
+
+# OSSEC from official repository
+- name: Add OSSEC repository key
+  apt_key:
+    url: https://www.ossec.net/files/OSSEC-ARCHIVE-KEY.asc
+    state: present
+  become: yes
+  when: "'ossec' in sectools_audit_tools"
+
+- name: Add OSSEC repository
+  apt_repository:
+    repo: "deb https://updates.atomicorp.com/channels/atomic/ubuntu {{ ansible_distribution_release }} main"
+    state: present
+    filename: ossec
+  become: yes
+  when: "'ossec' in sectools_audit_tools"
+  failed_when: false
+
+- name: Install OSSEC HIDS
+  ansible.builtin.apt:
+    name:
+      - ossec-hids
+      - ossec-hids-server
+    state: present
+    update_cache: yes
+  become: yes
+  when: "'ossec' in sectools_audit_tools"
+  failed_when: false
+
+# AIDE
+- name: Install AIDE
+  ansible.builtin.apt:
+    name:
+      - aide
+      - aide-common
+    state: present
+  become: yes
+  when: "'aide' in sectools_audit_tools"
+
+- name: Initialize AIDE database
+  ansible.builtin.shell: aideinit
+  become: yes
+  when: "'aide' in sectools_audit_tools"
+  args:
+    creates: /var/lib/aide/aide.db
+  changed_when: true
+
+# Auditd
+- name: Install auditd and related tools
+  ansible.builtin.apt:
+    name:
+      - auditd
+      - audispd-plugins
+      - auditctl
+      - aureport
+      - ausearch
+      - autrace
+    state: present
+  become: yes
+  when: "'auditd' in sectools_audit_tools"
+
+- name: Enable and start auditd
+  ansible.builtin.systemd:
+    name: auditd
+    enabled: yes
+    state: started
+  become: yes
+  when: "'auditd' in sectools_audit_tools"
+
+# Additional system audit tools
+- name: Install additional audit tools
+  ansible.builtin.apt:
+    name:
+      - tiger          # Security audit and intrusion detection
+      - bastille       # Security hardening tool
+      - logwatch       # Log analysis
+      - logcheck       # Log monitoring
+      - syslog-summary # Summarize system logs
+      - unhide         # Forensic tool to find hidden processes
+      - acct           # Process accounting
+      - sysstat        # System performance tools
+      - dstat          # Versatile resource statistics
+      - atop           # Advanced system monitor
+      - htop           # Interactive process viewer
+      - iotop          # I/O monitor
+      - iftop          # Network monitor
+      - nethogs        # Network traffic per process
+      - ss             # Socket statistics
+      - lsof           # List open files
+      - strace         # System call tracer
+      - ltrace         # Library call tracer
+      - sysdig         # System exploration and troubleshooting
+      - osquery        # SQL-based OS instrumentation
+      - samhain        # File integrity checker
+      - integrit       # File integrity verification
+      - debsums        # Verify installed package files
+      - needrestart    # Check for outdated running processes
+      - debian-goodies # Helpful utilities
+      - inxi           # System information tool
+    state: present
+  become: yes
+  failed_when: false
+
+# Wazuh agent (OSSEC fork) from official repository
+- name: Add Wazuh GPG key
+  apt_key:
+    url: https://packages.wazuh.com/key/GPG-KEY-WAZUH
+    state: present
+  become: yes
+  when: "'wazuh' in sectools_audit_tools"
+
+- name: Add Wazuh repository
+  apt_repository:
+    repo: "deb https://packages.wazuh.com/4.x/apt/ stable main"
+    state: present
+    filename: wazuh
+  become: yes
+  when: "'wazuh' in sectools_audit_tools"
+
+- name: Install Wazuh agent
+  ansible.builtin.apt:
+    name: wazuh-agent
+    state: present
+    update_cache: yes
+  become: yes
+  when: "'wazuh' in sectools_audit_tools"
+
+# Security Onion tools (subset)
+- name: Install network security monitoring tools
+  ansible.builtin.apt:
+    name:
+      - suricata       # IDS/IPS
+      - snort          # IDS/IPS
+      - zeek           # Network security monitor (formerly Bro)
+      - argus-server   # Network flow monitor
+      - argus-client   # Network flow client
+      - softflowd      # NetFlow collector
+      - nfdump         # NetFlow tools
+      - tcpflow        # TCP flow recorder
+      - p0f            # Passive OS fingerprinting
+      - arpwatch       # ARP monitor
+      - darkstat       # Network statistics
+      - bandwidthd     # Bandwidth monitoring
+      - iptraf-ng      # IP traffic monitor
+      - cbm            # Color bandwidth meter
+      - speedometer    # Network traffic monitor
+      - slurm          # Network load monitor
+      - tcptrack       # TCP connection monitor
+      - iptstate       # IPtables state viewer
+      - conntrack      # Connection tracking
+    state: present
+  become: yes
+  failed_when: false
+
+# Create audit reports directory
+- name: Create audit reports directory
+  ansible.builtin.file:
+    path: /var/log/security-audits
+    state: directory
+    mode: '0750'
+    owner: root
+    group: adm
+  become: yes
+
+# Install audit rule sets
+- name: Download CIS audit rules
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/linux-audit/audit-userspace/master/rules/30-cis.rules
+    dest: /etc/audit/rules.d/30-cis.rules
+    mode: '0640'
+  become: yes
+  when: "'auditd' in sectools_audit_tools"
+  notify: restart auditd
+
+# Install STIG audit rules
+- name: Download STIG audit rules
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/linux-audit/audit-userspace/master/rules/30-stig.rules
+    dest: /etc/audit/rules.d/30-stig.rules
+    mode: '0640'
+  become: yes
+  when: "'auditd' in sectools_audit_tools"
+  notify: restart auditd

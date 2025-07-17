@@ -1,0 +1,74 @@
+---
+# Configure SSH client
+
+- name: Create SSH directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ssh"
+    state: directory
+    mode: '0700'
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
+
+- name: Create SSH config file
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ssh/config"
+    state: touch
+    mode: '0600'
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
+    modification_time: preserve
+    access_time: preserve
+
+- name: Configure SSH client entries
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_env.HOME }}/.ssh/config"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ item.host }}"
+    block: |
+      Host {{ item.host }}
+      {% for option in item.options %}
+        {{ option }}
+      {% endfor %}
+    create: yes
+    mode: '0600'
+  loop: "{{ ssh_config_entries }}"
+
+- name: Add common SSH options
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_env.HOME }}/.ssh/config"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - Common options"
+    block: |
+      # Common SSH options
+      Host *
+        AddKeysToAgent yes
+        IdentityFile ~/.ssh/id_ed25519
+        IdentityFile ~/.ssh/id_rsa
+        ServerAliveInterval 60
+        ServerAliveCountMax 3
+        Compression yes
+        ForwardAgent no
+        ForwardX11 no
+        HashKnownHosts yes
+        StrictHostKeyChecking ask
+    insertbefore: BOF
+    create: yes
+    mode: '0600'
+
+- name: Create SSH control master directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ssh/controlmasters"
+    state: directory
+    mode: '0700'
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
+
+- name: Configure SSH control master
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_env.HOME }}/.ssh/config"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - Control Master"
+    block: |
+      # SSH Control Master configuration
+      Host *
+        ControlMaster auto
+        ControlPath ~/.ssh/controlmasters/%r@%h:%p
+        ControlPersist 10m
+    insertafter: "# Common SSH options"

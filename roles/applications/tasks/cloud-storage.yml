@@ -1,0 +1,84 @@
+---
+# Install cloud storage clients
+
+- name: Install Dropbox
+  block:
+    - name: Download Dropbox .deb package
+      ansible.builtin.get_url:
+        url: "https://www.dropbox.com/download?plat=lnx.x86_64"
+        dest: /tmp/dropbox_amd64.deb
+        mode: '0644'
+      become: yes
+
+    - name: Install Dropbox
+      ansible.builtin.apt:
+        deb: /tmp/dropbox_amd64.deb
+        state: present
+      become: yes
+
+    - name: Clean up Dropbox package
+      ansible.builtin.file:
+        path: /tmp/dropbox_amd64.deb
+        state: absent
+      become: yes
+  when: "'dropbox' in cloud_storage"
+
+- name: Install Insync (Google Drive client)
+  block:
+    - name: Add Insync GPG key
+      apt_key:
+        keyserver: keyserver.ubuntu.com
+        id: ACCAF35C
+        state: present
+      become: yes
+
+    - name: Add Insync repository
+      apt_repository:
+        repo: "deb http://apt.insynchq.com/ubuntu {{ ansible_distribution_release }} non-free contrib"
+        state: present
+        filename: insync
+      become: yes
+
+    - name: Install Insync
+      ansible.builtin.apt:
+        name: insync
+        state: present
+        update_cache: yes
+      become: yes
+  when: "'insync' in cloud_storage"
+
+- name: Install OneDrive client
+  block:
+    - name: Add OneDrive PPA
+      apt_repository:
+        repo: "ppa:yann1ck/onedrive"
+        state: present
+      become: yes
+
+    - name: Install OneDrive
+      ansible.builtin.apt:
+        name: onedrive
+        state: present
+        update_cache: yes
+      become: yes
+
+    - name: Create OneDrive systemd user service directory
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/.config/systemd/user"
+        state: directory
+        mode: '0755'
+
+    - name: Enable OneDrive service for user
+      ansible.builtin.systemd:
+        name: onedrive
+        enabled: yes
+        scope: user
+      become: no
+  when: "'onedrive' in cloud_storage"
+
+- name: Install Nextcloud Desktop Client
+  ansible.builtin.apt:
+    name: nextcloud-desktop
+    state: present
+  become: yes
+  when: "'nextcloud' in cloud_storage"

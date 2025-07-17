@@ -1,0 +1,53 @@
+---
+- name: Bootstrap Ubuntu Desktop Environment
+  hosts: all
+  gather_facts: yes
+
+  pre_tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      become: yes
+      tags: always
+      when: ansible_os_family == "Debian"
+
+  roles:
+    - role: common
+      tags: ['common', 'base']
+
+    - role: security
+      tags: ['security']
+      when: enable_security | default(true)
+
+    - role: desktop-environment
+      tags: ['desktop', 'de']
+      when: install_desktop_environment | default(true)
+
+    - role: themes
+      tags: ['themes', 'customization']
+      when: install_desktop_environment | default(true)
+
+    - role: development-tools
+      tags: ['dev', 'development']
+      when: enable_development_tools | default(false)
+
+    - role: applications
+      tags: ['apps', 'applications']
+      when: install_applications | default(true)
+
+    - role: security-tools
+      tags: ['security-tools', 'pentesting']
+      when: install_security_tools | default(false)
+
+    - role: dotfiles
+      tags: ['dotfiles', 'config']
+      when: configure_dotfiles | default(true)
+
+  post_tasks:
+    - name: Display completion message
+      ansible.builtin.debug:
+        msg: |
+          Ubuntu Desktop bootstrap completed!
+          Reboot recommended for all changes to take effect.
+      tags: always

@@ -1,0 +1,38 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  become: yes
+
+- name: Enable multiverse repository (Ubuntu non-free)
+  apt_repository:
+    repo: "deb http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} multiverse"
+    state: present
+    filename: ubuntu-multiverse
+  become: yes
+  when: common_enable_non_free
+  tags: ['repositories']
+
+- name: Add backports repository
+  apt_repository:
+    repo: "deb http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }}-backports main restricted universe multiverse"
+    state: present
+  become: yes
+  when: common_enable_backports
+
+- name: Configure third-party repositories
+  ansible.builtin.include_tasks: third-party-repos.yml
+  when: use_third_party_repos | default(true)
+  tags: ['third-party-repos']
+
+- name: Configure development repositories
+  ansible.builtin.include_tasks: development-repos.yml
+  when: enable_development_tools | default(false)
+  tags: ['dev-repos']
+
+- name: Update apt cache after adding repositories
+  ansible.builtin.apt:
+    update_cache: yes
+  become: yes
+  when: common_enable_non_free or common_enable_backports or use_third_party_repos

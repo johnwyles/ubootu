@@ -1,0 +1,56 @@
+---
+# Clone existing dotfiles repository
+
+- name: Check if dotfiles directory exists
+  ansible.builtin.stat:
+    path: "{{ dotfiles_repo_dest }}"
+  register: dotfiles_dir
+
+- name: Backup existing dotfiles directory
+  ansible.builtin.command: mv "{{ dotfiles_repo_dest }}" "{{ dotfiles_repo_dest }}.backup.{{ ansible_date_time.epoch }}"
+  when: dotfiles_dir.stat.exists and dotfiles_dir.stat.isdir
+  changed_when: true
+
+- name: Clone dotfiles repository
+  ansible.builtin.git:
+    repo: "{{ dotfiles_repo }}"
+    dest: "{{ dotfiles_repo_dest }}"
+    version: "{{ dotfiles_repo_branch | default('main') }}"
+    accept_hostkey: yes
+  register: dotfiles_clone
+
+- name: Create symlinks for dotfiles
+  block:
+    - name: Find all dotfiles in repository
+      ansible.builtin.find:
+        paths: "{{ dotfiles_repo_dest }}"
+        patterns: ".*"
+        hidden: yes
+        recurse: no
+        file_type: file
+      register: dotfiles_found
+
+    - name: Create backup directory for existing files
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/.dotfiles_backup"
+        state: directory
+        mode: '0755'
+
+    - name: Backup existing dotfiles
+      ansible.builtin.copy:
+        src: "{{ ansible_env.HOME }}/{{ item.path | basename }}"
+        dest: "{{ ansible_env.HOME }}/.dotfiles_backup/{{ item.path | basename }}.{{ ansible_date_time.epoch }}"
+        remote_src: yes
+      loop: "{{ dotfiles_found.files }}"
+      when: item.path | basename not in ['.git', '.gitignore']
+      failed_when: false
+
+    - name: Create symlinks
+      ansible.builtin.file:
+        src: "{{ item.path }}"
+        dest: "{{ ansible_env.HOME }}/{{ item.path | basename }}"
+        state: link
+        force: yes
+      loop: "{{ dotfiles_found.files }}"
+      when: item.path | basename not in ['.git', '.gitignore']
+  when: dotfiles_clone is succeeded and not dotfiles_use_manager

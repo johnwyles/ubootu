@@ -1,0 +1,345 @@
+---
+# Mouse and Touchpad Settings
+- name: Configure mouse settings
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { key: "/org/gnome/desktop/peripherals/mouse/speed", value: "{{ de_mouse_speed }}" }
+    - { key: "/org/gnome/desktop/peripherals/mouse/accel-profile", value: "'{{ de_mouse_acceleration | ternary('default', 'flat') }}'" }
+    - { key: "/org/gnome/desktop/peripherals/mouse/natural-scroll", value: "{{ de_natural_scroll | bool | lower }}" }
+  tags: ['desktop-config', 'mouse']
+
+- name: Configure touchpad settings
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { key: "/org/gnome/desktop/peripherals/touchpad/speed", value: "{{ de_mouse_speed }}" }
+    - { key: "/org/gnome/desktop/peripherals/touchpad/tap-to-click", value: "{{ de_touchpad_tap_to_click | bool | lower }}" }
+    - { key: "/org/gnome/desktop/peripherals/touchpad/two-finger-scrolling-enabled", value: "{{ de_touchpad_two_finger_scroll | bool | lower }}" }
+    - { key: "/org/gnome/desktop/peripherals/touchpad/edge-scrolling-enabled", value: "{{ de_touchpad_edge_scroll | bool | lower }}" }
+    - { key: "/org/gnome/desktop/peripherals/touchpad/natural-scroll", value: "{{ de_natural_scroll | bool | lower }}" }
+    - { key: "/org/gnome/desktop/peripherals/touchpad/disable-while-typing", value: "{{ de_touchpad_disable_while_typing | bool | lower }}" }
+  tags: ['desktop-config', 'touchpad']
+
+# Keyboard Settings
+- name: Configure keyboard repeat settings
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { key: "/org/gnome/desktop/peripherals/keyboard/repeat", value: "true" }
+    - { key: "/org/gnome/desktop/peripherals/keyboard/delay", value: "uint32 {{ de_key_repeat_delay }}" }
+    - { key: "/org/gnome/desktop/peripherals/keyboard/repeat-interval", value: "uint32 {{ de_key_repeat_interval }}" }
+  tags: ['desktop-config', 'keyboard']
+
+- name: Configure compose key
+  community.general.dconf:
+    key: "/org/gnome/desktop/input-sources/xkb-options"
+    value: "['compose:{{ de_compose_key }}']"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  when: de_compose_key != ""
+  tags: ['desktop-config', 'keyboard']
+
+- name: Configure caps lock behavior
+  community.general.dconf:
+    key: "/org/gnome/desktop/input-sources/xkb-options"
+    value: |
+      {% if de_caps_lock_behavior == 'ctrl' %}['caps:ctrl_modifier']
+      {% elif de_caps_lock_behavior == 'escape' %}['caps:escape']
+      {% elif de_caps_lock_behavior == 'none' %}['caps:none']
+      {% else %}[]{% endif %}
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  when: de_caps_lock_behavior != "caps"
+  tags: ['desktop-config', 'keyboard']
+
+- name: Configure media keys
+  community.general.dconf:
+    key: "/org/gnome/settings-daemon/plugins/media-keys/active"
+    value: "{{ de_media_keys_enabled | bool | lower }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  tags: ['desktop-config', 'keyboard']
+
+# Custom Keyboard Shortcuts
+- name: Configure custom keyboard shortcuts
+  block:
+    - name: Set custom keybinding paths
+      community.general.dconf:
+        key: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings"
+        value: "{{ range(de_custom_shortcuts | length) | list | map('regex_replace', '^(.*)$', \"'/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom\\\\1/'\") | list }}"
+        state: present
+      become: yes
+      become_user: "{{ primary_user }}"
+      when: de_custom_shortcuts | length > 0
+
+    - name: Configure each custom shortcut
+      community.general.dconf:
+        key: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom{{ index }}/{{ item.key }}"
+        value: "'{{ item.value }}'"
+        state: present
+      become: yes
+      become_user: "{{ primary_user }}"
+      loop:
+        - { key: "name", value: "{{ shortcut.name }}" }
+        - { key: "command", value: "{{ shortcut.command }}" }
+        - { key: "binding", value: "{{ shortcut.binding }}" }
+      loop_control:
+        index_var: index
+        loop_var: shortcut
+      with_items: "{{ de_custom_shortcuts }}"
+  tags: ['desktop-config', 'keyboard', 'shortcuts']
+
+# Window Management
+- name: Configure window management
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { key: "/org/gnome/desktop/wm/preferences/focus-mode", value: "'{{ de_focus_mode }}'" }
+    - { key: "/org/gnome/desktop/wm/preferences/auto-raise", value: "{{ (de_focus_mode == 'mouse') | bool | lower }}" }
+    - { key: "/org/gnome/desktop/wm/preferences/raise-on-click", value: "{{ de_raise_on_click | bool | lower }}" }
+    - { key: "/org/gnome/mutter/edge-tiling", value: "{{ de_window_snapping | bool | lower }}" }
+    - { key: "/org/gnome/shell/app-switcher/current-workspace-only", value: "false" }
+  tags: ['desktop-config', 'windows']
+
+- name: Configure workspaces
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { key: "/org/gnome/mutter/dynamic-workspaces", value: "{{ not de_workspaces_enabled | bool | lower }}" }
+    - { key: "/org/gnome/desktop/wm/preferences/num-workspaces", value: "{{ de_workspaces_number }}" }
+  when: de_workspaces_enabled
+  tags: ['desktop-config', 'workspaces']
+
+- name: Configure hot corners
+  community.general.dconf:
+    key: "/org/gnome/desktop/interface/enable-hot-corners"
+    value: "{{ de_hot_corners_enabled | bool | lower }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  tags: ['desktop-config', 'windows']
+
+# Notification Settings
+- name: Configure notification settings
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { key: "/org/gnome/desktop/notifications/show-banners", value: "{{ de_notification_bubble_enabled | bool | lower }}" }
+    - { key: "/org/gnome/desktop/notifications/show-in-lock-screen", value: "{{ de_notification_show_in_lock_screen | bool | lower }}" }
+  tags: ['desktop-config', 'notifications']
+
+# Display Settings
+- name: Configure display settings
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { key: "/org/gnome/desktop/interface/scaling-factor", value: "uint32 {{ (de_display_scale | float) | round | int }}" }
+    - { key: "/org/gnome/mutter/experimental-features", value: "{{ de_fractional_scaling_enabled | ternary(['scale-monitor-framebuffer'], []) }}" }
+  tags: ['desktop-config', 'display']
+
+- name: Configure night light
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { key: "/org/gnome/settings-daemon/plugins/color/night-light-enabled", value: "{{ de_night_light_enabled | bool | lower }}" }
+    - { key: "/org/gnome/settings-daemon/plugins/color/night-light-temperature", value: "uint32 {{ de_night_light_temperature }}" }
+    - { key: "/org/gnome/settings-daemon/plugins/color/night-light-schedule-automatic", value: "{{ (de_night_light_schedule == 'sunset-to-sunrise') | bool | lower }}" }
+    - { key: "/org/gnome/settings-daemon/plugins/color/night-light-schedule-from", value: "{{ de_night_light_start_hour }}.0" }
+    - { key: "/org/gnome/settings-daemon/plugins/color/night-light-schedule-to", value: "{{ de_night_light_end_hour }}.0" }
+  when: de_night_light_enabled
+  tags: ['desktop-config', 'display']
+
+# Screensaver and Lock Settings
+- name: Configure screensaver and lock settings
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { key: "/org/gnome/desktop/session/idle-delay", value: "uint32 {{ de_screen_blank_delay }}" }
+    - { key: "/org/gnome/desktop/screensaver/lock-enabled", value: "{{ de_screen_lock_enabled | bool | lower }}" }
+    - { key: "/org/gnome/desktop/screensaver/lock-delay", value: "uint32 {{ de_screen_lock_delay }}" }
+    - { key: "/org/gnome/desktop/screensaver/ubuntu-lock-on-suspend", value: "{{ de_lock_on_suspend | bool | lower }}" }
+  tags: ['desktop-config', 'screensaver']
+
+# Desktop Effects and Animations
+- name: Configure desktop effects
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { key: "/org/gnome/desktop/interface/enable-animations", value: "{{ de_animations_enabled | bool | lower }}" }
+    - { key: "/org/gnome/shell/extensions/dash-to-dock/animation-time", value: "{{ 0.2 * de_animation_speed }}" }
+    - { key: "/org/gnome/desktop/wm/preferences/action-double-click-titlebar", value: "'toggle-maximize'" }
+    - { key: "/org/gnome/desktop/wm/preferences/action-middle-click-titlebar", value: "'minimize'" }
+  tags: ['desktop-config', 'effects']
+
+# Wallpaper and Appearance
+- name: Configure wallpaper
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { key: "/org/gnome/desktop/background/picture-uri", value: "'file://{{ de_wallpaper }}'" }
+    - { key: "/org/gnome/desktop/background/picture-uri-dark", value: "'file://{{ de_wallpaper }}'" }
+    - { key: "/org/gnome/desktop/background/picture-options", value: "'{{ de_wallpaper_mode }}'" }
+  tags: ['desktop-config', 'appearance']
+
+- name: Configure desktop icons
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { key: "/org/gnome/shell/extensions/desktop-icons/show-home", value: "{{ de_show_desktop_icons | bool | lower }}" }
+    - { key: "/org/gnome/shell/extensions/desktop-icons/show-trash", value: "{{ de_show_desktop_icons | bool | lower }}" }
+    - { key: "/org/gnome/nautilus/desktop/home-icon-visible", value: "{{ de_show_desktop_icons | bool | lower }}" }
+    - { key: "/org/gnome/nautilus/desktop/trash-icon-visible", value: "{{ de_show_desktop_icons | bool | lower }}" }
+  tags: ['desktop-config', 'appearance']
+
+# Font Configuration
+- name: Configure fonts
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { key: "/org/gnome/desktop/interface/font-name", value: "'{{ de_font_interface }}'" }
+    - { key: "/org/gnome/desktop/interface/document-font-name", value: "'{{ de_font_document }}'" }
+    - { key: "/org/gnome/desktop/interface/monospace-font-name", value: "'{{ de_font_monospace }}'" }
+    - { key: "/org/gnome/desktop/wm/preferences/titlebar-font", value: "'{{ de_font_window_title }}'" }
+    - { key: "/org/gnome/desktop/interface/font-antialiasing", value: "'{{ de_font_antialiasing }}'" }
+    - { key: "/org/gnome/desktop/interface/font-hinting", value: "'{{ de_font_hinting }}'" }
+  tags: ['desktop-config', 'fonts']
+
+# Color Scheme
+- name: Configure color scheme
+  community.general.dconf:
+    key: "/org/gnome/desktop/interface/color-scheme"
+    value: "'{{ de_color_scheme }}'"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  when: de_color_scheme in ['default', 'prefer-dark', 'prefer-light']
+  tags: ['desktop-config', 'appearance']
+
+# Panel/Taskbar Settings (Dash to Dock)
+- name: Configure panel settings
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { key: "/org/gnome/shell/extensions/dash-to-dock/dock-position", value: "'{{ de_panel_position | upper }}'" }
+    - { key: "/org/gnome/shell/extensions/dash-to-dock/autohide", value: "{{ de_panel_autohide | bool | lower }}" }
+    - { key: "/org/gnome/shell/extensions/dash-to-dock/hide-delay", value: "{{ de_panel_autohide_hide_delay / 1000.0 }}" }
+    - { key: "/org/gnome/shell/extensions/dash-to-dock/show-delay", value: "{{ de_panel_autohide_show_delay / 1000.0 }}" }
+    - { key: "/org/gnome/shell/extensions/dash-to-dock/dash-max-icon-size", value: "{{ de_panel_size }}" }
+    - { key: "/org/gnome/shell/extensions/dash-to-dock/transparency-mode", value: "'FIXED'" }
+    - { key: "/org/gnome/shell/extensions/dash-to-dock/background-opacity", value: "{{ 1.0 - de_panel_transparency }}" }
+  tags: ['desktop-config', 'panel']
+
+- name: Configure clock format
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { key: "/org/gnome/desktop/interface/clock-format", value: "'{{ de_clock_format }}'" }
+    - { key: "/org/gnome/desktop/interface/clock-show-date", value: "{{ de_clock_show_date | bool | lower }}" }
+    - { key: "/org/gnome/desktop/interface/clock-show-weekday", value: "{{ de_clock_show_weekday | bool | lower }}" }
+    - { key: "/org/gnome/desktop/interface/clock-show-seconds", value: "{{ de_clock_show_seconds | bool | lower }}" }
+  tags: ['desktop-config', 'panel']
+
+# Theme Settings (existing)
+- name: Set GNOME theme settings
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { key: "/org/gnome/desktop/interface/gtk-theme", value: "'{{ de_gtk_theme }}'" }
+    - { key: "/org/gnome/desktop/interface/icon-theme", value: "'{{ de_icon_theme }}'" }
+    - { key: "/org/gnome/desktop/interface/cursor-theme", value: "'{{ de_cursor_theme }}'" }
+  when: de_configure_theme
+  tags: ['desktop-config', 'theme']
+
+# Power Settings (existing)
+- name: Configure GNOME power settings
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { key: "/org/gnome/settings-daemon/plugins/power/lid-close-ac-action", value: "'{{ de_laptop_lid_close_action }}'" }
+    - { key: "/org/gnome/settings-daemon/plugins/power/lid-close-battery-action", value: "'{{ de_laptop_lid_close_action }}'" }
+    - { key: "/org/gnome/settings-daemon/plugins/power/power-button-action", value: "'{{ de_power_button_action }}'" }
+  when: de_configure_power
+  tags: ['desktop-config', 'power']
+
+# Sound Settings (existing)
+- name: Configure sound settings
+  community.general.dconf:
+    key: "/org/gnome/desktop/sound/event-sounds"
+    value: "{{ de_startup_sound | bool | lower }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  when: de_configure_sound
+  tags: ['desktop-config', 'sound']

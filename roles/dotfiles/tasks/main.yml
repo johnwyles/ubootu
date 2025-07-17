@@ -1,0 +1,42 @@
+---
+# Main tasks file for dotfiles role
+
+- name: Clone existing dotfiles repository
+  ansible.builtin.include_tasks: clone-repo.yml
+  when: dotfiles_repo is defined and dotfiles_repo | length > 0
+  tags: ['clone']
+
+- name: Configure shell dotfiles
+  ansible.builtin.include_tasks: shell.yml
+  when: "'shell' in managed_dotfiles"
+  tags: ['shell']
+
+- name: Configure Git
+  ansible.builtin.include_tasks: git.yml
+  when: "'git' in managed_dotfiles"
+  tags: ['git']
+
+- name: Configure Vim/Neovim
+  ansible.builtin.include_tasks: vim.yml
+  when: "'vim' in managed_dotfiles"
+  tags: ['vim']
+
+- name: Configure tmux
+  ansible.builtin.include_tasks: tmux.yml
+  when: "'tmux' in managed_dotfiles"
+  tags: ['tmux']
+
+- name: Configure SSH
+  ansible.builtin.include_tasks: ssh-config.yml
+  when: "'ssh' in managed_dotfiles"
+  tags: ['ssh']
+
+- name: Configure VS Code settings
+  ansible.builtin.include_tasks: vscode-settings.yml
+  when: "'vscode' in managed_dotfiles and 'vscode' in code_editors"
+  tags: ['vscode']
+
+- name: Set up dotfiles management
+  ansible.builtin.include_tasks: dotfiles-manager.yml
+  when: dotfiles_use_manager
+  tags: ['manager']

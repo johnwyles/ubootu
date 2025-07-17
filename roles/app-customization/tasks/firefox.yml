@@ -1,0 +1,89 @@
+---
+# Firefox customizations
+
+- name: Find Firefox profile directory
+  ansible.builtin.shell: |
+    find /home/{{ primary_user }}/.mozilla/firefox -name "*.default-release" -type d | head -1
+  register: firefox_profile_dir
+  become: yes
+  become_user: "{{ primary_user }}"
+  changed_when: false
+
+- name: Create Firefox profile directory if not exists
+  ansible.builtin.file:
+    path: "/home/{{ primary_user }}/.mozilla/firefox/{{ primary_user }}.default-release"
+    state: directory
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0755'
+  become: yes
+  when: firefox_profile_dir.stdout == ""
+
+- name: Set Firefox profile directory
+  ansible.builtin.set_fact:
+    firefox_profile_path: "{{ firefox_profile_dir.stdout if firefox_profile_dir.stdout != '' else '/home/' + primary_user + '/.mozilla/firefox/' + primary_user + '.default-release' }}"
+
+- name: Configure Firefox user.js preferences
+  ansible.builtin.template:
+    src: firefox-user.js.j2
+    dest: "{{ firefox_profile_path }}/user.js"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+
+- name: Configure Firefox userChrome.css
+  ansible.builtin.template:
+    src: firefox-userChrome.css.j2
+    dest: "{{ firefox_profile_path }}/chrome/userChrome.css"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+  when: firefox_custom_css is defined
+
+- name: Create Firefox chrome directory
+  ansible.builtin.file:
+    path: "{{ firefox_profile_path }}/chrome"
+    state: directory
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0755'
+  become: yes
+  when: firefox_custom_css is defined
+
+- name: Install Firefox extensions via policies
+  ansible.builtin.template:
+    src: firefox-policies.json.j2
+    dest: "/usr/lib/firefox/distribution/policies.json"
+    mode: '0644'
+  become: yes
+  when: firefox_extensions is defined
+
+- name: Create Firefox distribution directory
+  ansible.builtin.file:
+    path: "/usr/lib/firefox/distribution"
+    state: directory
+    mode: '0755'
+  become: yes
+  when: firefox_extensions is defined
+
+- name: Configure Firefox search engines
+  ansible.builtin.template:
+    src: firefox-search.json.j2
+    dest: "{{ firefox_profile_path }}/search.json.mozlz4"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+  when: firefox_search_engines is defined
+
+- name: Set Firefox as default browser
+  ansible.builtin.shell: |
+    xdg-settings set default-web-browser firefox.desktop
+  become: yes
+  become_user: "{{ primary_user }}"
+  environment:
+    DISPLAY: ":0"
+  when: default_browser == "firefox"
+  changed_when: true

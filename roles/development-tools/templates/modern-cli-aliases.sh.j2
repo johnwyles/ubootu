@@ -1,0 +1,197 @@
+#!/bin/bash
+# Modern CLI tool aliases and functions
+
+{% if 'eza' in devtools_modern_cli_tools %}
+# eza (modern ls replacement)
+alias ls='eza --icons --group-directories-first'
+alias ll='eza -l --icons --group-directories-first'
+alias la='eza -la --icons --group-directories-first'
+alias lt='eza --tree --icons'
+alias l='eza -la --icons --group-directories-first'
+{% endif %}
+
+{% if 'bat' in devtools_modern_cli_tools %}
+# bat (modern cat replacement)
+alias cat='bat --paging=never'
+alias catp='bat'  # with paging
+{% endif %}
+
+{% if 'fd' in devtools_modern_cli_tools %}
+# fd (modern find replacement)
+alias find='fd'
+{% endif %}
+
+{% if 'ripgrep' in devtools_modern_cli_tools %}
+# ripgrep (modern grep replacement)
+alias grep='rg'
+{% endif %}
+
+{% if 'delta' in devtools_modern_cli_tools %}
+# Configure git to use delta for diffs
+export GIT_PAGER='delta'
+{% endif %}
+
+{% if 'lazygit' in devtools_modern_cli_tools %}
+# lazygit shortcut
+alias lg='lazygit'
+{% endif %}
+
+{% if 'bottom' in devtools_modern_cli_tools %}
+# bottom (modern top replacement)
+alias top='btm'
+alias htop='btm'
+{% endif %}
+
+{% if 'dust' in devtools_modern_cli_tools %}
+# dust (modern du replacement)
+alias du='dust'
+{% endif %}
+
+{% if 'procs' in devtools_modern_cli_tools %}
+# procs (modern ps replacement)
+alias ps='procs'
+{% endif %}
+
+{% if 'sd' in devtools_modern_cli_tools %}
+# sd (modern sed replacement) - no alias to avoid breaking scripts
+alias sdr='sd'  # use 'sdr' for sd replace
+{% endif %}
+
+{% if devtools_install_zoxide %}
+# zoxide (smart cd)
+eval "$(zoxide init bash)"
+alias cd='z'
+alias cdi='zi'  # interactive selection
+{% endif %}
+
+{% if devtools_install_mcfly %}
+# mcfly (better shell history)
+eval "$(mcfly init bash)"
+{% endif %}
+
+# fzf configuration
+{% if 'fzf' in devtools_modern_cli_tools %}
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+
+# fzf preview with bat
+export FZF_DEFAULT_OPTS="--preview 'bat --style=numbers --color=always --line-range :500 {}' --preview-window=right:60%"
+
+# Useful fzf functions
+fcd() {
+  local dir
+  dir=$(fd --type d --hidden --follow --exclude .git | fzf +m) && cd "$dir"
+}
+
+fkill() {
+  local pid
+  pid=$(procs | sed 1d | fzf -m | awk '{print $1}')
+  if [ "x$pid" != "x" ]; then
+    echo $pid | xargs kill -${1:-9}
+  fi
+}
+
+fgit() {
+  git log --graph --color=always \
+      --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" "$@" |
+  fzf --ansi --no-sort --reverse --tiebreak=index --bind=ctrl-s:toggle-sort \
+      --bind "ctrl-m:execute:
+                (grep -o '[a-f0-9]\{7\}' | head -1 |
+                xargs -I % sh -c 'git show --color=always % | less -R') << 'FZF-EOF'
+                {}
+FZF-EOF"
+}
+{% endif %}
+
+# Git shortcuts with modern tools
+alias gs='git status'
+alias gd='git diff'
+alias gl='git log --oneline --graph --decorate'
+alias gp='git push'
+alias gpu='git pull'
+alias gc='git commit'
+alias gco='git checkout'
+alias gb='git branch'
+alias ga='git add'
+
+# Docker shortcuts
+alias d='docker'
+alias dc='docker-compose'
+alias dps='docker ps'
+alias dpsa='docker ps -a'
+alias di='docker images'
+alias dex='docker exec -it'
+alias dlog='docker logs -f'
+alias drmf='docker rm -f $(docker ps -aq)'
+alias drmi='docker rmi $(docker images -q -f dangling=true)'
+
+# Kubernetes shortcuts
+{% if devtools_install_k8s_tools %}
+alias k='kubectl'
+alias kgp='kubectl get pods'
+alias kgs='kubectl get services'
+alias kgd='kubectl get deployments'
+alias kaf='kubectl apply -f'
+alias kdel='kubectl delete'
+alias klog='kubectl logs -f'
+alias kexec='kubectl exec -it'
+{% if 'k9s' in devtools_k8s_tools %}
+alias kk='k9s'
+{% endif %}
+{% endif %}
+
+# Python shortcuts
+{% if 'python' in devtools_languages %}
+alias py='python3'
+alias pip='pip3'
+alias venv='python3 -m venv'
+alias activate='source venv/bin/activate || source .venv/bin/activate'
+{% endif %}
+
+# Node.js shortcuts
+{% if 'nodejs' in devtools_languages %}
+alias ni='npm install'
+alias nr='npm run'
+alias nrd='npm run dev'
+alias nrs='npm run start'
+alias nrt='npm run test'
+alias nrb='npm run build'
+{% endif %}
+
+# Utility functions
+mkcd() {
+    mkdir -p "$1" && cd "$1"
+}
+
+extract() {
+    if [ -f $1 ]; then
+        case $1 in
+            *.tar.bz2)   tar xjf $1     ;;
+            *.tar.gz)    tar xzf $1     ;;
+            *.bz2)       bunzip2 $1     ;;
+            *.rar)       unrar e $1     ;;
+            *.gz)        gunzip $1      ;;
+            *.tar)       tar xf $1      ;;
+            *.tbz2)      tar xjf $1     ;;
+            *.tgz)       tar xzf $1     ;;
+            *.zip)       unzip $1       ;;
+            *.Z)         uncompress $1  ;;
+            *.7z)        7z x $1        ;;
+            *)           echo "'$1' cannot be extracted via extract()" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}
+
+# Quick backup function
+backup() {
+    cp "$1" "$1.backup-$(date +%Y%m%d-%H%M%S)"
+}
+
+# Weather function
+weather() {
+    curl -s "wttr.in/${1:-}" | head -n 17
+}

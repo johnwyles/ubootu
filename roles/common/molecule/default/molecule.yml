@@ -1,0 +1,36 @@
+---
+dependency:
+  name: galaxy
+
+driver:
+  name: docker
+
+platforms:
+  - name: ubuntu-common-test
+    image: ubuntu:22.04
+    dockerfile: ../../../../molecule/default/Dockerfile.j2
+    pre_build_image: false
+    privileged: true
+    ansible.builtin.command: /lib/systemd/systemd
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    tmpfs:
+      - /run
+      - /tmp
+    capabilities:
+      - SYS_ADMIN
+
+provisioner:
+  name: ansible
+  inventory:
+    host_vars:
+      ubuntu-common-test:
+        ansible_python_interpreter: /usr/bin/python3
+
+        # Common role specific vars
+        install_essential_packages: true
+        configure_system_limits: true
+        enable_third_party_repos: false  # Disabled for faster tests
+
+verifier:
+  name: ansible

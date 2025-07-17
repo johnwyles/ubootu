@@ -1,0 +1,73 @@
+---
+dependency:
+  name: galaxy
+  options:
+    requirements-file: requirements.yml
+
+driver:
+  name: docker
+
+platforms:
+  - name: ubuntu-2004
+    image: ubuntu:20.04
+    dockerfile: Dockerfile.j2
+    pre_build_image: false
+    privileged: true
+    ansible.builtin.command: /lib/systemd/systemd
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    tmpfs:
+      - /run
+      - /tmp
+    capabilities:
+      - SYS_ADMIN
+
+  - name: ubuntu-2204
+    image: ubuntu:22.04
+    dockerfile: Dockerfile.j2
+    pre_build_image: false
+    privileged: true
+    ansible.builtin.command: /lib/systemd/systemd
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    tmpfs:
+      - /run
+      - /tmp
+    capabilities:
+      - SYS_ADMIN
+
+  - name: ubuntu-2404
+    image: ubuntu:24.04
+    dockerfile: Dockerfile.j2
+    pre_build_image: false
+    privileged: true
+    ansible.builtin.command: /lib/systemd/systemd
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    tmpfs:
+      - /run
+      - /tmp
+    capabilities:
+      - SYS_ADMIN
+
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      interpreter_python: auto_silent
+      callback_whitelist: profile_tasks, timer, yaml
+    ssh_connection:
+      pipelining: false
+  inventory:
+    host_vars:
+      ubuntu-2004:
+        ansible_python_interpreter: /usr/bin/python3
+      ubuntu-2204:
+        ansible_python_interpreter: /usr/bin/python3
+      ubuntu-2404:
+        ansible_python_interpreter: /usr/bin/python3
+  playbooks:
+    converge: ${MOLECULE_PLAYBOOK:-converge.yml}
+
+verifier:
+  name: ansible

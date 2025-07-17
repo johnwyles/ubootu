@@ -1,0 +1,110 @@
+---
+# VS Code configuration and extensions
+
+- name: Ensure VS Code is installed
+  ansible.builtin.apt:
+    name: code
+    state: present
+  become: yes
+  when: use_third_party_repos | default(true)
+
+- name: Create VS Code user directory
+  ansible.builtin.file:
+    path: "/home/{{ primary_user }}/.config/Code/User"
+    state: directory
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0755'
+    recurse: yes
+  become: yes
+
+- name: Install essential VS Code extensions
+  ansible.builtin.shell: code --install-extension {{ item }} --force
+  become: yes
+  become_user: "{{ primary_user }}"
+  environment:
+    DISPLAY: ":0"
+  loop: "{{ devtools_vscode_extensions }}"
+  loop_control:
+    label: "{{ item.split('.')[-1] }}"
+  failed_when: false
+  changed_when: true
+
+- name: Install AI coding assistant extensions
+  ansible.builtin.shell: code --install-extension {{ item }} --force
+  become: yes
+  become_user: "{{ primary_user }}"
+  environment:
+    DISPLAY: ":0"
+  loop:
+    - github.copilot
+    - github.copilot-chat
+  when: devtools_ai_assistant == 'github-copilot'
+  failed_when: false
+  changed_when: true
+
+- name: Install Codeium extension
+  ansible.builtin.shell: code --install-extension codeium.codeium --force
+  become: yes
+  become_user: "{{ primary_user }}"
+  environment:
+    DISPLAY: ":0"
+  when: devtools_ai_assistant == 'codeium'
+  failed_when: false
+  changed_when: true
+
+- name: Install language-specific extensions
+  ansible.builtin.shell: code --install-extension {{ extension }} --force
+  become: yes
+  become_user: "{{ primary_user }}"
+  environment:
+    DISPLAY: ":0"
+  loop: "{{ devtools_languages | map('extract', devtools_vscode_language_extensions, default=[]) | flatten }}"
+  loop_control:
+    label: "{{ extension.split('.')[-1] }}"
+    loop_var: extension
+  when: devtools_languages | length > 0
+  failed_when: false
+  changed_when: true
+
+- name: Configure VS Code settings
+  ansible.builtin.template:
+    src: vscode-settings.json.j2
+    dest: "/home/{{ primary_user }}/.config/Code/User/settings.json"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+    backup: yes
+  become: yes
+
+- name: Configure VS Code keybindings
+  ansible.builtin.template:
+    src: vscode-keybindings.json.j2
+    dest: "/home/{{ primary_user }}/.config/Code/User/keybindings.json"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+
+- name: Create VS Code snippets directory
+  ansible.builtin.file:
+    path: "/home/{{ primary_user }}/.config/Code/User/snippets"
+    state: directory
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0755'
+  become: yes
+
+- name: Add common code snippets
+  ansible.builtin.template:
+    src: "vscode-{{ item }}-snippets.json.j2"
+    dest: "/home/{{ primary_user }}/.config/Code/User/snippets/{{ item }}.json"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+  loop:
+    - python
+    - javascript
+    - typescript
+  when: item in devtools_languages or (item in ['javascript', 'typescript'] and 'nodejs' in devtools_languages)

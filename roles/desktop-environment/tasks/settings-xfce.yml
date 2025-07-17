@@ -1,0 +1,30 @@
+---
+- name: Create XFCE config directory
+  ansible.builtin.file:
+    path: "/home/{{ primary_user }}/.config/xfce4/xfconf/xfce-perchannel-xml"
+    state: directory
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0755'
+    recurse: yes
+  become: yes
+
+- name: Configure XFCE theme settings
+  ansible.builtin.template:
+    src: xfce-xsettings.xml.j2
+    dest: "/home/{{ primary_user }}/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+  when: de_configure_theme
+
+- name: Configure XFCE power settings
+  ansible.builtin.template:
+    src: xfce-xfce4-power-manager.xml.j2
+    dest: "/home/{{ primary_user }}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.xml"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+  when: de_configure_power

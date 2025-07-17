@@ -1,0 +1,48 @@
+# Ansible managed zsh aliases
+
+# Custom aliases
+{% for alias in shell_custom_aliases %}
+alias {{ alias.alias }}='{{ alias.command }}'
+{% endfor %}
+
+# Zsh specific aliases
+alias -g ...='../..'
+alias -g ....='../../..'
+alias -g .....='../../../..'
+alias -g L='| less'
+alias -g G='| grep'
+alias -g H='| head'
+alias -g T='| tail'
+alias -g NUL='> /dev/null 2>&1'
+
+# Global aliases for common commands
+alias -g CP='| pbcopy'
+alias -g LL='2>&1 | less'
+alias -g CA='2>&1 | cat -A'
+alias -g NE='2> /dev/null'
+alias -g NUL='> /dev/null 2>&1'
+
+# Suffix aliases (auto open files with specific programs)
+alias -s txt=vim
+alias -s md=vim
+alias -s py=python3
+alias -s js=node
+alias -s json=jq
+
+# Include all bash aliases
+{% for alias in shell_custom_aliases %}
+alias {{ alias.alias }}='{{ alias.command }}'
+{% endfor %}
+
+# Additional zsh conveniences
+alias zshconfig="$EDITOR ~/.zshrc"
+alias ohmyzsh="$EDITOR ~/.oh-my-zsh"
+alias reload='source ~/.zshrc'
+
+# Directory shortcuts
+hash -d dl=~/Downloads
+hash -d docs=~/Documents
+hash -d pics=~/Pictures
+hash -d vids=~/Videos
+hash -d music=~/Music
+hash -d dev=~/Development

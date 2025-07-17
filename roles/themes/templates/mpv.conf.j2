@@ -1,0 +1,30 @@
+# MPV configuration with {{ themes_global_theme | capitalize }} theme
+
+# Video
+profile=gpu-hq
+scale=ewa_lanczossharp
+cscale=ewa_lanczossharp
+
+# OSD/OSC
+osc=yes
+osd-font-size=32
+osd-color='#{{ themes_terminal_profiles[themes_global_theme].foreground | default("FFFFFF") | replace("#", "") }}'
+osd-border-color='#{{ themes_terminal_profiles[themes_global_theme].background | default("000000") | replace("#", "") }}'
+osd-bar-align-y=0.95
+osd-bar-h=2
+osd-bar-w=95
+
+# Subtitles
+sub-auto=fuzzy
+sub-font-size=36
+sub-color='#{{ themes_terminal_profiles[themes_global_theme].foreground | default("FFFFFF") | replace("#", "") }}'
+sub-border-color='#{{ themes_terminal_profiles[themes_global_theme].background | default("000000") | replace("#", "") }}'
+sub-border-size=2.5
+sub-shadow-offset=1
+
+# Window
+keep-open=yes
+force-window=immediate
+
+# Colors for OSC (on-screen controller)
+script-opts=osc-seekbarstyle=bar,osc-deadzonesize=0,osc-minmousemove=3

@@ -1,0 +1,67 @@
+---
+# Install system utilities
+
+- name: Install essential utilities
+  ansible.builtin.apt:
+    name: "{{ essential_utilities }}"
+    state: present
+  become: yes
+
+- name: Install system utilities
+  ansible.builtin.apt:
+    name: "{{ system_utilities }}"
+    state: present
+  become: yes
+
+- name: Install archive managers
+  ansible.builtin.apt:
+    name: "{{ archive_managers }}"
+    state: present
+  become: yes
+
+- name: Install PDF tools
+  ansible.builtin.apt:
+    name: "{{ pdf_tools }}"
+    state: present
+  become: yes
+
+- name: Install screenshot tools
+  ansible.builtin.apt:
+    name: "{{ screenshot_tools }}"
+    state: present
+  become: yes
+
+- name: Install clipboard managers
+  ansible.builtin.apt:
+    name: "{{ clipboard_managers }}"
+    state: present
+  become: yes
+
+# Install additional helpful utilities
+- name: Install additional utilities
+  ansible.builtin.apt:
+    name:
+      - meld           # Visual diff tool
+      - remmina        # Remote desktop client
+      - gdebi          # .deb package installer GUI
+      - hardinfo       # System information
+      - cpu-x          # CPU information GUI
+      - baobab         # Disk usage analyzer
+      - gnome-sushi    # Quick preview
+      - catfish        # File search utility
+      - menulibre      # Menu editor
+      - font-manager   # Font management GUI
+    state: present
+  become: yes
+
+# Install terminal utilities
+- name: Install terminal enhancements
+  ansible.builtin.apt:
+    name:
+      - terminator     # Advanced terminal emulator
+      - tilix          # Tiling terminal emulator
+      - guake          # Drop-down terminal
+      - byobu          # Terminal multiplexer wrapper
+    state: present
+  become: yes
+  when: terminal_emulator is not defined or terminal_emulator == 'default'

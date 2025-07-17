@@ -1,0 +1,17 @@
+[apache-auth]
+enabled = false
+port = http,https
+filter = apache-auth
+logpath = /var/log/apache2/*error.log
+
+[apache-badbots]
+enabled = false
+port = http,https
+filter = apache-badbots
+logpath = /var/log/apache2/*access.log
+
+[apache-noscript]
+enabled = false
+port = http,https
+filter = apache-noscript
+logpath = /var/log/apache2/*error.log

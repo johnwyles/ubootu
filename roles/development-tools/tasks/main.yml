@@ -1,0 +1,139 @@
+---
+- name: Install development languages
+  ansible.builtin.include_tasks: languages.yml
+  when: devtools_languages | length > 0
+  tags: ['languages']
+
+- name: Install modern CLI tools
+  ansible.builtin.include_tasks: modern-cli.yml
+  when: devtools_install_modern_cli and not use_comprehensive_cli_tools | default(false)
+  tags: ['cli-tools']
+
+- name: Install comprehensive CLI tools
+  ansible.builtin.include_tasks: cli-tools-comprehensive.yml
+  when: devtools_install_modern_cli and use_comprehensive_cli_tools | default(true)
+  tags: ['cli-tools', 'cli-comprehensive']
+
+- name: Install version managers
+  ansible.builtin.include_tasks: version-managers.yml
+  tags: ['version-managers']
+
+- name: Install IDEs
+  ansible.builtin.include_tasks: ides.yml
+  when: >
+    devtools_install_intellij or
+    devtools_install_pycharm or
+    devtools_install_webstorm or
+    devtools_install_phpstorm or
+    devtools_install_clion or
+    devtools_install_goland or
+    devtools_install_datagrip or
+    devtools_install_eclipse or
+    devtools_install_netbeans or
+    devtools_install_vscode
+  tags: ['ides']
+
+- name: Install code editors
+  ansible.builtin.include_tasks: editors.yml
+  when: >
+    devtools_editors | length > 0 or
+    devtools_install_sublime or
+    devtools_install_atom or
+    devtools_install_brackets or
+    devtools_install_zed or
+    devtools_install_helix or
+    devtools_install_vim or
+    devtools_install_emacs or
+    devtools_install_vscode
+  tags: ['editors']
+
+- name: Install debugging tools
+  ansible.builtin.include_tasks: debugging-tools.yml
+  when: >
+    devtools_install_gdb or
+    devtools_install_valgrind or
+    devtools_install_strace or
+    devtools_install_ltrace
+  tags: ['debugging']
+
+- name: Install version control GUI tools
+  ansible.builtin.include_tasks: version-control-gui.yml
+  when: >
+    devtools_install_git or
+    devtools_install_gitkraken or
+    devtools_install_sourcetree or
+    devtools_install_github_desktop or
+    devtools_install_gitlab_desktop
+  tags: ['version-control']
+
+- name: Configure VS Code
+  ansible.builtin.include_tasks: vscode-config.yml
+  when: "'vscode' in devtools_editors"
+  tags: ['vscode']
+
+- name: Install AI coding assistants
+  ansible.builtin.include_tasks: ai-assistants.yml
+  when: devtools_ai_assistant != 'none' or devtools_install_cursor or devtools_install_aider
+  tags: ['ai-tools']
+
+- name: Install database tools
+  ansible.builtin.include_tasks: database-tools.yml
+  when: >
+    devtools_install_database_guis or
+    devtools_install_dbeaver or
+    devtools_install_mysql_workbench or
+    devtools_install_pgadmin or
+    devtools_install_mongodb_compass
+  tags: ['database']
+
+- name: Install API testing tools
+  ansible.builtin.include_tasks: api-tools.yml
+  when: >
+    devtools_install_api_tools or
+    devtools_install_postman or
+    devtools_install_insomnia or
+    devtools_install_httpie
+  tags: ['api-tools']
+
+- name: Install container/Kubernetes tools
+  ansible.builtin.include_tasks: k8s-tools.yml
+  when: devtools_install_k8s_tools
+  tags: ['k8s']
+
+- name: Install development utilities
+  ansible.builtin.include_tasks: dev-utilities.yml
+  tags: ['utilities']
+
+- name: Install file sync tools
+  ansible.builtin.include_tasks: sync-tools.yml
+  when: devtools_install_sync_tools
+  tags: ['sync']
+
+- name: Install networking tools
+  ansible.builtin.include_tasks: networking-tools.yml
+  when: devtools_install_networking_tools
+  tags: ['networking']
+
+- name: Install extra networking tools
+  ansible.builtin.include_tasks: extra-networking.yml
+  when: devtools_install_networking_tools and devtools_install_extra_networking | default(true)
+  tags: ['networking', 'extra-networking']
+
+- name: Install monitoring tools
+  ansible.builtin.include_tasks: monitoring-tools.yml
+  when: devtools_install_monitoring_tools
+  tags: ['monitoring']
+
+- name: Install self-hosted solutions
+  ansible.builtin.include_tasks: selfhosted.yml
+  when: devtools_install_selfhosted
+  tags: ['selfhosted']
+
+- name: Install self-hosted security services
+  ansible.builtin.include_tasks: selfhosted-security.yml
+  when: devtools_install_selfhosted
+  tags: ['selfhosted', 'security']
+
+- name: Configure shell integrations
+  ansible.builtin.include_tasks: shell-config.yml
+  tags: ['shell']

@@ -1,0 +1,31 @@
+---
+- name: Validate desktop environment choice
+  ansible.builtin.assert:
+    that:
+      - de_environment in de_packages.keys()
+    fail_msg: "Invalid desktop environment: {{ de_environment }}. Valid options are: {{ de_packages.keys() | join(', ') }}"
+  tags: always
+
+- name: Install desktop environment
+  ansible.builtin.include_tasks: "install-{{ de_environment }}.yml"
+  tags: ['install']
+
+- name: Install common desktop packages
+  ansible.builtin.apt:
+    name: "{{ de_common_packages }}"
+    state: present
+  become: yes
+  tags: ['packages']
+
+- name: Configure display manager
+  ansible.builtin.include_tasks: display-manager.yml
+  tags: ['display-manager']
+
+- name: Configure desktop settings
+  ansible.builtin.include_tasks: settings.yml
+  when: de_configure_theme or de_configure_display or de_configure_power
+  tags: ['settings']
+
+- name: Configure user desktop
+  ansible.builtin.include_tasks: user-config.yml
+  tags: ['user-config']

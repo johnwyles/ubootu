@@ -1,0 +1,76 @@
+---
+# Generate SSH keys
+
+- name: Create SSH directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ssh"
+    state: directory
+    mode: '0700'
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
+
+- name: Check if SSH key already exists
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.ssh/id_{{ ssh_key_type }}"
+  register: ssh_key_exists
+
+- name: Generate SSH key
+  openssh_keypair:
+    path: "{{ ansible_env.HOME }}/.ssh/id_{{ ssh_key_type }}"
+    type: "{{ ssh_key_type }}"
+    size: "{{ ssh_key_bits if ssh_key_type == 'rsa' else omit }}"
+    comment: "{{ ssh_key_comment }}"
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
+    mode: '0600'
+  when: not ssh_key_exists.stat.exists
+
+- name: Set permissions on SSH public key
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ssh/id_{{ ssh_key_type }}.pub"
+    mode: '0644'
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
+  when: not ssh_key_exists.stat.exists
+
+- name: Create SSH config file
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ssh/config"
+    state: touch
+    mode: '0600'
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
+    modification_time: preserve
+    access_time: preserve
+
+- name: Add SSH key to ssh-agent on login
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_env.HOME }}/.bashrc"
+    block: |
+      # SSH Agent
+      if [ -z "$SSH_AUTH_SOCK" ]; then
+        eval $(ssh-agent -s) > /dev/null
+        ssh-add ~/.ssh/id_{{ ssh_key_type }} 2> /dev/null
+      fi
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - SSH Agent"
+    create: yes
+    mode: '0644'
+
+- name: Display SSH public key
+  ansible.builtin.slurp:
+    src: "{{ ansible_env.HOME }}/.ssh/id_{{ ssh_key_type }}.pub"
+  register: ssh_public_key
+  when: not ssh_key_exists.stat.exists
+
+- name: Show SSH public key info
+  ansible.builtin.debug:
+    msg: |
+      SSH key generated successfully!
+      Type: {{ ssh_key_type }}
+      Location: {{ ansible_env.HOME }}/.ssh/id_{{ ssh_key_type }}
+
+      Public key:
+      {{ ssh_public_key.content | b64decode }}
+
+      Add this key to your Git services (GitHub, GitLab, etc.) to enable SSH authentication.
+  when: not ssh_key_exists.stat.exists

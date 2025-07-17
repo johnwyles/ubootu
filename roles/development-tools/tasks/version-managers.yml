@@ -1,0 +1,430 @@
+---
+# Install version managers for different languages
+
+# NVM (Node Version Manager)
+- name: Install NVM
+  block:
+    - name: Download NVM installer
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh
+        dest: /tmp/install-nvm.sh
+        mode: '0755'
+
+    - name: Install NVM
+      ansible.builtin.shell: /tmp/install-nvm.sh
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        creates: "/home/{{ primary_user }}/.nvm"
+
+    - name: Install Node.js versions
+      ansible.builtin.shell: |
+        source ~/.nvm/nvm.sh
+        nvm install --lts         # Latest LTS
+        nvm install node          # Latest current
+        nvm install 18            # Node.js 18
+        nvm install 20            # Node.js 20
+        nvm alias default lts/*   # Set LTS as default
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        executable: /bin/bash
+  when: 
+    - "'nvm' in devtools_version_managers"
+    - "'nodejs' in devtools_languages"
+
+# pyenv (Python Version Manager)
+- name: Install pyenv
+  block:
+    - name: Install pyenv dependencies
+      ansible.builtin.apt:
+        name:
+          - make
+          - build-essential
+          - libssl-dev
+          - zlib1g-dev
+          - libbz2-dev
+          - libreadline-dev
+          - libsqlite3-dev
+          - wget
+          - curl
+          - llvm
+          - libncursesw5-dev
+          - xz-utils
+          - tk-dev
+          - libxml2-dev
+          - libxmlsec1-dev
+          - libffi-dev
+          - liblzma-dev
+        state: present
+      become: yes
+
+    - name: Clone pyenv repository
+      ansible.builtin.git:
+        repo: https://github.com/pyenv/pyenv.git
+        dest: "/home/{{ primary_user }}/.pyenv"
+        version: master
+      become: yes
+      become_user: "{{ primary_user }}"
+
+    - name: Clone pyenv-virtualenv
+      ansible.builtin.git:
+        repo: https://github.com/pyenv/pyenv-virtualenv.git
+        dest: "/home/{{ primary_user }}/.pyenv/plugins/pyenv-virtualenv"
+        version: master
+      become: yes
+      become_user: "{{ primary_user }}"
+
+    - name: Configure pyenv in shell
+      ansible.builtin.lineinfile:
+        path: "/home/{{ primary_user }}/.bashrc"
+        line: "{{ item }}"
+        create: yes
+      become: yes
+      become_user: "{{ primary_user }}"
+      loop:
+        - 'export PYENV_ROOT="$HOME/.pyenv"'
+        - 'export PATH="$PYENV_ROOT/bin:$PATH"'
+        - 'eval "$(pyenv init -)"'
+        - 'eval "$(pyenv virtualenv-init -)"'
+
+    - name: Install Python versions
+      ansible.builtin.shell: |
+        source ~/.bashrc
+        pyenv install 3.8.18
+        pyenv install 3.9.18
+        pyenv install 3.10.13
+        pyenv install 3.11.7
+        pyenv install 3.12.1
+        pyenv global 3.11.7  # Set default to 3.11
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        executable: /bin/bash
+      ignore_errors: yes  # Some versions might fail on certain Ubuntu versions
+  when: 
+    - "'pyenv' in devtools_version_managers"
+    - "'python' in devtools_languages"
+
+# rbenv (Ruby Version Manager)
+- name: Install rbenv
+  block:
+    - name: Install rbenv dependencies
+      ansible.builtin.apt:
+        name:
+          - autoconf
+          - bison
+          - build-essential
+          - libssl-dev
+          - libyaml-dev
+          - libreadline6-dev
+          - zlib1g-dev
+          - libncurses5-dev
+          - libffi-dev
+          - libgdbm6
+          - libgdbm-dev
+          - libdb-dev
+        state: present
+      become: yes
+
+    - name: Clone rbenv
+      ansible.builtin.git:
+        repo: https://github.com/rbenv/rbenv.git
+        dest: "/home/{{ primary_user }}/.rbenv"
+        version: master
+      become: yes
+      become_user: "{{ primary_user }}"
+
+    - name: Clone ruby-build
+      ansible.builtin.git:
+        repo: https://github.com/rbenv/ruby-build.git
+        dest: "/home/{{ primary_user }}/.rbenv/plugins/ruby-build"
+        version: master
+      become: yes
+      become_user: "{{ primary_user }}"
+
+    - name: Configure rbenv in shell
+      ansible.builtin.lineinfile:
+        path: "/home/{{ primary_user }}/.bashrc"
+        line: "{{ item }}"
+        create: yes
+      become: yes
+      become_user: "{{ primary_user }}"
+      loop:
+        - 'export PATH="$HOME/.rbenv/bin:$PATH"'
+        - 'eval "$(rbenv init -)"'
+
+    - name: Install Ruby versions
+      ansible.builtin.shell: |
+        source ~/.bashrc
+        rbenv install 3.0.6
+        rbenv install 3.1.4
+        rbenv install 3.2.2
+        rbenv install 3.3.0
+        rbenv global 3.2.2  # Set default
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        executable: /bin/bash
+      ignore_errors: yes
+  when: 
+    - "'rbenv' in devtools_version_managers"
+    - "'ruby' in devtools_languages"
+
+# jenv (Java Version Manager)
+- name: Install jenv
+  block:
+    - name: Clone jenv
+      ansible.builtin.git:
+        repo: https://github.com/jenv/jenv.git
+        dest: "/home/{{ primary_user }}/.jenv"
+        version: master
+      become: yes
+      become_user: "{{ primary_user }}"
+
+    - name: Configure jenv in shell
+      ansible.builtin.lineinfile:
+        path: "/home/{{ primary_user }}/.bashrc"
+        line: "{{ item }}"
+        create: yes
+      become: yes
+      become_user: "{{ primary_user }}"
+      loop:
+        - 'export PATH="$HOME/.jenv/bin:$PATH"'
+        - 'eval "$(jenv init -)"'
+
+    - name: Enable jenv plugins
+      ansible.builtin.shell: |
+        source ~/.bashrc
+        jenv enable-plugin export
+        jenv enable-plugin maven
+        jenv enable-plugin gradle
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        executable: /bin/bash
+      ignore_errors: yes
+
+    - name: Add Java installations to jenv
+      ansible.builtin.shell: |
+        source ~/.bashrc
+        for java_home in /usr/lib/jvm/*/; do
+          if [ -d "$java_home" ] && [ -f "$java_home/bin/java" ]; then
+            jenv add "$java_home" || true
+          fi
+        done
+        jenv global 17  # Set Java 17 as default
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        executable: /bin/bash
+      ignore_errors: yes
+  when: 
+    - "'jenv' in devtools_version_managers"
+    - "'java' in devtools_languages"
+
+# SDKMAN (Software Development Kit Manager) - for Java, Kotlin, Scala, etc.
+- name: Install SDKMAN
+  block:
+    - name: Download SDKMAN installer
+      ansible.builtin.get_url:
+        url: https://get.sdkman.io
+        dest: /tmp/install-sdkman.sh
+        mode: '0755'
+
+    - name: Install SDKMAN
+      ansible.builtin.shell: /tmp/install-sdkman.sh
+      become: yes
+      become_user: "{{ primary_user }}"
+      environment:
+        SDKMAN_DIR: "/home/{{ primary_user }}/.sdkman"
+      args:
+        creates: "/home/{{ primary_user }}/.sdkman"
+
+    - name: Install Java versions via SDKMAN
+      ansible.builtin.shell: |
+        source ~/.sdkman/bin/sdkman-init.sh
+        sdk install java 8.0.392-tem     # Java 8
+        sdk install java 11.0.21-tem     # Java 11
+        sdk install java 17.0.9-tem      # Java 17 (default)
+        sdk install java 21.0.1-tem      # Java 21
+        sdk default java 17.0.9-tem
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        executable: /bin/bash
+      when: "'java' in devtools_languages"
+
+    - name: Install Kotlin via SDKMAN
+      ansible.builtin.shell: |
+        source ~/.sdkman/bin/sdkman-init.sh
+        sdk install kotlin
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        executable: /bin/bash
+      when: "'kotlin' in devtools_languages"
+
+    - name: Install Scala via SDKMAN
+      ansible.builtin.shell: |
+        source ~/.sdkman/bin/sdkman-init.sh
+        sdk install scala
+        sdk install sbt
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        executable: /bin/bash
+      when: "'scala' in devtools_languages"
+  when: "'jenv' not in devtools_version_managers"  # Use SDKMAN if jenv is not selected
+
+# rustup (Rust Version Manager)
+- name: Install rustup
+  block:
+    - name: Download rustup installer
+      ansible.builtin.get_url:
+        url: https://sh.rustup.rs
+        dest: /tmp/rustup.sh
+        mode: '0755'
+
+    - name: Install rustup
+      ansible.builtin.shell: /tmp/rustup.sh -y
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        creates: "/home/{{ primary_user }}/.cargo/bin/rustc"
+
+    - name: Install Rust toolchains
+      ansible.builtin.shell: |
+        source ~/.cargo/env
+        rustup toolchain install stable
+        rustup toolchain install nightly
+        rustup toolchain install beta
+        rustup default stable
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        executable: /bin/bash
+
+    - name: Install Rust components and utilities
+      ansible.builtin.shell: |
+        source ~/.cargo/env
+        rustup component add rustfmt clippy rust-src
+        cargo install cargo-edit cargo-watch cargo-outdated cargo-audit
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        executable: /bin/bash
+  when: 
+    - "'rustup' in devtools_version_managers"
+    - "'rust' in devtools_languages"
+
+# gvm (Go Version Manager)
+- name: Install gvm
+  block:
+    - name: Install gvm dependencies
+      ansible.builtin.apt:
+        name:
+          - curl
+          - git
+          - mercurial
+          - make
+          - binutils
+          - bison
+          - gcc
+          - build-essential
+        state: present
+      become: yes
+
+    - name: Download gvm installer
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer
+        dest: /tmp/gvm-installer.sh
+        mode: '0755'
+
+    - name: Install gvm
+      ansible.builtin.shell: /tmp/gvm-installer.sh
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        creates: "/home/{{ primary_user }}/.gvm"
+
+    - name: Install Go versions
+      ansible.builtin.shell: |
+        source ~/.gvm/scripts/gvm
+        gvm install go1.19.13
+        gvm install go1.20.12
+        gvm install go1.21.5
+        gvm use go1.21.5 --default
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        executable: /bin/bash
+      ignore_errors: yes
+  when: 
+    - "'gvm' in devtools_version_managers"
+    - "'go' in devtools_languages"
+
+# asdf (Universal Version Manager)
+- name: Install asdf
+  block:
+    - name: Install asdf dependencies
+      ansible.builtin.apt:
+        name:
+          - curl
+          - git
+        state: present
+      become: yes
+
+    - name: Clone asdf
+      ansible.builtin.git:
+        repo: https://github.com/asdf-vm/asdf.git
+        dest: "/home/{{ primary_user }}/.asdf"
+        version: v0.13.1
+      become: yes
+      become_user: "{{ primary_user }}"
+
+    - name: Configure asdf in shell
+      ansible.builtin.lineinfile:
+        path: "/home/{{ primary_user }}/.bashrc"
+        line: "{{ item }}"
+        create: yes
+      become: yes
+      become_user: "{{ primary_user }}"
+      loop:
+        - '. "$HOME/.asdf/asdf.sh"'
+        - '. "$HOME/.asdf/completions/asdf.bash"'
+
+    - name: Install asdf plugins
+      ansible.builtin.shell: |
+        source ~/.asdf/asdf.sh
+        asdf plugin add python || true
+        asdf plugin add nodejs || true
+        asdf plugin add ruby || true
+        asdf plugin add golang || true
+        asdf plugin add rust || true
+        asdf plugin add java || true
+        asdf plugin add erlang || true
+        asdf plugin add elixir || true
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        executable: /bin/bash
+      ignore_errors: yes
+
+    - name: Install language versions via asdf
+      ansible.builtin.shell: |
+        source ~/.asdf/asdf.sh
+        # Python
+        asdf install python 3.11.7
+        asdf global python 3.11.7
+        # Node.js
+        asdf install nodejs lts
+        asdf global nodejs lts
+        # Other languages as needed
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        executable: /bin/bash
+      ignore_errors: yes
+      when: "'asdf' in devtools_version_managers"
+  when: "'asdf' in devtools_version_managers"

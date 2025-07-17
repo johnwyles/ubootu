@@ -1,0 +1,32 @@
+#!/bin/bash
+# ClamAV scan script
+
+LOGFILE="/var/log/clamav-scan/scan-$(date +%Y%m%d).log"
+INFECTED_DIR="/var/quarantine"
+
+# Create quarantine directory if it doesn't exist
+mkdir -p "$INFECTED_DIR"
+
+# Start scan
+echo "ClamAV scan started at $(date)" >> "$LOGFILE"
+
+# Scan common directories
+clamscan -r --infected --move="$INFECTED_DIR" \
+    --exclude-dir="^/sys" \
+    --exclude-dir="^/proc" \
+    --exclude-dir="^/dev" \
+    --exclude-dir="^/run" \
+    --exclude-dir="^/var/lib/docker" \
+    --exclude-dir="^/snap" \
+    /home /opt /tmp /var/tmp /var/www >> "$LOGFILE" 2>&1
+
+# Log completion
+echo "ClamAV scan completed at $(date)" >> "$LOGFILE"
+
+# Check if any files were infected
+if grep -q "Infected files:" "$LOGFILE"; then
+    # Send notification (you can customize this)
+    echo "WARNING: Infected files found! Check $LOGFILE for details."
+    # Optionally send email notification
+    # mail -s "ClamAV: Infected files found on $(hostname)" root < "$LOGFILE"
+fi

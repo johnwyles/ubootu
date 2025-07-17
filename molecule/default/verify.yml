@@ -1,0 +1,83 @@
+---
+- name: Verify
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    # Common role tests
+    - name: Verify essential packages are installed
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - curl
+        - wget
+        - git
+        - vim
+        - htop
+      register: result
+      failed_when: result is failed
+
+    # Security role tests
+    - name: Check if UFW is installed
+      ansible.builtin.package:
+        name: ufw
+        state: present
+      when: enable_firewall | default(true)
+
+    - name: Verify SSH configuration
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        line: "{{ item }}"
+        state: present
+      check_mode: yes
+      register: ssh_config
+      failed_when: ssh_config is changed
+      loop:
+        - "PermitRootLogin no"
+        - "PasswordAuthentication no"
+      when: ssh_permit_root_login is defined or ssh_password_authentication is defined
+
+    - name: Check if fail2ban is running
+      ansible.builtin.systemd:
+        name: fail2ban
+        state: started
+        enabled: yes
+      check_mode: yes
+      register: fail2ban_status
+      failed_when: fail2ban_status is changed
+      when: enable_fail2ban | default(true)
+
+    # Development tools tests
+    - name: Verify modern CLI tools
+      ansible.builtin.command: "which {{ item }}"
+      loop:
+        - rg
+        - fd
+        - bat
+      when: modern_cli_tools is defined and item in modern_cli_tools
+      changed_when: false
+
+    # Applications tests
+    - name: Check if KeePassXC is installed
+      ansible.builtin.package:
+        name: keepassxc
+        state: present
+      when: "'keepassxc' in password_managers"
+
+    # System tests
+    - name: Check Python version
+      ansible.builtin.command: python3 --version
+      register: python_version
+      changed_when: false
+      failed_when: python_version.rc != 0
+
+    - name: Verify systemd is running
+      ansible.builtin.command: systemctl is-system-running
+      register: systemd_status
+      changed_when: false
+      failed_when:
+        - systemd_status.rc != 0
+        - "'running' not in systemd_status.stdout"
+        - "'degraded' not in systemd_status.stdout"

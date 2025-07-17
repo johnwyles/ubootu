@@ -1,0 +1,6 @@
+---
+- name: restart cron
+  ansible.builtin.systemd:
+    name: cron
+    state: restarted
+  become: yes

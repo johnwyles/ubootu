@@ -1,0 +1,198 @@
+---
+# Install IDEs (separate from editors)
+
+# JetBrains IDEs (via Toolbox)
+- name: Install JetBrains Toolbox
+  block:
+    - name: Download JetBrains Toolbox
+      ansible.builtin.get_url:
+        url: https://download.jetbrains.com/toolbox/jetbrains-toolbox-1.27.3.14493.tar.gz
+        dest: /tmp/jetbrains-toolbox.tar.gz
+        mode: '0644'
+      become: yes
+
+    - name: Extract JetBrains Toolbox
+      ansible.builtin.unarchive:
+        src: /tmp/jetbrains-toolbox.tar.gz
+        dest: /opt/
+        creates: /opt/jetbrains-toolbox
+        remote_src: yes
+      become: yes
+
+    - name: Create JetBrains Toolbox symlink
+      ansible.builtin.shell: |
+        cd /opt && mv jetbrains-toolbox-* jetbrains-toolbox
+        ln -sf /opt/jetbrains-toolbox/jetbrains-toolbox /usr/local/bin/jetbrains-toolbox
+      become: yes
+      args:
+        creates: /usr/local/bin/jetbrains-toolbox
+
+    - name: Create JetBrains Toolbox desktop entry
+      ansible.builtin.copy:
+        content: |
+          [Desktop Entry]
+          Version=1.0
+          Type=Application
+          Name=JetBrains Toolbox
+          Icon=/opt/jetbrains-toolbox/jetbrains-toolbox.png
+          Exec=/opt/jetbrains-toolbox/jetbrains-toolbox
+          Comment=JetBrains Toolbox
+          Categories=Development;IDE;
+          Terminal=false
+          StartupWMClass=jetbrains-toolbox
+        dest: /usr/share/applications/jetbrains-toolbox.desktop
+        mode: '0644'
+      become: yes
+  when: >
+    devtools_install_intellij or
+    devtools_install_pycharm or
+    devtools_install_webstorm or
+    devtools_install_phpstorm or
+    devtools_install_clion or
+    devtools_install_goland or
+    devtools_install_datagrip
+
+# Individual JetBrains IDEs (direct installation)
+- name: Install IntelliJ IDEA Community
+  block:
+    - name: Get latest IntelliJ IDEA Community release
+      ansible.builtin.uri:
+        url: https://data.services.jetbrains.com/products/releases?code=IIC&latest=true&type=release
+      register: intellij_release
+
+    - name: Download IntelliJ IDEA Community
+      ansible.builtin.get_url:
+        url: "{{ intellij_release.json.IIC[0].downloads.linux.link }}"
+        dest: /tmp/intellij-idea-community.tar.gz
+        mode: '0644'
+      become: yes
+
+    - name: Extract IntelliJ IDEA Community
+      ansible.builtin.unarchive:
+        src: /tmp/intellij-idea-community.tar.gz
+        dest: /opt/
+        creates: /opt/idea-IC
+        remote_src: yes
+      become: yes
+
+    - name: Create IntelliJ IDEA symlink
+      ansible.builtin.shell: |
+        cd /opt && mv idea-IC-* idea-IC
+        ln -sf /opt/idea-IC/bin/idea.sh /usr/local/bin/idea
+      become: yes
+      args:
+        creates: /usr/local/bin/idea
+
+    - name: Create IntelliJ IDEA desktop entry
+      ansible.builtin.copy:
+        content: |
+          [Desktop Entry]
+          Version=1.0
+          Type=Application
+          Name=IntelliJ IDEA Community
+          Icon=/opt/idea-IC/bin/idea.png
+          Exec=/opt/idea-IC/bin/idea.sh
+          Comment=IntelliJ IDEA Community Edition
+          Categories=Development;IDE;
+          Terminal=false
+          StartupWMClass=jetbrains-idea-ce
+        dest: /usr/share/applications/intellij-idea-community.desktop
+        mode: '0644'
+      become: yes
+  when: devtools_install_intellij
+
+# Eclipse IDE
+- name: Install Eclipse IDE
+  block:
+    - name: Download Eclipse IDE
+      ansible.builtin.get_url:
+        url: https://download.eclipse.org/technology/epp/downloads/release/2024-03/R/eclipse-java-2024-03-R-linux-gtk-x86_64.tar.gz
+        dest: /tmp/eclipse-java.tar.gz
+        mode: '0644'
+      become: yes
+
+    - name: Extract Eclipse
+      ansible.builtin.unarchive:
+        src: /tmp/eclipse-java.tar.gz
+        dest: /opt/
+        creates: /opt/eclipse
+        remote_src: yes
+      become: yes
+
+    - name: Create Eclipse symlink
+      ansible.builtin.file:
+        src: /opt/eclipse/eclipse
+        dest: /usr/local/bin/eclipse
+        state: link
+      become: yes
+
+    - name: Create Eclipse desktop entry
+      ansible.builtin.copy:
+        content: |
+          [Desktop Entry]
+          Version=1.0
+          Type=Application
+          Name=Eclipse IDE
+          Icon=/opt/eclipse/icon.xpm
+          Exec=/opt/eclipse/eclipse
+          Comment=Eclipse IDE for Java Developers
+          Categories=Development;IDE;
+          Terminal=false
+          StartupWMClass=Eclipse
+        dest: /usr/share/applications/eclipse.desktop
+        mode: '0644'
+      become: yes
+  when: devtools_install_eclipse
+
+# NetBeans IDE
+- name: Install NetBeans IDE
+  block:
+    - name: Download NetBeans
+      ansible.builtin.get_url:
+        url: https://archive.apache.org/dist/netbeans/netbeans/19/netbeans-19-bin.zip
+        dest: /tmp/netbeans.zip
+        mode: '0644'
+      become: yes
+
+    - name: Extract NetBeans
+      ansible.builtin.unarchive:
+        src: /tmp/netbeans.zip
+        dest: /opt/
+        creates: /opt/netbeans
+        remote_src: yes
+      become: yes
+
+    - name: Create NetBeans symlink
+      ansible.builtin.file:
+        src: /opt/netbeans/bin/netbeans
+        dest: /usr/local/bin/netbeans
+        state: link
+      become: yes
+
+    - name: Create NetBeans desktop entry
+      ansible.builtin.copy:
+        content: |
+          [Desktop Entry]
+          Version=1.0
+          Type=Application
+          Name=NetBeans IDE
+          Icon=/opt/netbeans/nb/netbeans.png
+          Exec=/opt/netbeans/bin/netbeans
+          Comment=NetBeans IDE
+          Categories=Development;IDE;
+          Terminal=false
+          StartupWMClass=NetBeans IDE
+        dest: /usr/share/applications/netbeans.desktop
+        mode: '0644'
+      become: yes
+  when: devtools_install_netbeans
+
+# Visual Studio Code (for reference - should be in third-party-repos)
+- name: Install VS Code
+  ansible.builtin.apt:
+    name: code
+    state: present
+  become: yes
+  when:
+    - devtools_install_vscode
+    - use_third_party_repos | default(true)

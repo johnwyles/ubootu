@@ -1,0 +1,335 @@
+---
+# Comprehensive CLI tools installation
+
+# Install APT-based CLI tools
+- name: Install CLI tools from APT repositories
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop:
+    # File managers
+    - ranger
+    - mc          # midnight commander
+    - tree
+    - ncdu
+    # System monitoring
+    - htop
+    - glances
+    - neofetch
+    - iotop
+    - iftop
+    # Network tools
+    - nmap
+    - net-tools
+    - dnsutils
+    - iputils-ping
+    - traceroute
+    - wget
+    - curl
+    - mtr
+    # Text processing
+    - gawk
+    - sed
+    - miller
+    # Version control
+    - tig
+    - git-extras
+    # Productivity
+    - tmux
+    - screen
+    - zsh
+    - fish
+    - autojump
+    - direnv
+  become: yes
+  when: item in (devtools_selected_file_managers + devtools_selected_system_monitoring + devtools_selected_network_tools + devtools_selected_text_processing + devtools_selected_dev_cli_tools + devtools_selected_productivity_tools)
+
+# Install tools from GitHub releases
+- name: Get latest GitHub releases for modern CLI tools
+  ansible.builtin.uri:
+    url: "https://api.github.com/repos/{{ item.repo }}/releases/latest"
+    headers:
+      Accept: application/vnd.github.v3+json
+  register: github_releases
+  loop:
+    # Modern replacements
+    - { name: ripgrep, repo: "BurntSushi/ripgrep" }
+    - { name: fd, repo: "sharkdp/fd" }
+    - { name: bat, repo: "sharkdp/bat" }
+    - { name: eza, repo: "eza-community/eza" }
+    - { name: lsd, repo: "Peltoche/lsd" }
+    - { name: delta, repo: "dandavison/delta" }
+    - { name: bottom, repo: "ClementTsang/bottom" }
+    - { name: dust, repo: "bootandy/dust" }
+    - { name: procs, repo: "dalance/procs" }
+    - { name: sd, repo: "chmln/sd" }
+    - { name: duf, repo: "muesli/duf" }
+    - { name: dog, repo: "ogham/dog" }
+    # File managers
+    - { name: nnn, repo: "jarun/nnn" }
+    - { name: lf, repo: "gokcehan/lf" }
+    - { name: broot, repo: "Canop/broot" }
+    # System monitoring
+    - { name: btop, repo: "aristocratos/btop" }
+    - { name: gotop, repo: "xxxserxxx/gotop" }
+    # Network tools
+    - { name: bandwhich, repo: "imsnif/bandwhich" }
+    # Text processing
+    - { name: xsv, repo: "BurntSushi/xsv" }
+    - { name: dasel, repo: "TomWright/dasel" }
+    # Development tools
+    - { name: lazygit, repo: "jesseduffield/lazygit" }
+    - { name: gh, repo: "cli/cli" }
+    - { name: glab, repo: "profclems/glab" }
+    - { name: gitleaks, repo: "zricethezav/gitleaks" }
+    # Productivity
+    - { name: zoxide, repo: "ajeetdsouza/zoxide" }
+  when: item.name in (devtools_selected_modern_replacements + devtools_selected_file_managers + devtools_selected_system_monitoring + devtools_selected_network_tools + devtools_selected_text_processing + devtools_selected_dev_cli_tools + devtools_selected_productivity_tools)
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Download and install .deb packages from GitHub
+  block:
+    - name: Download .deb packages
+      ansible.builtin.get_url:
+        url: "{{ item.json.assets | selectattr('name', 'match', '.*amd64\\.deb$') | map(attribute='browser_download_url') | first }}"
+        dest: "/tmp/{{ item.item.name }}.deb"
+        mode: '0644'
+      loop: "{{ github_releases.results }}"
+      when:
+        - not item.failed
+        - item.json.assets | selectattr('name', 'match', '.*amd64\\.deb$') | list | length > 0
+      loop_control:
+        label: "{{ item.item.name }}"
+      become: yes
+
+    - name: Install downloaded .deb packages
+      ansible.builtin.apt:
+        deb: "/tmp/{{ item.item.name }}.deb"
+        state: present
+      loop: "{{ github_releases.results }}"
+      when:
+        - not item.failed
+        - item.json.assets | selectattr('name', 'match', '.*amd64\\.deb$') | list | length > 0
+      loop_control:
+        label: "{{ item.item.name }}"
+      become: yes
+
+# Install tools that need special installation methods
+- name: Install fzf from git
+  block:
+    - name: Clone fzf repository
+      ansible.builtin.git:
+        repo: https://github.com/junegunn/fzf.git
+        dest: "/home/{{ primary_user }}/.fzf"
+        depth: 1
+      become: yes
+      become_user: "{{ primary_user }}"
+
+    - name: Install fzf
+      ansible.builtin.shell: "/home/{{ primary_user }}/.fzf/install --all --no-update-rc"
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        creates: "/home/{{ primary_user }}/.fzf/bin/fzf"
+  when: "'fzf' in devtools_selected_modern_replacements"
+
+- name: Install jq from GitHub
+  block:
+    - name: Get latest jq release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/stedolan/jq/releases/latest
+      register: jq_release
+
+    - name: Download jq binary
+      ansible.builtin.get_url:
+        url: "{{ jq_release.json.assets | selectattr('name', 'match', 'jq-linux64') | map(attribute='browser_download_url') | first }}"
+        dest: /usr/local/bin/jq
+        mode: '0755'
+      become: yes
+  when: "'jq' in devtools_selected_text_processing"
+
+- name: Install yq
+  block:
+    - name: Get latest yq release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/mikefarah/yq/releases/latest
+      register: yq_release
+
+    - name: Download yq binary
+      ansible.builtin.get_url:
+        url: "{{ yq_release.json.assets | selectattr('name', 'match', 'yq_linux_amd64$') | map(attribute='browser_download_url') | first }}"
+        dest: /usr/local/bin/yq
+        mode: '0755'
+      become: yes
+  when: "'yq' in devtools_selected_text_processing"
+
+# Install Python-based tools
+- name: Install Python-based CLI tools
+  ansible.builtin.pip:
+    name: "{{ item }}"
+    state: latest
+    executable: pip3
+  become: yes
+  loop:
+    - httpie
+    - tldr
+    - cheat
+    - thefuck
+    - csvkit
+    - glances
+  when: item in (devtools_selected_network_tools + devtools_selected_productivity_tools + devtools_selected_text_processing + devtools_selected_system_monitoring)
+
+# Install Rust-based tools via Cargo (if Rust is installed)
+- name: Check if cargo is installed
+  ansible.builtin.command: which cargo
+  register: cargo_check
+  failed_when: false
+  changed_when: false
+
+- name: Install Rust-based CLI tools via Cargo
+  ansible.builtin.shell: "cargo install {{ item }}"
+  become: yes
+  become_user: "{{ primary_user }}"
+  environment:
+    PATH: "/home/{{ primary_user }}/.cargo/bin:{{ ansible_env.PATH }}"
+  loop:
+    - starship
+    - fastfetch
+  when:
+    - cargo_check.rc == 0
+    - item in devtools_selected_productivity_tools or item in devtools_selected_system_monitoring
+
+# Install Starship prompt via script (if cargo not available)
+- name: Install Starship via install script
+  ansible.builtin.shell: |
+    curl -sS https://starship.rs/install.sh | sh -s -- -y
+  become: yes
+  when:
+    - "'starship' in devtools_selected_productivity_tools"
+    - cargo_check.rc != 0
+  args:
+    creates: /usr/local/bin/starship
+
+# Install zoxide
+- name: Install zoxide
+  ansible.builtin.shell: |
+    curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+  become: yes
+  become_user: "{{ primary_user }}"
+  when: "'zoxide' in devtools_selected_productivity_tools"
+  args:
+    creates: "/home/{{ primary_user }}/.local/bin/zoxide"
+
+# Install asdf version manager
+- name: Install asdf
+  block:
+    - name: Clone asdf repository
+      ansible.builtin.git:
+        repo: https://github.com/asdf-vm/asdf.git
+        dest: "/home/{{ primary_user }}/.asdf"
+        version: v0.13.1
+      become: yes
+      become_user: "{{ primary_user }}"
+
+    - name: Add asdf to shell
+      ansible.builtin.lineinfile:
+        path: "/home/{{ primary_user }}/.bashrc"
+        line: '. "$HOME/.asdf/asdf.sh"'
+        create: yes
+      become: yes
+      become_user: "{{ primary_user }}"
+  when: "'asdf' in devtools_selected_productivity_tools"
+
+# Install diff-so-fancy
+- name: Install diff-so-fancy
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/so-fancy/diff-so-fancy/master/third_party/build_fatpack/diff-so-fancy
+    dest: /usr/local/bin/diff-so-fancy
+    mode: '0755'
+  become: yes
+  when: "'diff-so-fancy' in devtools_selected_dev_cli_tools"
+
+# Install hub
+- name: Install hub from GitHub
+  block:
+    - name: Get latest hub release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/github/hub/releases/latest
+      register: hub_release
+
+    - name: Download and extract hub
+      ansible.builtin.unarchive:
+        src: "{{ hub_release.json.assets | selectattr('name', 'match', '.*linux-amd64.*\\.tgz$') | map(attribute='browser_download_url') | first }}"
+        dest: /tmp
+        remote_src: yes
+      become: yes
+
+    - name: Install hub binary
+      ansible.builtin.copy:
+        src: "/tmp/hub-linux-amd64-{{ hub_release.json.tag_name | regex_replace('^v', '') }}/bin/hub"
+        dest: /usr/local/bin/hub
+        mode: '0755'
+        remote_src: yes
+      become: yes
+  when: "'hub' in devtools_selected_dev_cli_tools"
+
+# Install screenfetch
+- name: Install screenfetch
+  ansible.builtin.git:
+    repo: https://github.com/KittyKatt/screenFetch.git
+    dest: /opt/screenfetch
+  become: yes
+  when: "'screenfetch' in devtools_selected_system_monitoring"
+
+- name: Create screenfetch symlink
+  ansible.builtin.file:
+    src: /opt/screenfetch/screenfetch-dev
+    dest: /usr/local/bin/screenfetch
+    state: link
+  become: yes
+  when: "'screenfetch' in devtools_selected_system_monitoring"
+
+# Install bashtop
+- name: Clone bashtop repository
+  ansible.builtin.git:
+    repo: https://github.com/aristocratos/bashtop.git
+    dest: /opt/bashtop
+  become: yes
+  when: "'bashtop' in devtools_selected_system_monitoring"
+
+- name: Create bashtop symlink
+  ansible.builtin.file:
+    src: /opt/bashtop/bashtop
+    dest: /usr/local/bin/bashtop
+    state: link
+  become: yes
+  when: "'bashtop' in devtools_selected_system_monitoring"
+
+# Create shell configuration for modern CLI tools
+- name: Create modern CLI aliases and configuration
+  ansible.builtin.template:
+    src: cli-tools-config.sh.j2
+    dest: "/home/{{ primary_user }}/.config/cli-tools-config.sh"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+
+- name: Source CLI tools config in bashrc
+  ansible.builtin.lineinfile:
+    path: "/home/{{ primary_user }}/.bashrc"
+    line: '[ -f ~/.config/cli-tools-config.sh ] && source ~/.config/cli-tools-config.sh'
+    create: yes
+  become: yes
+  become_user: "{{ primary_user }}"
+
+- name: Source CLI tools config in zshrc (if zsh is installed)
+  ansible.builtin.lineinfile:
+    path: "/home/{{ primary_user }}/.zshrc"
+    line: '[ -f ~/.config/cli-tools-config.sh ] && source ~/.config/cli-tools-config.sh'
+    create: yes
+  become: yes
+  become_user: "{{ primary_user }}"
+  when: "'zsh' in devtools_selected_productivity_tools"

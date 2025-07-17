@@ -1,0 +1,26 @@
+---
+- name: Include OS-specific variables
+  include_vars: "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml"
+  failed_when: false
+  tags: always
+
+- name: Configure APT repositories
+  ansible.builtin.include_tasks: repositories.yml
+  tags: ['repositories', 'apt']
+
+- name: Install base packages
+  ansible.builtin.include_tasks: packages.yml
+  tags: ['packages']
+
+- name: Configure system
+  ansible.builtin.include_tasks: system.yml
+  tags: ['system']
+
+- name: Configure user
+  ansible.builtin.include_tasks: user.yml
+  when: common_configure_user
+  tags: ['user']
+
+- name: Configure performance settings
+  ansible.builtin.include_tasks: performance.yml
+  tags: ['performance']
