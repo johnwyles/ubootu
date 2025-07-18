@@ -2,7 +2,7 @@
 - name: Ensure user exists
   ansible.builtin.user:
     name: "{{ common_user }}"
-    ansible.builtin.shell: "{{ common_user_shell }}"
+    shell: "{{ common_user_shell }}"
     groups: "{{ common_user_groups }}"
     append: yes
     state: present

@@ -4,3 +4,8 @@
     name: cron
     state: restarted
   become: yes
+
+- name: update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+  become: yes

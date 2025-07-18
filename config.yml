@@ -1,43 +1,85 @@
+app_customizations: {}
 categories:
   app-browsers:
-  - firefox
+  - brave
+  - vivaldi
+  app-communication:
+  - zoom
+  - discord
   app-media:
+  - spotify
+  - gimp
   - vlc
   app-productivity:
-  - libreoffice
+  - thunderbird
+  - obsidian
+  - notion
   desktop-env:
   - gnome
   desktop-settings:
-  - mouse-settings
-  - keyboard-settings
   - display-settings
+  - mouse-settings
+  - notifications
+  - keyboard-settings
   desktop-themes:
+  - arc-theme
+  - papirus-icons
+  - numix-theme
   - dark-theme
   dev-containers:
+  - terraform
+  - ansible
   - docker-desktop
+  - kubernetes
   dev-ides:
-  - intellij
-  - pycharm
+  - vim
   - vscode
   dev-languages:
-  - java
+  - go
   - nodejs
+  - cpp
+  - rust
+  - ruby
   - python
   dev-tools:
-  - docker
   - git
+  - postman
+  - mysql-workbench
+  - docker
   - curl
+  - redis-cli
   security-basic:
-  - ufw-firewall
+  - clamav
+  - fail2ban
   - auto-updates
+  - ufw-firewall
   security-privacy:
+  - protonvpn
+  - tor
   - keepassxc
+  - signal
+  - veracrypt
+  security-tools:
+  - wireshark
+  - john
+  - metasploit
+  - nmap
+  - burpsuite
   system-hardware:
+  - printers
+  - nvidia-drivers
   - bluetooth
+  - amd-drivers
   system-perf:
+  - profile-sync
+  - zram
   - preload
+  - powertop
   system-services:
+  - ssh-server
   - cups
+  - samba
+  - nfs
 configurable_values:
   display-settings:
     type: slider
@@ -46,36 +88,75 @@ configurable_values:
   keyboard-settings:
     type: slider
     unit: ''
-    value: 6
+    value: 10
   mouse-settings:
     type: slider
     unit: ''
-    value: 5
-configuration_date: '2025-07-17T07:25:25.238414'
+    value: 6
+configuration_date: '2025-07-18T12:11:06.506200'
 generated_by: Ubootu - Professional Ubuntu Desktop Configuration Tool
 selected_items:
-- mouse-settings
-- firefox
-- cups
-- ufw-firewall
-- preload
-- docker-desktop
-- keyboard-settings
-- intellij
-- keepassxc
-- libreoffice
-- dark-theme
-- docker
 - display-settings
-- pycharm
-- java
-- gnome
-- nodejs
-- vlc
-- vscode
+- terraform
+- wireshark
+- thunderbird
+- clamav
 - git
-- python
-- bluetooth
+- postman
+- john
+- profile-sync
+- ssh-server
+- fail2ban
+- zoom
+- metasploit
+- printers
+- mouse-settings
+- vim
+- go
+- mysql-workbench
 - auto-updates
+- protonvpn
+- discord
+- nodejs
+- cpp
+- nmap
+- arc-theme
+- vscode
+- papirus-icons
+- notifications
+- tor
+- keepassxc
+- burpsuite
+- numix-theme
+- obsidian
+- signal
+- zram
+- cups
+- ansible
+- spotify
+- docker
+- samba
+- notion
+- gnome
+- gimp
+- keyboard-settings
+- dark-theme
+- docker-desktop
+- brave
+- ufw-firewall
+- vivaldi
+- vlc
+- nvidia-drivers
+- bluetooth
+- kubernetes
+- veracrypt
+- preload
+- amd-drivers
+- nfs
+- rust
 - curl
+- ruby
+- powertop
+- python
+- redis-cli
 ui_version: 2.0_unbootu

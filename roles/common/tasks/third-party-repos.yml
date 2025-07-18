@@ -272,6 +272,7 @@
     - communication is defined
     - communication.slack is defined
     - communication.slack | default(false)
+    - ansible_distribution_release not in ['plucky', 'oracular']  # Not supported on Ubuntu 24.10+
 
 # Discord (via deb file - no official repo)
 # Handled in applications role
@@ -309,7 +310,7 @@
 
     - name: Add NodeSource repository (Node.js 20.x)
       ansible.builtin.apt_repository:
-        repo: "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main"
+        repo: "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x {{ ansible_distribution_release }} main"
         state: present
         filename: nodesource
       become: yes
@@ -317,6 +318,7 @@
     - lang is defined
     - lang.nodejs is defined
     - lang.nodejs | default(false)
+    - ansible_distribution_release in ['focal', 'jammy', 'noble']  # Only supported LTS releases
 
 # PostgreSQL
 - name: Add PostgreSQL repository

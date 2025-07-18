@@ -149,3 +149,73 @@ maintenance-mode       # Maintenance mode marker
 custom-scripts/        # User custom scripts
 local-roles/          # Local Ansible roles
 local-vars/           # Local variable files
+
+# Ubootu specific files
+debug_tui.log         # TUI debug log
+/tmp/menu_choice.txt  # Menu choice temp file
+/tmp/welcome_choice.txt # Welcome choice temp file
+/tmp/selected_sections.txt # Selected sections temp file
+/tmp/debug_tui.log    # Debug TUI log
+config.yaml           # Alternative config format
+
+# Additional Python patterns
+.ruff_cache/          # Ruff linter cache
+.pdm.toml            # PDM config
+__pypackages__/      # PDM packages
+.python-version      # pyenv version file
+
+# Host-specific inventory
+inventories/*/hosts   # Actual host files
+inventories/*/group_vars/* # Group variables
+!inventories/*/group_vars/.gitkeep
+inventories/*/host_vars/* # Host variables
+!inventories/*/host_vars/.gitkeep
+
+# Vagrant
+.vagrant/            # Vagrant working directory
+Vagrantfile.local    # Local Vagrant overrides
+
+# Terraform (if used for cloud deployments)
+*.tfstate           # Terraform state
+*.tfstate.*         # Terraform state backups
+.terraform/         # Terraform working directory
+.terraform.lock.hcl # Terraform lock file
+*.tfvars            # Terraform variables
+!example.tfvars     # Except example file
+
+# Archives and compressed files
+*.tar              # Tar archives
+*.tar.gz           # Gzipped tars
+*.tar.bz2          # Bzipped tars
+*.tar.xz           # XZ compressed tars
+*.zip              # Zip archives
+*.rar              # RAR archives
+*.7z               # 7-Zip archives
+
+# Certificates and sensitive files
+*.pem              # PEM certificates
+*.key              # Private keys
+*.crt              # Certificates
+*.csr              # Certificate signing requests
+*.p12              # PKCS12 files
+*.pfx              # Personal exchange format
+id_rsa             # SSH private key
+id_rsa.pub         # SSH public key
+id_ed25519         # ED25519 private key
+id_ed25519.pub     # ED25519 public key
+
+# Screenshots and images (development artifacts)
+/tmp/*.png         # Temporary screenshots
+/tmp/*.jpg         # Temporary images
+screenshots/       # Screenshot directory
+!docs/images/      # Except documentation images
+!assets/images/    # Except asset images
+
+# Profile management
+profiles/*.backup.* # Profile backups
+profiles/*.tmp     # Temporary profiles
+profile_backups/   # Profile backup directory
+
+# APT cleanup artifacts
+/etc/apt/sources.list.d/*.save # APT backup files
+/etc/apt/sources.list.d/*.distUpgrade # Distribution upgrade backups

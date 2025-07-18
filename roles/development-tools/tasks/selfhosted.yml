@@ -138,7 +138,7 @@
       ansible.builtin.user:
         name: seafile
         home: /opt/seafile
-        ansible.builtin.shell: /bin/bash
+        shell: /bin/bash
         state: present
       become: yes
 

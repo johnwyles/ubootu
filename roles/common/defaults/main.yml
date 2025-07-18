@@ -37,6 +37,14 @@ common_enable_non_free: true
 common_enable_backports: false
 common_enable_proposed: false
 
+# APT management
+fix_apt_issues: true  # Clean up APT issues on first run
+use_third_party_repos: false  # Don't add third-party repos by default
+ubuntu_mirror: "archive.ubuntu.com"  # Can be changed to local mirror
+
+# Repository management
+repositories_to_enable: []  # Empty by default, populated from user config
+
 # Timezone and locale
 common_timezone: "{{ system_timezone }}"
 common_locale: "{{ system_locale }}"

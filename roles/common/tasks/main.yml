@@ -4,6 +4,11 @@
   failed_when: false
   tags: always
 
+- name: Fix APT issues first
+  ansible.builtin.include_tasks: apt-cleanup.yml
+  tags: ['apt-cleanup', 'repositories', 'apt']
+  when: fix_apt_issues | default(true)
+
 - name: Configure APT repositories
   ansible.builtin.include_tasks: repositories.yml
   tags: ['repositories', 'apt']

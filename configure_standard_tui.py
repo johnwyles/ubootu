@@ -965,7 +965,7 @@ class HierarchicalTUI:
                         safe_breadcrumb = f"-> Main Menu | Q=Quit"
                 
                 self.stdscr.addstr(1, 2, safe_breadcrumb[:width-4])
-                except curses.error:
+        except curses.error:
             # Fallback for drawing issues
             pass
     
@@ -1020,12 +1020,12 @@ class HierarchicalTUI:
                         if f1_x + len(f1_part) < width - 2:
                             self.stdscr.addstr(1, f1_x, f1_part)  # Draw at line 1
                         self.stdscr.attroff(curses.A_BOLD)
-                        else:
+                    else:
                         # Fallback to normal display
                         self.stdscr.attron(curses.A_BOLD)
                         self.stdscr.addstr(1, 2, current_item.description[:width-4])  # Draw at line 1
                         self.stdscr.attroff(curses.A_BOLD)
-                        else:
+                else:
                     # Normal description without F1
                     self.stdscr.attron(curses.A_BOLD)
                     desc = f"🎯 {current_item.description}"
@@ -1080,6 +1080,7 @@ class HierarchicalTUI:
                         safe_indicator = "●" if indicator.encode('ascii', 'ignore').decode('ascii') != indicator else indicator
                         if item_index != self.current_item:
                             # Green for selected
+                            pass
                     else:
                         indicator = "○"  # Empty circle for unselected
                         safe_indicator = "○" if indicator.encode('ascii', 'ignore').decode('ascii') != indicator else indicator
@@ -1107,9 +1108,6 @@ class HierarchicalTUI:
                     
                     # Draw separator and description in GREEN
                     if separator_col < width - 5:
-                        # Save current color state
-                        current_attrs = self.stdscr.attr_get()
-                        
                         # Draw separator in default color
                         self.stdscr.addstr(y, separator_col, "│")
                         
@@ -1204,7 +1202,7 @@ class HierarchicalTUI:
                     
                     if i == 0:
                         self.stdscr.attroff(curses.A_BOLD)
-                        except curses.error:
+        except curses.error:
             pass
     
     def _draw_stats(self):
@@ -1242,7 +1240,7 @@ class HierarchicalTUI:
                 self.stdscr.attron(curses.A_BOLD)
                 self.stdscr.addstr(y, x, safe_stats[:width-2])
                 self.stdscr.attroff(curses.A_BOLD)
-                except curses.error:
+        except curses.error:
             pass
     
     def _handle_key(self, key: int) -> bool:
@@ -1604,7 +1602,7 @@ class HierarchicalTUI:
                         self.stdscr.attron(curses.A_BOLD)
                         self.stdscr.addstr(y, start_x + 2, f"▶ {option:<{popup_width-6}}")
                         self.stdscr.attroff(curses.A_BOLD)
-                        else:
+                    else:
                         self.stdscr.addstr(y, start_x + 2, f"  {option:<{popup_width-6}}")
                         # Bottom border
                 self.stdscr.addstr(start_y + popup_height - 1, start_x, "└" + "─" * (popup_width - 2) + "┘")
@@ -1705,7 +1703,7 @@ class HierarchicalTUI:
                     if y < height:
                         try:
                             self.stdscr.addstr(y, start_x, " " * min(popup_width, width - start_x))
-                        except:
+                        except curses.error:
                             pass
                 
                 # Draw popup with HIGH CONTRAST colors
@@ -1749,18 +1747,18 @@ class HierarchicalTUI:
                             self.stdscr.attroff(curses.A_BOLD)
                             self.stdscr.addstr(item_y + 1, start_x, "│" + " " * (popup_width - 2) + "│")
                             self.stdscr.addstr(item_y + 1, start_x + 5, action_desc[:popup_width - 8])
-                            else:
+                        else:
                             # Unselected item - white on magenta
                             # White on magenta
                             self.stdscr.addstr(item_y, start_x + 3, f"  {action_title}")
                             self.stdscr.addstr(item_y + 1, start_x + 5, action_desc[:popup_width - 8])
-                            except curses.error:
+                    except curses.error:
                         pass
                 
                 # Bottom border
                 try:
                     self.stdscr.addstr(start_y + popup_height - 1, start_x, "└" + "─" * (popup_width - 2) + "┘")
-                    except curses.error:
+                except curses.error:
                     pass
                 
                 self.stdscr.refresh()
