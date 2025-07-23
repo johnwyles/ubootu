@@ -7,7 +7,7 @@ Reusable curses-based dialogs for user interactions
 import curses
 import textwrap
 from typing import List, Tuple, Optional, Dict, Any
-from tui_components import KeyHintBar, HelpOverlay
+from lib.tui_components import KeyHintBar, HelpOverlay
 
 
 class TUIDialog:

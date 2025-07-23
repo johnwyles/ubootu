@@ -6,7 +6,7 @@ Provides consistent arrow-key navigation across all menus
 
 import curses
 from typing import List, Tuple, Optional, Callable
-from tui_components import KeyHintBar, HelpOverlay
+from lib.tui_components import KeyHintBar, HelpOverlay
 
 
 class MenuDialog:
