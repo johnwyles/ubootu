@@ -9,7 +9,7 @@ import os
 import curses
 import time
 from typing import Optional
-from menu_dialog import MenuDialog
+from lib.menu_dialog import MenuDialog
 
 class TUISplash:
     """TUI splash screen with loading animation"""

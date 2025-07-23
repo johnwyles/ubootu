@@ -7,7 +7,7 @@ Allows users to select which sections to configure
 import sys
 import curses
 from typing import List, Tuple
-from overlay_dialog import SelectionOverlay, MessageOverlay, ConfirmOverlay
+from lib.overlay_dialog import SelectionOverlay, MessageOverlay, ConfirmOverlay
 
 
 def show_section_selector(stdscr) -> List[str]:
