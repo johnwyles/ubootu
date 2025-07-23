@@ -13,7 +13,7 @@
       - kanshi
       - gammastep
       - wlr-randr
-  
+
   tasks:
     - name: Display test configuration
       ansible.builtin.debug:
@@ -22,12 +22,12 @@
           - User: {{ primary_user }}
           - Build from source: {{ de_hyprland_build_from_source }}
           - Wayland tools: {{ wayland_tools | join(', ') }}
-    
+
     - name: Include desktop-environment role
       ansible.builtin.include_role:
         name: desktop-environment
       tags: ['desktop']
-    
+
     - name: Include applications role for Wayland tools
       ansible.builtin.include_role:
         name: applications

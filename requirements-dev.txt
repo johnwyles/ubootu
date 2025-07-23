@@ -1,5 +1,5 @@
 # Development and testing dependencies
-molecule[docker]>=5.0.0
+molecule[docker]>=4.0.4
 ansible-lint>=6.0.0
 yamllint>=1.32.0
 pytest>=7.4.0
@@ -20,7 +20,7 @@ faker>=18.0.0
 # TUI testing dependencies
 pyte>=0.8.0  # Terminal emulator for testing
 blessed>=1.20.0  # Terminal formatting library
-mock>=5.0.0  # Additional mocking support
+mock>=4.0.0  # Additional mocking support
 
 # Code quality
 black>=23.0.0
