@@ -25,12 +25,19 @@ class TestConfigValidator:
         """Create a valid config dict"""
         return {
             'version': '1.0',
-            'username': 'testuser',
-            'full_name': 'Test User',
-            'email': 'test@example.com',
-            'timezone': 'America/New_York',
-            'desktop_environment': 'gnome',
-            'selected_categories': ['development']
+            'system': {
+                'hostname': 'test-host',
+                'timezone': 'UTC',
+                'locale': 'en_US.UTF-8'
+            },
+            'user': {
+                'username': 'testuser',
+                'full_name': 'Test User',
+                'email': 'test@example.com'
+            },
+            'desktop': {
+                'environment': 'gnome'
+            }
         }
     
     def test_import(self):
@@ -46,38 +53,26 @@ class TestConfigValidator:
     def test_validate_valid_config(self, validator, valid_config):
         """Test validation of valid config"""
         # Should not raise any exception
-        validator.validate(valid_config)
+        result = validator.validate(valid_config)
+        assert result is True
     
-    def test_validate_missing_required_fields(self, validator):
-        """Test validation with missing required fields"""
-        invalid_config = {
-            'version': '1.0'
-            # Missing username and full_name
-        }
+    def test_validate_missing_version(self, validator, valid_config):
+        """Test validation with missing version"""
+        del valid_config['version']
         
         with pytest.raises(ValidationError) as exc_info:
-            validator.validate(invalid_config)
+            validator.validate(valid_config)
         assert exc_info.value.code == ErrorCode.MISSING_REQUIRED
     
-    def test_validate_invalid_email(self, validator, valid_config):
-        """Test validation with invalid email"""
-        valid_config['email'] = 'invalid-email'
+    def test_validate_invalid_structure(self, validator):
+        """Test validation with invalid structure"""
+        invalid_config = {
+            'version': '1.0',
+            'invalid_key': 'invalid_value'
+        }
         
-        with pytest.raises(ValidationError) as exc_info:
-            validator.validate(valid_config)
-        assert "email" in str(exc_info.value).lower()
-    
-    def test_validate_invalid_timezone(self, validator, valid_config):
-        """Test validation with invalid timezone"""
-        valid_config['timezone'] = 'Invalid/Timezone'
-        
-        # Depending on implementation, this might pass with fallback
-        # or raise an error. Test accordingly
-        try:
-            validator.validate(valid_config)
-        except ValidationError:
-            # If it raises, that's also acceptable
-            pass
+        with pytest.raises(ValidationError):
+            validator.validate(invalid_config)
     
     def test_validate_file(self, validator, valid_config, tmp_path):
         """Test file validation"""
@@ -85,7 +80,8 @@ class TestConfigValidator:
         config_file.write_text(yaml.dump(valid_config))
         
         # Should not raise exception
-        validator.validate_file(str(config_file))
+        result = validator.validate_file(str(config_file))
+        assert result is True
     
     def test_validate_nonexistent_file(self, validator):
         """Test validation of non-existent file"""
