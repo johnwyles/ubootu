@@ -11,7 +11,7 @@ import os
 # Add parent directories to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from tui.models import MenuItem
+from lib.tui.models import MenuItem
 
 
 class MenuBuilder(ABC):

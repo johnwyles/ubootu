@@ -4,7 +4,7 @@ Development tools menu for the Ubootu TUI
 """
 
 from typing import Dict
-from .base import MenuBuilder, MenuItem
+from lib.tui.menus.base import MenuBuilder, MenuItem
 
 
 class DevelopmentMenuBuilder(MenuBuilder):

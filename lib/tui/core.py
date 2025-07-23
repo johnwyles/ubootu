@@ -6,12 +6,12 @@ Core TUI class that orchestrates all TUI components for Ubootu
 import curses
 from typing import Dict, Set, Optional
 
-from .models import MenuItem
-from .renderer import TUIRenderer
-from .dialogs import TUIDialogs
-from .handlers import TUIEventHandler
-from .config import TUIConfigManager
-from .menus import (
+from lib.tui.models import MenuItem
+from lib.tui.renderer import TUIRenderer
+from lib.tui.dialogs import TUIDialogs
+from lib.tui.handlers import TUIEventHandler
+from lib.tui.config import TUIConfigManager
+from lib.tui.menus import (
     MenuRegistry, DevelopmentMenuBuilder, DesktopMenuBuilder, 
     ApplicationsMenuBuilder, SecurityMenuBuilder, SystemMenuBuilder
 )

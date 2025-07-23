@@ -3,12 +3,12 @@
 Menu builders for the Ubootu TUI
 """
 
-from .base import MenuBuilder, MenuRegistry
-from .development import DevelopmentMenuBuilder
-from .desktop import DesktopMenuBuilder
-from .applications import ApplicationsMenuBuilder
-from .security import SecurityMenuBuilder
-from .system import SystemMenuBuilder
+from lib.tui.menus.base import MenuBuilder, MenuRegistry
+from lib.tui.menus.development import DevelopmentMenuBuilder
+from lib.tui.menus.desktop import DesktopMenuBuilder
+from lib.tui.menus.applications import ApplicationsMenuBuilder
+from lib.tui.menus.security import SecurityMenuBuilder
+from lib.tui.menus.system import SystemMenuBuilder
 
 __all__ = [
     'MenuBuilder',

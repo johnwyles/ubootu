@@ -2,7 +2,7 @@
 # ========================
 # This is an example configuration file showing recommended defaults
 # for a balanced Ubuntu desktop/workstation setup.
-# 
+#
 # To use this configuration:
 # 1. Copy this file to config.yml
 # 2. Review and modify selections as needed
@@ -31,7 +31,7 @@ selected_items:
   - gcc                    # C/C++ compiler
   - curl                   # Command line HTTP client
   - wget                   # File downloader
-  
+
   # Modern CLI Tools - Enhanced terminal experience
   - ripgrep                # Fast text search (rg)
   - fd                     # Fast file finder
@@ -41,12 +41,12 @@ selected_items:
   - tmux                   # Terminal multiplexer
   - htop                   # Interactive process viewer
   - ncdu                   # Disk usage analyzer
-  
+
   # Desktop Environment - GNOME with enhancements
   - gnome                  # GNOME desktop environment
   - gnome-tweaks           # GNOME customization tool
   - gnome-shell-extensions # GNOME extensions support
-  
+
   # Applications - Essential productivity tools
   - firefox                # Web browser
   - thunderbird            # Email client
@@ -54,12 +54,12 @@ selected_items:
   - vlc                    # Media player
   - gimp                   # Image editor
   - keepassxc              # Password manager
-  
+
   # Security - Basic protection
   - ufw-firewall           # Uncomplicated firewall
   - auto-updates           # Automatic security updates
   - clamav                 # Antivirus scanner
-  
+
   # System Configuration
   - ssh-server             # SSH server for remote access
   - cups                   # Printing support
@@ -72,24 +72,24 @@ configurable_values:
     value: 10              # Low swappiness for desktop use
     type: slider
     unit: ''
-  
+
   # CPU governor for balanced performance
   cpu-governor:
     value: 'ondemand'      # Balance performance and power
     type: dropdown
     unit: ''
-  
+
   # Desktop environment settings
   de-font-size:
     value: 11              # Comfortable font size
     type: slider
     unit: 'pt'
-  
+
   de-scaling-factor:
     value: 1.0             # Default display scaling
     type: slider
     unit: 'x'
-  
+
   de-cursor-size:
     value: 24              # Standard cursor size
     type: slider
@@ -108,23 +108,23 @@ ansible_variables:
     de_show_battery_percentage: true
     de_natural_scrolling: false
     de_tap_to_click: true
-  
+
   # Development tools
   dev_vscode: true
   dev_git: true
-  
+
   # Programming languages
   lang_python: true
   lang_nodejs: true
-  
+
   # Container tools
   container_docker: true
   container_docker_compose: true
-  
+
   # Build tools
   build_make: true
   build_gcc: true
-  
+
   # CLI utilities
   cli_curl: true
   cli_wget: true
@@ -136,7 +136,7 @@ ansible_variables:
   cli_modern_tmux: true
   cli_modern_htop: true
   cli_modern_ncdu: true
-  
+
   # Applications
   app_firefox: true
   app_thunderbird: true
@@ -144,12 +144,12 @@ ansible_variables:
   app_vlc: true
   app_gimp: true
   app_keepassxc: true
-  
+
   # Security settings
   security_ufw: true
   security_auto_updates: true
   security_clamav: true
-  
+
   # System configuration
   system_ssh_server: true
   system_cups: true
