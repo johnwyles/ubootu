@@ -13,8 +13,10 @@ This document provides everything needed for Claude Code to work effectively wit
 - **Tools Available**: 400+ professional tools
 - **Ansible Roles**: 10 comprehensive roles
 - **Menu Categories**: 15+ major categories
-- **Test Coverage**: 90% target (infrastructure ready)
+- **Test Coverage**: Target 90% (Currently ~38% with 251 passing tests)
 - **Supported Ubuntu**: 20.04, 22.04, 24.04 LTS
+- **Python Support**: 3.8, 3.9, 3.10, 3.11, 3.12
+- **CI/CD**: GitHub Actions with comprehensive test matrix
 
 ### Project Genesis
 
@@ -70,11 +72,15 @@ ubootu/
 ├── site.yml                     # Master Ansible playbook
 ├── bootstrap.yml                # Initial system bootstrap
 ├── ansible.cfg                  # Ansible configuration
-├── requirements.yml             # Ansible dependencies
-├── requirements-dev.txt         # Development dependencies
-├── pytest.ini                   # Test configuration
+├── requirements.yml             # Ansible dependencies (versioned)
+├── requirements-dev.txt         # Development dependencies (all latest)
+├── pytest.ini                   # Test configuration (45% coverage)
 ├── .coveragerc                  # Coverage settings
 ├── config.example.yml           # Example configuration
+├── .github/                     # GitHub Actions workflows
+│   └── workflows/
+│       ├── ci.yml               # Legacy CI workflow
+│       └── test.yml             # Main test suite workflow
 ├── 
 ├── lib/                         # Core Python libraries
 │   ├── __init__.py
@@ -115,9 +121,10 @@ ubootu/
 │       ├── main.yml             # Default settings
 │       └── vault.yml            # Secrets template
 │
-└── inventories/                 # Inventory configs
-    └── local/
-        └── hosts                # Local inventory
+├── inventories/                 # Inventory configs
+│   └── local/
+│       └── hosts                # Local inventory
+└── .venv/                       # Python virtual environment (git-ignored)
 ```
 
 ## 🎯 Key Files Reference
@@ -243,31 +250,53 @@ python3 -c "import yaml; yaml.safe_load(open('config.yml'))"
 
 ### Test Structure
 - **Unit Tests**: `tests/lib/` - Test individual modules
-- **Integration Tests**: Test complete workflows
-- **Coverage Target**: 90% (currently ~35% actual implementation)
+- **Integration Tests**: Test complete workflows  
+- **Coverage Target**: 90% (currently ~38%)
+- **Test Status**: 288 tests collected, 251 passing, 28 failing, 9 errors
+- **CI/CD**: GitHub Actions running on Python 3.8-3.12
 
 ### Running Tests
 ```bash
-# Run all tests
-python3 tests/run_tests.py
+# Create virtual environment (recommended)
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-dev.txt
 
-# Run with coverage (requires pytest)
-pytest tests/ -v --cov=lib --cov-report=html
+# Run all tests with pytest
+pytest tests/ -v
 
-# Check specific module
-python3 tests/lib/tui/test_models.py
+# Run with coverage
+pytest tests/ -v --cov=lib --cov-report=term-missing
+
+# Run specific test file
+pytest tests/lib/tui/test_models.py -v
+
+# Run tests for specific Python version
+python3.8 -m pytest tests/
 ```
 
 ### Code Quality
 ```bash
-# Format code (if black installed)
-black lib/ tests/
+# All tools are in requirements-dev.txt
+source .venv/bin/activate
 
-# Lint code (if flake8 installed)
+# Format code with black
+black lib/ tests/ configure_standard_tui.py
+
+# Sort imports with isort
+isort lib/ tests/ configure_standard_tui.py
+
+# Lint code with flake8
 flake8 lib/ --max-line-length=120
 
-# Type checking (if mypy installed)
+# Type checking with mypy
 mypy lib/
+
+# Lint YAML files
+yamllint .
+
+# Lint Ansible playbooks
+ansible-lint
 ```
 
 ## 🚨 Important Patterns & Conventions
@@ -296,6 +325,16 @@ except curses.error:
     # Graceful fallback
 ```
 
+### Python 3.8+ Compatibility
+```python
+# For type annotations in Python 3.8
+from __future__ import annotations
+from typing import Dict, List, Optional
+
+# Use Union types for 3.8 compatibility
+def method(self) -> Union[str, None]:  # Not str | None
+```
+
 ## 🎨 UI/UX Guidelines
 
 ### Visual Hierarchy
@@ -321,11 +360,18 @@ except curses.error:
 - Never store passwords in `config.yml`
 - Use Ansible vault for secrets
 - Git-ignore user configurations
+- All secrets in `group_vars/all/vault.yml` (template provided)
 
 ### Privilege Escalation
 - Use `become: yes` only when needed
 - Validate user input
 - Check file permissions
+- Run with `--ask-become-pass` for sudo operations
+
+### Security Tools Available
+- **Basic**: UFW firewall, fail2ban, ClamAV
+- **Privacy**: Tor, KeePassXC, ProtonVPN, Signal, VeraCrypt
+- **Professional**: Burp Suite, Wireshark, John, Metasploit, Nmap
 
 ## 🚀 Performance Optimization
 
@@ -397,6 +443,25 @@ print("Debug info", file=sys.stderr)
 - **Most Complex**: Event handling and menu navigation
 - **Critical Path**: Menu selection → Config generation → Ansible execution
 
+## 📝 Known Issues & TODOs
+
+### Current Test Failures (28 tests)
+1. **Menu API Mismatches**: Tests expect different method signatures
+2. **Missing Parent References**: Menu builders need root parent items
+3. **Mock Setup Issues**: Some mocks don't match actual implementations
+4. **Config Model Changes**: Tests use old field names
+
+### Infrastructure TODOs
+1. **Coverage**: Increase from 38% to 90% target
+2. **Integration Tests**: Add end-to-end workflow tests
+3. **Molecule Tests**: Fix role testing setup
+4. **Documentation**: Generate API docs from docstrings
+
+### YAML Lint Warnings
+- Line length issues in `roles/common/tasks/third-party-repos.yml`
+- Trailing spaces in several YAML files
+- All critical errors have been fixed
+
 ## 🤝 Collaboration Tips for Claude Code
 
 ### Effective Prompting
@@ -408,24 +473,39 @@ print("Debug info", file=sys.stderr)
 - Request modular additions
 - Ask for tests with implementation
 - Specify Ansible best practices
+- Include Python 3.8 compatibility
 
 ### Review Patterns
 - Check idempotency
 - Verify error handling
 - Ensure documentation updates
+- Run tests before committing
 
 ## 🎯 Quick Command Reference
 
 ```bash
 # Development
 ./configure_standard_tui.py     # Run TUI
-python3 tests/run_tests.py      # Run tests
+pytest tests/ -v                # Run tests with pytest
 ansible-playbook site.yml --check  # Dry run
 
 # Configuration
 cp config.yml backups/          # Backup config
 vi config.yml                   # Edit manually
 ./setup.sh --restore config.yml # Apply config
+
+# Testing & CI
+source .venv/bin/activate       # Activate virtual environment
+pytest tests/ -v --cov          # Run with coverage
+gh run list --limit 5           # Check GitHub Actions status
+gh run watch <run-id>           # Watch workflow execution
+
+# Code Quality
+black lib/ tests/               # Format Python code
+isort lib/ tests/               # Sort imports
+flake8 lib/                     # Lint Python
+yamllint .                      # Lint YAML files
+ansible-lint                    # Lint Ansible playbooks
 
 # Debugging
 export DEBUG_TUI=1              # Enable TUI debug
@@ -478,7 +558,40 @@ ansible_variables:
 
 *This document is the primary reference for Claude Code instances working on Ubootu. It represents accumulated knowledge from the project's development and should be updated as the project evolves.*
 
-**Last Updated**: November 2024
+## 📦 Dependencies & Versions
+
+### Python Packages (Latest as of July 2025)
+- **Testing**: pytest 8.4.1, pytest-cov 6.2.1, pytest-mock 3.14.1
+- **Linting**: black 25.1.0, isort 6.0.1, flake8 7.3.0, mypy 1.17.0
+- **Ansible**: ansible-lint 25.6.1, molecule 25.6.0
+- **YAML**: yamllint 1.37.1
+- **Coverage**: coverage 7.9.2 (minimum 45% required)
+
+### GitHub Actions (Updated July 2025)
+- actions/checkout: v4.2.2
+- actions/setup-python: v5.6.0
+- actions/cache: v4.2.3
+- codecov/codecov-action: v5.4.3
+- github/codeql-action: v3.29.4
+- aquasecurity/trivy-action: 0.32.0
+
+### Ansible Collections (Versioned)
+- community.general: >=9.6.0
+- ansible.posix: >=1.6.2
+- community.docker: >=3.14.0
+
+## 🔄 Recent Updates (July 2025)
+
+1. **Python 3.8 Compatibility**: Added `from __future__ import annotations` imports
+2. **Test Infrastructure**: Fixed 260+ test import issues, achieving 251 passing tests
+3. **CI/CD Updates**: Upgraded all GitHub Actions to latest versions
+4. **Python Version**: Default CI now uses Python 3.12 (was 3.11)
+5. **Ansible Version**: Updated to 2.19 (was 2.15)
+6. **YAML Compliance**: Fixed indentation to meet strict yamllint requirements
+
+---
+
+**Last Updated**: July 2025
 **Primary Maintainer**: John Wyles
 **AI Assistant**: Claude (Anthropic)
 **Built with**: Claude Code
