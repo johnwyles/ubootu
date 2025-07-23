@@ -655,6 +655,33 @@ class MenuUI:
         return choice
 
 
+# Configuration dataclasses for app customization
+@dataclass
+class SliderConfig:
+    """Configuration for slider inputs"""
+    min_value: int
+    max_value: int
+    current_value: int
+    step: int = 1
+    unit: str = ""
+
+
+@dataclass
+class DropdownConfig:
+    """Configuration for dropdown selections"""
+    options: List[Tuple[str, str]]
+    current_value: str
+    allow_custom: bool = False
+
+
+@dataclass 
+class MultiSelectConfig:
+    """Configuration for multi-select options"""
+    options: List[Tuple[str, str, bool]]
+    max_selections: Optional[int] = None
+    min_selections: int = 0
+
+
 # Helper functions for the main script
 def create_menu_ui():
     """Factory function to create MenuUI instance"""
