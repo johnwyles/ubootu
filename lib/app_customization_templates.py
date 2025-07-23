@@ -6,7 +6,7 @@ Provides detailed customization options for various applications
 
 from typing import Dict, List, Any, Tuple
 from dataclasses import dataclass
-from menu_ui import SliderConfig, DropdownConfig, MultiSelectConfig
+from lib.menu_ui import SliderConfig, DropdownConfig, MultiSelectConfig
 
 
 @dataclass

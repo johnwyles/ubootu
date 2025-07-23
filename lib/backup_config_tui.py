@@ -7,8 +7,8 @@ Allows users to backup their current configuration
 import sys
 import curses
 from datetime import datetime
-from tui_dialogs import TextInputDialog, ConfirmDialog, MessageDialog, ProgressDialog
-from profile_manager import ProfileManager
+from lib.tui_dialogs import TextInputDialog, ConfirmDialog, MessageDialog, ProgressDialog
+from lib.profile_manager import ProfileManager
 
 
 def backup_configuration(stdscr) -> bool:
