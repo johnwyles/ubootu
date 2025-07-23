@@ -290,16 +290,27 @@ class ConfigurationValidator:
     def _is_valid_timezone(self, timezone: str) -> bool:
         """Check if timezone string is valid"""
         try:
-            import zoneinfo
-            zoneinfo.ZoneInfo(timezone)
-            return True
-        except:
-            # Fallback for systems without zoneinfo
-            common_timezones = [
-                "UTC", "America/New_York", "America/Chicago", "America/Denver", 
-                "America/Los_Angeles", "Europe/London", "Europe/Paris", "Asia/Tokyo"
-            ]
-            return timezone in common_timezones or "/" in timezone
+            # Try zoneinfo first (Python 3.9+)
+            try:
+                import zoneinfo
+                zoneinfo.ZoneInfo(timezone)
+                return True
+            except ImportError:
+                # Python 3.8 or older - try pytz if available
+                try:
+                    import pytz
+                    return timezone in pytz.all_timezones
+                except ImportError:
+                    pass
+        except Exception:
+            pass
+        
+        # Fallback for systems without zoneinfo or pytz
+        common_timezones = [
+            "UTC", "America/New_York", "America/Chicago", "America/Denver", 
+            "America/Los_Angeles", "Europe/London", "Europe/Paris", "Asia/Tokyo"
+        ]
+        return timezone in common_timezones or "/" in timezone
     
     def _is_valid_username(self, username: str) -> bool:
         """Check if username follows Linux conventions"""
