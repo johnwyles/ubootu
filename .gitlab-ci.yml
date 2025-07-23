@@ -1,0 +1,117 @@
+---
+# GitLab CI/CD Pipeline for Ubootu
+# Mirrors GitHub Actions functionality for GitLab environments
+
+stages:
+  - lint
+  - test
+  - security
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  ANSIBLE_FORCE_COLOR: "true"
+  PY_COLORS: "1"
+
+# Cache Python dependencies
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+# Lint job
+lint:
+  stage: lint
+  image: python:3.11
+  before_script:
+    - pip install --upgrade pip
+    - pip install -r requirements-dev.txt
+  script:
+    - yamllint .
+    - ansible-lint
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+
+# Python tests
+python-tests:
+  stage: test
+  image: python:3.11
+  before_script:
+    - pip install --upgrade pip
+    - pip install pytest pytest-cov pyyaml
+    - pip install -r requirements-dev.txt || true
+  script:
+    # Test Python syntax compilation
+    - python -m py_compile configure_standard_tui.py
+    - python -m py_compile lib/tui_splash.py
+    - python -m py_compile lib/menu_dialog.py
+    - python -m py_compile lib/overlay_dialog.py
+    # Run pytest
+    - pytest tests/ -v --cov=. --cov-report=xml --cov-report=html --cov-report=term
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+    paths:
+      - htmlcov/
+    expire_in: 1 week
+  allow_failure: true  # Tests are still being developed
+
+# Molecule tests for Ansible roles
+.molecule-template:
+  stage: test
+  image: quay.io/ansible/molecule:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    - pip install --upgrade pip
+    - pip install -r requirements-dev.txt
+    - ansible-galaxy install -r requirements.yml
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+
+molecule-common:
+  extends: .molecule-template
+  script:
+    - cd roles/common
+    - molecule test
+  allow_failure: true
+
+molecule-security:
+  extends: .molecule-template
+  script:
+    - cd roles/security
+    - molecule test
+  allow_failure: true
+
+# Security scanning
+security-scan:
+  stage: security
+  image: aquasec/trivy:latest
+  script:
+    - trivy fs --no-progress --security-checks vuln,config --severity HIGH,CRITICAL .
+  allow_failure: true
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+
+# SAST scanning
+sast:
+  stage: security
+  include:
+    - template: Security/SAST.gitlab-ci.yml
+  variables:
+    SAST_EXCLUDED_PATHS: "tests/,molecule/"

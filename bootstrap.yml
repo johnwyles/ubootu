@@ -1,0 +1,68 @@
+---
+- name: Initial Bootstrap Playbook
+  hosts: all
+  gather_facts: yes
+  become: yes
+
+  vars:
+    bootstrap_user: "{{ ansible_user_id }}"
+    bootstrap_become_pass_update: true
+    bootstrap_ssh_key_setup: true
+
+  tasks:
+    - name: Ensure sudo is installed
+      ansible.builtin.package:
+        name: sudo
+        state: present
+
+    - name: Ensure user is in sudo group
+      ansible.builtin.user:
+        name: "{{ bootstrap_user }}"
+        groups: sudo
+        append: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Configure passwordless sudo for user
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers.d/{{ bootstrap_user }}
+        line: "{{ bootstrap_user }} ALL=(ALL) NOPASSWD:ALL"
+        create: yes
+        validate: 'visudo -cf %s'
+        mode: '0440'
+      when: bootstrap_become_pass_update
+
+    - name: Ensure .ssh directory exists
+      ansible.builtin.file:
+        path: "/home/{{ bootstrap_user }}/.ssh"
+        state: directory
+        owner: "{{ bootstrap_user }}"
+        group: "{{ bootstrap_user }}"
+        mode: '0700'
+      when: bootstrap_ssh_key_setup
+
+    - name: Install essential packages
+      ansible.builtin.package:
+        name:
+          - git
+          - curl
+          - wget
+          - ca-certificates
+          - gnupg
+          - lsb-release
+          - software-properties-common
+          - python3-pip
+          - python3-venv
+        state: present
+
+    - name: Update all packages
+      ansible.builtin.apt:
+        upgrade: dist
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install Ansible collections
+      ansible.builtin.command: ansible-galaxy collection install -r requirements.yml
+      delegate_to: localhost
+      become: no
+      run_once: true
+      changed_when: false

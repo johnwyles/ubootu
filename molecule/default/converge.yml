@@ -1,0 +1,53 @@
+---
+- name: Converge
+  hosts: all
+  become: yes
+
+  vars:
+    # Basic test configuration
+    enable_security: true
+    enable_firewall: false  # Disable firewall in containers
+    enable_fail2ban: true
+    install_desktop_environment: false  # Skip DE in containers
+    enable_development_tools: true
+    install_applications: true
+    install_security_tools: false
+    configure_dotfiles: true
+
+    # Security specific
+    ssh_permit_root_login: false
+    ssh_password_authentication: false
+    password_managers:
+      - keepassxc
+
+    # Development tools
+    install_docker: false  # Skip Docker in Docker
+    install_vscode: false  # Skip GUI apps
+    modern_cli_tools:
+      - ripgrep
+      - fd
+      - bat
+
+  pre_tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+
+  roles:
+    - role: common
+    - role: security
+      when: enable_security | default(true)
+    - role: desktop-environment
+      when: install_desktop_environment | default(true)
+    - role: themes
+      when: install_desktop_environment | default(true)
+    - role: development-tools
+      when: enable_development_tools | default(false)
+    - role: applications
+      when: install_applications | default(true)
+    - role: security-tools
+      when: install_security_tools | default(false)
+    - role: dotfiles
+      when: configure_dotfiles | default(true)

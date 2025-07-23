@@ -1,0 +1,307 @@
+---
+# Desktop environment to install
+de_environment: "{{ desktop_environment | default('gnome') if not (de_hyprland_enabled | default(false)) else 'hyprland' }}"
+
+# Desktop environment packages
+de_packages:
+  gnome:
+    - ubuntu-desktop
+    - gnome-tweaks
+    - gnome-shell-extensions
+    - chrome-gnome-shell
+    - gnome-shell-extension-ubuntu-dock
+    - dconf-editor
+  kde:
+    - kubuntu-desktop
+    - kde-config-systemsettings
+    - kde-config-gtk-style
+    - kde-config-sddm
+  xfce:
+    - xubuntu-desktop
+    - xfce4-goodies
+    - xfce4-power-manager
+    - menulibre
+  mate:
+    - ubuntu-mate-desktop
+    - mate-desktop-environment-extras
+    - mate-tweak
+  cinnamon:
+    - cinnamon-desktop-environment
+    - cinnamon-control-center
+    - nemo-fileroller
+  hyprland:
+    # Core build dependencies
+    - meson
+    - wget
+    - build-essential
+    - ninja-build
+    - cmake-extras
+    - cmake
+    - gettext
+    - gettext-base
+    - fontconfig
+    - libfontconfig-dev
+    - libffi-dev
+    - libxml2-dev
+    - libdrm-dev
+    - libxkbcommon-x11-dev
+    - libxkbregistry-dev
+    - libxkbcommon-dev
+    - libpixman-1-dev
+    - libudev-dev
+    - libseat-dev
+    - seatd
+    - libxcb-dri3-dev
+    - libegl-dev
+    - libgles2
+    - libegl1-mesa-dev
+    - glslang-tools
+    - libinput-bin
+    - libinput-dev
+    - libxcb-composite0-dev
+    - libavutil-dev
+    - libavcodec-dev
+    - libavformat-dev
+    - libxcb-ewmh2
+    - libxcb-ewmh-dev
+    - libxcb-present-dev
+    - libxcb-icccm4-dev
+    - libxcb-render-util0-dev
+    - libxcb-res0-dev
+    - libxcb-xinput-dev
+    - libtomlplusplus3
+    - libre2-dev
+    # Wayland essentials
+    - xwayland
+    - wl-clipboard
+    - grim
+    - slurp
+    - swaylock
+    - swayidle
+    - mako-notifier
+    - waybar
+    - wofi
+    - wdisplays
+    - wlr-randr
+    - brightnessctl
+    - playerctl
+    - pipewire
+    - wireplumber
+    - xdg-desktop-portal-wlr
+    - xdg-desktop-portal-gtk
+    - polkit-kde-agent-1
+    # Terminal and utilities
+    - foot
+    - kitty
+    - alacritty
+
+# Display manager
+de_display_manager:
+  gnome: gdm3
+  kde: sddm
+  xfce: lightdm
+  mate: lightdm
+  cinnamon: lightdm
+  hyprland: greetd  # Minimal Wayland-compatible display manager
+
+# Common desktop utilities
+de_common_packages:
+  - xdg-utils
+  - xdg-user-dirs
+  - fonts-noto
+  - fonts-liberation
+  - fonts-ubuntu
+  - fonts-cascadia-code
+  - fonts-firacode
+  - pavucontrol
+  - blueman
+  - network-manager-gnome
+  - gvfs-backends
+  - libnotify-bin
+
+# Theme settings
+de_configure_theme: true
+de_gtk_theme: "Yaru"
+de_icon_theme: "Yaru"
+de_cursor_theme: "Yaru"
+
+# Display settings
+de_configure_display: true
+de_default_resolution: "auto"
+de_refresh_rate: "auto"
+de_fractional_scaling: false
+
+# Power management
+de_configure_power: true
+de_laptop_lid_close_action: "suspend"
+de_power_button_action: "interactive"
+de_idle_delay: 900  # 15 minutes
+
+# Sound settings
+de_configure_sound: true
+de_startup_sound: false
+
+# Accessibility
+de_configure_accessibility: false
+de_screen_reader: false
+de_screen_magnifier: false
+
+# Auto-login
+de_autologin: "{{ desktop_autologin | default(false) }}"
+de_autologin_user: "{{ primary_user }}"
+
+# Mouse and Touchpad Settings
+de_mouse_speed: 0.0  # -1.0 to 1.0
+de_mouse_acceleration: true
+de_scroll_speed: 1.0  # Multiplier
+de_natural_scroll: false
+de_touchpad_tap_to_click: true
+de_touchpad_two_finger_scroll: true
+de_touchpad_edge_scroll: false
+de_touchpad_gestures: true
+de_touchpad_disable_while_typing: true
+
+# Keyboard Settings
+de_key_repeat_delay: 500  # milliseconds
+de_key_repeat_interval: 30  # milliseconds
+de_compose_key: ""  # Options: "", "ralt", "rctrl", "caps", "menu"
+de_caps_lock_behavior: "caps"  # Options: "caps", "ctrl", "escape", "none"
+de_media_keys_enabled: true
+de_super_key_action: "overlay"  # Options: "overlay", "menu", "none"
+
+# Custom keyboard shortcuts
+de_custom_shortcuts:
+  - name: "Terminal"
+    command: "gnome-terminal"
+    binding: "<Control><Alt>t"
+  - name: "System Monitor"
+    command: "gnome-system-monitor"
+    binding: "<Control><Shift>Escape"
+
+# Window Management
+de_window_snapping: true
+de_window_tiling: false
+de_focus_mode: "click"  # Options: "click", "mouse"
+de_raise_on_click: true
+de_workspaces_enabled: true
+de_workspaces_number: 4
+de_workspace_grid: false  # 2D grid vs linear
+de_hot_corners_enabled: false
+de_hot_corners:
+  top_left: ""  # Options: "", "activities", "desktop", "appswitcher"
+  top_right: ""
+  bottom_left: ""
+  bottom_right: ""
+
+# Notification Settings
+de_notification_position: "top-right"  # Options: "top-right", "top-left", "bottom-right", "bottom-left", "top-center", "bottom-center"
+de_notification_duration: 5  # seconds
+de_notification_dnd: false
+de_notification_sounds: false
+de_notification_show_in_lock_screen: false
+de_notification_bubble_enabled: true
+de_notification_history_enabled: true
+de_urgent_window_hint: true
+
+# Display Settings
+de_display_resolution: "auto"  # e.g., "1920x1080" or "auto"
+de_display_scale: 1.0  # 1.0, 1.25, 1.5, 2.0
+de_display_refresh_rate: "auto"  # e.g., "60", "144", or "auto"
+de_fractional_scaling_enabled: false
+de_night_light_enabled: false
+de_night_light_temperature: 4000  # Kelvin
+de_night_light_schedule: "sunset-to-sunrise"  # Options: "sunset-to-sunrise", "manual"
+de_night_light_start_hour: 20
+de_night_light_end_hour: 6
+
+# Multi-monitor settings
+de_multi_monitor_mode: "extend"  # Options: "extend", "mirror", "single"
+de_primary_monitor: "auto"  # Monitor identifier or "auto"
+
+# Screensaver and Lock Settings
+de_screen_blank_delay: 300  # seconds (5 minutes)
+de_screen_lock_enabled: true
+de_screen_lock_delay: 60  # seconds after blank
+de_lock_on_suspend: true
+de_screensaver_enabled: false
+de_lock_screen_notifications: false
+de_lock_screen_wallpaper: ""  # Path to image or empty for default
+
+# Desktop Effects and Animations
+de_animations_enabled: true
+de_animation_speed: 1.0  # Multiplier
+de_transparency_enabled: true
+de_blur_enabled: true
+de_window_shadows: true
+de_minimize_animation: "scale"  # Options: "scale", "fade", "none"
+de_maximize_animation: "scale"
+de_desktop_cube: false
+de_wobbly_windows: false
+de_compositor_enabled: true
+
+# Wallpaper and Appearance
+de_wallpaper: "/usr/share/backgrounds/ubuntu-default-wallpaper.jpg"
+de_wallpaper_mode: "zoom"  # Options: "none", "wallpaper", "centered", "scaled", "stretched", "zoom", "spanned"
+de_wallpaper_slideshow_enabled: false
+de_wallpaper_slideshow_duration: 600  # seconds
+de_wallpaper_slideshow_folder: "~/Pictures/Wallpapers"
+de_dynamic_wallpaper_enabled: false
+de_show_desktop_icons: true
+de_desktop_icon_size: 64  # pixels
+de_desktop_icons_layout: "free"  # Options: "free", "grid"
+
+# Font Configuration
+de_font_interface: "Ubuntu 11"
+de_font_document: "Sans 11"
+de_font_monospace: "Ubuntu Mono 13"
+de_font_window_title: "Ubuntu Bold 11"
+de_font_antialiasing: "rgba"  # Options: "none", "grayscale", "rgba"
+de_font_hinting: "slight"  # Options: "none", "slight", "medium", "full"
+
+# Color Scheme
+de_color_scheme: "default"  # Options: "default", "light", "dark"
+de_accent_color: ""  # Hex color or empty for default
+
+# Hyprland-specific settings
+de_hyprland_enabled: false
+de_hyprland_build_from_source: false  # Use PPA if false
+de_hyprland_animations: true
+de_hyprland_gaps_in: 5
+de_hyprland_gaps_out: 10
+de_hyprland_border_size: 2
+de_hyprland_active_border_color: "rgba(33ccffee) rgba(00ff99ee) 45deg"
+de_hyprland_inactive_border_color: "rgba(595959aa)"
+de_hyprland_rounding: 10
+de_hyprland_blur: true
+de_hyprland_blur_size: 3
+de_hyprland_blur_passes: 1
+de_hyprland_terminal: "kitty"
+de_hyprland_file_manager: "nautilus"
+de_hyprland_launcher: "wofi"
+de_hyprland_bar: "waybar"
+de_hyprland_lock_command: "swaylock -f -c 000000"
+de_hyprland_screenshot_tool: "grim"
+de_hyprland_mod_key: "SUPER"  # Options: "SUPER", "ALT", "CTRL"
+
+# Panel/Taskbar Settings
+de_panel_position: "bottom"  # Options: "top", "bottom", "left", "right"
+de_panel_autohide: false
+de_panel_autohide_show_delay: 200  # milliseconds
+de_panel_autohide_hide_delay: 1000  # milliseconds
+de_panel_size: 48  # pixels
+de_panel_transparency: 0.0  # 0.0 to 1.0
+de_clock_format: "24h"  # Options: "12h", "24h"
+de_clock_show_date: true
+de_clock_show_weekday: true
+de_clock_show_seconds: false
+de_system_tray_enabled: true
+
+# Panel applets/widgets (varies by DE)
+de_panel_applets:
+  - "menu"
+  - "show-desktop"
+  - "window-list"
+  - "workspace-switcher"
+  - "notification-area"
+  - "clock"
+  - "user-menu"

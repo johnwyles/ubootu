@@ -1,0 +1,93 @@
+MIT License
+
+Copyright (c) 2025 John Wyles
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================================================================================
+
+This project includes contributions from many developers. Individual 
+contributions are copyrighted by their respective authors and licensed 
+under the same MIT license terms above.
+
+Third-party components and dependencies may be subject to different licenses.
+Please refer to their respective license files for details.
+
+================================================================================
+
+THIRD-PARTY LICENSES
+
+This project depends on or includes components from the following projects:
+
+Ansible
+- License: GPL-3.0
+- Copyright: Red Hat, Inc.
+- Website: https://www.ansible.com/
+
+Rich (Python library)
+- License: MIT
+- Copyright: Will McGugan
+- Website: https://github.com/Textualize/rich
+
+PyYAML
+- License: MIT
+- Copyright: Kirill Simonov
+- Website: https://pyyaml.org/
+
+Ubuntu Operating System
+- License: Various (GPL, MIT, Apache, etc.)
+- Copyright: Canonical Ltd.
+- Website: https://ubuntu.com/
+
+The licenses for these components are included in their respective packages
+and are not modified by this project.
+
+================================================================================
+
+ACKNOWLEDGMENTS
+
+This project was inspired by and builds upon the work of many open-source 
+projects and communities. We are grateful for their contributions to the 
+open-source ecosystem.
+
+Special thanks to:
+- The Ubuntu community for creating an amazing operating system
+- The Ansible community for providing powerful automation tools
+- All contributors who have helped improve this project
+- The broader open-source community for countless tools and libraries
+
+================================================================================
+
+TRADEMARK NOTICE
+
+Ubuntu is a trademark of Canonical Ltd. This project is not affiliated with
+or endorsed by Canonical Ltd.
+
+All other trademarks mentioned in this project are the property of their 
+respective owners.
+
+================================================================================
+
+CONTRIBUTION AGREEMENT
+
+By contributing to this project, you agree that your contributions will be 
+licensed under the MIT License and that you have the legal right to make 
+such contributions.
+
+For more information about contributing, please see CONTRIBUTING.md.

@@ -1,0 +1,249 @@
+---
+# Install web security testing tools
+
+# Burp Suite Community from official repository
+- name: Download Burp Suite Community installer
+  ansible.builtin.get_url:
+    url: "https://portswigger.net/burp/releases/download?product=community&type=linux"
+    dest: /tmp/burpsuite_community.sh
+    mode: '0755'
+  become: yes
+  when: "'burpsuite' in sectools_web_tools"
+
+- name: Install Burp Suite Community
+  ansible.builtin.shell: |
+    echo -e '\n\n\n' | sh /tmp/burpsuite_community.sh -q
+  become: yes
+  when: "'burpsuite' in sectools_web_tools"
+  args:
+    creates: /opt/BurpSuiteCommunity/BurpSuiteCommunity
+  changed_when: true
+
+- name: Create Burp Suite desktop entry
+  ansible.builtin.copy:
+    dest: /usr/share/applications/burpsuite.desktop
+    content: |
+      [Desktop Entry]
+      Name=Burp Suite Community
+      Comment=Web security testing toolkit
+      Exec=/opt/BurpSuiteCommunity/BurpSuiteCommunity
+      Icon=/opt/BurpSuiteCommunity/icon.png
+      Terminal=false
+      Type=Application
+      Categories=Network;Security;
+    mode: '0644'
+  become: yes
+  when: "'burpsuite' in sectools_web_tools"
+
+# OWASP ZAP from official repository
+- name: Add OWASP ZAP GPG key
+  apt_key:
+    url: https://download.opensuse.org/repositories/home:/cabelo/xUbuntu_22.04/Release.key
+    state: present
+  become: yes
+  when: "'zaproxy' in sectools_web_tools and sectools_use_official_repos"
+
+- name: Add OWASP ZAP repository
+  apt_repository:
+    repo: "deb https://download.opensuse.org/repositories/home:/cabelo/xUbuntu_22.04/ /"
+    state: present
+    filename: owasp-zap
+  become: yes
+  when: "'zaproxy' in sectools_web_tools and sectools_use_official_repos"
+
+- name: Install OWASP ZAP
+  ansible.builtin.apt:
+    name: zaproxy
+    state: present
+    update_cache: yes
+  become: yes
+  when: "'zaproxy' in sectools_web_tools"
+
+# Alternatively install ZAP via snap
+- name: Install OWASP ZAP via snap
+  snap:
+    name: zaproxy
+    state: present
+    classic: yes
+  become: yes
+  when: "'zaproxy' in sectools_web_tools and enable_snap | default(true)"
+  failed_when: false
+
+# Directory bruteforcing tools
+- name: Install dirb and dirbuster
+  ansible.builtin.apt:
+    name:
+      - dirb
+      - dirbuster
+    state: present
+  become: yes
+  when: "'dirb' in sectools_web_tools"
+
+# Gobuster from GitHub releases
+- name: Check latest Gobuster release
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/OJ/gobuster/releases/latest
+    return_content: yes
+  register: gobuster_release
+  when: "'gobuster' in sectools_web_tools"
+
+- name: Download and extract Gobuster
+  ansible.builtin.unarchive:
+    src: "{{ gobuster_release.json.assets | selectattr('name', 'match', '.*Linux_x86_64\\.tar\\.gz$') | map(attribute='browser_download_url') | first }}"
+    dest: /usr/local/bin
+    remote_src: yes
+    mode: '0755'
+    owner: root
+    group: root
+    extra_opts:
+      - gobuster
+  become: yes
+  when: "'gobuster' in sectools_web_tools and gobuster_release is succeeded"
+
+# WPScan from official repository
+- name: Install WPScan dependencies
+  ansible.builtin.apt:
+    name:
+      - ruby-full
+      - ruby-dev
+      - libcurl4-openssl-dev
+      - libxml2-dev
+      - libxslt1-dev
+      - ruby-bundler
+    state: present
+  become: yes
+  when: "'wpscan' in sectools_web_tools"
+
+- name: Install WPScan via gem
+  gem:
+    name: wpscan
+    state: present
+    user_install: no
+  become: yes
+  when: "'wpscan' in sectools_web_tools"
+
+# Additional web scanners from standard repos
+- name: Install additional web security tools
+  ansible.builtin.apt:
+    name:
+      - whatweb          # Web scanner
+      - wafw00f          # WAF detector
+      - uniscan          # Web vulnerability scanner
+      - wapiti           # Web vulnerability scanner
+      - skipfish         # Web app security scanner
+      - arachni-scanner  # Web app security scanner
+      - vega             # Web security scanner GUI
+      - webscarab        # Web app review tool
+    state: present
+  become: yes
+  failed_when: false  # Some might not be available
+
+# SSLyze from pip
+- name: Install SSLyze
+  ansible.builtin.pip:
+    name: sslyze
+    state: present
+    executable: pip3
+  become: yes
+  when: "'sslyze' in sectools_web_tools"
+
+# testssl.sh from GitHub
+- name: Clone testssl.sh
+  ansible.builtin.git:
+    repo: https://github.com/drwetter/testssl.sh.git
+    dest: /opt/testssl.sh
+    version: 3.2
+  become: yes
+
+- name: Create testssl.sh symlink
+  ansible.builtin.file:
+    src: /opt/testssl.sh/testssl.sh
+    dest: /usr/local/bin/testssl
+    state: link
+  become: yes
+
+# Web shells and exploitation tools
+- name: Clone WebShells collection
+  ansible.builtin.git:
+    repo: https://github.com/BlackArch/webshells.git
+    dest: /opt/webshells
+    version: master
+  become: yes
+
+# XSStrike - XSS scanner
+- name: Clone XSStrike
+  ansible.builtin.git:
+    repo: https://github.com/s0md3v/XSStrike.git
+    dest: /opt/xsstrike
+    version: master
+  become: yes
+
+- name: Install XSStrike dependencies
+  ansible.builtin.pip:
+    requirements: /opt/xsstrike/requirements.txt
+    virtualenv: /opt/xsstrike/venv
+    virtualenv_command: python3 -m venv
+  become: yes
+
+- name: Create XSStrike wrapper
+  ansible.builtin.copy:
+    content: |
+      #!/bin/bash
+      cd /opt/xsstrike
+      source venv/bin/activate
+      python xsstrike.py "$@"
+    dest: /usr/local/bin/xsstrike
+    mode: '0755'
+  become: yes
+
+# Sublist3r - Subdomain enumeration
+- name: Clone Sublist3r
+  ansible.builtin.git:
+    repo: https://github.com/aboul3la/Sublist3r.git
+    dest: /opt/sublist3r
+    version: master
+  become: yes
+
+- name: Install Sublist3r dependencies
+  ansible.builtin.pip:
+    requirements: /opt/sublist3r/requirements.txt
+    virtualenv: /opt/sublist3r/venv
+    virtualenv_command: python3 -m venv
+  become: yes
+
+- name: Create Sublist3r wrapper
+  ansible.builtin.copy:
+    content: |
+      #!/bin/bash
+      cd /opt/sublist3r
+      source venv/bin/activate
+      python sublist3r.py "$@"
+    dest: /usr/local/bin/sublist3r
+    mode: '0755'
+  become: yes
+
+# JWT_Tool
+- name: Clone JWT_Tool
+  ansible.builtin.git:
+    repo: https://github.com/ticarpi/jwt_tool.git
+    dest: /opt/jwt_tool
+    version: master
+  become: yes
+
+- name: Install JWT_Tool dependencies
+  ansible.builtin.pip:
+    name: termcolor
+    virtualenv: /opt/jwt_tool/venv
+    virtualenv_command: python3 -m venv
+  become: yes
+
+- name: Create JWT_Tool wrapper
+  ansible.builtin.copy:
+    content: |
+      #!/bin/bash
+      cd /opt/jwt_tool
+      source venv/bin/activate
+      python jwt_tool.py "$@"
+    dest: /usr/local/bin/jwt_tool
+    mode: '0755'
+  become: yes

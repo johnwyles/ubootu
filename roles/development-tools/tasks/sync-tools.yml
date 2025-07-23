@@ -1,0 +1,134 @@
+---
+# Install file synchronization tools
+
+- name: Install Syncthing
+  block:
+    - name: Add Syncthing GPG key
+      apt_key:
+        url: https://syncthing.net/release-key.gpg
+        state: present
+      become: yes
+
+    - name: Add Syncthing repository
+      apt_repository:
+        repo: "deb https://apt.syncthing.net/ syncthing stable"
+        state: present
+        filename: syncthing
+      become: yes
+
+    - name: Install Syncthing and GUI
+      ansible.builtin.apt:
+        name:
+          - syncthing
+          - syncthing-gtk
+        state: present
+        update_cache: yes
+      become: yes
+
+    - name: Enable Syncthing service for user
+      ansible.builtin.systemd:
+        name: "syncthing@{{ primary_user }}"
+        enabled: yes
+        state: started
+        scope: user
+      become: yes
+      become_user: "{{ primary_user }}"
+  when: "'syncthing' in devtools_sync_tools"
+
+- name: Install Resilio Sync
+  block:
+    - name: Add Resilio Sync GPG key
+      apt_key:
+        url: https://linux-packages.resilio.com/resilio-sync/key.asc
+        state: present
+      become: yes
+
+    - name: Add Resilio Sync repository
+      apt_repository:
+        repo: "deb http://linux-packages.resilio.com/resilio-sync/deb resilio-sync non-free"
+        state: present
+        filename: resilio-sync
+      become: yes
+
+    - name: Install Resilio Sync
+      ansible.builtin.apt:
+        name: resilio-sync
+        state: present
+        update_cache: yes
+      become: yes
+  when: "'resilio-sync' in devtools_sync_tools"
+
+- name: Install FreeFileSync
+  block:
+    - name: Download FreeFileSync
+      ansible.builtin.get_url:
+        url: https://freefilesync.org/download/FreeFileSync_13.3_Linux.tar.gz
+        dest: /tmp/freefilesync.tar.gz
+        mode: '0644'
+      become: yes
+
+    - name: Extract FreeFileSync
+      ansible.builtin.unarchive:
+        src: /tmp/freefilesync.tar.gz
+        dest: /opt/
+        creates: /opt/FreeFileSync
+        remote_src: yes
+      become: yes
+
+    - name: Create FreeFileSync desktop entry
+      ansible.builtin.template:
+        src: freefilesync.desktop.j2
+        dest: /usr/share/applications/freefilesync.desktop
+        mode: '0644'
+      become: yes
+  when: "'freefilesync' in devtools_sync_tools"
+
+- name: Install Nextcloud desktop client
+  block:
+    - name: Add Nextcloud PPA
+      apt_repository:
+        repo: "ppa:nextcloud-devs/client"
+        state: present
+      become: yes
+
+    - name: Install Nextcloud client
+      ansible.builtin.apt:
+        name: nextcloud-desktop
+        state: present
+        update_cache: yes
+      become: yes
+  when: "'nextcloud-client' in devtools_sync_tools"
+
+- name: Install Rclone and GUI
+  block:
+    - name: Install Rclone
+      ansible.builtin.shell: |
+        curl https://rclone.org/install.sh | sudo bash
+      become: yes
+      args:
+        creates: /usr/bin/rclone
+
+    - name: Install Rclone Browser AppImage
+      ansible.builtin.get_url:
+        url: https://github.com/kapitainsky/RcloneBrowser/releases/download/1.8.0/rclone-browser-1.8.0-linux-x86_64.AppImage
+        dest: "/home/{{ primary_user }}/.local/bin/rclone-browser.AppImage"
+        mode: '0755'
+      become: yes
+      become_user: "{{ primary_user }}"
+
+    - name: Create Rclone Browser desktop entry
+      ansible.builtin.template:
+        src: rclone-browser.desktop.j2
+        dest: "/home/{{ primary_user }}/.local/share/applications/rclone-browser.desktop"
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0644'
+      become: yes
+  when: "'rclone' in devtools_sync_tools"
+
+- name: Install Grsync (rsync GUI)
+  ansible.builtin.apt:
+    name: grsync
+    state: present
+  become: yes
+  when: "'grsync' in devtools_sync_tools"

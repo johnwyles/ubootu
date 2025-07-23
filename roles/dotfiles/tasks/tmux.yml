@@ -1,0 +1,46 @@
+---
+# Configure tmux
+
+- name: Install tmux
+  ansible.builtin.apt:
+    name: tmux
+    state: present
+  become: yes
+
+- name: Create tmux configuration directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/tmux"
+    state: directory
+    mode: '0755'
+
+- name: Create tmux.conf
+  ansible.builtin.template:
+    src: tmux.conf.j2
+    dest: "{{ ansible_env.HOME }}/.tmux.conf"
+    mode: '0644'
+    backup: yes
+
+- name: Install Tmux Plugin Manager
+  ansible.builtin.git:
+    repo: https://github.com/tmux-plugins/tpm
+    dest: "{{ ansible_env.HOME }}/.tmux/plugins/tpm"
+    version: master
+  when: tmux_plugins | length > 0
+
+- name: Create tmux session save directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.tmux/resurrect"
+    state: directory
+    mode: '0755'
+  when: "'tmux-plugins/tmux-resurrect' in tmux_plugins"
+
+- name: Install tmux plugins
+  ansible.builtin.shell: |
+    tmux new-session -d -s temp
+    tmux run-shell "{{ ansible_env.HOME }}/.tmux/plugins/tpm/bin/install_plugins"
+    tmux kill-session -t temp
+  when: tmux_plugins | length > 0
+  changed_when: false
+  failed_when: false
+  environment:
+    TMUX_PLUGIN_MANAGER_PATH: "{{ ansible_env.HOME }}/.tmux/plugins/"

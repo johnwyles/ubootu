@@ -1,0 +1,36 @@
+---
+# Handlers for dotfiles role
+
+- name: reload bash
+  ansible.builtin.shell: source ~/.bashrc
+  args:
+    executable: /bin/bash
+  failed_when: false
+  changed_when: false
+
+- name: reload zsh
+  ansible.builtin.shell: source ~/.zshrc
+  args:
+    executable: /bin/zsh
+  failed_when: false
+  changed_when: false
+
+- name: reload fish
+  ansible.builtin.shell: source ~/.config/fish/config.fish
+  args:
+    executable: /usr/bin/fish
+  failed_when: false
+  changed_when: false
+
+- name: install vim plugins
+  ansible.builtin.shell: vim -E -s -u "{{ ansible_env.HOME }}/.vimrc" +PlugInstall +qall
+  failed_when: false
+  changed_when: false
+
+- name: install tmux plugins
+  ansible.builtin.shell: |
+    tmux new-session -d -s temp
+    tmux run-shell "{{ ansible_env.HOME }}/.tmux/plugins/tpm/bin/install_plugins"
+    tmux kill-session -t temp
+  failed_when: false
+  changed_when: false

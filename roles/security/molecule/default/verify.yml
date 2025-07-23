@@ -1,0 +1,94 @@
+---
+- name: Verify security role
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Check SSH configuration
+      block:
+        - name: Read SSH config
+          ansible.builtin.slurp:
+            src: /etc/ssh/sshd_config
+          register: ssh_config_content
+
+        - name: Verify SSH hardening settings
+          ansible.builtin.assert:
+            that:
+              - "'PermitRootLogin no' in ssh_config_content.content | b64decode"
+              - "'PasswordAuthentication no' in ssh_config_content.content | b64decode"
+              - "'MaxAuthTries 3' in ssh_config_content.content | b64decode"
+            fail_msg: "SSH configuration not properly hardened"
+
+    - name: Verify fail2ban
+      block:
+        - name: Check fail2ban service
+          ansible.builtin.systemd:
+            name: fail2ban
+            state: started
+          check_mode: yes
+          register: fail2ban_check
+
+        - name: Assert fail2ban is running
+          ansible.builtin.assert:
+            that:
+              - fail2ban_check is not changed
+            fail_msg: "fail2ban service is not running"
+
+        - name: Check fail2ban SSH jail
+          ansible.builtin.stat:
+            path: /etc/fail2ban/jail.d/ssh.conf
+          register: ssh_jail
+
+        - name: Assert SSH jail exists
+          ansible.builtin.assert:
+            that:
+              - ssh_jail.stat.exists
+            fail_msg: "fail2ban SSH jail configuration missing"
+
+    - name: Verify password manager installation
+      package_facts:
+        manager: apt
+
+    - name: Assert KeePassXC is installed
+      ansible.builtin.assert:
+        that:
+          - "'keepassxc' in ansible_facts.packages"
+        fail_msg: "KeePassXC not installed"
+      when: "'keepassxc' in password_managers"
+
+    - name: Verify automatic updates
+      block:
+        - name: Check unattended-upgrades package
+          package_facts:
+            manager: apt
+
+        - name: Assert unattended-upgrades installed
+          ansible.builtin.assert:
+            that:
+              - "'unattended-upgrades' in ansible_facts.packages"
+            fail_msg: "unattended-upgrades not installed"
+
+        - name: Check auto-upgrades config
+          ansible.builtin.stat:
+            path: /etc/apt/apt.conf.d/20auto-upgrades
+          register: auto_upgrades
+
+        - name: Assert auto-upgrades configured
+          ansible.builtin.assert:
+            that:
+              - auto_upgrades.stat.exists
+            fail_msg: "Automatic updates not configured"
+
+    - name: Verify kernel hardening (if not in container)
+      block:
+        - name: Check sysctl security settings
+          ansible.builtin.command: sysctl {{ item.key }}
+          register: sysctl_check
+          loop:
+            - { key: 'kernel.randomize_va_space', value: '2' }
+            - { key: 'fs.protected_hardlinks', value: '1' }
+            - { key: 'fs.protected_symlinks', value: '1' }
+          changed_when: false
+          failed_when: item.value not in sysctl_check.stdout
+      when: ansible_virtualization_type != "docker"

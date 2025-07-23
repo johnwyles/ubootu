@@ -1,0 +1,54 @@
+---
+- name: Set timezone
+  timezone:
+    name: "{{ common_timezone }}"
+  become: yes
+  notify: restart cron
+
+- name: Generate locale
+  locale_gen:
+    name: "{{ common_locale }}"
+    state: present
+  become: yes
+
+- name: Set default locale
+  ansible.builtin.template:
+    src: locale.j2
+    dest: /etc/default/locale
+    owner: root
+    group: root
+    mode: '0644'
+  become: yes
+
+- name: Set hostname
+  ansible.builtin.hostname:
+    name: "{{ common_hostname }}"
+  become: yes
+  when: common_set_hostname
+
+- name: Update /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1'
+    line: "127.0.1.1 {{ common_hostname }}"
+  become: yes
+  when: common_set_hostname
+
+- name: Configure system limits
+  pam_limits:
+    domain: "{{ item.domain }}"
+    limit_type: "{{ item.limit_type }}"
+    limit_item: "{{ item.limit_item }}"
+    value: "{{ item.value }}"
+  become: yes
+  loop: "{{ common_limits }}"
+  when: common_configure_limits
+
+- name: Configure sysctl settings
+  ansible.builtin.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: yes
+  become: yes
+  loop: "{{ common_sysctl_settings }}"

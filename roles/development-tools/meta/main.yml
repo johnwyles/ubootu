@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  author: bootstrap-ubuntu
+  description: Development tools, AI assistants, and modern CLI utilities
+  license: MIT
+  min_ansible_version: "2.12"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal    # 20.04
+        - jammy    # 22.04
+        - noble    # 24.04
+  galaxy_tags:
+    - ubuntu
+    - development
+    - tools
+    - cli
+    - vscode
+
+dependencies:
+  - role: common

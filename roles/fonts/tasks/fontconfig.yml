@@ -1,0 +1,53 @@
+---
+# Configure fontconfig for optimal rendering
+
+- name: Create user fontconfig directory
+  file:
+    path: "{{ ansible_env.HOME }}/.config/fontconfig"
+    state: directory
+    mode: '0755'
+
+- name: Deploy fontconfig configuration
+  template:
+    src: fonts.conf.j2
+    dest: "{{ ansible_env.HOME }}/.config/fontconfig/fonts.conf"
+    mode: '0644'
+    backup: yes
+
+- name: Create system fontconfig directory
+  file:
+    path: /etc/fonts/conf.d
+    state: directory
+    mode: '0755'
+  become: yes
+  when: fonts_system_install
+
+- name: Deploy system fontconfig configuration
+  template:
+    src: local.conf.j2
+    dest: /etc/fonts/local.conf
+    mode: '0644'
+    backup: yes
+  become: yes
+  when: fonts_system_install
+
+- name: Enable LCD filter for better font rendering
+  file:
+    src: /usr/share/fontconfig/conf.avail/10-sub-pixel-rgb.conf
+    dest: /etc/fonts/conf.d/10-sub-pixel-rgb.conf
+    state: link
+    force: yes
+  become: yes
+  when: 
+    - fonts_fontconfig_rgba == "rgb"
+    - fonts_system_install
+
+- name: Set font hinting level
+  file:
+    src: "/usr/share/fontconfig/conf.avail/10-hinting-{{ fonts_fontconfig_hinting }}.conf"
+    dest: "/etc/fonts/conf.d/10-hinting-{{ fonts_fontconfig_hinting }}.conf"
+    state: link
+    force: yes
+  become: yes
+  when: fonts_system_install
+  ignore_errors: yes

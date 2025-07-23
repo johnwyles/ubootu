@@ -1,0 +1,83 @@
+---
+# Install Nerd Fonts
+
+- name: Ensure required packages are installed
+  package:
+    name:
+      - curl
+      - unzip
+      - wget
+    state: present
+  become: yes
+
+- name: Set font installation directory
+  set_fact:
+    font_install_dir: "{{ fonts_system_install | ternary(fonts_system_dir, fonts_user_dir) }}"
+
+- name: Create font directory
+  file:
+    path: "{{ font_install_dir }}/NerdFonts"
+    state: directory
+    mode: '0755'
+  become: "{{ fonts_system_install }}"
+
+- name: Create temporary download directory
+  tempfile:
+    state: directory
+    prefix: nerdfonts_
+  register: temp_font_dir
+
+- name: Download selected Nerd Fonts
+  get_url:
+    url: "{{ fonts_available_nerd_fonts[item].url }}"
+    dest: "{{ temp_font_dir.path }}/{{ item }}.zip"
+    mode: '0644'
+    timeout: 120
+  loop: "{{ fonts_nerd_font_selection }}"
+  when: item in fonts_available_nerd_fonts
+
+- name: Extract Nerd Fonts
+  unarchive:
+    src: "{{ temp_font_dir.path }}/{{ item }}.zip"
+    dest: "{{ font_install_dir }}/NerdFonts"
+    remote_src: yes
+    mode: '0644'
+    owner: "{{ fonts_system_install | ternary('root', ansible_user_id) }}"
+    group: "{{ fonts_system_install | ternary('root', ansible_user_gid) }}"
+  become: "{{ fonts_system_install }}"
+  loop: "{{ fonts_nerd_font_selection }}"
+  when: item in fonts_available_nerd_fonts
+  register: fonts_extracted
+
+- name: Remove Windows and Mac font files
+  find:
+    paths: "{{ font_install_dir }}/NerdFonts"
+    patterns:
+      - "*.otf"
+      - "*Windows*.ttf"
+    recurse: yes
+  register: unwanted_font_files
+
+- name: Delete unwanted font files
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  become: "{{ fonts_system_install }}"
+  loop: "{{ unwanted_font_files.files }}"
+  when: unwanted_font_files.files | length > 0
+
+- name: Clean up temporary directory
+  file:
+    path: "{{ temp_font_dir.path }}"
+    state: absent
+  when: temp_font_dir.path is defined
+
+- name: Set font file permissions
+  file:
+    path: "{{ font_install_dir }}/NerdFonts"
+    state: directory
+    recurse: yes
+    mode: '0755'
+    owner: "{{ fonts_system_install | ternary('root', ansible_user_id) }}"
+    group: "{{ fonts_system_install | ternary('root', ansible_user_gid) }}"
+  become: "{{ fonts_system_install }}"

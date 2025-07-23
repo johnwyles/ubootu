@@ -1,0 +1,115 @@
+---
+- name: Configure Firefox dark mode
+  block:
+    - name: Create Firefox profile directory
+      ansible.builtin.file:
+        path: "/home/{{ primary_user }}/.mozilla/firefox"
+        state: directory
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0755'
+      become: yes
+
+    - name: Set Firefox dark mode preference
+      ansible.builtin.lineinfile:
+        path: "/home/{{ primary_user }}/.mozilla/firefox/profiles.ini"
+        line: |
+          user_pref("ui.systemUsesDarkTheme", 1);
+          user_pref("browser.theme.content-theme", 0);
+          user_pref("browser.theme.toolbar-theme", 0);
+        create: yes
+      become: yes
+      become_user: "{{ primary_user }}"
+  when: "'firefox' in productivity_apps or 'firefox' in web_browsers | default([])"
+
+- name: Configure Slack dark mode
+  block:
+    - name: Create Slack config directory
+      ansible.builtin.file:
+        path: "/home/{{ primary_user }}/.config/Slack"
+        state: directory
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0755'
+      become: yes
+
+    - name: Set Slack dark mode
+      ansible.builtin.copy:
+        content: |
+          {
+            "isDarkMode": true,
+            "theme": "dark"
+          }
+        dest: "/home/{{ primary_user }}/.config/Slack/storage/appearance.json"
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0644'
+      become: yes
+  when: "'slack' in communication_apps | default([])"
+
+- name: Configure Discord dark mode
+  block:
+    - name: Create Discord config directory
+      ansible.builtin.file:
+        path: "/home/{{ primary_user }}/.config/discord"
+        state: directory
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0755'
+      become: yes
+
+    - name: Set Discord dark mode
+      ansible.builtin.copy:
+        content: |
+          {
+            "BACKGROUND_COLOR": "#202225",
+            "IS_MAXIMIZED": false,
+            "IS_MINIMIZED": false,
+            "theme": "dark"
+          }
+        dest: "/home/{{ primary_user }}/.config/discord/settings.json"
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0644'
+      become: yes
+  when: "'discord' in communication_apps | default([])"
+
+- name: Configure Zoom dark mode
+  ansible.builtin.lineinfile:
+    path: "/home/{{ primary_user }}/.config/zoomus.conf"
+    regexp: '^enableMiniWindow='
+    line: 'enableDarkMode=true'
+    create: yes
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+  when: "'zoom' in communication_apps | default([])"
+
+- name: Configure Vivaldi dark mode
+  block:
+    - name: Create Vivaldi config directory
+      ansible.builtin.file:
+        path: "/home/{{ primary_user }}/.config/vivaldi"
+        state: directory
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0755'
+      become: yes
+
+    - name: Set Vivaldi dark theme
+      ansible.builtin.copy:
+        content: |
+          {
+            "theme": {
+              "scheduledTheme": {
+                "os": "dark"
+              }
+            }
+          }
+        dest: "/home/{{ primary_user }}/.config/vivaldi/Default/Preferences"
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0644'
+      become: yes
+  when: "'vivaldi' in web_browsers | default([])"

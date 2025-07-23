@@ -1,0 +1,300 @@
+---
+# Additional networking tools and utilities
+
+# Network monitoring and analysis tools
+- name: Install network monitoring tools
+  ansible.builtin.apt:
+    name:
+      - iftop         # Display bandwidth usage
+      - nethogs       # Per-process bandwidth monitor
+      - vnstat        # Network statistics
+      - vnstati       # vnstat graph generator
+      - iptraf-ng     # IP traffic monitor
+      - nload         # Real-time network traffic
+      - bmon          # Bandwidth monitor
+      - slurm         # Network load monitor
+      - tcptrack      # TCP connection monitor
+      - iptstate      # IPtables state viewer
+      - conntrack     # Connection tracking
+      - ss            # Socket statistics (newer netstat)
+      - mtr           # My traceroute - network diagnostic
+      - nmap          # Network exploration (if not in security-tools)
+      - tcpdump       # Packet analyzer
+      - tshark        # Terminal Wireshark
+      - termshark     # Terminal UI for tshark
+      - bandwhich     # Terminal bandwidth utilization
+      - gping         # Ping with graph
+    state: present
+  become: yes
+
+# DNS tools
+- name: Install DNS utilities
+  ansible.builtin.apt:
+    name:
+      - dnsutils      # dig, nslookup, host
+      - ldnsutils     # Advanced DNS tools
+      - dnstop        # DNS traffic monitor
+      - dnstracer     # DNS tracing
+      - dnsmasq       # DNS forwarder
+      - bind9-utils   # DNS utilities
+      - dog           # Command-line DNS client (better dig)
+    state: present
+  become: yes
+
+# Speed test tools
+- name: Install Speedtest CLI (official Ookla)
+  block:
+    - name: Add Speedtest repository key
+      apt_key:
+        url: https://packagecloud.io/ookla/speedtest-cli/gpgkey
+        state: present
+      become: yes
+
+    - name: Add Speedtest repository
+      apt_repository:
+        repo: "deb https://packagecloud.io/ookla/speedtest-cli/ubuntu/ {{ ansible_distribution_release }} main"
+        state: present
+        filename: speedtest
+      become: yes
+
+    - name: Install Speedtest CLI
+      ansible.builtin.apt:
+        name: speedtest
+        state: present
+        update_cache: yes
+      become: yes
+
+# Fast.com CLI
+- name: Install fast-cli
+  npm:
+    name: fast-cli
+    global: yes
+    state: present
+  become: yes
+  when: "'nodejs' in development_languages"
+
+# Network discovery and scanning
+- name: Install network discovery tools
+  ansible.builtin.apt:
+    name:
+      - arp-scan      # ARP scanner
+      - netdiscover   # Active/passive ARP reconnaissance
+      - fping         # Parallel ping
+      - nast          # Network analyzer sniffer tool
+      - ettercap-common  # Network sniffer/interceptor
+      - ettercap-graphical  # Ettercap GUI
+      - driftnet      # Network image sniffer
+      - darkstat      # Network statistics gatherer
+    state: present
+  become: yes
+
+# Proxy and tunnel tools
+- name: Install proxy and tunnel tools
+  ansible.builtin.apt:
+    name:
+      - proxychains4  # Proxy chains
+      - tsocks        # Transparent SOCKS proxy
+      - redsocks      # Redirect TCP to SOCKS/HTTPS proxy
+      - socat         # Multipurpose relay
+      - stunnel4      # SSL tunnel
+      - httptunnel    # Tunnel over HTTP
+      - sshuttle      # VPN over SSH
+      - autossh       # Automatically restart SSH sessions
+      - sslh          # SSL/SSH multiplexer
+    state: present
+  become: yes
+
+# VPN clients
+- name: Install additional VPN clients
+  ansible.builtin.apt:
+    name:
+      - strongswan    # IPsec VPN
+      - xl2tpd        # L2TP daemon
+      - pptp-linux    # PPTP client
+      - network-manager-l2tp
+      - network-manager-l2tp-gnome
+      - network-manager-pptp
+      - network-manager-pptp-gnome
+      - network-manager-strongswan
+      - network-manager-iodine
+      - network-manager-iodine-gnome
+    state: present
+  become: yes
+
+# Mesh networking tools
+- name: Install Nebula mesh networking
+  block:
+    - name: Check latest Nebula release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/slackhq/nebula/releases/latest
+        return_content: yes
+      register: nebula_release
+
+    - name: Download and extract Nebula
+      ansible.builtin.unarchive:
+        src: "{{ nebula_release.json.assets | selectattr('name', 'match', '.*linux-amd64\\.tar\\.gz$') | map(attribute='browser_download_url') | first }}"
+        dest: /usr/local/bin
+        remote_src: yes
+        mode: '0755'
+        owner: root
+        group: root
+      become: yes
+      when: nebula_release is succeeded
+
+# Network simulation and testing
+- name: Install network testing tools
+  ansible.builtin.apt:
+    name:
+      - iperf         # Network performance testing
+      - iperf3        # Network performance testing v3
+      - netperf       # Network performance benchmark
+      - nuttcp        # Network performance measurement
+      - lft           # Layer four traceroute
+      - paris-traceroute  # Paris traceroute
+      - moreutils     # Additional Unix utilities
+      - ipcalc        # IP address calculator
+      - sipcalc       # Advanced IP calculator
+      - subnetcalc    # IPv4/IPv6 subnet calculator
+      - whatmask      # Subnet mask notation converter
+    state: present
+  become: yes
+
+# GUI Network tools
+- name: Install GUI network tools
+  ansible.builtin.apt:
+    name:
+      - wireshark     # Network protocol analyzer
+      - etherape      # Graphical network monitor
+      - gufw          # GUI for UFW firewall
+      - nm-connection-editor  # Network Manager GUI
+      - gnome-nettool # GNOME network tools
+      - d-feet        # D-Bus debugger
+    state: present
+  become: yes
+  when: desktop_environment is defined
+
+# Advanced routing tools
+- name: Install routing and traffic control tools
+  ansible.builtin.apt:
+    name:
+      - iproute2      # IP routing utilities
+      - bridge-utils  # Ethernet bridge utilities
+      - vlan          # VLAN utilities
+      - batctl        # B.A.T.M.A.N. advanced control
+      - babeld        # Babel routing daemon
+      - bird2         # Internet routing daemon
+      - frr           # FRRouting protocol suite
+      - quagga        # Routing software suite
+      - keepalived    # High availability
+      - ucarp         # Common Address Redundancy Protocol
+      - conntrackd    # Connection tracking daemon
+      - ipvsadm       # Linux Virtual Server
+      - haproxy       # High availability load balancer
+      - nginx         # Web server/reverse proxy
+    state: present
+  become: yes
+  failed_when: false
+
+# Container networking tools
+- name: Install container networking tools
+  ansible.builtin.apt:
+    name:
+      - docker-compose
+      - podman-compose
+      - cni-plugins   # Container Network Interface plugins
+      - containernetworking-plugins
+    state: present
+  become: yes
+  when: install_docker | default(false)
+
+# WebRTC and real-time communication
+- name: Install WebRTC tools
+  snap:
+    name:
+      - peerconnection-server-test
+    state: present
+  become: yes
+  when: enable_snap | default(true)
+  failed_when: false
+
+# Network file systems
+- name: Install network file system tools
+  ansible.builtin.apt:
+    name:
+      - nfs-common    # NFS client
+      - cifs-utils    # SMB/CIFS utilities
+      - sshfs         # SSH filesystem
+      - davfs2        # WebDAV filesystem
+      - curlftpfs     # FTP filesystem
+      - s3fs          # Amazon S3 filesystem
+      - rclone        # Cloud storage sync
+    state: present
+  become: yes
+
+# mDNS/Zeroconf tools
+- name: Install mDNS/Zeroconf tools
+  ansible.builtin.apt:
+    name:
+      - avahi-daemon
+      - avahi-discover
+      - avahi-utils
+      - libnss-mdns
+      - mdns-scan
+    state: present
+  become: yes
+
+# Create network tools aliases and helpers
+- name: Create network helper scripts directory
+  ansible.builtin.file:
+    path: /usr/local/share/network-scripts
+    state: directory
+    mode: '0755'
+  become: yes
+
+- name: Create network monitoring dashboard script
+  ansible.builtin.copy:
+    dest: /usr/local/bin/netdash
+    content: |
+      #!/bin/bash
+      # Network monitoring dashboard using tmux
+
+      SESSION="netdash"
+
+      tmux new-session -d -s $SESSION
+
+      # Window 0 - bandwidth monitor
+      tmux rename-window -t $SESSION:0 'Bandwidth'
+      tmux send-keys -t $SESSION:0 'sudo iftop' C-m
+
+      # Window 1 - connection monitor
+      tmux new-window -t $SESSION:1 -n 'Connections'
+      tmux send-keys -t $SESSION:1 'sudo nethogs' C-m
+
+      # Window 2 - network statistics
+      tmux new-window -t $SESSION:2 -n 'Stats'
+      tmux send-keys -t $SESSION:2 'vnstat -l' C-m
+
+      # Window 3 - active connections
+      tmux new-window -t $SESSION:3 -n 'Active'
+      tmux send-keys -t $SESSION:3 'watch -n 1 "ss -tunap | grep ESTAB"' C-m
+
+      tmux select-window -t $SESSION:0
+      tmux attach-session -t $SESSION
+    mode: '0755'
+  become: yes
+
+# Install Python network libraries
+- name: Install Python networking libraries
+  ansible.builtin.pip:
+    name:
+      - scapy         # Packet manipulation
+      - netaddr       # Network address manipulation
+      - netifaces     # Network interface information
+      - python-nmap   # Nmap wrapper
+      - paramiko      # SSH2 protocol library
+      - netmiko       # Multi-vendor network device SSH
+      - napalm        # Network automation
+    state: present
+    executable: pip3
+  become: yes
+  when: "'python' in development_languages"

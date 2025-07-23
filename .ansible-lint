@@ -1,0 +1,25 @@
+---
+# .ansible-lint
+exclude_paths:
+  - .cache/
+  - venv/
+  - molecule/
+
+# Skip non-critical rules
+skip_list:
+  - yaml[comments]  
+  - name[play]      
+  - name[prefix]    
+  - fqcn[action]    
+  - fqcn[action-core]
+  - var-naming[no-role-prefix]
+  - name[casing]
+  - key-order
+  - no-handler
+  - latest
+  - package-latest
+  - role-name
+  - args[module]
+
+# Allow underscore in variable names
+var_naming_pattern: "^[a-z_][a-z0-9_]*$"

@@ -1,0 +1,172 @@
+---
+# Install system monitoring tools
+
+- name: Install btop++ (modern system monitor)
+  block:
+    - name: Get latest btop release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/aristocratos/btop/releases/latest
+      register: btop_release
+
+    - name: Download btop
+      ansible.builtin.get_url:
+        url: "{{ btop_release.json.assets | selectattr('name', 'match', 'btop-.*-linux-x86_64\\.tbz$') | map(attribute='browser_download_url') | first }}"
+        dest: /tmp/btop.tbz
+        mode: '0644'
+      become: yes
+
+    - name: Extract btop
+      ansible.builtin.shell: |
+        cd /tmp && tar -xjf btop.tbz
+        cd btop && make install PREFIX=/usr/local
+      become: yes
+      args:
+        creates: /usr/local/bin/btop
+  when: "'btop' in devtools_monitoring_tools"
+
+- name: Install Mission Center (System Monitor GUI)
+  flatpak:
+    name: io.missioncenter.MissionCenter
+    state: present
+  become: yes
+  when:
+    - "'mission-center' in devtools_monitoring_tools"
+    - enable_flatpak | default(true)
+
+- name: Install Glances (with web interface)
+  block:
+    - name: Install Glances via pip
+      ansible.builtin.pip:
+        name:
+          - glances[all]
+        state: latest
+        executable: pip3
+      become: yes
+
+    - name: Create Glances service
+      ansible.builtin.template:
+        src: glances.service.j2
+        dest: /etc/systemd/system/glances.service
+        mode: '0644'
+      become: yes
+
+    - name: Enable Glances web service
+      ansible.builtin.systemd:
+        name: glances
+        enabled: yes
+        state: started
+        daemon_reload: yes
+      become: yes
+      when: devtools_enable_glances_web | default(false)
+  when: "'glances' in devtools_monitoring_tools"
+
+- name: Install Resources (GNOME system monitor)
+  flatpak:
+    name: net.nokyan.Resources
+    state: present
+  become: yes
+  when:
+    - "'resources' in devtools_monitoring_tools"
+    - desktop_environment == 'gnome'
+    - enable_flatpak | default(true)
+
+- name: Install Stacer (System optimizer and monitor)
+  block:
+    - name: Get latest Stacer release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/oguzhaninan/Stacer/releases/latest
+      register: stacer_release
+
+    - name: Download Stacer
+      ansible.builtin.get_url:
+        url: "{{ stacer_release.json.assets | selectattr('name', 'match', 'stacer.*\\.deb$') | map(attribute='browser_download_url') | first }}"
+        dest: /tmp/stacer.deb
+        mode: '0644'
+      become: yes
+
+    - name: Install Stacer
+      ansible.builtin.apt:
+        deb: /tmp/stacer.deb
+        state: present
+      become: yes
+  when: "'stacer' in devtools_monitoring_tools"
+
+- name: Install additional monitoring tools
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  become: yes
+  loop:
+    - htop
+    - iotop
+    - iftop
+    - nethogs
+    - bmon
+    - speedometer
+    - sysstat
+    - dstat
+  when: devtools_install_extra_monitors | default(true)
+
+- name: Install Netdata (Real-time performance monitoring)
+  block:
+    - name: Download Netdata installer
+      ansible.builtin.get_url:
+        url: https://my-netdata.io/kickstart.sh
+        dest: /tmp/netdata-kickstart.sh
+        mode: '0755'
+      become: yes
+
+    - name: Install Netdata
+      ansible.builtin.shell: /tmp/netdata-kickstart.sh --dont-wait --stable-channel --disable-telemetry
+      become: yes
+      args:
+        creates: /usr/sbin/netdata
+
+    - name: Open firewall for Netdata
+      ufw:
+        rule: allow
+        port: '19999'
+        proto: tcp
+      become: yes
+      when: enable_firewall | default(true)
+  when: "'netdata' in devtools_monitoring_tools"
+
+- name: Install Prometheus Node Exporter
+  block:
+    - name: Get latest node_exporter release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/prometheus/node_exporter/releases/latest
+      register: node_exporter_release
+
+    - name: Download node_exporter
+      ansible.builtin.get_url:
+        url: "{{ node_exporter_release.json.assets | selectattr('name', 'match', 'node_exporter.*linux-amd64\\.tar\\.gz$') | map(attribute='browser_download_url') | first }}"
+        dest: /tmp/node_exporter.tar.gz
+        mode: '0644'
+      become: yes
+
+    - name: Extract and install node_exporter
+      ansible.builtin.shell: |
+        cd /tmp
+        tar -xzf node_exporter.tar.gz
+        cp node_exporter*/node_exporter /usr/local/bin/
+        chmod +x /usr/local/bin/node_exporter
+      become: yes
+      args:
+        creates: /usr/local/bin/node_exporter
+
+    - name: Create node_exporter service
+      ansible.builtin.template:
+        src: node_exporter.service.j2
+        dest: /etc/systemd/system/node_exporter.service
+        mode: '0644'
+      become: yes
+
+    - name: Start node_exporter service
+      ansible.builtin.systemd:
+        name: node_exporter
+        enabled: yes
+        state: started
+        daemon_reload: yes
+      become: yes
+  when: "'prometheus-node-exporter' in devtools_monitoring_tools"

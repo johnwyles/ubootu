@@ -1,0 +1,30 @@
+---
+# Install Powerline fonts
+
+- name: Install Powerline fonts package
+  package:
+    name: fonts-powerline
+    state: present
+  become: yes
+  when: ansible_os_family == "Debian"
+
+- name: Clone Powerline fonts repository
+  git:
+    repo: https://github.com/powerline/fonts.git
+    dest: /tmp/powerline-fonts
+    depth: 1
+  when: ansible_os_family != "Debian"
+
+- name: Install Powerline fonts from repository
+  shell: |
+    cd /tmp/powerline-fonts
+    ./install.sh
+  args:
+    creates: "{{ ansible_env.HOME }}/.local/share/fonts/PowerlineSymbols.otf"
+  when: ansible_os_family != "Debian"
+
+- name: Clean up Powerline fonts repository
+  file:
+    path: /tmp/powerline-fonts
+    state: absent
+  when: ansible_os_family != "Debian"

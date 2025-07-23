@@ -1,0 +1,343 @@
+---
+# Install privacy and security focused applications
+
+# Secure browsers
+- name: Install Tor Browser Launcher
+  block:
+    - name: Add Tor Browser Launcher PPA
+      apt_repository:
+        repo: "ppa:micahflee/ppa"
+        state: present
+      become: yes
+      when: ansible_distribution_version is version('22.04', '>=')
+
+    - name: Install Tor Browser Launcher
+      ansible.builtin.apt:
+        name: torbrowser-launcher
+        state: present
+        update_cache: yes
+      become: yes
+  when: "'tor-browser' in privacy_security_apps"
+
+# Brave Browser is already in browsers.yml
+
+# Secure communication apps
+- name: Install Element (Matrix client)
+  block:
+    - name: Add Element GPG key
+      apt_key:
+        url: https://packages.element.io/debian/element-io-archive-keyring.gpg
+        state: present
+      become: yes
+
+    - name: Add Element repository
+      apt_repository:
+        repo: "deb https://packages.element.io/debian/ default main"
+        state: present
+        filename: element-io
+      become: yes
+
+    - name: Install Element Desktop
+      ansible.builtin.apt:
+        name: element-desktop
+        state: present
+        update_cache: yes
+      become: yes
+  when: "'element' in privacy_security_apps"
+
+- name: Install Wire secure messenger
+  snap:
+    name: wire
+    state: present
+  become: yes
+  when: "'wire' in privacy_security_apps and enable_snap | default(true)"
+
+- name: Install Jami (GNU Ring)
+  block:
+    - name: Add Jami GPG key
+      apt_key:
+        url: https://dl.jami.net/ring.pub.key
+        state: present
+      become: yes
+
+    - name: Add Jami repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://dl.jami.net/nightly/ubuntu_{{ ansible_distribution_version }}/ ring main"
+        state: present
+        filename: jami
+      become: yes
+
+    - name: Install Jami
+      ansible.builtin.apt:
+        name: jami
+        state: present
+        update_cache: yes
+      become: yes
+  when: "'jami' in privacy_security_apps"
+
+- name: Install Session messenger
+  block:
+    - name: Download Session AppImage
+      ansible.builtin.get_url:
+        url: "https://github.com/oxen-io/session-desktop/releases/latest/download/session-desktop-linux-x86_64.AppImage"
+        dest: "/opt/Session.AppImage"
+        mode: '0755'
+      become: yes
+
+    - name: Create Session desktop entry
+      ansible.builtin.copy:
+        dest: /usr/share/applications/session.desktop
+        content: |
+          [Desktop Entry]
+          Name=Session
+          Comment=Private messenger
+          Exec=/opt/Session.AppImage
+          Icon=session
+          Terminal=false
+          Type=Application
+          Categories=Network;InstantMessaging;
+        mode: '0644'
+      become: yes
+  when: "'session' in privacy_security_apps"
+
+# File encryption tools with GUI
+- name: Install VeraCrypt
+  block:
+    - name: Add VeraCrypt PPA
+      apt_repository:
+        repo: "ppa:unit193/encryption"
+        state: present
+      become: yes
+      when: ansible_distribution_version is version('22.04', '>=')
+
+    - name: Install VeraCrypt
+      ansible.builtin.apt:
+        name: veracrypt
+        state: present
+        update_cache: yes
+      become: yes
+  when: "'veracrypt' in privacy_security_apps"
+
+- name: Install Cryptomator
+  block:
+    - name: Add Cryptomator PPA
+      apt_repository:
+        repo: "ppa:sebastian-stenzel/cryptomator"
+        state: present
+      become: yes
+
+    - name: Install Cryptomator
+      ansible.builtin.apt:
+        name: cryptomator
+        state: present
+        update_cache: yes
+      become: yes
+  when: "'cryptomator' in privacy_security_apps"
+
+- name: Install Encryptr (SpiderOak)
+  snap:
+    name: encryptr
+    state: present
+  become: yes
+  when: "'encryptr' in privacy_security_apps and enable_snap | default(true)"
+
+# Privacy tools
+- name: Install OnionShare
+  ansible.builtin.apt:
+    name:
+      - onionshare
+      - onionshare-gui
+    state: present
+  become: yes
+  when: "'onionshare' in privacy_security_apps"
+
+- name: Install MAT2 (Metadata Anonymisation Toolkit)
+  ansible.builtin.apt:
+    name:
+      - mat2
+      - mat2-gui
+    state: present
+  become: yes
+  when: "'mat2' in privacy_security_apps"
+
+- name: Install Metadata Cleaner (GUI)
+  flatpak:
+    name: fr.romainvigier.MetadataCleaner
+    state: present
+  become: yes
+  when: "'metadata-cleaner' in privacy_security_apps and enable_flatpak | default(true)"
+
+# Network privacy tools
+- name: Install Wireshark (network analyzer)
+  ansible.builtin.apt:
+    name:
+      - wireshark
+      - wireshark-qt
+    state: present
+  become: yes
+  when: "'wireshark' in privacy_security_apps"
+
+- name: Add user to wireshark group
+  ansible.builtin.user:
+    name: "{{ ansible_env.USER }}"
+    groups: wireshark
+    append: yes
+  become: yes
+  when: "'wireshark' in privacy_security_apps"
+
+- name: Install EtherApe (graphical network monitor)
+  ansible.builtin.apt:
+    name: etherape
+    state: present
+  become: yes
+  when: "'etherape' in privacy_security_apps"
+
+# Firewall GUIs
+- name: Install GUFW (GUI for UFW)
+  ansible.builtin.apt:
+    name: gufw
+    state: present
+  become: yes
+  when: "'gufw' in privacy_security_apps"
+
+- name: Install OpenSnitch (application firewall)
+  block:
+    - name: Check latest OpenSnitch release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/evilsocket/opensnitch/releases/latest
+        return_content: yes
+      register: opensnitch_release
+
+    - name: Download OpenSnitch daemon
+      ansible.builtin.get_url:
+        url: "{{ opensnitch_release.json.assets | selectattr('name', 'match', '.*daemon.*amd64\\.deb$') | map(attribute='browser_download_url') | first }}"
+        dest: /tmp/opensnitch-daemon.deb
+        mode: '0644'
+      become: yes
+
+    - name: Download OpenSnitch UI
+      ansible.builtin.get_url:
+        url: "{{ opensnitch_release.json.assets | selectattr('name', 'match', '.*ui.*\\.deb$') | map(attribute='browser_download_url') | first }}"
+        dest: /tmp/opensnitch-ui.deb
+        mode: '0644'
+      become: yes
+
+    - name: Install OpenSnitch packages
+      ansible.builtin.apt:
+        deb: "{{ item }}"
+        state: present
+      become: yes
+      loop:
+        - /tmp/opensnitch-daemon.deb
+        - /tmp/opensnitch-ui.deb
+  when: "'opensnitch' in privacy_security_apps"
+
+# System cleaners and privacy tools
+- name: Install BleachBit
+  ansible.builtin.apt:
+    name: bleachbit
+    state: present
+  become: yes
+  when: "'bleachbit' in privacy_security_apps"
+
+- name: Install Stacer (system optimizer with privacy features)
+  block:
+    - name: Check latest Stacer release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/oguzhaninan/Stacer/releases/latest
+        return_content: yes
+      register: stacer_release
+
+    - name: Download Stacer
+      ansible.builtin.get_url:
+        url: "{{ stacer_release.json.assets | selectattr('name', 'match', '.*amd64\\.deb$') | map(attribute='browser_download_url') | first }}"
+        dest: /tmp/stacer.deb
+        mode: '0644'
+      become: yes
+
+    - name: Install Stacer
+      ansible.builtin.apt:
+        deb: /tmp/stacer.deb
+        state: present
+      become: yes
+  when: "'stacer' in privacy_security_apps"
+
+# Backup encryption tools
+- name: Install Déjà Dup with encryption
+  ansible.builtin.apt:
+    name: deja-dup
+    state: present
+  become: yes
+  when: "'deja-dup' in privacy_security_apps"
+
+- name: Install Duplicati
+  snap:
+    name: duplicati
+    state: present
+  become: yes
+  when: "'duplicati' in privacy_security_apps and enable_snap | default(true)"
+
+# Additional security utilities
+- name: Install additional privacy/security GUI tools
+  ansible.builtin.apt:
+    name:
+      - seahorse          # GNOME keyring manager
+      - gnome-keyring     # GNOME keyring
+      - libpam-gnome-keyring  # PAM integration
+      - gpa               # GNU Privacy Assistant
+      - kleopatra         # Certificate manager
+      - gtkhash           # GTK hash calculator
+      - gtkterm           # GTK terminal for secure comms
+      - zulucrypt-gui     # LUKS/TrueCrypt GUI
+      - zulumount-gui     # Mount encrypted volumes
+      - sirikali          # GUI for various crypto backends
+      - gnome-encfs-manager  # EncFS manager
+      - cryptkeeper       # EncFS system tray applet
+      - revelation        # Password manager
+      - qtpass            # GUI for pass
+    state: present
+  become: yes
+  failed_when: false
+
+# VPN GUI clients
+- name: Install VPN GUI applications
+  ansible.builtin.apt:
+    name:
+      - network-manager-openvpn-gnome
+      - network-manager-pptp-gnome
+      - network-manager-l2tp-gnome
+      - network-manager-strongswan
+      - network-manager-iodine-gnome
+    state: present
+  become: yes
+  when: desktop_environment is defined
+
+- name: Install Riseup VPN
+  snap:
+    name: riseup-vpn
+    state: present
+  become: yes
+  when: "'riseup-vpn' in privacy_security_apps and enable_snap | default(true)"
+
+- name: Install ProtonVPN GUI
+  block:
+    - name: Add ProtonVPN repository
+      apt_repository:
+        repo: "deb https://repo.protonvpn.com/debian unstable main"
+        state: present
+        filename: protonvpn
+      become: yes
+
+    - name: Add ProtonVPN GPG key
+      apt_key:
+        url: https://repo.protonvpn.com/debian/public_key.asc
+        state: present
+      become: yes
+
+    - name: Install ProtonVPN
+      ansible.builtin.apt:
+        name: protonvpn
+        state: present
+        update_cache: yes
+      become: yes
+  when: "'protonvpn' in privacy_security_apps"

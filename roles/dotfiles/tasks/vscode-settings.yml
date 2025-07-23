@@ -1,0 +1,56 @@
+---
+# Configure VS Code settings
+
+- name: Create VS Code configuration directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/Code/User"
+    state: directory
+    mode: '0755'
+
+- name: Configure VS Code settings
+  ansible.builtin.copy:
+    content: "{{ vscode_settings | to_nice_json }}"
+    dest: "{{ ansible_env.HOME }}/.config/Code/User/settings.json"
+    mode: '0644'
+    backup: yes
+
+- name: Create VS Code keybindings
+  ansible.builtin.template:
+    src: vscode_keybindings.json.j2
+    dest: "{{ ansible_env.HOME }}/.config/Code/User/keybindings.json"
+    mode: '0644'
+    backup: yes
+
+- name: Create VS Code snippets directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/Code/User/snippets"
+    state: directory
+    mode: '0755'
+
+- name: Create common snippets
+  ansible.builtin.template:
+    src: "vscode_snippet_{{ item }}.json.j2"
+    dest: "{{ ansible_env.HOME }}/.config/Code/User/snippets/{{ item }}.json"
+    mode: '0644'
+  loop:
+    - python
+    - javascript
+    - markdown
+  failed_when: false
+
+# Sync VS Code settings to VS Code Insiders if installed
+- name: Check if VS Code Insiders is installed
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.config/Code - Insiders"
+  register: vscode_insiders
+
+- name: Sync settings to VS Code Insiders
+  ansible.builtin.copy:
+    src: "{{ ansible_env.HOME }}/.config/Code/User/{{ item }}"
+    dest: "{{ ansible_env.HOME }}/.config/Code - Insiders/User/{{ item }}"
+    remote_src: yes
+    mode: '0644'
+  loop:
+    - settings.json
+    - keybindings.json
+  when: vscode_insiders.stat.exists

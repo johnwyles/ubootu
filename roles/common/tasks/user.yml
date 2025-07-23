@@ -1,0 +1,40 @@
+---
+- name: Ensure user exists
+  ansible.builtin.user:
+    name: "{{ common_user }}"
+    shell: "{{ common_user_shell }}"
+    groups: "{{ common_user_groups }}"
+    append: yes
+    state: present
+  become: yes
+  when: common_user_groups | length > 0
+
+- name: Create user directories
+  ansible.builtin.file:
+    path: "/home/{{ common_user }}/{{ item }}"
+    state: directory
+    owner: "{{ common_user }}"
+    group: "{{ common_user }}"
+    mode: '0755'
+  become: yes
+  become_user: "{{ common_user }}"
+  loop:
+    - .local/bin
+    - .config
+    - Documents
+    - Downloads
+    - Pictures
+    - Videos
+    - Music
+    - Projects
+
+- name: Add user's .local/bin to PATH
+  ansible.builtin.lineinfile:
+    path: "/home/{{ common_user }}/.profile"
+    line: 'export PATH="$HOME/.local/bin:$PATH"'
+    create: yes
+    owner: "{{ common_user }}"
+    group: "{{ common_user }}"
+    mode: '0644'
+  become: yes
+  become_user: "{{ common_user }}"

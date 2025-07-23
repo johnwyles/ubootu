@@ -1,0 +1,42 @@
+# Starship configuration with {{ themes_global_theme | capitalize }} theme
+
+# Include theme-specific config if exists
+{% if themes_global_theme != 'none' %}
+# Theme: {{ themes_global_theme | capitalize }}
+{% endif %}
+
+# Format
+format = """
+[╭─](bold blue)$username$hostname$directory$git_branch$git_status
+[╰─](bold blue)$character"""
+
+# Username
+[username]
+show_always = true
+style_user = "bold {% if themes_global_theme == 'dracula' %}purple{% elif themes_global_theme == 'catppuccin' %}mauve{% elif themes_global_theme == 'tokyo-night' %}blue{% else %}green{% endif %}"
+format = "[$user]($style) "
+
+# Hostname
+[hostname]
+ssh_only = false
+style = "bold {% if themes_global_theme == 'dracula' %}green{% elif themes_global_theme == 'catppuccin' %}teal{% elif themes_global_theme == 'tokyo-night' %}cyan{% else %}blue{% endif %}"
+format = "[@$hostname]($style) "
+
+# Directory
+[directory]
+style = "bold {% if themes_global_theme == 'dracula' %}cyan{% elif themes_global_theme == 'catppuccin' %}lavender{% elif themes_global_theme == 'tokyo-night' %}magenta{% else %}yellow{% endif %}"
+truncation_length = 3
+truncate_to_repo = false
+
+# Git
+[git_branch]
+style = "bold {% if themes_global_theme == 'dracula' %}purple{% elif themes_global_theme == 'catppuccin' %}green{% elif themes_global_theme == 'tokyo-night' %}green{% else %}purple{% endif %}"
+symbol = " "
+
+[git_status]
+style = "bold {% if themes_global_theme == 'dracula' %}red{% elif themes_global_theme == 'catppuccin' %}red{% elif themes_global_theme == 'tokyo-night' %}red{% else %}red{% endif %}"
+
+# Character
+[character]
+success_symbol = "[➜](bold {% if themes_global_theme == 'dracula' %}green{% elif themes_global_theme == 'catppuccin' %}green{% elif themes_global_theme == 'tokyo-night' %}green{% else %}green{% endif %})"
+error_symbol = "[✗](bold {% if themes_global_theme == 'dracula' %}red{% elif themes_global_theme == 'catppuccin' %}red{% elif themes_global_theme == 'tokyo-night' %}red{% else %}red{% endif %})"

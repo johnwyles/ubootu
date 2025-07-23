@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+<fontconfig>
+  <!-- Font rendering settings -->
+  <match target="font">
+    <!-- Enable antialiasing -->
+    <edit name="antialias" mode="assign">
+      <bool>{{ fonts_fontconfig_antialias | lower }}</bool>
+    </edit>
+    
+    <!-- Set hinting level -->
+    <edit name="hinting" mode="assign">
+      <bool>{{ fonts_fontconfig_hinting != 'none' | lower }}</bool>
+    </edit>
+    
+    <edit name="hintstyle" mode="assign">
+      <const>hint{{ fonts_fontconfig_hinting }}</const>
+    </edit>
+    
+    <!-- Set subpixel rendering -->
+    <edit name="rgba" mode="assign">
+      <const>{{ fonts_fontconfig_rgba }}</const>
+    </edit>
+    
+    <!-- LCD filter -->
+    <edit name="lcdfilter" mode="assign">
+      <const>{{ fonts_fontconfig_lcdfilter }}</const>
+    </edit>
+    
+    <!-- Enable embedded bitmaps -->
+    <edit name="embeddedbitmap" mode="assign">
+      <bool>false</bool>
+    </edit>
+  </match>
+  
+  <!-- Set preferred fonts -->
+  <alias>
+    <family>monospace</family>
+    <prefer>
+{% if 'jetbrains-mono' in fonts_nerd_font_selection %}
+      <family>JetBrainsMono Nerd Font</family>
+      <family>JetBrains Mono</family>
+{% endif %}
+{% if 'hack' in fonts_nerd_font_selection %}
+      <family>Hack Nerd Font</family>
+      <family>Hack</family>
+{% endif %}
+{% if 'fira-code' in fonts_nerd_font_selection %}
+      <family>FiraCode Nerd Font</family>
+      <family>Fira Code</family>
+{% endif %}
+      <family>DejaVu Sans Mono</family>
+      <family>Liberation Mono</family>
+    </prefer>
+  </alias>
+  
+  <alias>
+    <family>sans-serif</family>
+    <prefer>
+      <family>Ubuntu</family>
+      <family>DejaVu Sans</family>
+      <family>Liberation Sans</family>
+    </prefer>
+  </alias>
+  
+  <alias>
+    <family>serif</family>
+    <prefer>
+      <family>DejaVu Serif</family>
+      <family>Liberation Serif</family>
+      <family>Times New Roman</family>
+    </prefer>
+  </alias>
+  
+  <!-- Font scaling -->
+  <match target="pattern">
+    <edit name="dpi" mode="assign">
+      <double>{{ (96 * fonts_global_scaling / 100) | round }}</double>
+    </edit>
+  </match>
+</fontconfig>

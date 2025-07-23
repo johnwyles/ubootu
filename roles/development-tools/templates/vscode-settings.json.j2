@@ -1,0 +1,140 @@
+{
+    // Editor settings
+    "editor.fontSize": 14,
+    "editor.fontFamily": "{% if 'firacode' in programming_fonts | default([]) %}Fira Code{% elif 'jetbrains-mono' in programming_fonts | default([]) %}JetBrains Mono{% elif 'cascadia-code' in programming_fonts | default([]) %}Cascadia Code{% else %}'Droid Sans Mono', 'monospace'{% endif %}",
+    "editor.fontLigatures": true,
+    "editor.lineHeight": 22,
+    "editor.rulers": [80, 120],
+    "editor.renderWhitespace": "trailing",
+    "editor.suggestSelection": "first",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.minimap.enabled": true,
+    "editor.cursorBlinking": "smooth",
+    "editor.cursorStyle": "line",
+    "editor.wordWrap": "on",
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": true,
+    
+    // Terminal settings
+    "terminal.integrated.fontSize": 14,
+    "terminal.integrated.fontFamily": "{% if 'firacode' in programming_fonts | default([]) %}Fira Code{% elif 'jetbrains-mono' in programming_fonts | default([]) %}JetBrains Mono{% elif 'cascadia-code' in programming_fonts | default([]) %}Cascadia Code{% else %}monospace{% endif %}",
+    "terminal.integrated.cursorStyle": "line",
+    "terminal.integrated.scrollback": 10000,
+    
+    // File settings
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 1000,
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/.pytest_cache": true,
+        "**/node_modules": true,
+        "**/.git": true,
+        "**/.DS_Store": true
+    },
+    
+    // Git settings
+    "git.enableSmartCommit": true,
+    "git.autofetch": true,
+    "git.confirmSync": false,
+    "gitlens.hovers.currentLine.over": "line",
+    "gitlens.currentLine.enabled": true,
+    "gitlens.codeLens.enabled": true,
+    
+    // Language specific settings
+{% if 'python' in devtools_languages %}
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.formatting.provider": "black",
+    "python.formatting.blackPath": "black",
+    "python.languageServer": "Pylance",
+    "[python]": {
+        "editor.rulers": [88],
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+{% endif %}
+{% if 'nodejs' in devtools_languages or 'javascript' in devtools_languages %}
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact"
+    ],
+{% endif %}
+{% if 'go' in devtools_languages %}
+    "[go]": {
+        "editor.insertSpaces": false,
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "go.useLanguageServer": true,
+    "go.lintTool": "golangci-lint",
+    "go.lintOnSave": "workspace",
+{% endif %}
+{% if 'rust' in devtools_languages %}
+    "[rust]": {
+        "editor.defaultFormatter": "rust-lang.rust-analyzer"
+    },
+    "rust-analyzer.checkOnSave.command": "clippy",
+{% endif %}
+    
+    // Extension settings
+    "liveServer.settings.donotShowInfoMsg": true,
+    "liveServer.settings.donotVerifyTags": true,
+    "thunder-client.saveToWorkspace": true,
+    "errorLens.enabled": true,
+    "errorLens.delay": 300,
+    "todo-tree.highlights.enabled": true,
+    "better-comments.highlightPlainText": true,
+    
+    // Telemetry
+    "telemetry.telemetryLevel": "off",
+    "redhat.telemetry.enabled": false,
+    
+    // Security
+    "security.workspace.trust.untrustedFiles": "prompt",
+    
+    // AI Assistant settings
+{% if devtools_ai_assistant == 'github-copilot' %}
+    "github.copilot.enable": {
+        "*": true,
+        "yaml": true,
+        "plaintext": true,
+        "markdown": true
+    },
+{% elif devtools_ai_assistant == 'codeium' %}
+    "codeium.enableConfig": {
+        "*": true
+    },
+{% endif %}
+    
+    // Workbench
+    "workbench.startupEditor": "none",
+    "workbench.iconTheme": "material-icon-theme",
+    "workbench.productIconTheme": "material-product-icons",
+    "workbench.sideBar.location": "left",
+    "workbench.tree.indent": 20,
+    
+    // Window
+    "window.zoomLevel": 0,
+    "window.menuBarVisibility": "classic",
+    
+    // Explorer
+    "explorer.confirmDelete": false,
+    "explorer.confirmDragAndDrop": false,
+    "explorer.compactFolders": false
+}

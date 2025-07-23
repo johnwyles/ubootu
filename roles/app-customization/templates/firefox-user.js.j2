@@ -1,0 +1,231 @@
+// Firefox user.js - Ubuntu Bootstrap customizations
+// This file contains user preferences for Firefox
+
+// Privacy and Security
+user_pref("privacy.trackingprotection.enabled", {{ firefox_tracking_protection | default(true) | lower }});
+user_pref("privacy.trackingprotection.socialtracking.enabled", {{ firefox_social_tracking_protection | default(true) | lower }});
+user_pref("privacy.trackingprotection.cryptomining.enabled", {{ firefox_cryptomining_protection | default(true) | lower }});
+user_pref("privacy.trackingprotection.fingerprinting.enabled", {{ firefox_fingerprinting_protection | default(true) | lower }});
+user_pref("dom.security.https_only_mode", {{ firefox_https_only | default(true) | lower }});
+user_pref("dom.security.https_only_mode_pbm", {{ firefox_https_only_private | default(true) | lower }});
+user_pref("network.cookie.cookieBehavior", {{ firefox_cookie_behavior | default(4) }});
+user_pref("network.cookie.lifetimePolicy", {{ firefox_cookie_lifetime | default(2) }});
+user_pref("privacy.clearOnShutdown.cookies", {{ firefox_clear_cookies_on_shutdown | default(false) | lower }});
+user_pref("privacy.clearOnShutdown.history", {{ firefox_clear_history_on_shutdown | default(false) | lower }});
+user_pref("privacy.clearOnShutdown.downloads", {{ firefox_clear_downloads_on_shutdown | default(false) | lower }});
+user_pref("privacy.clearOnShutdown.formdata", {{ firefox_clear_formdata_on_shutdown | default(true) | lower }});
+user_pref("privacy.clearOnShutdown.cache", {{ firefox_clear_cache_on_shutdown | default(true) | lower }});
+user_pref("privacy.clearOnShutdown.sessions", {{ firefox_clear_sessions_on_shutdown | default(false) | lower }});
+user_pref("privacy.sanitize.sanitizeOnShutdown", {{ firefox_sanitize_on_shutdown | default(true) | lower }});
+
+// DNS over HTTPS
+user_pref("network.trr.mode", {{ firefox_doh_mode | default(2) }});
+user_pref("network.trr.uri", "{{ firefox_doh_uri | default('https://mozilla.cloudflare-dns.com/dns-query') }}");
+user_pref("network.trr.bootstrapAddress", "{{ firefox_doh_bootstrap | default('1.1.1.1') }}");
+
+// Performance and UI
+user_pref("browser.compactmode.show", {{ firefox_compact_mode | default(true) | lower }});
+user_pref("browser.tabs.closeWindowWithLastTab", {{ firefox_close_window_with_last_tab | default(false) | lower }});
+user_pref("browser.tabs.loadBookmarksInTabs", {{ firefox_bookmarks_in_tabs | default(true) | lower }});
+user_pref("browser.tabs.loadInBackground", {{ firefox_load_tabs_in_background | default(true) | lower }});
+user_pref("browser.tabs.warnOnClose", {{ firefox_warn_on_close | default(true) | lower }});
+user_pref("browser.tabs.warnOnCloseOtherTabs", {{ firefox_warn_on_close_other_tabs | default(true) | lower }});
+user_pref("browser.tabs.warnOnOpen", {{ firefox_warn_on_open | default(false) | lower }});
+user_pref("browser.tabs.maxOpenBeforeWarn", {{ firefox_max_tabs_before_warn | default(15) }});
+user_pref("browser.sessionstore.restore_on_demand", {{ firefox_restore_on_demand | default(true) | lower }});
+user_pref("browser.sessionstore.restore_tabs_lazily", {{ firefox_restore_tabs_lazily | default(true) | lower }});
+
+// Downloads
+user_pref("browser.download.useDownloadDir", {{ firefox_use_download_dir | default(false) | lower }});
+user_pref("browser.download.alwaysOpenPanel", {{ firefox_always_open_download_panel | default(false) | lower }});
+user_pref("browser.download.animateNotifications", {{ firefox_animate_download_notifications | default(true) | lower }});
+user_pref("browser.download.autohideButton", {{ firefox_autohide_download_button | default(false) | lower }});
+
+// Search
+user_pref("browser.search.suggest.enabled", {{ firefox_search_suggestions | default(true) | lower }});
+user_pref("browser.search.suggest.enabled.private", {{ firefox_search_suggestions_private | default(false) | lower }});
+user_pref("browser.urlbar.suggest.searches", {{ firefox_urlbar_search_suggestions | default(true) | lower }});
+user_pref("browser.urlbar.suggest.history", {{ firefox_urlbar_history_suggestions | default(true) | lower }});
+user_pref("browser.urlbar.suggest.bookmark", {{ firefox_urlbar_bookmark_suggestions | default(true) | lower }});
+user_pref("browser.urlbar.suggest.openpage", {{ firefox_urlbar_openpage_suggestions | default(true) | lower }});
+user_pref("browser.urlbar.suggest.topsites", {{ firefox_urlbar_topsites_suggestions | default(false) | lower }});
+
+// New Tab Page
+user_pref("browser.newtabpage.enabled", {{ firefox_newtab_enabled | default(true) | lower }});
+user_pref("browser.newtabpage.activity-stream.feeds.topsites", {{ firefox_newtab_topsites | default(true) | lower }});
+user_pref("browser.newtabpage.activity-stream.feeds.section.topstories", {{ firefox_newtab_topstories | default(false) | lower }});
+user_pref("browser.newtabpage.activity-stream.feeds.snippets", {{ firefox_newtab_snippets | default(false) | lower }});
+user_pref("browser.newtabpage.activity-stream.showSponsoredTopSites", {{ firefox_newtab_sponsored_topsites | default(false) | lower }});
+user_pref("browser.newtabpage.activity-stream.showSponsored", {{ firefox_newtab_sponsored | default(false) | lower }});
+
+// Media
+user_pref("media.videocontrols.picture-in-picture.enabled", {{ firefox_picture_in_picture | default(true) | lower }});
+user_pref("media.videocontrols.picture-in-picture.video-toggle.enabled", {{ firefox_pip_toggle | default(true) | lower }});
+user_pref("media.autoplay.default", {{ firefox_autoplay_default | default(1) }});
+user_pref("media.autoplay.blocking_policy", {{ firefox_autoplay_blocking_policy | default(2) }});
+
+// Developer Tools
+user_pref("devtools.chrome.enabled", {{ firefox_devtools_chrome | default(false) | lower }});
+user_pref("devtools.debugger.remote-enabled", {{ firefox_devtools_remote | default(false) | lower }});
+user_pref("devtools.theme", "{{ firefox_devtools_theme | default('dark') }}");
+user_pref("devtools.toolbox.host", "{{ firefox_devtools_host | default('bottom') }}");
+
+// Form autofill
+user_pref("extensions.formautofill.addresses.enabled", {{ firefox_autofill_addresses | default(true) | lower }});
+user_pref("extensions.formautofill.creditCards.enabled", {{ firefox_autofill_creditcards | default(false) | lower }});
+user_pref("signon.autofillForms", {{ firefox_autofill_forms | default(true) | lower }});
+user_pref("signon.generation.enabled", {{ firefox_password_generation | default(true) | lower }});
+user_pref("signon.management.page.breach-alerts.enabled", {{ firefox_breach_alerts | default(true) | lower }});
+
+// Pocket
+user_pref("extensions.pocket.enabled", {{ firefox_pocket_enabled | default(false) | lower }});
+user_pref("extensions.pocket.showHome", {{ firefox_pocket_show_home | default(false) | lower }});
+
+// Screenshots
+user_pref("extensions.screenshots.disabled", {{ firefox_screenshots_disabled | default(false) | lower }});
+user_pref("extensions.screenshots.upload-disabled", {{ firefox_screenshots_upload_disabled | default(false) | lower }});
+
+// WebRTC
+user_pref("media.peerconnection.enabled", {{ firefox_webrtc_enabled | default(true) | lower }});
+user_pref("media.peerconnection.ice.default_address_only", {{ firefox_webrtc_default_address_only | default(true) | lower }});
+user_pref("media.peerconnection.ice.no_host", {{ firefox_webrtc_no_host | default(true) | lower }});
+
+// Geolocation
+user_pref("geo.enabled", {{ firefox_geolocation_enabled | default(false) | lower }});
+user_pref("geo.provider.network.url", "{{ firefox_geolocation_url | default('https://location.services.mozilla.com/v1/geolocate?key=%MOZILLA_API_KEY%') }}");
+
+// Notifications
+user_pref("dom.webnotifications.enabled", {{ firefox_web_notifications | default(true) | lower }});
+user_pref("dom.webnotifications.serviceworker.enabled", {{ firefox_sw_notifications | default(true) | lower }});
+user_pref("dom.push.enabled", {{ firefox_push_enabled | default(true) | lower }});
+
+// Accessibility
+user_pref("accessibility.force_disabled", {{ firefox_accessibility_force_disabled | default(1) }});
+user_pref("ui.prefersReducedMotion", {{ firefox_reduced_motion | default(0) }});
+
+// Reader Mode
+user_pref("reader.parse-on-load.enabled", {{ firefox_reader_parse_on_load | default(true) | lower }});
+user_pref("reader.color_scheme", "{{ firefox_reader_color_scheme | default('auto') }}");
+user_pref("reader.font_type", "{{ firefox_reader_font_type | default('sans-serif') }}");
+user_pref("reader.font_size", {{ firefox_reader_font_size | default(5) }});
+user_pref("reader.line_height", {{ firefox_reader_line_height | default(4) }});
+
+// Experimental features
+user_pref("layout.css.backdrop-filter.enabled", {{ firefox_backdrop_filter | default(true) | lower }});
+user_pref("layout.css.color-mix.enabled", {{ firefox_color_mix | default(true) | lower }});
+user_pref("layout.css.container-queries.enabled", {{ firefox_container_queries | default(true) | lower }});
+
+// Performance tweaks
+user_pref("browser.cache.disk.capacity", {{ firefox_disk_cache_capacity | default(1048576) }});
+user_pref("browser.cache.memory.capacity", {{ firefox_memory_cache_capacity | default(65536) }});
+user_pref("network.buffer.cache.size", {{ firefox_network_buffer_cache | default(32768) }});
+user_pref("network.buffer.cache.count", {{ firefox_network_buffer_count | default(24) }});
+user_pref("network.http.max-connections", {{ firefox_max_connections | default(900) }});
+user_pref("network.http.max-persistent-connections-per-server", {{ firefox_max_persistent_connections | default(6) }});
+
+// Content blocking
+user_pref("browser.contentblocking.category", "{{ firefox_content_blocking_category | default('strict') }}");
+user_pref("privacy.annotate_channels.strict_list.enabled", {{ firefox_strict_list_enabled | default(true) | lower }});
+user_pref("privacy.partition.network_state", {{ firefox_partition_network_state | default(true) | lower }});
+
+// Telemetry and data collection
+user_pref("toolkit.telemetry.enabled", {{ firefox_telemetry_enabled | default(false) | lower }});
+user_pref("toolkit.telemetry.unified", {{ firefox_telemetry_unified | default(false) | lower }});
+user_pref("toolkit.telemetry.archive.enabled", {{ firefox_telemetry_archive | default(false) | lower }});
+user_pref("datareporting.healthreport.uploadEnabled", {{ firefox_healthreport_upload | default(false) | lower }});
+user_pref("datareporting.policy.dataSubmissionEnabled", {{ firefox_data_submission | default(false) | lower }});
+user_pref("app.shield.optoutstudies.enabled", {{ firefox_shield_studies | default(false) | lower }});
+user_pref("browser.discovery.enabled", {{ firefox_discovery_enabled | default(false) | lower }});
+
+// Startup and homepage
+user_pref("browser.startup.page", {{ firefox_startup_page | default(3) }});
+user_pref("browser.startup.homepage", "{{ firefox_homepage | default('about:home') }}");
+user_pref("browser.newtabpage.activity-stream.improvesearch.topSiteSearchShortcuts", {{ firefox_search_shortcuts | default(true) | lower }});
+
+// Fonts
+user_pref("font.name.serif.x-western", "{{ firefox_serif_font | default('Times New Roman') }}");
+user_pref("font.name.sans-serif.x-western", "{{ firefox_sans_serif_font | default('Arial') }}");
+user_pref("font.name.monospace.x-western", "{{ firefox_monospace_font | default('Courier New') }}");
+user_pref("font.size.variable.x-western", {{ firefox_font_size | default(16) }});
+user_pref("font.size.monospace.x-western", {{ firefox_monospace_font_size | default(13) }});
+
+// Spell checking
+user_pref("layout.spellcheckDefault", {{ firefox_spellcheck_default | default(2) }});
+user_pref("spellchecker.dictionary", "{{ firefox_spellcheck_dictionary | default('en-US') }}");
+
+// Print settings
+user_pref("print.print_footerleft", "{{ firefox_print_footer_left | default('&T') }}");
+user_pref("print.print_footerright", "{{ firefox_print_footer_right | default('&D') }}");
+user_pref("print.print_headerleft", "{{ firefox_print_header_left | default('&T') }}");
+user_pref("print.print_headerright", "{{ firefox_print_header_right | default('&U') }}");
+user_pref("print.print_scaling", "{{ firefox_print_scaling | default('1.00') }}");
+user_pref("print.print_shrink_to_fit", {{ firefox_print_shrink_to_fit | default(true) | lower }});
+
+// Custom CSS support
+user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", {{ firefox_custom_css | default(true) | lower }});
+
+// Dark theme preference
+user_pref("ui.systemUsesDarkTheme", {{ firefox_dark_theme | default(1) }});
+user_pref("devtools.theme", "{{ firefox_devtools_theme | default('dark') }}");
+
+// Container tabs
+user_pref("privacy.userContext.enabled", {{ firefox_container_tabs | default(true) | lower }});
+user_pref("privacy.userContext.ui.enabled", {{ firefox_container_tabs_ui | default(true) | lower }});
+user_pref("privacy.userContext.extension", "{{ firefox_container_extension | default('@testpilot-containers') }}");
+
+// Security
+user_pref("security.tls.version.min", {{ firefox_tls_min_version | default(3) }});
+user_pref("security.tls.version.max", {{ firefox_tls_max_version | default(4) }});
+user_pref("security.ssl.require_safe_negotiation", {{ firefox_ssl_safe_negotiation | default(true) | lower }});
+user_pref("security.ssl.treat_unsafe_negotiation_as_broken", {{ firefox_ssl_treat_unsafe_as_broken | default(true) | lower }});
+user_pref("security.mixed_content.block_display_content", {{ firefox_block_mixed_display_content | default(true) | lower }});
+user_pref("security.mixed_content.block_active_content", {{ firefox_block_mixed_active_content | default(true) | lower }});
+
+// Password manager
+user_pref("signon.rememberSignons", {{ firefox_remember_passwords | default(true) | lower }});
+user_pref("signon.passwordEditCapture.enabled", {{ firefox_password_edit_capture | default(true) | lower }});
+user_pref("signon.showAutoCompleteFooter", {{ firefox_show_autocomplete_footer | default(true) | lower }});
+user_pref("signon.suggestImportCount", {{ firefox_suggest_import_count | default(3) }});
+
+// Extension settings
+user_pref("extensions.update.enabled", {{ firefox_extensions_update | default(true) | lower }});
+user_pref("extensions.update.autoUpdateDefault", {{ firefox_extensions_auto_update | default(true) | lower }});
+user_pref("extensions.getAddons.showPane", {{ firefox_extensions_show_pane | default(true) | lower }});
+user_pref("extensions.htmlaboutaddons.recommendations.enabled", {{ firefox_extensions_recommendations | default(false) | lower }});
+user_pref("extensions.recommendations.themeRecommendationUrl", "");
+user_pref("extensions.recommendations.privacyPolicyUrl", "");
+
+// WebGL
+user_pref("webgl.disabled", {{ firefox_webgl_disabled | default(false) | lower }});
+user_pref("webgl.enable-webgl2", {{ firefox_webgl2_enabled | default(true) | lower }});
+user_pref("webgl.min_capability_mode", {{ firefox_webgl_min_capability_mode | default(false) | lower }});
+user_pref("webgl.disable-extensions", {{ firefox_webgl_disable_extensions | default(false) | lower }});
+user_pref("webgl.disable-fail-if-major-performance-caveat", {{ firefox_webgl_disable_fail_if_major_performance_caveat | default(false) | lower }});
+
+// Hardware acceleration
+user_pref("layers.acceleration.enabled", {{ firefox_hardware_acceleration | default(true) | lower }});
+user_pref("gfx.direct2d.disabled", {{ firefox_direct2d_disabled | default(false) | lower }});
+user_pref("gfx.canvas.azure.backends", "{{ firefox_canvas_backends | default('direct2d1.1,skia,cairo') }}");
+user_pref("gfx.content.azure.backends", "{{ firefox_content_backends | default('direct2d1.1,skia,cairo') }}");
+
+// Smooth scrolling
+user_pref("general.smoothScroll", {{ firefox_smooth_scroll | default(true) | lower }});
+user_pref("general.smoothScroll.lines", {{ firefox_smooth_scroll_lines | default(true) | lower }});
+user_pref("general.smoothScroll.pages", {{ firefox_smooth_scroll_pages | default(true) | lower }});
+user_pref("general.smoothScroll.mouseWheel", {{ firefox_smooth_scroll_mousewheel | default(true) | lower }});
+
+// Bookmarks
+user_pref("browser.bookmarks.showMobileBookmarks", {{ firefox_show_mobile_bookmarks | default(false) | lower }});
+user_pref("browser.bookmarks.openInTabClosesMenu", {{ firefox_bookmarks_open_in_tab_closes_menu | default(false) | lower }});
+user_pref("browser.bookmarks.max_backups", {{ firefox_bookmarks_max_backups | default(15) }});
+
+// Recently closed tabs
+user_pref("browser.sessionstore.max_tabs_undo", {{ firefox_max_tabs_undo | default(25) }});
+user_pref("browser.sessionstore.max_windows_undo", {{ firefox_max_windows_undo | default(3) }});
+
+// Custom preferences from variables
+{% if firefox_custom_prefs is defined %}
+{% for pref in firefox_custom_prefs %}
+user_pref("{{ pref.name }}", {{ pref.value if pref.value is boolean else '"' + pref.value|string + '"' }});
+{% endfor %}
+{% endif %}

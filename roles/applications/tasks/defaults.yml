@@ -1,0 +1,95 @@
+---
+# Configure default applications
+
+- name: Get current default browser
+  ansible.builtin.shell: xdg-settings get default-web-browser
+  register: current_browser
+  changed_when: false
+  failed_when: false
+
+- name: Set default web browser
+  block:
+    - name: Map browser choice to desktop file
+      ansible.builtin.set_fact:
+        browser_desktop_file: >-
+          {%- if default_browser == 'firefox' -%}firefox.desktop
+          {%- elif default_browser == 'google-chrome' -%}google-chrome.desktop
+          {%- elif default_browser == 'chromium' -%}chromium-browser.desktop
+          {%- elif default_browser == 'brave' -%}brave-browser.desktop
+          {%- elif default_browser == 'vivaldi' -%}vivaldi-stable.desktop
+          {%- elif default_browser == 'edge' -%}microsoft-edge.desktop
+          {%- else -%}firefox.desktop{%- endif -%}
+
+    - name: Set default browser via xdg-settings
+      ansible.builtin.shell: xdg-settings set default-web-browser {{ browser_desktop_file }}
+      when: current_browser.stdout != browser_desktop_file
+
+    - name: Update alternatives for x-www-browser
+      alternatives:
+        name: x-www-browser
+        path: "/usr/bin/{{ default_browser }}"
+      become: yes
+      when: default_browser != 'firefox'  # Firefox is usually already set
+      failed_when: false  # Don't fail if the alternative doesn't exist
+
+    - name: Set BROWSER environment variable
+      ansible.builtin.lineinfile:
+        path: "{{ ansible_env.HOME }}/.profile"
+        line: "export BROWSER={{ default_browser }}"
+        create: yes
+        mode: '0644'
+  when: default_browser is defined
+
+# Set default file manager for GNOME
+- name: Set default file manager
+  block:
+    - name: Set Nautilus as default file manager
+      ansible.builtin.shell: |
+        xdg-mime default org.gnome.Nautilus.desktop inode/directory
+        xdg-mime default org.gnome.Nautilus.desktop application/x-gnome-saved-search
+      when: desktop_environment == 'gnome'
+
+    - name: Set Dolphin as default file manager
+      ansible.builtin.shell: |
+        xdg-mime default org.kde.dolphin.desktop inode/directory
+      when: desktop_environment == 'kde'
+
+    - name: Set Thunar as default file manager
+      ansible.builtin.shell: |
+        xdg-mime default thunar.desktop inode/directory
+      when: desktop_environment == 'xfce'
+  when: desktop_environment is defined
+
+# Set default terminal emulator
+- name: Set default terminal emulator
+  block:
+    - name: Update alternatives for x-terminal-emulator
+      alternatives:
+        name: x-terminal-emulator
+        path: "/usr/bin/{{ terminal_emulator }}"
+      become: yes
+      when: terminal_emulator != 'default'
+      failed_when: false
+  when: terminal_emulator is defined
+
+# Set default text editor
+- name: Set default text editor
+  block:
+    - name: Set VS Code as default text editor
+      ansible.builtin.shell: |
+        xdg-mime default code.desktop text/plain
+        xdg-mime default code.desktop text/x-python
+        xdg-mime default code.desktop text/x-shellscript
+        xdg-mime default code.desktop application/javascript
+        xdg-mime default code.desktop application/json
+        xdg-mime default code.desktop text/markdown
+      when: "'vscode' in code_editors"
+
+    - name: Update alternatives for editor
+      alternatives:
+        name: editor
+        path: "/usr/bin/{{ 'code' if 'vscode' in code_editors else 'nano' }}"
+      become: yes
+      when: code_editors is defined and code_editors | length > 0
+      failed_when: false
+  when: code_editors is defined

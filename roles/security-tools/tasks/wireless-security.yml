@@ -1,0 +1,217 @@
+---
+# Install wireless security tools
+
+# Aircrack-ng from official repository
+- name: Install Aircrack-ng and related tools
+  ansible.builtin.apt:
+    name:
+      - aircrack-ng
+      - airgraph-ng
+      - airdriver-ng
+      - airdecloak-ng
+      - airgeddon    # Multi-use bash script
+      - mdk3         # Wireless attack tool
+      - mdk4         # Wireless attack tool v4
+      - reaver       # WPS attack tool
+      - bully        # WPS brute force
+      - pixiewps     # Pixie Dust attack
+      - macchanger   # MAC address changer
+      - wireless-tools
+      - wavemon      # Wireless monitor
+    state: present
+  become: yes
+
+# Kismet from official repository
+- name: Add Kismet GPG key
+  apt_key:
+    url: https://www.kismetwireless.net/repos/kismet-release.gpg.key
+    state: present
+  become: yes
+  when: "'kismet' in sectools_wireless_tools and sectools_use_official_repos"
+
+- name: Add Kismet repository
+  apt_repository:
+    repo: "deb https://www.kismetwireless.net/repos/apt/release/{{ ansible_distribution_release }} {{ ansible_distribution_release }} main"
+    state: present
+    filename: kismet
+  become: yes
+  when: "'kismet' in sectools_wireless_tools and sectools_use_official_repos"
+
+- name: Install Kismet
+  ansible.builtin.apt:
+    name:
+      - kismet
+      - kismet-plugins
+      - kismet-logtools
+    state: present
+    update_cache: yes
+  become: yes
+  when: "'kismet' in sectools_wireless_tools"
+
+- name: Add user to kismet group
+  ansible.builtin.user:
+    name: "{{ ansible_env.USER }}"
+    groups: kismet
+    append: yes
+  become: yes
+  when: "'kismet' in sectools_wireless_tools"
+
+# Wifite2 from GitHub
+- name: Clone Wifite2 repository
+  ansible.builtin.git:
+    repo: https://github.com/kimocoder/wifite2.git
+    dest: /opt/wifite2
+    version: master
+  become: yes
+  when: "'wifite' in sectools_wireless_tools"
+
+- name: Install Wifite2
+  ansible.builtin.shell: |
+    cd /opt/wifite2
+    python3 setup.py install
+  become: yes
+  when: "'wifite' in sectools_wireless_tools"
+  args:
+    creates: /usr/local/bin/wifite
+  changed_when: true
+
+# Bettercap is already installed in network-security.yml
+
+# Fern WiFi Cracker (GUI) from GitHub
+- name: Install Fern WiFi Cracker dependencies
+  ansible.builtin.apt:
+    name:
+      - python3-qt5
+      - python3-scapy
+      - subversion
+      - xterm
+    state: present
+  become: yes
+  when: "'fern' in sectools_wireless_tools"
+
+- name: Clone Fern WiFi Cracker
+  ansible.builtin.git:
+    repo: https://github.com/savio-code/fern-wifi-cracker.git
+    dest: /opt/fern-wifi-cracker
+    version: master
+  become: yes
+  when: "'fern' in sectools_wireless_tools"
+
+- name: Create Fern WiFi Cracker desktop entry
+  ansible.builtin.copy:
+    dest: /usr/share/applications/fern-wifi-cracker.desktop
+    content: |
+      [Desktop Entry]
+      Name=Fern WiFi Cracker
+      Comment=Wireless security auditing tool
+      Exec=python3 /opt/fern-wifi-cracker/execute.py
+      Icon=/opt/fern-wifi-cracker/resources/icon.png
+      Terminal=false
+      Type=Application
+      Categories=Network;Security;
+    mode: '0644'
+  become: yes
+  when: "'fern' in sectools_wireless_tools"
+
+# WiFi Pumpkin 3 from GitHub
+- name: Clone WiFi Pumpkin 3
+  ansible.builtin.git:
+    repo: https://github.com/P0cL4bs/wifipumpkin3.git
+    dest: /opt/wifipumpkin3
+    version: master
+  become: yes
+  when: "'wifipumpkin' in sectools_wireless_tools"
+
+- name: Install WiFi Pumpkin 3
+  ansible.builtin.shell: |
+    cd /opt/wifipumpkin3
+    python3 setup.py install
+  become: yes
+  when: "'wifipumpkin' in sectools_wireless_tools"
+  args:
+    creates: /usr/local/bin/wifipumpkin3
+  changed_when: true
+
+# Fluxion from GitHub
+- name: Clone Fluxion
+  ansible.builtin.git:
+    repo: https://github.com/FluxionNetwork/fluxion.git
+    dest: /opt/fluxion
+    version: master
+  become: yes
+
+- name: Create Fluxion wrapper
+  ansible.builtin.copy:
+    content: |
+      #!/bin/bash
+      cd /opt/fluxion
+      sudo bash fluxion.sh "$@"
+    dest: /usr/local/bin/fluxion
+    mode: '0755'
+  become: yes
+
+# Additional wireless tools
+- name: Install additional wireless security tools
+  ansible.builtin.apt:
+    name:
+      - cowpatty      # WPA-PSK cracker
+      - hashcat-utils # Convert cap to hccapx
+      - hcxtools      # Convert cap/pcap to hashcat
+      - hcxdumptool   # Small tool to capture packets
+      - wifiphisher   # Rogue AP framework
+      - hostapd       # Access point daemon
+      - dnsmasq       # DNS/DHCP server
+      - create_ap     # Create AP script
+      - linssid       # Graphical WiFi scanner
+      - wifi-honey    # WiFi honeypot
+    state: present
+  become: yes
+  failed_when: false
+
+# Install WiFi drivers for common adapters
+- name: Install wireless adapter drivers
+  ansible.builtin.apt:
+    name:
+      - realtek-rtl88xxau-dkms
+      - rtl8812au-dkms
+      - broadcom-sta-dkms
+    state: present
+  become: yes
+  failed_when: false
+
+# Install monitor mode enabler script
+- name: Create monitor mode script
+  ansible.builtin.copy:
+    dest: /usr/local/bin/monitor-mode
+    content: |
+      #!/bin/bash
+      # Enable/disable monitor mode on wireless interfaces
+
+      if [ "$#" -ne 2 ]; then
+          echo "Usage: $0 <interface> <enable|disable>"
+          exit 1
+      fi
+
+      INTERFACE=$1
+      ACTION=$2
+
+      case $ACTION in
+          enable)
+              sudo ifconfig $INTERFACE down
+              sudo iwconfig $INTERFACE mode monitor
+              sudo ifconfig $INTERFACE up
+              echo "Monitor mode enabled on $INTERFACE"
+              ;;
+          disable)
+              sudo ifconfig $INTERFACE down
+              sudo iwconfig $INTERFACE mode managed
+              sudo ifconfig $INTERFACE up
+              echo "Monitor mode disabled on $INTERFACE"
+              ;;
+          *)
+              echo "Invalid action. Use 'enable' or 'disable'"
+              exit 1
+              ;;
+      esac
+    mode: '0755'
+  become: yes

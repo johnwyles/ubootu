@@ -1,0 +1,78 @@
+---
+# Configure UFW firewall
+
+- name: Install UFW
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+  become: yes
+
+- name: Configure UFW defaults
+  ufw:
+    direction: "{{ item.direction }}"
+    policy: "{{ item.policy }}"
+  become: yes
+  loop:
+    - { direction: 'incoming', policy: 'deny' }
+    - { direction: 'outgoing', policy: 'allow' }
+  notify: reload ufw
+
+- name: Configure UFW rules for allowed ports
+  ufw:
+    rule: allow
+    port: "{{ item.split('/')[0] }}"
+    proto: "{{ item.split('/')[1] }}"
+  become: yes
+  loop: "{{ firewall_allowed_ports }}"
+  notify: reload ufw
+
+- name: Allow SSH with rate limiting
+  ufw:
+    rule: limit
+    port: "{{ ssh_port }}"
+    proto: tcp
+  become: yes
+  when: ssh_port is defined
+  notify: reload ufw
+
+# Allow common services if they're installed
+- name: Check if Syncthing is installed
+  ansible.builtin.stat:
+    path: /usr/bin/syncthing
+  register: syncthing_installed
+
+- name: Allow Syncthing if installed
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  become: yes
+  loop:
+    - "8384"  # Web GUI
+    - "22000" # Sync protocol
+  when: syncthing_installed.stat.exists
+  notify: reload ufw
+
+- name: Check if Cockpit is installed
+  ansible.builtin.stat:
+    path: /usr/bin/cockpit-bridge
+  register: cockpit_installed
+
+- name: Allow Cockpit if installed
+  ufw:
+    rule: allow
+    port: "9090"
+    proto: tcp
+  become: yes
+  when: cockpit_installed.stat.exists
+  notify: reload ufw
+
+- name: Enable UFW
+  ufw:
+    state: enabled
+  become: yes
+
+- name: Enable UFW logging
+  ufw:
+    logging: 'on'
+  become: yes

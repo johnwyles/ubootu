@@ -1,0 +1,6 @@
+# This file should be encrypted with ansible-vault
+# Example: ansible-vault encrypt group_vars/all/vault.yml
+---
+# vault_ansible_become_password: "your-sudo-password"
+# vault_ssh_private_key_file: "/path/to/private/key"
+# vault_wifi_password: "your-wifi-password"

@@ -1,0 +1,25 @@
+---
+# Install system font packages
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  become: yes
+  when: ansible_os_family == "Debian"
+
+- name: Install system font packages
+  package:
+    name: "{{ fonts_system_extras }}"
+    state: present
+  become: yes
+  when: fonts_system_extras | length > 0
+  register: system_fonts_installed
+
+- name: Install font management tools
+  package:
+    name:
+      - fontconfig
+      - fonts-tools
+    state: present
+  become: yes

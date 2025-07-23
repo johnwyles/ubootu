@@ -1,0 +1,468 @@
+---
+# Development tools configuration
+
+# Programming languages from TUI/wizard
+# Extract language selections from lang variable
+devtools_languages: >-
+  {%- set languages = [] -%}
+  {%- if lang is defined -%}
+    {%- for key, value in lang.items() if value -%}
+      {%- set _ = languages.append(key) -%}
+    {%- endfor -%}
+  {%- endif -%}
+  {{ languages }}
+
+# Version managers from TUI
+devtools_version_managers: >-
+  {%- set managers = [] -%}
+  {%- if verman is defined -%}
+    {%- for key, value in verman.items() if value -%}
+      {%- set _ = managers.append(key) -%}
+    {%- endfor -%}
+  {%- endif -%}
+  {{ managers }}
+
+# Package managers from TUI
+devtools_package_managers: >-
+  {%- set managers = [] -%}
+  {%- if pkgman is defined -%}
+    {%- for key, value in pkgman.items() if value -%}
+      {%- set _ = managers.append(key) -%}
+    {%- endfor -%}
+  {%- endif -%}
+  {{ managers }}
+
+# Code editors from wizard (legacy support)
+devtools_editors: "{{ code_editors | default([]) }}"
+
+# IDEs & Editors
+devtools_ides_editors: "{{ dev | default({}) }}"
+devtools_install_intellij: "{{ devtools_ides_editors.intellij | default(false) }}"
+devtools_install_pycharm: "{{ devtools_ides_editors.pycharm | default(false) }}"
+devtools_install_webstorm: "{{ devtools_ides_editors.webstorm | default(false) }}"
+devtools_install_phpstorm: "{{ devtools_ides_editors.phpstorm | default(false) }}"
+devtools_install_clion: "{{ devtools_ides_editors.clion | default(false) }}"
+devtools_install_goland: "{{ devtools_ides_editors.goland | default(false) }}"
+devtools_install_datagrip: "{{ devtools_ides_editors.datagrip | default(false) }}"
+devtools_install_eclipse: "{{ devtools_ides_editors.eclipse | default(false) }}"
+devtools_install_netbeans: "{{ devtools_ides_editors.netbeans | default(false) }}"
+devtools_install_sublime: "{{ devtools_ides_editors.sublime | default(false) }}"
+devtools_install_atom: "{{ devtools_ides_editors.atom | default(false) }}"
+devtools_install_brackets: "{{ devtools_ides_editors.brackets | default(false) }}"
+devtools_install_zed: "{{ devtools_ides_editors.zed | default(false) }}"
+devtools_install_helix: "{{ devtools_ides_editors.helix | default(false) }}"
+devtools_install_vim: "{{ devtools_ides_editors.vim | default(false) }}"
+devtools_install_emacs: "{{ devtools_ides_editors.emacs | default(false) }}"
+devtools_install_vscode: "{{ devtools_ides_editors.vscode | default(false) }}"
+
+# Debugging Tools
+devtools_debugging_tools: "{{ dev | default({}) }}"
+devtools_install_gdb: "{{ devtools_debugging_tools.gdb | default(false) }}"
+devtools_install_valgrind: "{{ devtools_debugging_tools.valgrind | default(false) }}"
+devtools_install_strace: "{{ devtools_debugging_tools.strace | default(false) }}"
+devtools_install_ltrace: "{{ devtools_debugging_tools.ltrace | default(false) }}"
+
+# Version Control GUI Tools
+devtools_version_control: "{{ dev | default({}) }}"
+devtools_install_git: "{{ devtools_version_control.git | default(false) }}"
+devtools_install_gitkraken: "{{ devtools_version_control.gitkraken | default(false) }}"
+devtools_install_sourcetree: "{{ devtools_version_control.sourcetree | default(false) }}"
+devtools_install_github_desktop: "{{ devtools_version_control.github_desktop | default(false) }}"
+devtools_install_gitlab_desktop: "{{ devtools_version_control.gitlab_desktop | default(false) }}"
+
+# API Development Tools
+devtools_api_development: "{{ dev | default({}) }}"
+devtools_install_postman: "{{ devtools_api_development.postman | default(false) }}"
+devtools_install_insomnia: "{{ devtools_api_development.insomnia | default(false) }}"
+devtools_install_httpie: "{{ devtools_api_development.httpie | default(false) }}"
+
+# Database Tools
+devtools_database_tools: "{{ dev | default({}) }}"
+devtools_install_dbeaver: "{{ devtools_database_tools.dbeaver | default(false) }}"
+devtools_install_mysql_workbench: "{{ devtools_database_tools.mysql_workbench | default(false) }}"
+devtools_install_pgadmin: "{{ devtools_database_tools.pgadmin | default(false) }}"
+devtools_install_mongodb_compass: "{{ devtools_database_tools.mongodb_compass | default(false) }}"
+
+# AI Coding Assistants
+devtools_ai_assistant: none  # Options: github-copilot, codeium, none
+devtools_install_cursor: false
+devtools_install_aider: false
+
+# Modern CLI Tools - organized by category
+devtools_install_modern_cli: true
+
+# Modern replacements for Unix tools
+devtools_modern_replacements:
+  - exa         # Modern ls replacement (now eza)
+  - lsd         # Deluxe ls replacement
+  - bat         # Better cat with syntax highlighting
+  - ripgrep     # Fast grep alternative
+  - fd          # Fast find alternative  
+  - fzf         # Fuzzy finder
+  - duf         # Modern df replacement
+  - dust        # Modern du replacement
+  - procs       # Modern ps replacement
+  - bottom      # Modern top replacement
+  - btop        # Beautiful top replacement
+  - dog         # Modern dig replacement
+  - delta       # Better git diff
+  - sd          # Modern sed replacement
+
+# File managers
+devtools_file_managers:
+  - ranger      # Terminal file manager with vi bindings
+  - nnn         # Blazing fast terminal file manager
+  - mc          # Midnight Commander - classic file manager
+  - lf          # List files terminal file manager
+  - broot       # Directory tree explorer with fuzzy search
+  - tree        # Directory tree viewer
+  - ncdu        # NCurses disk usage analyzer
+
+# System monitoring tools
+devtools_system_monitoring:
+  - htop        # Interactive process viewer
+  - glances     # Cross-platform monitoring tool
+  - neofetch    # System information tool
+  - screenfetch # System information display
+  - fastfetch   # Fast system information tool
+  - bashtop     # Bash resource monitor
+  - gotop       # Terminal based graphical activity monitor
+  - iotop       # I/O usage monitor
+  - iftop       # Network bandwidth monitor
+
+# Network tools
+devtools_network_tools:
+  - nmap        # Network scanner
+  - net-tools   # Classic network utilities (netstat, etc)
+  - dnsutils    # DNS utilities (dig, nslookup, etc)
+  - iputils-ping # Ping utility
+  - traceroute  # Network path tracer
+  - wget        # File downloader
+  - curl        # Data transfer tool
+  - httpie      # User-friendly HTTP client
+  - bandwhich   # Network utilization monitor
+  - mtr         # Network diagnostic tool
+
+# Text processing tools
+devtools_text_processing:
+  - jq          # JSON processor
+  - yq          # YAML processor
+  - miller      # CSV/JSON processor
+  - csvkit      # CSV utilities
+  - xsv         # Fast CSV toolkit
+  - dasel       # Query and update data structures
+
+# Development CLI tools
+devtools_dev_cli_tools:
+  - gh          # GitHub CLI
+  - glab        # GitLab CLI
+  - hub         # GitHub hub
+  - lazygit     # Terminal UI for git
+  - tig         # Text-mode interface for git
+  - diff-so-fancy # Better git diffs
+  - git-extras  # Git utilities
+  - gitleaks    # Detect secrets in git repos
+
+# Productivity tools
+devtools_productivity_tools:
+  - tmux        # Terminal multiplexer
+  - screen      # Terminal multiplexer
+  - zsh         # Z shell
+  - fish        # Friendly interactive shell
+  - starship    # Cross-shell prompt
+  - zoxide      # Smarter cd command
+  - autojump    # Directory navigation
+  - thefuck     # Magnificent command corrector
+  - tldr        # Simplified man pages
+  - cheat       # Command cheatsheets
+  - direnv      # Environment switcher
+  - asdf        # Version manager
+
+# All CLI tools combined (for compatibility)
+devtools_modern_cli_tools: "{{ devtools_modern_replacements + devtools_file_managers[:3] + devtools_dev_cli_tools[:3] + ['jq', 'tldr', 'httpie'] }}"
+
+# Enable comprehensive CLI tools by default
+use_comprehensive_cli_tools: true
+
+# Map from config.yml selections to tool lists
+devtools_cli_selections: "{{ cli | default({}) }}"
+
+# Use the full lists if no CLI selections are made, otherwise filter based on selections
+devtools_selected_modern_replacements: >-
+  {%- if devtools_cli_selections -%}
+    {%- set selected = [] -%}
+    {%- if devtools_cli_selections.exa | default(false) -%}{{ selected.append('exa') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.lsd | default(false) -%}{{ selected.append('lsd') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.bat | default(false) -%}{{ selected.append('bat') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.ripgrep | default(false) -%}{{ selected.append('ripgrep') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.fd | default(false) -%}{{ selected.append('fd') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.fzf | default(false) -%}{{ selected.append('fzf') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.duf | default(false) -%}{{ selected.append('duf') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.dust | default(false) -%}{{ selected.append('dust') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.procs | default(false) -%}{{ selected.append('procs') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.bottom | default(false) -%}{{ selected.append('bottom') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.btop | default(false) -%}{{ selected.append('btop') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.dog | default(false) -%}{{ selected.append('dog') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.delta | default(false) -%}{{ selected.append('delta') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.sd | default(false) -%}{{ selected.append('sd') or '' }}{%- endif -%}
+    {{ selected }}
+  {%- else -%}
+    {{ devtools_modern_replacements }}
+  {%- endif -%}
+
+devtools_selected_file_managers: >-
+  {%- if devtools_cli_selections -%}
+    {%- set selected = [] -%}
+    {%- if devtools_cli_selections.ranger | default(false) -%}{{ selected.append('ranger') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.nnn | default(false) -%}{{ selected.append('nnn') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.mc | default(false) -%}{{ selected.append('mc') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.lf | default(false) -%}{{ selected.append('lf') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.broot | default(false) -%}{{ selected.append('broot') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.tree | default(false) -%}{{ selected.append('tree') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.ncdu | default(false) -%}{{ selected.append('ncdu') or '' }}{%- endif -%}
+    {{ selected }}
+  {%- else -%}
+    {{ devtools_file_managers }}
+  {%- endif -%}
+
+devtools_selected_system_monitoring: >-
+  {%- if devtools_cli_selections -%}
+    {%- set selected = [] -%}
+    {%- if devtools_cli_selections.htop | default(false) -%}{{ selected.append('htop') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.glances | default(false) -%}{{ selected.append('glances') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.neofetch | default(false) -%}{{ selected.append('neofetch') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.screenfetch | default(false) -%}{{ selected.append('screenfetch') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.fastfetch | default(false) -%}{{ selected.append('fastfetch') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.bashtop | default(false) -%}{{ selected.append('bashtop') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.gotop | default(false) -%}{{ selected.append('gotop') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.iotop | default(false) -%}{{ selected.append('iotop') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.iftop | default(false) -%}{{ selected.append('iftop') or '' }}{%- endif -%}
+    {{ selected }}
+  {%- else -%}
+    {{ devtools_system_monitoring }}
+  {%- endif -%}
+
+devtools_selected_network_tools: >-
+  {%- if devtools_cli_selections -%}
+    {%- set selected = [] -%}
+    {%- if devtools_cli_selections.nmap | default(false) -%}{{ selected.append('nmap') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.netstat | default(false) -%}{{ selected.append('net-tools') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.ss | default(false) -%}{{ selected.append('iproute2') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.dig | default(false) -%}{{ selected.append('dnsutils') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.ping | default(false) -%}{{ selected.append('iputils-ping') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.traceroute | default(false) -%}{{ selected.append('traceroute') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.wget | default(false) -%}{{ selected.append('wget') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.curl | default(false) -%}{{ selected.append('curl') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.httpie | default(false) -%}{{ selected.append('httpie') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.bandwhich | default(false) -%}{{ selected.append('bandwhich') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.mtr | default(false) -%}{{ selected.append('mtr') or '' }}{%- endif -%}
+    {{ selected }}
+  {%- else -%}
+    {{ devtools_network_tools }}
+  {%- endif -%}
+
+devtools_selected_text_processing: >-
+  {%- if devtools_cli_selections -%}
+    {%- set selected = [] -%}
+    {%- if devtools_cli_selections.jq | default(false) -%}{{ selected.append('jq') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.yq | default(false) -%}{{ selected.append('yq') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.sed | default(false) -%}{{ selected.append('sed') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.awk | default(false) -%}{{ selected.append('gawk') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.miller | default(false) -%}{{ selected.append('miller') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.csvkit | default(false) -%}{{ selected.append('csvkit') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.xsv | default(false) -%}{{ selected.append('xsv') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.dasel | default(false) -%}{{ selected.append('dasel') or '' }}{%- endif -%}
+    {{ selected }}
+  {%- else -%}
+    {{ devtools_text_processing }}
+  {%- endif -%}
+
+devtools_selected_dev_cli_tools: >-
+  {%- if devtools_cli_selections -%}
+    {%- set selected = [] -%}
+    {%- if devtools_cli_selections.gh | default(false) -%}{{ selected.append('gh') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.glab | default(false) -%}{{ selected.append('glab') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.hub | default(false) -%}{{ selected.append('hub') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.lazygit | default(false) -%}{{ selected.append('lazygit') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.tig | default(false) -%}{{ selected.append('tig') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections['diff-so-fancy'] | default(false) -%}{{ selected.append('diff-so-fancy') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections['git-extras'] | default(false) -%}{{ selected.append('git-extras') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.gitleaks | default(false) -%}{{ selected.append('gitleaks') or '' }}{%- endif -%}
+    {{ selected }}
+  {%- else -%}
+    {{ devtools_dev_cli_tools }}
+  {%- endif -%}
+
+devtools_selected_productivity_tools: >-
+  {%- if devtools_cli_selections -%}
+    {%- set selected = [] -%}
+    {%- if devtools_cli_selections.tmux | default(false) -%}{{ selected.append('tmux') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.screen | default(false) -%}{{ selected.append('screen') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.zsh | default(false) -%}{{ selected.append('zsh') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.fish | default(false) -%}{{ selected.append('fish') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.starship | default(false) -%}{{ selected.append('starship') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.zoxide | default(false) -%}{{ selected.append('zoxide') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.autojump | default(false) -%}{{ selected.append('autojump') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.thefuck | default(false) -%}{{ selected.append('thefuck') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.tldr | default(false) -%}{{ selected.append('tldr') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.cheat | default(false) -%}{{ selected.append('cheat') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.direnv | default(false) -%}{{ selected.append('direnv') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.asdf | default(false) -%}{{ selected.append('asdf') or '' }}{%- endif -%}
+    {{ selected }}
+  {%- else -%}
+    {{ devtools_productivity_tools }}
+  {%- endif -%}
+
+# Database Tools
+devtools_database_guis:
+  - dbeaver     # Universal database tool
+devtools_install_database_guis: true
+
+# API Testing Tools
+devtools_api_tools:
+  - postman
+  - insomnia
+devtools_install_api_tools: true
+
+# Container/Kubernetes Tools
+devtools_k8s_tools:
+  - k9s         # Terminal UI for Kubernetes
+  - lens        # Kubernetes IDE
+  - lazydocker  # Terminal UI for Docker
+devtools_install_k8s_tools: "{{ install_kubernetes_tools | default(false) }}"
+
+# Version Managers
+devtools_install_nvm: "{{ 'nvm' in devtools_version_managers or ('nodejs' in devtools_languages and devtools_version_managers | length == 0) }}"
+devtools_install_pyenv: "{{ 'pyenv' in devtools_version_managers or ('python' in devtools_languages and devtools_version_managers | length == 0) }}"
+devtools_install_rbenv: "{{ 'rbenv' in devtools_version_managers or ('ruby' in devtools_languages and devtools_version_managers | length == 0) }}"
+devtools_install_rustup: "{{ 'rustup' in devtools_version_managers or ('rust' in devtools_languages and devtools_version_managers | length == 0) }}"
+devtools_install_sdkman: "{{ 'jenv' not in devtools_version_managers and ('java' in devtools_languages or 'kotlin' in devtools_languages or 'scala' in devtools_languages) }}"
+devtools_install_jenv: "{{ 'jenv' in devtools_version_managers }}"
+devtools_install_gvm: "{{ 'gvm' in devtools_version_managers }}"
+devtools_install_asdf: "{{ 'asdf' in devtools_version_managers }}"
+
+# VS Code Extensions
+devtools_vscode_extensions:
+  # Essential
+  - eamodio.gitlens
+  - mhutchie.git-graph
+  - esbenp.prettier-vscode
+  - dbaeumer.vscode-eslint
+  - ritwickdey.liveserver
+  - ms-vsliveshare.vsliveshare
+  - rangav.vscode-thunder-client
+  - streetsidesoftware.code-spell-checker
+  - christian-kohler.path-intellisense
+  - wayou.vscode-todo-highlight
+  - gruntfuggly.todo-tree
+  - ms-azuretools.vscode-docker
+  - ms-vscode-remote.remote-ssh
+  - editorconfig.editorconfig
+  - usernamehw.errorlens
+  - aaron-bond.better-comments
+  - formulahendry.code-runner
+
+  # Git
+  - donjayamanne.githistory
+  - github.vscode-pull-request-github
+
+  # Formatting/Linting
+  - foxundermoon.shell-format
+  - timonwong.shellcheck
+  - redhat.vscode-yaml
+  - davidanson.vscode-markdownlint
+
+  # Visual
+  - pkief.material-icon-theme
+  - vscode-icons-team.vscode-icons
+
+# Language-specific VS Code extensions
+devtools_vscode_language_extensions:
+  python:
+    - ms-python.python
+    - ms-python.vscode-pylance
+    - ms-python.black-formatter
+    - ms-toolsai.jupyter
+  javascript:
+    - xabikos.javascriptsnippets
+    - wix.vscode-import-cost
+    - dsznajder.es7-react-js-snippets
+  typescript:
+    - ms-vscode.vscode-typescript-next
+  go:
+    - golang.go
+  rust:
+    - rust-lang.rust-analyzer
+    - serayuzgur.crates
+  java:
+    - vscjava.vscode-java-pack
+    - vscjava.vscode-spring-initializr
+  cpp:
+    - ms-vscode.cpptools
+    - ms-vscode.cmake-tools
+  php:
+    - bmewburn.vscode-intelephense-client
+    - felixfbecker.php-debug
+  ruby:
+    - rebornix.ruby
+    - castwide.solargraph
+
+# Development utilities
+devtools_install_tmux: true
+devtools_install_direnv: true
+devtools_install_ngrok: false
+devtools_install_mkcert: true  # Local HTTPS certificates
+
+# Terminal enhancements
+devtools_install_zoxide: true  # Smarter cd command
+devtools_install_mcfly: true   # Better shell history
+
+# Documentation tools
+devtools_install_tldr: true
+devtools_install_cheat: true
+
+# Performance/Monitoring
+devtools_install_hyperfine: true  # Command-line benchmarking
+devtools_install_bandwhich: true  # Network utilization
+
+# File Sync Tools
+devtools_install_sync_tools: true
+devtools_sync_tools:
+  - syncthing      # P2P file sync with GUI
+  - nextcloud-client  # Cloud sync client
+  - rclone         # Cloud storage sync with GUI
+
+# Networking/VPN Tools
+devtools_install_networking_tools: true
+devtools_networking_tools:
+  - tailscale      # Mesh VPN
+  - wireguard      # Modern VPN
+  - cockpit        # Web-based system management
+devtools_install_extra_networking: true  # Additional network monitoring/analysis tools
+
+# System Monitoring Tools
+devtools_install_monitoring_tools: true
+devtools_monitoring_tools:
+  - btop           # Modern terminal system monitor
+  - glances        # Cross-platform monitor with web UI
+  - stacer         # System optimizer GUI
+devtools_enable_glances_web: false  # Enable Glances web interface
+devtools_install_extra_monitors: true  # htop, iotop, etc.
+
+# Self-hosted Solutions
+devtools_install_selfhosted: false
+devtools_selfhosted_services:
+  - nextcloud      # Personal cloud
+  - jellyfin       # Media server
+  - filebrowser    # Web file manager
+  # Security services:
+  # - vaultwarden    # Bitwarden server
+  # - pihole         # Network ad blocker
+  # - wireguard-server # VPN server
+  # - authelia       # Authentication server
+  # - uptime-kuma    # Status monitoring
+  # - adguard        # Ad blocker (alt to Pi-hole)
+  # - gitea          # Git service
+  # - outline        # Knowledge base
+  # - wallabag       # Read-it-later
+  # - freshrss       # RSS reader

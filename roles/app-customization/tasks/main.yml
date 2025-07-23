@@ -1,0 +1,43 @@
+---
+# Apply application-specific customizations
+
+- name: Apply VS Code customizations
+  ansible.builtin.include_tasks: vscode.yml
+  when: 
+    - app_customizations is defined
+    - app_customizations.vscode is defined
+    - "'vscode' in code_editors"
+
+- name: Apply Git customizations
+  ansible.builtin.include_tasks: git.yml
+  when:
+    - app_customizations is defined
+    - app_customizations.git is defined
+    - enable_development_tools | default(false)
+
+- name: Apply Firefox customizations
+  ansible.builtin.include_tasks: firefox.yml
+  when:
+    - app_customizations is defined
+    - app_customizations.firefox is defined
+    - "'firefox' in web_browsers"
+
+- name: Apply Terminal customizations
+  ansible.builtin.include_tasks: terminal.yml
+  when:
+    - app_customizations is defined
+    - app_customizations.terminal is defined
+    - primary_user_shell == "zsh"
+
+- name: Apply VLC customizations
+  ansible.builtin.include_tasks: vlc.yml
+  when:
+    - app_customizations is defined
+    - app_customizations.vlc is defined
+    - "'vlc' in multimedia_apps"
+
+- name: Apply system preferences
+  ansible.builtin.include_tasks: system.yml
+  when:
+    - app_customizations is defined
+    - app_customizations.system is defined

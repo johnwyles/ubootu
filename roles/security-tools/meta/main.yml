@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  author: Ubuntu Bootstrap
+  description: Security testing and assessment tools (pentesting, forensics, privacy)
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal    # 20.04
+        - jammy    # 22.04
+        - noble    # 24.04
+
+dependencies:
+  - role: common  # For base system setup
+  - role: development-tools  # Some security tools need development libraries

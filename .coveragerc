@@ -1,0 +1,80 @@
+[run]
+# Coverage.py configuration for Ubootu project
+
+# Source packages
+source = 
+    lib
+    configure_standard_tui
+
+# Omit patterns
+omit =
+    */tests/*
+    */test_*.py
+    */__pycache__/*
+    */site-packages/*
+    */venv/*
+    */env/*
+    */.tox/*
+    setup.py
+    */migrations/*
+
+# Enable branch coverage
+branch = True
+
+# Parallel execution support
+parallel = True
+
+# Context for coverage
+context = test
+
+[report]
+# Reporting options
+precision = 2
+show_missing = True
+skip_covered = False
+skip_empty = True
+
+# Exclude patterns for coverage reports
+exclude_lines =
+    # Standard pragma
+    pragma: no cover
+    
+    # Debug code
+    def __repr__
+    if self\.debug
+    
+    # Defensive programming
+    raise AssertionError
+    raise NotImplementedError
+    
+    # Non-runnable code
+    if 0:
+    if False:
+    if __name__ == .__main__.:
+    
+    # Type checking
+    if TYPE_CHECKING:
+    @overload
+    
+    # Abstract methods
+    @abstract
+    @abstractmethod
+
+# Ignore errors
+ignore_errors = True
+
+[html]
+# HTML report settings
+directory = htmlcov
+title = Ubootu Coverage Report
+show_contexts = True
+
+[xml]
+# XML report for CI integration
+output = coverage.xml
+
+[json]
+# JSON report
+output = coverage.json
+pretty_print = True
+show_contexts = True

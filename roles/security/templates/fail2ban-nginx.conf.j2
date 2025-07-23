@@ -1,0 +1,17 @@
+[nginx-http-auth]
+enabled = false
+filter = nginx-http-auth
+port = http,https
+logpath = /var/log/nginx/error.log
+
+[nginx-limit-req]
+enabled = false
+filter = nginx-limit-req
+port = http,https
+logpath = /var/log/nginx/error.log
+
+[nginx-botsearch]
+enabled = false
+filter = nginx-botsearch
+port = http,https
+logpath = /var/log/nginx/access.log

@@ -1,0 +1,70 @@
+---
+- name: Verify common role
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Gather package facts
+      package_facts:
+        manager: apt
+
+    - name: Verify essential packages
+      ansible.builtin.assert:
+        that:
+          - "'curl' in ansible_facts.packages"
+          - "'wget' in ansible_facts.packages"
+          - "'git' in ansible_facts.packages"
+          - "'vim' in ansible_facts.packages"
+          - "'htop' in ansible_facts.packages"
+          - "'build-essential' in ansible_facts.packages"
+          - "'software-properties-common' in ansible_facts.packages"
+        fail_msg: "Essential packages are missing"
+
+    - name: Check timezone configuration
+      ansible.builtin.command: timedatectl show --property=Timezone --value
+      register: timezone_check
+      changed_when: false
+
+    - name: Verify timezone is set
+      ansible.builtin.assert:
+        that:
+          - timezone_check.stdout | length > 0
+        fail_msg: "Timezone not configured"
+
+    - name: Check locale settings
+      ansible.builtin.command: locale
+      register: locale_check
+      changed_when: false
+      environment:
+        LANG: en_US.UTF-8
+
+    - name: Verify locale configuration
+      ansible.builtin.assert:
+        that:
+          - "'LANG=en_US.UTF-8' in locale_check.stdout"
+        fail_msg: "Locale not properly configured"
+
+    - name: Check system limits configuration
+      ansible.builtin.stat:
+        path: /etc/security/limits.d/90-nofile.conf
+      register: limits_file
+
+    - name: Verify limits file exists
+      ansible.builtin.assert:
+        that:
+          - limits_file.stat.exists
+        fail_msg: "System limits not configured"
+      when: configure_system_limits | default(true)
+
+    - name: Check swappiness setting
+      ansible.builtin.command: sysctl vm.swappiness
+      register: swappiness_check
+      changed_when: false
+
+    - name: Verify swappiness is optimized
+      ansible.builtin.assert:
+        that:
+          - "'vm.swappiness = 10' in swappiness_check.stdout"
+        fail_msg: "Swappiness not optimized"
+      when: ansible_memtotal_mb >= 8192

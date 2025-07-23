@@ -1,0 +1,78 @@
+---
+# Theme configuration
+themes_global_theme: "{{ global_theme | default('none') }}"
+themes_mode: "{{ theme_mode | default('dark') }}"
+
+# Theme repositories and sources
+themes_sources:
+  dracula:
+    gnome_terminal: "https://github.com/dracula/gnome-terminal"
+    vscode: "dracula-theme.theme-dracula"
+    vim: "https://github.com/dracula/vim"
+    firefox: "https://addons.mozilla.org/en-US/firefox/addon/dracula-dark-colorscheme/"
+    gtk: "https://github.com/dracula/gtk"
+  catppuccin:
+    gnome_terminal: "https://github.com/catppuccin/gnome-terminal"
+    vscode: "Catppuccin.catppuccin-vsc"
+    vim: "https://github.com/catppuccin/vim"
+    firefox: "https://github.com/catppuccin/firefox"
+    gtk: "https://github.com/catppuccin/gtk"
+  tokyo-night:
+    gnome_terminal: "https://github.com/enkia/tokyo-night-vscode-theme"
+    vscode: "enkia.tokyo-night"
+    vim: "https://github.com/ghifarit53/tokyonight-vim"
+    firefox: "https://github.com/tokyo-night-theme/tokyo-night-firefox"
+    gtk: "https://www.gnome-look.org/p/1681315/"
+
+# Application dark mode settings
+themes_dark_mode_apps:
+  - firefox
+  - slack
+  - discord
+  - zoom
+  - vscode
+  - vivaldi
+  - chrome
+  - teams
+
+# Starship/prompt themes
+themes_prompt_configs:
+  dracula: "https://github.com/dracula/starship"
+  catppuccin: "https://github.com/catppuccin/starship"
+  tokyo-night: "https://starship.rs/presets/tokyo-night"
+
+# Terminal colors
+themes_terminal_profiles:
+  dracula:
+    background: "#282a36"
+    foreground: "#f8f8f2"
+    black: "#000000"
+    red: "#ff5555"
+    green: "#50fa7b"
+    yellow: "#f1fa8c"
+    blue: "#bd93f9"
+    magenta: "#ff79c6"
+    cyan: "#8be9fd"
+    white: "#bfbfbf"
+  catppuccin:
+    background: "#1e1e2e"
+    foreground: "#cdd6f4"
+    black: "#45475a"
+    red: "#f38ba8"
+    green: "#a6e3a1"
+    yellow: "#f9e2af"
+    blue: "#89b4fa"
+    magenta: "#f5c2e7"
+    cyan: "#94e2d5"
+    white: "#bac2de"
+  tokyo-night:
+    background: "#1a1b26"
+    foreground: "#a9b1d6"
+    black: "#32344a"
+    red: "#f7768e"
+    green: "#9ece6a"
+    yellow: "#e0af68"
+    blue: "#7aa2f7"
+    magenta: "#ad8ee6"
+    cyan: "#449dab"
+    white: "#787c99"

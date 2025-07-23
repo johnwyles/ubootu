@@ -1,0 +1,112 @@
+---
+# Global default variables for Ubuntu Desktop Bootstrap
+
+# System Configuration
+system_timezone: "America/New_York"
+system_locale: "en_US.UTF-8"
+system_hostname: "{{ inventory_hostname }}"
+
+# User Configuration
+primary_user: "{{ ansible_user_id }}"
+primary_user_shell: /bin/bash
+create_user_groups:
+  - docker
+  - vboxusers
+
+# Desktop Environment Settings
+desktop_environment: gnome  # Options: gnome, kde, xfce, mate, cinnamon
+install_desktop_environment: true
+desktop_autologin: false
+desktop_theme: default
+taskbar_position: bottom  # Options: bottom, top, left, right
+desktop_icons:  # Icons to show on desktop
+  - home
+  - trash
+desktop_icon_size: 64  # Size in pixels
+trackpad_natural_scroll: false  # Natural scrolling like macOS
+global_theme: none  # Options: dracula, catppuccin, tokyo-night, nord, gruvbox, none
+
+# Security Settings
+enable_security: true
+enable_firewall: true
+enable_fail2ban: true
+ssh_permit_root_login: false
+ssh_password_authentication: false
+
+# Development Tools
+enable_development_tools: false
+development_languages:
+  - python
+  - nodejs
+  - go
+install_docker: false
+install_vscode: false
+install_jetbrains_toolbox: false
+
+# Applications
+install_applications: true
+default_browser: firefox  # Default web browser
+essential_packages:
+  - curl
+  - wget
+  - git
+  - vim
+  - htop
+  - build-essential
+  - software-properties-common
+
+productivity_apps:
+  - firefox
+  - thunderbird
+  - libreoffice
+  - keepassxc
+
+multimedia_apps:
+  - vlc
+  - gimp
+  - audacity
+
+communication_apps:
+  - discord
+  - slack
+  - zoom
+
+# Dotfiles Configuration
+configure_dotfiles: true
+dotfiles_repo: ""  # Git repository URL for dotfiles
+dotfiles_repo_local_dest: "~/dotfiles"
+dotfiles_files_to_link: []
+
+# Package Management
+enable_flatpak: true
+enable_snap: true
+enable_appimage_support: true
+
+# System Performance
+enable_performance_tweaks: false
+swappiness_value: 10
+enable_tmpfs: false
+
+# Updates
+enable_automatic_updates: false
+automatic_reboot: false
+automatic_reboot_time: "03:00"
+
+# Backup
+enable_backup: false
+backup_directories: []
+backup_destination: ""
+
+# Third-party Repositories
+use_third_party_repos: true  # Use official repos when available
+install_github_cli: true
+install_hashicorp_tools: false  # Terraform, Vagrant, etc.
+install_wine: false
+
+# Custom Repositories
+custom_apt_repositories: []
+custom_apt_keys: []
+
+# Feature Flags
+experimental_features: false
+bleeding_edge_packages: false

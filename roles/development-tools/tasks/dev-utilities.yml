@@ -1,0 +1,87 @@
+---
+# Install development utilities
+
+- name: Install tmux
+  ansible.builtin.apt:
+    name: tmux
+    state: present
+  become: yes
+  when: devtools_install_tmux
+
+- name: Configure tmux
+  ansible.builtin.template:
+    src: tmux.conf.j2
+    dest: "/home/{{ primary_user }}/.tmux.conf"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+  when: devtools_install_tmux
+
+- name: Install direnv
+  block:
+    - name: Get latest direnv release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/direnv/direnv/releases/latest
+      register: direnv_release
+
+    - name: Download direnv
+      ansible.builtin.get_url:
+        url: "{{ direnv_release.json.assets | selectattr('name', 'match', 'direnv\\.linux-amd64$') | map(attribute='browser_download_url') | first }}"
+        dest: /usr/local/bin/direnv
+        mode: '0755'
+      become: yes
+  when: devtools_install_direnv
+
+- name: Install ngrok
+  snap:
+    name: ngrok
+    state: present
+  become: yes
+  when:
+    - devtools_install_ngrok
+    - enable_snap | default(true)
+
+- name: Install mkcert
+  block:
+    - name: Get latest mkcert release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/FiloSottile/mkcert/releases/latest
+      register: mkcert_release
+
+    - name: Download mkcert
+      ansible.builtin.get_url:
+        url: "{{ mkcert_release.json.assets | selectattr('name', 'match', 'mkcert.*linux-amd64$') | map(attribute='browser_download_url') | first }}"
+        dest: /usr/local/bin/mkcert
+        mode: '0755'
+      become: yes
+
+    - name: Install mkcert root CA
+      ansible.builtin.shell: mkcert -install
+      become: yes
+      become_user: "{{ primary_user }}"
+      environment:
+        HOME: "/home/{{ primary_user }}"
+  when: devtools_install_mkcert
+
+- name: Install other useful tools
+  ansible.builtin.apt:
+    name:
+      - silversearcher-ag  # ag - code searching
+      - tig               # text-mode interface for git
+      - ncdu              # disk usage analyzer
+      - pv                # pipe viewer
+      - mtr               # network diagnostic tool
+      - iotop             # I/O monitor
+      - sysstat          # system performance tools
+    state: present
+  become: yes
+
+- name: Install GitHub CLI
+  ansible.builtin.apt:
+    name: gh
+    state: present
+  become: yes
+  when:
+    - install_github_cli | default(true)
+    - use_third_party_repos | default(true)

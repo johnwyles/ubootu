@@ -1,0 +1,61 @@
+---
+# Fix APT issues first
+- name: Clean up APT repository issues
+  ansible.builtin.include_tasks: apt-cleanup.yml
+  tags: ['apt-cleanup']
+
+- name: Ensure APT https transport is available
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Create keyrings directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: yes
+
+# Main repositories are handled by sources.list template
+- name: Configure main Ubuntu repositories
+  ansible.builtin.template:
+    src: sources.list.j2
+    dest: /etc/apt/sources.list
+    backup: yes
+    owner: root
+    group: root
+    mode: '0644'
+  become: yes
+  notify: update apt cache
+
+# Remove duplicate multiverse entry
+- name: Remove duplicate multiverse repository file
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/ubuntu-multiverse.list
+    state: absent
+  become: yes
+
+- name: Configure third-party repositories
+  ansible.builtin.include_tasks: third-party-repos.yml
+  when: use_third_party_repos | default(true)
+  tags: ['third-party-repos']
+
+- name: Configure development repositories
+  ansible.builtin.include_tasks: development-repos.yml
+  when: enable_development_tools | default(false)
+  tags: ['dev-repos']
+
+- name: Update apt cache after adding repositories
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  become: yes

@@ -1,0 +1,4 @@
+---
+# Variables for security-tools role
+
+# These variables can be overridden in host_vars, group_vars, or when calling the role
