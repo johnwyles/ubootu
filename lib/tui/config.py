@@ -3,6 +3,7 @@
 Configuration management for the Ubootu TUI interface
 """
 
+from __future__ import annotations
 from typing import Dict, List, Set, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
