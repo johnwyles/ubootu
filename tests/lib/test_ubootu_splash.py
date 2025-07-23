@@ -5,7 +5,7 @@ Unit tests for ubootu_splash - Ubootu splash screen
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.ubootu_splash import *
+import lib.ubootu_splash
 
 
 class TestUbootuSplash:

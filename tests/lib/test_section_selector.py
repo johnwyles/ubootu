@@ -5,7 +5,7 @@ Unit tests for section_selector - Section selection interface
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.section_selector import *
+import lib.section_selector
 
 
 class TestSectionSelector:

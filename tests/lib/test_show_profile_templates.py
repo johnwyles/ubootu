@@ -5,7 +5,7 @@ Unit tests for show_profile_templates - Profile template display
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.show_profile_templates import *
+import lib.show_profile_templates
 
 
 class TestShowProfileTemplates:

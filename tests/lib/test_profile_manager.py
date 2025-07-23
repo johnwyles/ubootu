@@ -5,7 +5,7 @@ Unit tests for profile_manager - Profile management system
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.profile_manager import *
+import lib.profile_manager
 
 
 class TestProfileManager:

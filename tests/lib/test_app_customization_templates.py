@@ -5,7 +5,7 @@ Unit tests for app_customization_templates - Application customization templates
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.app_customization_templates import *
+import lib.app_customization_templates
 
 
 class TestAppCustomizationTemplates:

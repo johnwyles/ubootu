@@ -5,7 +5,7 @@ Unit tests for quick_actions_tui - Quick actions interface
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.quick_actions_tui import *
+import lib.quick_actions_tui
 
 
 class TestQuickActionsTui:

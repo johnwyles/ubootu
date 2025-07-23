@@ -5,7 +5,7 @@ Unit tests for tui_components - TUI component utilities
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.tui_components import *
+import lib.tui_components
 
 
 class TestTuiComponents:

@@ -5,7 +5,7 @@ Unit tests for app_defaults - Default application configurations
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.app_defaults import *
+import lib.app_defaults
 
 
 class TestAppDefaults:

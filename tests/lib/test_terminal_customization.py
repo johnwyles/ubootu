@@ -5,7 +5,7 @@ Unit tests for terminal_customization - Terminal customization utilities
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.terminal_customization import *
+import lib.terminal_customization
 
 
 class TestTerminalCustomization:

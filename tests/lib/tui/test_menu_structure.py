@@ -5,7 +5,7 @@ Unit tests for tui.menu_structure - Menu structure definitions
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.tui.menu_structure import *
+import lib.tui.menu_structure
 
 
 class TestMenuStructure:
