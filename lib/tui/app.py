@@ -5,8 +5,8 @@ Coordinates all modules to provide the terminal user interface
 
 import curses
 from typing import Dict, List, Set
-from .menu_structure import MenuItem, build_menu_structure
-from .colors import init_colors
+from lib.tui.menu_structure import MenuItem, build_menu_structure
+from lib.tui.colors import init_colors
 
 
 class UbootuTUI:
