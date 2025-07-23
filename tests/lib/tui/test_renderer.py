@@ -2,6 +2,8 @@
 Unit tests for tui/renderer.py - TUI rendering operations.
 """
 
+
+from __future__ import annotations
 import curses
 from unittest.mock import Mock, MagicMock, patch, call
 

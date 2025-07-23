@@ -2,6 +2,8 @@
 Unit tests for tui/dialogs.py - Dialog system for TUI interface
 """
 
+
+from __future__ import annotations
 import pytest
 from unittest.mock import Mock, MagicMock, patch, call
 import curses

@@ -2,6 +2,8 @@
 Unit tests for tui/models.py - TUI data models.
 """
 
+
+from __future__ import annotations
 import pytest
 from lib.tui.models import MenuItem
 

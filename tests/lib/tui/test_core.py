@@ -2,6 +2,8 @@
 Unit tests for core
 """
 
+
+from __future__ import annotations
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 import inspect

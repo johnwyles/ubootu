@@ -2,6 +2,8 @@
 Unit tests for tui/config.py - Configuration management for TUI interface
 """
 
+
+from __future__ import annotations
 import pytest
 from typing import Dict, Set
 from lib.tui.config import TUIConfigManager

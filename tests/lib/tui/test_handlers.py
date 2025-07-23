@@ -2,6 +2,8 @@
 Unit tests for tui/handlers.py - Event handling system.
 """
 
+
+from __future__ import annotations
 import curses
 import yaml
 from datetime import datetime

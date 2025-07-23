@@ -87,8 +87,8 @@ def mock_menu_registry():
 @pytest.fixture(autouse=True)
 def mock_terminal_check():
     """Auto-mock terminal checks for all tests"""
-    with patch('lib.terminal_check.check_terminal_size', return_value=True):
-        with patch('lib.terminal_check.is_terminal', return_value=True):
+    with patch('lib.terminal_check.can_run_tui', return_value=True):
+        with patch('lib.terminal_check.check_terminal_capabilities', return_value={'colors': True, 'unicode': True, 'size': (80, 24)}):
             yield
 
 
