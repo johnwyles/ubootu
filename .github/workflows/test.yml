@@ -8,23 +8,23 @@ on:
   workflow_dispatch:
 
 env:
-  PYTHON_VERSION: '3.11'
-  ANSIBLE_VERSION: '2.15'
+  PYTHON_VERSION: '3.12'
+  ANSIBLE_VERSION: '2.19'
 
 jobs:
   lint:
     name: Lint Code
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
       
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       
       - name: Cache pip packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4.2.3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
@@ -53,15 +53,15 @@ jobs:
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
       
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: ${{ matrix.python-version }}
       
       - name: Cache pip packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4.2.3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements*.txt') }}
@@ -84,7 +84,7 @@ jobs:
           pytest tests/ -vv --tb=long --cov --cov-report=xml --cov-report=term-missing
       
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5.4.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage.xml
@@ -99,10 +99,10 @@ jobs:
     needs: test
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
       
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       
@@ -137,10 +137,10 @@ jobs:
           - security
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
       
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       
@@ -161,10 +161,10 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
       
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.32.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -173,7 +173,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
       
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3.29.4
         with:
           sarif_file: 'trivy-results.sarif'
 
