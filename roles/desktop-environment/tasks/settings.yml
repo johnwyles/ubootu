@@ -1,0 +1,24 @@
+---
+- name: Configure GNOME settings
+  ansible.builtin.include_tasks: settings-gnome.yml
+  when: de_environment == 'gnome'
+
+- name: Configure KDE settings
+  ansible.builtin.include_tasks: settings-kde.yml
+  when: de_environment == 'kde'
+
+- name: Configure XFCE settings
+  ansible.builtin.include_tasks: settings-xfce.yml
+  when: de_environment == 'xfce'
+
+- name: Create fonts directory
+  ansible.builtin.file:
+    path: /usr/local/share/fonts
+    state: directory
+    mode: '0755'
+  become: yes
+
+- name: Update font cache
+  ansible.builtin.command: fc-cache -fv
+  become: yes
+  changed_when: false

@@ -1,0 +1,22 @@
+# greetd configuration for Hyprland
+
+[terminal]
+# The VT to run the greeter on
+vt = 1
+
+# The default session
+[default_session]
+{% if de_autologin %}
+# Auto-login configuration
+command = "{{ de_hyprland_terminal | default('kitty') }} --session {{ de_autologin_user }}"
+user = "{{ de_autologin_user }}"
+{% else %}
+# tuigreet greeter
+command = "tuigreet --cmd Hyprland --time --remember --asterisks"
+user = "greeter"
+{% endif %}
+
+# The user to run the command as
+[initial_session]
+command = "Hyprland"
+user = "{{ primary_user }}"

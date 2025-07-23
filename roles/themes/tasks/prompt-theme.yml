@@ -1,0 +1,46 @@
+---
+- name: Download Starship theme config
+  ansible.builtin.get_url:
+    url: "{{ themes_prompt_configs[themes_global_theme] }}/raw/main/starship.toml"
+    dest: "/home/{{ primary_user }}/.config/starship-{{ themes_global_theme }}.toml"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+  when:
+    - prompt_decorator == 'starship'
+    - themes_global_theme in themes_prompt_configs
+  failed_when: false
+
+- name: Create Starship config with theme
+  ansible.builtin.template:
+    src: starship.toml.j2
+    dest: "/home/{{ primary_user }}/.config/starship.toml"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+    backup: yes
+  become: yes
+  when: prompt_decorator == 'starship'
+
+- name: Configure Oh My Zsh theme
+  ansible.builtin.lineinfile:
+    path: "/home/{{ primary_user }}/.zshrc"
+    regexp: '^ZSH_THEME='
+    line: 'ZSH_THEME="{{ themes_global_theme }}"'
+  become: yes
+  become_user: "{{ primary_user }}"
+  when:
+    - primary_user_shell == '/usr/bin/zsh'
+    - zsh_framework is defined
+    - zsh_framework == 'oh-my-zsh'
+
+- name: Install Powerlevel10k theme variant
+  ansible.builtin.git:
+    repo: "https://github.com/romkatv/powerlevel10k"
+    dest: "/home/{{ primary_user }}/.oh-my-zsh/custom/themes/powerlevel10k"
+  become: yes
+  become_user: "{{ primary_user }}"
+  when:
+    - prompt_decorator == 'powerlevel10k'
+    - primary_user_shell == '/usr/bin/zsh'

@@ -1,0 +1,45 @@
+---
+# Media player theming
+
+- name: Configure VLC theme
+  block:
+    - name: Create VLC config directory
+      ansible.builtin.file:
+        path: "/home/{{ primary_user }}/.config/vlc"
+        state: directory
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0755'
+      become: yes
+
+    - name: Set VLC dark interface
+      ansible.builtin.lineinfile:
+        path: "/home/{{ primary_user }}/.config/vlc/vlcrc"
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        create: yes
+      become: yes
+      become_user: "{{ primary_user }}"
+      loop:
+        - { regexp: '^#?qt-interface-style=', line: 'qt-interface-style=2' }
+        - { regexp: '^#?qt-system-tray=', line: 'qt-system-tray=0' }
+  when: "'vlc' in multimedia_apps | default([])"
+
+- name: Configure Rhythmbox theme
+  community.general.dconf:
+    key: "/org/gnome/rhythmbox/plugins/artsearch/search-mode"
+    value: "'search'"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  when: desktop_environment == 'gnome'
+
+- name: Configure MPV player theme
+  ansible.builtin.template:
+    src: mpv.conf.j2
+    dest: "/home/{{ primary_user }}/.config/mpv/mpv.conf"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+  when: "'mpv' in multimedia_apps | default([])"

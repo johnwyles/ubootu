@@ -1,0 +1,84 @@
+---
+# Common role default variables
+
+# System packages to install
+common_base_packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+  - software-properties-common
+  - wget
+  - git
+  - vim
+  - nano
+  - htop
+  - net-tools
+  - build-essential
+  - python3-pip
+  - python3-venv
+  - unzip
+  - zip
+  - tree
+  - jq
+  - ncdu
+  - dnsutils
+  - traceroute
+  - mtr-tiny
+  - openssh-client
+  - rsync
+  - tmux
+  - screen
+
+# System configuration
+common_enable_contrib: false  # contrib doesn't exist in Ubuntu (Debian-specific)
+common_enable_non_free: true
+common_enable_backports: false
+common_enable_proposed: false
+
+# APT management
+fix_apt_issues: true  # Clean up APT issues on first run
+use_third_party_repos: false  # Don't add third-party repos by default
+ubuntu_mirror: "archive.ubuntu.com"  # Can be changed to local mirror
+
+# Repository management
+repositories_to_enable: []  # Empty by default, populated from user config
+
+# Timezone and locale
+common_timezone: "{{ system_timezone }}"
+common_locale: "{{ system_locale }}"
+common_keyboard_layout: "us"
+
+# Hostname
+common_set_hostname: true
+common_hostname: "{{ system_hostname }}"
+
+# User configuration
+common_configure_user: true
+common_user: "{{ primary_user }}"
+common_user_shell: "{{ primary_user_shell }}"
+common_user_groups: "{{ create_user_groups | default([]) }}"
+
+# System performance
+common_configure_swappiness: true
+common_swappiness: "{{ swappiness_value | default(10) }}"
+
+# System limits
+common_configure_limits: true
+common_limits:
+  - domain: "*"
+    limit_type: soft
+    limit_item: nofile
+    value: 65536
+  - domain: "*"
+    limit_type: hard
+    limit_item: nofile
+    value: 65536
+
+# Sysctl settings
+common_sysctl_settings:
+  - name: vm.swappiness
+    value: "{{ common_swappiness }}"
+  - name: fs.inotify.max_user_watches
+    value: 524288

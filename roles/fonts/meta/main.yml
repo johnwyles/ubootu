@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  author: Ubootu Project
+  description: Font installation and configuration role for Ubuntu
+  company: Ubootu
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal     # 20.04
+        - jammy     # 22.04
+        - noble     # 24.04
+  galaxy_tags:
+    - fonts
+    - nerdfonts
+    - typography
+    - desktop
+    - development
+
+dependencies: []

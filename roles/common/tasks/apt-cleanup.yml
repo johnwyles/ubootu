@@ -1,0 +1,136 @@
+---
+# APT repository cleanup tasks
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  become: yes
+  tags:
+    - apt
+    - apt-cleanup
+
+- name: Clean up duplicate repository entries
+  block:
+    - name: Find all .list files in sources.list.d
+      find:
+        paths: /etc/apt/sources.list.d
+        patterns: "*.list"
+      register: apt_list_files
+      become: yes
+      
+    - name: Backup sources.list.d before cleanup
+      archive:
+        path: /etc/apt/sources.list.d
+        dest: /tmp/sources.list.d.backup.{{ ansible_date_time.epoch }}.tar.gz
+        format: gz
+      become: yes
+      when: apt_list_files.files | length > 0
+      
+    - name: Remove duplicate repository entries
+      shell: |
+        #!/bin/bash
+        set -euo pipefail
+        
+        # Function to normalize repository entries for comparison
+        normalize_repo() {
+            echo "$1" | sed -e 's/\s\+/ /g' -e 's/\/$//' -e 's/ $//'
+        }
+        
+        # Track seen repositories
+        declare -A seen_repos
+        
+        # Process main sources.list
+        if [ -f /etc/apt/sources.list ]; then
+            temp_file=$(mktemp)
+            while IFS= read -r line; do
+                if [[ ! "$line" =~ ^[[:space:]]*# ]] && [[ -n "$line" ]]; then
+                    normalized=$(normalize_repo "$line")
+                    if [[ -z "${seen_repos[$normalized]:-}" ]]; then
+                        seen_repos[$normalized]=1
+                        echo "$line" >> "$temp_file"
+                    fi
+                else
+                    echo "$line" >> "$temp_file"
+                fi
+            done < /etc/apt/sources.list
+            mv "$temp_file" /etc/apt/sources.list
+        fi
+        
+        # Process .list files in sources.list.d
+        for list_file in /etc/apt/sources.list.d/*.list; do
+            if [ -f "$list_file" ]; then
+                temp_file=$(mktemp)
+                while IFS= read -r line; do
+                    if [[ ! "$line" =~ ^[[:space:]]*# ]] && [[ -n "$line" ]]; then
+                        normalized=$(normalize_repo "$line")
+                        if [[ -z "${seen_repos[$normalized]:-}" ]]; then
+                            seen_repos[$normalized]=1
+                            echo "$line" >> "$temp_file"
+                        fi
+                    else
+                        echo "$line" >> "$temp_file"
+                    fi
+                done < "$list_file"
+                
+                # Only update file if it changed
+                if ! cmp -s "$list_file" "$temp_file"; then
+                    mv "$temp_file" "$list_file"
+                else
+                    rm "$temp_file"
+                fi
+            fi
+        done
+      args:
+        executable: /bin/bash
+      become: yes
+      register: cleanup_result
+      changed_when: cleanup_result.rc == 0
+      tags:
+        - apt-cleanup
+        
+    - name: Fix broken packages
+      apt:
+        state: fixed
+      become: yes
+      ignore_errors: yes
+      tags:
+        - apt-cleanup
+        
+    - name: Remove orphaned packages
+      apt:
+        autoremove: yes
+        autoclean: yes
+      become: yes
+      tags:
+        - apt-cleanup
+        
+    - name: Update apt cache after cleanup
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+      become: yes
+      tags:
+        - apt-cleanup
+  when: not skip_apt_cleanup | default(false)
+  tags:
+    - apt
+    - apt-cleanup
+
+- name: Check for and fix dpkg issues
+  block:
+    - name: Configure any pending packages
+      command: dpkg --configure -a
+      become: yes
+      register: dpkg_configure
+      changed_when: dpkg_configure.rc == 0
+      failed_when: dpkg_configure.rc > 1
+      
+    - name: Fix interrupted dpkg
+      command: apt-get install -f -y
+      become: yes
+      when: dpkg_configure.rc != 0
+  tags:
+    - apt
+    - apt-cleanup
+    - dpkg-fix

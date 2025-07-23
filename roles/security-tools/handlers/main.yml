@@ -1,0 +1,49 @@
+---
+# Handlers for security-tools role
+
+- name: restart auditd
+  ansible.builtin.systemd:
+    name: auditd
+    state: restarted
+  become: yes
+
+- name: restart ossec
+  ansible.builtin.systemd:
+    name: ossec-hids
+    state: restarted
+  become: yes
+
+- name: restart wazuh-agent
+  ansible.builtin.systemd:
+    name: wazuh-agent
+    state: restarted
+  become: yes
+
+- name: restart tor
+  ansible.builtin.systemd:
+    name: tor
+    state: restarted
+  become: yes
+
+- name: restart suricata
+  ansible.builtin.systemd:
+    name: suricata
+    state: restarted
+  become: yes
+
+- name: restart snort
+  ansible.builtin.systemd:
+    name: snort
+    state: restarted
+  become: yes
+
+- name: restart kismet
+  ansible.builtin.systemd:
+    name: kismet
+    state: restarted
+  become: yes
+
+- name: update gvm
+  ansible.builtin.shell: gvm-feed-update
+  become: yes
+  changed_when: true

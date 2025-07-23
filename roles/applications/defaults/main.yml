@@ -1,0 +1,98 @@
+---
+# Default variables for applications role
+
+# Web browsers
+web_browsers: []  # Options: firefox, google-chrome, chromium, brave, vivaldi, edge
+
+# Default browser to set
+default_browser: firefox
+
+# Communication applications
+communication_apps: []  # Options: slack, discord, teams, zoom, signal, telegram
+
+# Productivity applications
+install_libreoffice: true
+productivity_apps: []  # Options: obsidian, notion, thunderbird, evolution, joplin
+
+# Multimedia applications
+multimedia_apps:
+  - vlc
+  - gimp
+
+# Cloud storage clients
+cloud_storage: []  # Options: dropbox, insync, onedrive, nextcloud
+
+# Privacy and security applications
+privacy_security_apps: []  # Options: tor-browser, element, wire, jami, session, veracrypt, cryptomator, onionshare, mat2, wireshark, gufw, opensnitch, bleachbit, stacer, protonvpn
+
+# Essential utilities to install
+essential_utilities:
+  - curl
+  - wget
+  - htop
+  - neofetch
+  - tree
+  - ncdu
+  - unzip
+  - p7zip-full
+  - p7zip-rar
+  - rar
+  - unrar
+  - build-essential
+  - software-properties-common
+  - apt-transport-https
+  - ca-certificates
+  - gnupg
+  - lsb-release
+
+# System utilities
+system_utilities:
+  - gparted
+  - gnome-disk-utility
+  - timeshift
+  - deja-dup
+  - bleachbit
+  - synaptic
+  - gnome-tweaks
+  - dconf-editor
+
+# Archive managers
+archive_managers:
+  - file-roller
+  - ark
+
+# PDF tools
+pdf_tools:
+  - okular
+  - evince
+  - pdftk
+  - qpdf
+
+# Screenshot tools
+screenshot_tools:
+  - flameshot
+  - gnome-screenshot
+
+# Clipboard managers
+clipboard_managers:
+  - copyq
+  - parcellite
+
+# Wayland-specific tools
+wayland_tools:
+  - wl-clipboard        # Wayland clipboard utilities
+  - wf-recorder         # Screen recorder for wlroots-based compositors
+  - wdisplays          # GUI display configurator for Wayland
+  - kanshi             # Dynamic display configuration
+  - gammastep          # Adjust color temperature (Wayland redshift)
+  - swayimg            # Image viewer for Wayland
+  - wev                # Wayland event viewer (like xev)
+  - waypipe            # Network transparency for Wayland
+  - wtype              # xdotool for Wayland
+  - wlsunset           # Day/night gamma adjustments
+  - clipman            # Clipboard manager for Wayland
+  - wlogout            # Logout menu for Wayland
+  - nwg-launchers      # GTK-based launchers for Wayland
+  - azote              # Wallpaper manager for Wayland
+  - wlr-randr          # xrandr for Wayland
+  - swappy             # Wayland screenshot annotation tool

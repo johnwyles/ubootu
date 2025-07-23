@@ -1,0 +1,50 @@
+---
+# VS Code customizations
+
+- name: Create VS Code config directory
+  ansible.builtin.file:
+    path: "/home/{{ primary_user }}/.config/Code/User"
+    state: directory
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0755'
+  become: yes
+
+- name: Configure VS Code settings
+  ansible.builtin.template:
+    src: vscode-settings.json.j2
+    dest: "/home/{{ primary_user }}/.config/Code/User/settings.json"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+
+- name: Install VS Code extensions
+  ansible.builtin.command:
+    cmd: code --install-extension {{ item }}
+  loop: "{{ vscode_extensions }}"
+  become: yes
+  become_user: "{{ primary_user }}"
+  changed_when: true
+  when: vscode_extensions is defined
+
+- name: Configure VS Code keybindings
+  ansible.builtin.template:
+    src: vscode-keybindings.json.j2
+    dest: "/home/{{ primary_user }}/.config/Code/User/keybindings.json"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+  when: vscode_keybindings is defined
+
+- name: Configure VS Code snippets
+  ansible.builtin.template:
+    src: "vscode-{{ item }}.json.j2"
+    dest: "/home/{{ primary_user }}/.config/Code/User/snippets/{{ item }}.json"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+  loop: "{{ vscode_snippet_languages }}"
+  when: vscode_snippet_languages is defined

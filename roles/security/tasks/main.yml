@@ -1,0 +1,47 @@
+---
+# Main tasks file for security role
+
+- name: Configure firewall
+  ansible.builtin.include_tasks: firewall.yml
+  when: enable_firewall | default(true)
+  tags: ['firewall']
+
+- name: Configure SSH hardening
+  ansible.builtin.include_tasks: ssh.yml
+  when: ssh_permit_root_login is defined or ssh_password_authentication is defined
+  tags: ['ssh']
+
+- name: Install and configure Fail2ban
+  ansible.builtin.include_tasks: fail2ban.yml
+  when: enable_fail2ban | default(true)
+  tags: ['fail2ban']
+
+- name: Install password managers
+  ansible.builtin.include_tasks: password-managers.yml
+  when: password_managers | length > 0
+  tags: ['password-managers']
+
+- name: Install antivirus
+  ansible.builtin.include_tasks: antivirus.yml
+  when: install_clamav | default(false)
+  tags: ['antivirus']
+
+- name: Configure automatic updates
+  ansible.builtin.include_tasks: auto-updates.yml
+  when: enable_automatic_updates | default(true)
+  tags: ['updates']
+
+- name: System hardening
+  ansible.builtin.include_tasks: hardening.yml
+  when: enable_security | default(true)
+  tags: ['hardening']
+
+- name: Generate SSH keys
+  ansible.builtin.include_tasks: ssh-keys.yml
+  when: generate_ssh_keys | default(false)
+  tags: ['ssh-keys']
+
+- name: Super tight security hardening
+  ansible.builtin.include_tasks: super-hardening.yml
+  when: enable_super_hardening | default(false)
+  tags: ['super-hardening']

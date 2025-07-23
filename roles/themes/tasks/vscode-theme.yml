@@ -1,0 +1,44 @@
+---
+- name: Create VS Code config directory
+  ansible.builtin.file:
+    path: "/home/{{ primary_user }}/.config/Code/User"
+    state: directory
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0755'
+    recurse: yes
+  become: yes
+
+- name: Install VS Code theme extension
+  ansible.builtin.command: code --install-extension {{ themes_sources[themes_global_theme].vscode }}
+  become: yes
+  become_user: "{{ primary_user }}"
+  environment:
+    DISPLAY: ":0"
+  when:
+    - themes_global_theme in themes_sources
+    - themes_sources[themes_global_theme].vscode is defined
+  failed_when: false
+  changed_when: true
+
+- name: Configure VS Code theme settings
+  ansible.builtin.template:
+    src: vscode-settings.json.j2
+    dest: "/home/{{ primary_user }}/.config/Code/User/settings.json"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+    backup: yes
+  become: yes
+
+- name: Set VS Code to dark theme if no global theme
+  ansible.builtin.lineinfile:
+    path: "/home/{{ primary_user }}/.config/Code/User/settings.json"
+    regexp: '"workbench.colorTheme":'
+    line: '    "workbench.colorTheme": "Default Dark+",'
+    create: yes
+  become: yes
+  become_user: "{{ primary_user }}"
+  when:
+    - themes_global_theme == 'none'
+    - themes_mode == 'dark'

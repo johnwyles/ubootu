@@ -1,0 +1,114 @@
+---
+# Install Kubernetes and container tools
+
+- name: Install k9s
+  block:
+    - name: Get latest k9s release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/derailed/k9s/releases/latest
+      register: k9s_release
+
+    - name: Download k9s
+      ansible.builtin.get_url:
+        url: "{{ k9s_release.json.assets | selectattr('name', 'match', 'k9s_Linux_amd64\\.tar\\.gz$') | map(attribute='browser_download_url') | first }}"
+        dest: /tmp/k9s.tar.gz
+        mode: '0644'
+      become: yes
+
+    - name: Extract k9s
+      ansible.builtin.unarchive:
+        src: /tmp/k9s.tar.gz
+        dest: /usr/local/bin/
+        creates: /usr/local/bin/k9s
+        remote_src: yes
+      become: yes
+  when: "'k9s' in devtools_k8s_tools"
+
+- name: Install Lens
+  block:
+    - name: Get latest Lens release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/lensapp/lens/releases/latest
+      register: lens_release
+
+    - name: Download Lens AppImage
+      ansible.builtin.get_url:
+        url: "{{ lens_release.json.assets | selectattr('name', 'match', 'Lens.*\\.AppImage$') | map(attribute='browser_download_url') | first }}"
+        dest: "/home/{{ primary_user }}/.local/bin/lens.AppImage"
+        mode: '0755'
+      become: yes
+      become_user: "{{ primary_user }}"
+
+    - name: Create Lens desktop entry
+      ansible.builtin.template:
+        src: lens.desktop.j2
+        dest: "/home/{{ primary_user }}/.local/share/applications/lens.desktop"
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0644'
+      become: yes
+  when: "'lens' in devtools_k8s_tools"
+
+- name: Install lazydocker
+  block:
+    - name: Get latest lazydocker release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/jesseduffield/lazydocker/releases/latest
+      register: lazydocker_release
+
+    - name: Download lazydocker
+      ansible.builtin.get_url:
+        url: "{{ lazydocker_release.json.assets | selectattr('name', 'match', 'lazydocker.*Linux_x86_64\\.tar\\.gz$') | map(attribute='browser_download_url') | first }}"
+        dest: /tmp/lazydocker.tar.gz
+        mode: '0644'
+      become: yes
+
+    - name: Extract lazydocker
+      ansible.builtin.unarchive:
+        src: /tmp/lazydocker.tar.gz
+        dest: /usr/local/bin/
+        creates: /usr/local/bin/lazydocker
+        remote_src: yes
+      become: yes
+  when: "'lazydocker' in devtools_k8s_tools"
+
+- name: Install kubectl (if not already installed)
+  ansible.builtin.apt:
+    name: kubectl
+    state: present
+  become: yes
+  when: install_kubernetes_tools | default(false)
+
+- name: Install helm (if not already installed)
+  snap:
+    name: helm
+    classic: yes
+    state: present
+  become: yes
+  when:
+    - install_kubernetes_tools | default(false)
+    - enable_snap | default(true)
+
+- name: Install k3d (k3s in docker)
+  ansible.builtin.shell: |
+    curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+  become: yes
+  args:
+    creates: /usr/local/bin/k3d
+  when: "'k3d' in devtools_k8s_tools"
+  changed_when: true
+
+- name: Install kind (Kubernetes in Docker)
+  block:
+    - name: Get latest kind release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/kubernetes-sigs/kind/releases/latest
+      register: kind_release
+
+    - name: Download kind
+      ansible.builtin.get_url:
+        url: "{{ kind_release.json.assets | selectattr('name', 'match', 'kind-linux-amd64$') | map(attribute='browser_download_url') | first }}"
+        dest: /usr/local/bin/kind
+        mode: '0755'
+      become: yes
+  when: "'kind' in devtools_k8s_tools"

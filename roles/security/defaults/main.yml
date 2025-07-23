@@ -1,0 +1,256 @@
+---
+# Default variables for security role
+
+# General security settings
+enable_security: true
+
+# Firewall settings
+enable_firewall: true
+firewall_allowed_ports:
+  - 22/tcp    # SSH
+  - 80/tcp    # HTTP
+  - 443/tcp   # HTTPS
+
+# SSH hardening
+ssh_permit_root_login: false
+ssh_password_authentication: false
+ssh_port: 22
+ssh_allowed_users: []  # Empty means all users allowed
+ssh_client_alive_interval: 300
+ssh_client_alive_count_max: 2
+ssh_max_auth_tries: 3
+ssh_max_sessions: 2
+
+# Fail2ban settings
+enable_fail2ban: true
+fail2ban_bantime: 3600  # 1 hour
+fail2ban_findtime: 600  # 10 minutes
+fail2ban_maxretry: 3
+
+# Password managers
+password_managers: []  # Options: keepassxc, bitwarden, 1password, enpass, pass
+
+# Antivirus
+install_clamav: false
+clamav_enable_daemon: true
+clamav_scan_schedule: "daily"  # Options: daily, weekly, monthly
+
+# Automatic updates
+enable_automatic_updates: true
+automatic_updates_reboot: false
+automatic_updates_reboot_time: "02:00"
+
+# SSH key generation
+generate_ssh_keys: false
+ssh_key_type: "ed25519"  # Options: rsa, ed25519, ecdsa
+ssh_key_bits: 4096  # For RSA keys
+ssh_key_comment: "{{ ansible_hostname }}@{{ ansible_date_time.date }}"
+
+# System hardening
+enable_kernel_hardening: true
+enable_network_hardening: true
+disable_unused_filesystems: true
+enable_apparmor: true
+
+# Audit settings
+enable_auditd: true
+audit_rules:
+  - "-w /etc/passwd -p wa -k passwd_changes"
+  - "-w /etc/shadow -p wa -k shadow_changes"
+  - "-w /etc/sudoers -p wa -k sudoers_changes"
+
+# Security limits
+limits_hard_nproc: 1000
+limits_soft_nproc: 1000
+limits_hard_nofile: 4096
+limits_soft_nofile: 4096
+
+# AIDE (Advanced Intrusion Detection Environment)
+install_aide: false
+aide_check_schedule: "daily"
+
+# rkhunter (Rootkit Hunter)
+install_rkhunter: false
+rkhunter_check_schedule: "weekly"
+
+# Super tight hardening settings
+enable_super_hardening: false
+
+# Kernel hardening options
+super_hardening_kernel:
+  kptr_restrict: 2
+  dmesg_restrict: 1
+  unprivileged_bpf_disabled: 1
+  unprivileged_userns_clone: 0
+  yama_ptrace_scope: 3
+  kernel_modules_disabled: 0  # Set to 1 to disable module loading permanently
+  sysrq: 0
+  core_uses_pid: 1
+  randomize_va_space: 2
+  perf_event_paranoid: 3
+  kexec_load_disabled: 1
+  user_max_namespaces: 0
+  unprivileged_userfaultfd: 0
+
+# Network hardening options
+super_hardening_network:
+  disable_ipv6: false
+  icmp_echo_ignore_all: 1
+  icmp_echo_ignore_broadcasts: 1
+  accept_source_route: 0
+  accept_redirects: 0
+  send_redirects: 0
+  tcp_syncookies: 1
+  tcp_timestamps: 0
+  tcp_rfc1337: 1
+  rp_filter: 2
+  log_martians: 1
+  ignore_icmp_redirects: 1
+  secure_redirects: 0
+
+# GRUB hardening
+enable_grub_password: true
+vault_grub_password: "changeme123"
+grub_username: "grub"
+
+# USB device control
+enable_usbguard: true
+usbguard_allow_existing: true
+usbguard_block_unknown: true
+
+# Process accounting
+enable_process_accounting: true
+
+# PAM hardening
+pam_password_minlen: 14
+pam_password_dcredit: -1
+pam_password_ucredit: -1
+pam_password_ocredit: -1
+pam_password_lcredit: -1
+pam_password_difok: 7
+pam_password_maxrepeat: 3
+pam_password_maxclassrepeat: 4
+pam_password_gecoscheck: 1
+pam_password_dictcheck: 1
+pam_password_usercheck: 1
+pam_password_enforcing: 1
+pam_faillock_deny: 5
+pam_faillock_unlock_time: 900
+pam_faillock_even_deny_root: true
+pam_faillock_root_unlock_time: 900
+
+# Mount options
+secure_mount_options:
+  tmp:
+    options: "defaults,nodev,nosuid,noexec"
+  var_tmp:
+    options: "defaults,nodev,nosuid,noexec"
+  dev_shm:
+    options: "defaults,nodev,nosuid,noexec"
+
+# Audit rules
+super_hardening_audit_rules:
+  - "-w /etc/passwd -p wa -k passwd_changes"
+  - "-w /etc/shadow -p wa -k shadow_changes"
+  - "-w /etc/group -p wa -k group_changes"
+  - "-w /etc/gshadow -p wa -k gshadow_changes"
+  - "-w /etc/sudoers -p wa -k sudoers_changes"
+  - "-w /etc/sudoers.d/ -p wa -k sudoers_changes"
+  - "-w /var/log/lastlog -p wa -k logins"
+  - "-w /var/run/faillock/ -p wa -k logins"
+  - "-w /var/log/tallylog -p wa -k logins"
+  - "-w /etc/ssh/sshd_config -p wa -k sshd_config"
+  - "-w /etc/hostname -p wa -k hostname"
+  - "-w /etc/hosts -p wa -k hosts"
+  - "-w /etc/network -p wa -k network"
+  - "-w /etc/sysctl.conf -p wa -k sysctl"
+  - "-w /etc/sysctl.d/ -p wa -k sysctl"
+  - "-a always,exit -F arch=b64 -S adjtimex -S settimeofday -k time-change"
+  - "-a always,exit -F arch=b32 -S adjtimex -S settimeofday -k time-change"
+  - "-a always,exit -F arch=b64 -S clock_settime -k time-change"
+  - "-a always,exit -F arch=b32 -S clock_settime -k time-change"
+  - "-w /usr/bin/ -p wa -k binaries"
+  - "-w /usr/sbin/ -p wa -k binaries"
+  - "-w /usr/local/bin/ -p wa -k binaries"
+  - "-w /usr/local/sbin/ -p wa -k binaries"
+
+# CPU vulnerability mitigations
+cpu_mitigations: "auto,nosmt"
+
+# Secure DNS
+secure_dns_servers:
+  - "9.9.9.9"           # Quad9
+  - "149.112.112.112"   # Quad9 secondary
+  - "1.1.1.2"           # Cloudflare malware blocking
+  - "1.0.0.2"           # Cloudflare malware blocking secondary
+
+# Unnecessary packages to remove
+packages_to_remove:
+  - telnet
+  - rsh-client
+  - rsh-redone-client
+  - talk
+  - talkd
+  - nis
+  - ntpdate
+  - xserver-xorg
+  - avahi-daemon
+  - cups
+  - isc-dhcp-server
+  - bind9
+  - vsftpd
+  - apache2
+  - dovecot-core
+  - samba
+  - squid
+  - snmpd
+
+# Additional super hardening options
+enable_secure_time: true
+enable_super_aide: true
+enable_file_integrity_monitoring: true
+enable_ossec: false  # Resource intensive, disabled by default
+enable_secure_boot: true
+enable_pax_flags: false  # May break some applications
+enable_advanced_firewall: true
+install_security_tools: true
+run_final_audit: true
+
+# Memory security options
+secure_memory_overcommit: true
+memory_panic_on_oom: false
+
+# Additional audit rules for super hardening
+super_hardening_additional_audit_rules:
+  - "-a always,exit -F arch=b64 -S execve -C uid!=euid -F key=setuid"
+  - "-a always,exit -F arch=b32 -S execve -C uid!=euid -F key=setuid"
+  - "-a always,exit -F arch=b64 -S execve -C gid!=egid -F key=setgid"
+  - "-a always,exit -F arch=b32 -S execve -C gid!=egid -F key=setgid"
+  - "-w /etc/selinux/ -p wa -k MAC-policy"
+  - "-w /usr/share/selinux/ -p wa -k MAC-policy"
+  - "-w /etc/apparmor/ -p wa -k MAC-policy"
+  - "-w /etc/apparmor.d/ -p wa -k MAC-policy"
+  - "-a always,exit -F arch=b64 -S open -F dir=/etc -F success=0 -k unauthedfileaccess"
+  - "-a always,exit -F arch=b64 -S open -F dir=/bin -F success=0 -k unauthedfileaccess"
+  - "-a always,exit -F arch=b64 -S open -F dir=/sbin -F success=0 -k unauthedfileaccess"
+  - "-a always,exit -F arch=b64 -S open -F dir=/usr/bin -F success=0 -k unauthedfileaccess"
+  - "-a always,exit -F arch=b64 -S open -F dir=/usr/sbin -F success=0 -k unauthedfileaccess"
+  - "-a always,exit -F arch=b64 -S open -F dir=/var -F success=0 -k unauthedfileaccess"
+  - "-a always,exit -F arch=b64 -S open -F dir=/home -F success=0 -k unauthedfileaccess"
+  - "-a always,exit -F arch=b64 -S open -F dir=/srv -F success=0 -k unauthedfileaccess"
+  - "-a always,exit -F arch=b64 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete"
+  - "-a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete"
+  - "-a always,exit -F arch=b64 -S init_module -S delete_module -k modules"
+  - "-a always,exit -F arch=b32 -S init_module -S delete_module -k modules"
+  - "-a always,exit -F arch=b64 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts"
+  - "-a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts"
+  - "-e 2"  # Make audit configuration immutable
+
+# Lynis hardening index target
+lynis_hardening_target: 85  # Target hardening index score
+
+# Security compliance frameworks
+enable_cis_compliance: true
+enable_stig_compliance: false
+enable_pci_dss_compliance: false
+enable_hipaa_compliance: false

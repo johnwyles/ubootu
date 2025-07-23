@@ -1,0 +1,101 @@
+---
+# Default variables for dotfiles role
+
+# Dotfiles repository (if you have one)
+dotfiles_repo: ""
+dotfiles_repo_dest: "{{ ansible_env.HOME }}/.dotfiles"
+
+# Which dotfiles to manage
+managed_dotfiles:
+  - shell
+  - git
+
+# Use a dotfiles manager (stow, chezmoi, etc.)
+dotfiles_use_manager: false
+dotfiles_manager: "stow"  # Options: stow, chezmoi, yadm
+
+# Shell configuration
+shell_create_aliases: true
+shell_custom_aliases:
+  - { alias: 'll', command: 'ls -alF' }
+  - { alias: 'la', command: 'ls -A' }
+  - { alias: 'l', command: 'ls -CF' }
+  - { alias: '..', command: 'cd ..' }
+  - { alias: '...', command: 'cd ../..' }
+  - { alias: 'gs', command: 'git status' }
+  - { alias: 'gp', command: 'git pull' }
+  - { alias: 'gc', command: 'git commit' }
+  - { alias: 'gco', command: 'git checkout' }
+  - { alias: 'gb', command: 'git branch' }
+  - { alias: 'docker-clean', command: 'docker system prune -af' }
+
+# Git configuration
+git_user_name: ""
+git_user_email: ""
+git_default_branch: "main"
+git_aliases:
+  - { alias: 'co', command: 'checkout' }
+  - { alias: 'br', command: 'branch' }
+  - { alias: 'ci', command: 'commit' }
+  - { alias: 'st', command: 'status' }
+  - { alias: 'unstage', command: 'reset HEAD --' }
+  - { alias: 'last', command: 'log -1 HEAD' }
+  - { alias: 'lg', command: 'log --oneline --graph --decorate' }
+
+# Vim configuration
+vim_plugin_manager: "vim-plug"  # Options: vim-plug, vundle, pathogen
+vim_colorscheme: "{{ 'dracula' if global_theme == 'dracula' else 'default' }}"
+vim_enable_plugins: true
+vim_plugins:
+  - 'tpope/vim-sensible'
+  - 'tpope/vim-fugitive'
+  - 'vim-airline/vim-airline'
+  - 'preservim/nerdtree'
+  - 'airblade/vim-gitgutter'
+  - 'dense-analysis/ale'
+  - 'junegunn/fzf.vim'
+
+# Tmux configuration
+tmux_prefix_key: "C-a"  # Default: C-b
+tmux_enable_mouse: true
+tmux_status_position: "bottom"
+tmux_plugins:
+  - 'tmux-plugins/tpm'
+  - 'tmux-plugins/tmux-sensible'
+  - 'tmux-plugins/tmux-resurrect'
+  - 'tmux-plugins/tmux-continuum'
+  - 'tmux-plugins/tmux-yank'
+
+# SSH configuration
+ssh_config_entries:
+  - host: "github.com"
+    options:
+      - "HostName github.com"
+      - "User git"
+      - "IdentityFile ~/.ssh/id_ed25519"
+      - "AddKeysToAgent yes"
+  - host: "gitlab.com"
+    options:
+      - "HostName gitlab.com"
+      - "User git"
+      - "IdentityFile ~/.ssh/id_ed25519"
+      - "AddKeysToAgent yes"
+
+# VS Code settings
+vscode_settings:
+  "editor.fontSize": 14
+  "editor.fontFamily": "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace"
+  "editor.fontLigatures": true
+  "editor.rulers": [80, 120]
+  "editor.minimap.enabled": false
+  "editor.renderWhitespace": "trailing"
+  "files.trimTrailingWhitespace": true
+  "files.insertFinalNewline": true
+  "terminal.integrated.fontSize": 13
+  "workbench.colorTheme": "{{ 'Dracula' if global_theme == 'dracula' else 'Default Dark+' }}"
+
+# Environment variables
+custom_env_vars:
+  - { name: 'EDITOR', value: 'vim' }
+  - { name: 'VISUAL', value: 'vim' }
+  - { name: 'PAGER', value: 'less' }

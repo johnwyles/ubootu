@@ -1,0 +1,44 @@
+---
+# Main tasks for fonts role
+
+- name: Include OS-specific variables
+  include_vars: "{{ ansible_distribution }}.yml"
+  failed_when: false
+  tags:
+    - fonts
+    - fonts-install
+
+- name: Install system font packages
+  include_tasks: system-fonts.yml
+  when: fonts_install_system_extras
+  tags:
+    - fonts
+    - fonts-system
+
+- name: Install Nerd Fonts
+  include_tasks: nerd-fonts.yml
+  when: fonts_install_nerd_fonts
+  tags:
+    - fonts
+    - fonts-nerd
+
+- name: Install Powerline fonts
+  include_tasks: powerline-fonts.yml
+  when: fonts_install_powerline
+  tags:
+    - fonts
+    - fonts-powerline
+
+- name: Configure fontconfig
+  include_tasks: fontconfig.yml
+  when: fonts_configure_fontconfig
+  tags:
+    - fonts
+    - fonts-config
+
+- name: Update font cache
+  include_tasks: update-cache.yml
+  when: fonts_update_cache
+  tags:
+    - fonts
+    - fonts-cache

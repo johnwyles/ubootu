@@ -1,0 +1,9 @@
+{
+    "workbench.colorTheme": "{% if themes_global_theme == 'dracula' %}Dracula{% elif themes_global_theme == 'catppuccin' %}Catppuccin Mocha{% elif themes_global_theme == 'tokyo-night' %}Tokyo Night{% elif themes_mode == 'dark' %}Default Dark+{% else %}Default Light+{% endif %}",
+    "window.autoDetectColorScheme": {% if theme_mode == 'auto' %}true{% else %}false{% endif %},
+    "workbench.preferredDarkColorTheme": "{% if themes_global_theme == 'dracula' %}Dracula{% elif themes_global_theme == 'catppuccin' %}Catppuccin Mocha{% elif themes_global_theme == 'tokyo-night' %}Tokyo Night{% else %}Default Dark+{% endif %}",
+    "workbench.preferredLightColorTheme": "Default Light+",
+    "terminal.integrated.fontFamily": "{% if 'firacode' in programming_fonts | default([]) %}Fira Code{% elif 'jetbrains-mono' in programming_fonts | default([]) %}JetBrains Mono{% elif 'cascadia-code' in programming_fonts | default([]) %}Cascadia Code{% else %}monospace{% endif %}",
+    "editor.fontFamily": "{% if 'firacode' in programming_fonts | default([]) %}Fira Code{% elif 'jetbrains-mono' in programming_fonts | default([]) %}JetBrains Mono{% elif 'cascadia-code' in programming_fonts | default([]) %}Cascadia Code{% else %}monospace{% endif %}",
+    "editor.fontLigatures": true
+}

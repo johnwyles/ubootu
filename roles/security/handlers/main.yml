@@ -1,0 +1,110 @@
+---
+# Handlers for security role
+
+- name: restart ssh
+  ansible.builtin.systemd:
+    name: ssh
+    state: restarted
+  become: yes
+
+- name: reload ufw
+  ufw:
+    state: reloaded
+  become: yes
+
+- name: restart fail2ban
+  ansible.builtin.systemd:
+    name: fail2ban
+    state: restarted
+  become: yes
+
+- name: restart clamav-daemon
+  ansible.builtin.systemd:
+    name: clamav-daemon
+    state: restarted
+  become: yes
+
+- name: restart apparmor
+  ansible.builtin.systemd:
+    name: apparmor
+    state: restarted
+  become: yes
+
+- name: reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: yes
+  become: yes
+
+- name: restart auditd
+  ansible.builtin.systemd:
+    name: auditd
+    state: restarted
+  become: yes
+
+- name: restart systemd-resolved
+  ansible.builtin.systemd:
+    name: systemd-resolved
+    state: restarted
+  become: yes
+
+- name: update grub
+  ansible.builtin.command: update-grub
+  become: yes
+  changed_when: true
+
+- name: restart usbguard
+  ansible.builtin.systemd:
+    name: usbguard
+    state: restarted
+  become: yes
+
+- name: restart acct
+  ansible.builtin.systemd:
+    name: acct
+    state: restarted
+  become: yes
+
+- name: reload sysctl
+  ansible.builtin.command: sysctl --system
+  become: yes
+  changed_when: true
+
+- name: remount tmp
+  ansible.builtin.command: mount -o remount /tmp
+  become: yes
+  changed_when: true
+
+- name: remount var_tmp
+  ansible.builtin.command: mount -o remount /var/tmp
+  become: yes
+  changed_when: true
+
+- name: remount dev_shm
+  ansible.builtin.command: mount -o remount /dev/shm
+  become: yes
+  changed_when: true
+
+- name: reload pam
+  ansible.builtin.command: pam-auth-update --force
+  become: yes
+  changed_when: true
+
+- name: restart chrony
+  ansible.builtin.systemd:
+    name: chrony
+    state: restarted
+  become: yes
+  failed_when: false
+
+- name: restart rsyslog
+  ansible.builtin.systemd:
+    name: rsyslog
+    state: restarted
+  become: yes
+
+- name: restart netfilter-persistent
+  ansible.builtin.systemd:
+    name: netfilter-persistent
+    state: restarted
+  become: yes
+  failed_when: false

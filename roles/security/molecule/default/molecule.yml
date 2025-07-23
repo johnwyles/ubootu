@@ -1,0 +1,42 @@
+---
+dependency:
+  name: galaxy
+
+driver:
+  name: docker
+
+platforms:
+  - name: ubuntu-security-test
+    image: ubuntu:22.04
+    dockerfile: ../../../../molecule/default/Dockerfile.j2
+    pre_build_image: false
+    privileged: true
+    ansible.builtin.command: /lib/systemd/systemd
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    tmpfs:
+      - /run
+      - /tmp
+    capabilities:
+      - SYS_ADMIN
+
+provisioner:
+  name: ansible
+  inventory:
+    host_vars:
+      ubuntu-security-test:
+        ansible_python_interpreter: /usr/bin/python3
+
+        # Security role specific vars
+        enable_security: true
+        enable_firewall: false  # Disabled in container
+        enable_fail2ban: true
+        ssh_permit_root_login: false
+        ssh_password_authentication: false
+        password_managers:
+          - keepassxc
+        enable_automatic_updates: true
+        enable_super_hardening: false  # Too restrictive for containers
+
+verifier:
+  name: ansible

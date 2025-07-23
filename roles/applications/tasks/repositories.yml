@@ -1,0 +1,411 @@
+---
+# Configure APT repositories for applications
+# Using modern signed-by approach instead of deprecated apt_key
+
+# Google Chrome Repository
+- name: Create keyrings directory
+  file:
+    path: /usr/share/keyrings
+    state: directory
+    mode: '0755'
+  become: yes
+
+- name: Add Google Chrome GPG key
+  get_url:
+    url: https://dl.google.com/linux/linux_signing_key.pub
+    dest: /usr/share/keyrings/google-chrome.gpg
+    mode: '0644'
+  when: "'chrome' in web_browsers or 'google-chrome' in web_browsers"
+  become: yes
+
+- name: Add Google Chrome repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main"
+    state: present
+    filename: google-chrome
+  when: "'chrome' in web_browsers or 'google-chrome' in web_browsers"
+  become: yes
+
+# Microsoft Edge Repository
+- name: Add Microsoft GPG key
+  get_url:
+    url: https://packages.microsoft.com/keys/microsoft.asc
+    dest: /usr/share/keyrings/microsoft.asc
+    mode: '0644'
+  when: "'edge' in web_browsers or 'vscode' in productivity_apps or 'vscode' in selected_items or 'teams' in communication_apps"
+  become: yes
+
+- name: Convert Microsoft key to GPG format
+  shell: |
+    gpg --dearmor < /usr/share/keyrings/microsoft.asc > /usr/share/keyrings/microsoft.gpg
+  args:
+    creates: /usr/share/keyrings/microsoft.gpg
+  when: "'edge' in web_browsers or 'vscode' in productivity_apps or 'vscode' in selected_items or 'teams' in communication_apps"
+  become: yes
+
+- name: Add Microsoft Edge repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/edge stable main"
+    state: present
+    filename: microsoft-edge
+  when: "'edge' in web_browsers"
+  become: yes
+
+# Brave Browser Repository
+- name: Add Brave GPG key
+  get_url:
+    url: https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+    dest: /usr/share/keyrings/brave-browser-archive-keyring.gpg
+    mode: '0644'
+  when: "'brave' in web_browsers"
+  become: yes
+
+- name: Add Brave repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg] https://brave-browser-apt-release.s3.brave.com/ stable main"
+    state: present
+    filename: brave-browser
+  when: "'brave' in web_browsers"
+  become: yes
+
+# Vivaldi Browser Repository
+- name: Add Vivaldi GPG key
+  get_url:
+    url: https://repo.vivaldi.com/archive/linux_signing_key.pub
+    dest: /tmp/vivaldi.asc
+  when: "'vivaldi' in web_browsers"
+  become: yes
+
+- name: Convert and install Vivaldi GPG key
+  shell: |
+    gpg --dearmor < /tmp/vivaldi.asc > /usr/share/keyrings/vivaldi.gpg
+  args:
+    creates: /usr/share/keyrings/vivaldi.gpg
+  when: "'vivaldi' in web_browsers"
+  become: yes
+
+- name: Add Vivaldi repository
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/vivaldi.gpg] https://repo.vivaldi.com/archive/deb/ stable main"
+    state: present
+    filename: vivaldi
+  when: "'vivaldi' in web_browsers"
+  become: yes
+
+# Opera Browser Repository  
+- name: Add Opera GPG key
+  get_url:
+    url: https://deb.opera.com/archive.key
+    dest: /tmp/opera.asc
+  when: "'opera' in web_browsers"
+  become: yes
+
+- name: Convert and install Opera GPG key
+  shell: |
+    gpg --dearmor < /tmp/opera.asc > /usr/share/keyrings/opera.gpg
+  args:
+    creates: /usr/share/keyrings/opera.gpg
+  when: "'opera' in web_browsers"
+  become: yes
+
+- name: Add Opera repository
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/opera.gpg] https://deb.opera.com/opera-stable/ stable non-free"
+    state: present
+    filename: opera
+  when: "'opera' in web_browsers"
+  become: yes
+
+# Firefox Repository (Mozilla PPA) - PPAs don't need signed-by
+- name: Add Mozilla Team PPA
+  apt_repository:
+    repo: "ppa:mozillateam/ppa"
+    state: present
+  when: "'firefox' in web_browsers and ansible_distribution_version is version('22.04', '>=')"
+  become: yes
+
+# VSCode Repository
+- name: Add VSCode repository
+  apt_repository:
+    repo: "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/code stable main"
+    state: present
+    filename: vscode
+  when: "'vscode' in productivity_apps or 'vscode' in selected_items"
+  become: yes
+
+# Spotify Repository
+- name: Add Spotify GPG key
+  get_url:
+    url: https://download.spotify.com/debian/pubkey_6224F9941A8AA6D1.gpg
+    dest: /usr/share/keyrings/spotify.gpg
+    mode: '0644'
+  when: "'spotify' in multimedia_apps"
+  become: yes
+
+- name: Add Spotify repository
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/spotify.gpg] http://repository.spotify.com stable non-free"
+    state: present
+    filename: spotify
+  when: "'spotify' in multimedia_apps"
+  become: yes
+
+# Signal Desktop Repository
+- name: Add Signal GPG key
+  get_url:
+    url: https://updates.signal.org/desktop/apt/keys.asc
+    dest: /tmp/signal.asc
+  when: "'signal' in communication_apps or 'signal' in privacy_security_apps"
+  become: yes
+
+- name: Convert and install Signal GPG key
+  shell: |
+    gpg --dearmor < /tmp/signal.asc > /usr/share/keyrings/signal.gpg
+  args:
+    creates: /usr/share/keyrings/signal.gpg
+  when: "'signal' in communication_apps or 'signal' in privacy_security_apps"
+  become: yes
+
+- name: Add Signal repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/signal.gpg] https://updates.signal.org/desktop/apt xenial main"
+    state: present
+    filename: signal-xenial
+  when: "'signal' in communication_apps or 'signal' in privacy_security_apps"
+  become: yes
+
+# Docker Repository
+- name: Add Docker GPG key
+  get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /tmp/docker.asc
+  when: "'docker' in selected_items or 'docker-desktop' in selected_items"
+  become: yes
+
+- name: Convert and install Docker GPG key
+  shell: |
+    gpg --dearmor < /tmp/docker.asc > /usr/share/keyrings/docker.gpg
+  args:
+    creates: /usr/share/keyrings/docker.gpg
+  when: "'docker' in selected_items or 'docker-desktop' in selected_items"
+  become: yes
+
+- name: Add Docker repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+    filename: docker
+  when: "'docker' in selected_items or 'docker-desktop' in selected_items"
+  become: yes
+
+# Slack Repository
+- name: Add Slack GPG key
+  get_url:
+    url: https://packagecloud.io/slacktechnologies/slack/gpgkey
+    dest: /tmp/slack.asc
+  when: "'slack' in communication_apps or 'slack' in productivity_apps"
+  become: yes
+
+- name: Convert and install Slack GPG key
+  shell: |
+    gpg --dearmor < /tmp/slack.asc > /usr/share/keyrings/slack.gpg
+  args:
+    creates: /usr/share/keyrings/slack.gpg
+  when: "'slack' in communication_apps or 'slack' in productivity_apps"
+  become: yes
+
+- name: Add Slack repository
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/slack.gpg] https://packagecloud.io/slacktechnologies/slack/debian/ jessie main"
+    state: present
+    filename: slack
+  when: "'slack' in communication_apps or 'slack' in productivity_apps"
+  become: yes
+
+# Teams Repository (uses Microsoft key)
+- name: Add Microsoft Teams repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/ms-teams stable main"
+    state: present
+    filename: teams
+  when: "'teams' in communication_apps"
+  become: yes
+
+# Telegram Desktop Repository - PPAs don't need signed-by
+- name: Add Telegram PPA
+  apt_repository:
+    repo: "ppa:atareao/telegram"
+    state: present
+  when: "'telegram' in communication_apps and ansible_distribution_version is version('20.04', '>=')"
+  become: yes
+
+# Element (Matrix client) Repository
+- name: Add Element GPG key
+  get_url:
+    url: https://packages.element.io/debian/element-io-archive-keyring.gpg
+    dest: /usr/share/keyrings/element-io-archive-keyring.gpg
+    mode: '0644'
+  when: "'element' in communication_apps or 'element' in privacy_security_apps"
+  become: yes
+
+- name: Add Element repository
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/element-io-archive-keyring.gpg] https://packages.element.io/debian/ default main"
+    state: present
+    filename: element-io
+  when: "'element' in communication_apps or 'element' in privacy_security_apps"
+  become: yes
+
+# ProtonVPN Repository
+- name: Add ProtonVPN GPG key
+  get_url:
+    url: https://repo.protonvpn.com/debian/public_key.asc
+    dest: /tmp/protonvpn.asc
+  when: "'protonvpn' in privacy_security_apps"
+  become: yes
+
+- name: Convert and install ProtonVPN GPG key
+  shell: |
+    gpg --dearmor < /tmp/protonvpn.asc > /usr/share/keyrings/protonvpn.gpg
+  args:
+    creates: /usr/share/keyrings/protonvpn.gpg
+  when: "'protonvpn' in privacy_security_apps"
+  become: yes
+
+- name: Add ProtonVPN repository
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/protonvpn.gpg] https://repo.protonvpn.com/debian unstable main"
+    state: present
+    filename: protonvpn
+  when: "'protonvpn' in privacy_security_apps"
+  become: yes
+
+# GitHub CLI Repository
+- name: Add GitHub CLI GPG key
+  get_url:
+    url: https://cli.github.com/packages/githubcli-archive-keyring.gpg
+    dest: /usr/share/keyrings/githubcli-archive-keyring.gpg
+    mode: '0644'
+  when: "'gh-cli' in selected_items or 'gh' in selected_items"
+  become: yes
+
+- name: Add GitHub CLI repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main"
+    state: present
+    filename: github-cli
+  when: "'gh-cli' in selected_items or 'gh' in selected_items"
+  become: yes
+
+# HashiCorp Repository (for Terraform, Vagrant)
+- name: Add HashiCorp GPG key
+  get_url:
+    url: https://apt.releases.hashicorp.com/gpg
+    dest: /tmp/hashicorp.asc
+  when: "'terraform' in selected_items or 'vagrant' in selected_items"
+  become: yes
+
+- name: Convert and install HashiCorp GPG key
+  shell: |
+    gpg --dearmor < /tmp/hashicorp.asc > /usr/share/keyrings/hashicorp.gpg
+  args:
+    creates: /usr/share/keyrings/hashicorp.gpg
+  when: "'terraform' in selected_items or 'vagrant' in selected_items"
+  become: yes
+
+- name: Add HashiCorp repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/hashicorp.gpg] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+    state: present
+    filename: hashicorp
+  when: "'terraform' in selected_items or 'vagrant' in selected_items"
+  become: yes
+
+# Kubernetes Repository
+- name: Add Kubernetes GPG key
+  get_url:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    dest: /usr/share/keyrings/kubernetes.gpg
+    mode: '0644'
+  when: "'kubectl' in selected_items or 'kubernetes' in selected_items"
+  become: yes
+
+- name: Add Kubernetes repository
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/kubernetes.gpg] https://apt.kubernetes.io/ kubernetes-xenial main"
+    state: present
+    filename: kubernetes
+  when: "'kubectl' in selected_items or 'kubernetes' in selected_items"
+  become: yes
+
+# Helm Repository
+- name: Add Helm GPG key
+  get_url:
+    url: https://baltocdn.com/helm/signing.asc
+    dest: /tmp/helm.asc
+  when: "'helm' in selected_items"
+  become: yes
+
+- name: Convert and install Helm GPG key
+  shell: |
+    gpg --dearmor < /tmp/helm.asc > /usr/share/keyrings/helm.gpg
+  args:
+    creates: /usr/share/keyrings/helm.gpg
+  when: "'helm' in selected_items"
+  become: yes
+
+- name: Add Helm repository
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main"
+    state: present
+    filename: helm
+  when: "'helm' in selected_items"
+  become: yes
+
+# Tor Browser Repository
+- name: Add Tor GPG key
+  get_url:
+    url: https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc
+    dest: /tmp/tor.asc
+  when: "'tor-browser' in web_browsers"
+  become: yes
+
+- name: Convert and install Tor GPG key
+  shell: |
+    gpg --dearmor < /tmp/tor.asc > /usr/share/keyrings/tor.gpg
+  args:
+    creates: /usr/share/keyrings/tor.gpg
+  when: "'tor-browser' in web_browsers"
+  become: yes
+
+- name: Add Tor repository
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/tor.gpg] https://deb.torproject.org/torproject.org {{ ansible_distribution_release }} main"
+    state: present
+    filename: tor
+  when: "'tor-browser' in web_browsers"
+  become: yes
+
+# LibreWolf Repository
+- name: Add LibreWolf GPG key
+  get_url:
+    url: https://deb.librewolf.net/keyring.gpg
+    dest: /usr/share/keyrings/librewolf.gpg
+    mode: '0644'
+  when: "'librewolf' in web_browsers"
+  become: yes
+
+- name: Add LibreWolf repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/librewolf.gpg] https://deb.librewolf.net {{ ansible_distribution_release }} main"
+    state: present
+    filename: librewolf
+  when: "'librewolf' in web_browsers"
+  become: yes
+
+# Update apt cache after adding repositories
+- name: Update apt cache
+  apt:
+    update_cache: yes
+  when: web_browsers | length > 0 or communication_apps | length > 0 or multimedia_apps | length > 0 or privacy_security_apps | length > 0 or selected_items | length > 0
+  become: yes

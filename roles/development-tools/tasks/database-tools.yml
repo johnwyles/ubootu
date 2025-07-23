@@ -1,0 +1,131 @@
+---
+# Install database GUI tools
+
+- name: Install DBeaver Community Edition
+  block:
+    - name: Add DBeaver GPG key
+      apt_key:
+        url: https://dbeaver.io/debs/dbeaver.gpg.key
+        state: present
+      become: yes
+
+    - name: Add DBeaver repository
+      apt_repository:
+        repo: "deb https://dbeaver.io/debs/dbeaver-ce /"
+        state: present
+        filename: dbeaver
+      become: yes
+
+    - name: Install DBeaver
+      ansible.builtin.apt:
+        name: dbeaver-ce
+        state: present
+        update_cache: yes
+      become: yes
+  when: "'dbeaver' in devtools_database_guis or devtools_install_dbeaver"
+
+- name: Install pgAdmin
+  block:
+    - name: Add pgAdmin GPG key
+      apt_key:
+        url: https://www.pgadmin.org/static/packages_pgadmin_org.pub
+        state: present
+      become: yes
+
+    - name: Add pgAdmin repository
+      apt_repository:
+        repo: "deb https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/{{ ansible_distribution_release }} pgadmin4 main"
+        state: present
+        filename: pgadmin4
+      become: yes
+
+    - name: Install pgAdmin desktop
+      ansible.builtin.apt:
+        name: pgadmin4-desktop
+        state: present
+        update_cache: yes
+      become: yes
+  when: "'pgadmin' in devtools_database_guis or devtools_install_pgadmin"
+
+- name: Install MongoDB Compass
+  block:
+    - name: Download MongoDB Compass
+      ansible.builtin.get_url:
+        url: https://downloads.mongodb.com/compass/mongodb-compass_1.40.4_amd64.deb
+        dest: /tmp/mongodb-compass.deb
+        mode: '0644'
+      become: yes
+
+    - name: Install MongoDB Compass
+      ansible.builtin.apt:
+        deb: /tmp/mongodb-compass.deb
+        state: present
+      become: yes
+  when: "'mongodb-compass' in devtools_database_guis or devtools_install_mongodb_compass"
+
+- name: Install MySQL Workbench
+  block:
+    - name: Download MySQL Workbench
+      ansible.builtin.get_url:
+        url: https://dev.mysql.com/get/Downloads/MySQLGUITools/mysql-workbench-community_8.0.36-1ubuntu22.04_amd64.deb
+        dest: /tmp/mysql-workbench.deb
+        mode: '0644'
+      become: yes
+
+    - name: Install MySQL Workbench dependencies
+      ansible.builtin.apt:
+        name:
+          - libmysqlclient21
+          - mysql-client
+        state: present
+      become: yes
+
+    - name: Install MySQL Workbench
+      ansible.builtin.apt:
+        deb: /tmp/mysql-workbench.deb
+        state: present
+      become: yes
+  when: devtools_install_mysql_workbench
+
+- name: Install Redis Desktop Manager alternative (RedisInsight)
+  block:
+    - name: Download RedisInsight
+      ansible.builtin.get_url:
+        url: https://s3.amazonaws.com/redisinsight.download/public/latest/RedisInsight-linux-x64.tar.gz
+        dest: /tmp/redisinsight.tar.gz
+        mode: '0644'
+      become: yes
+
+    - name: Extract RedisInsight
+      ansible.builtin.unarchive:
+        src: /tmp/redisinsight.tar.gz
+        dest: /opt/
+        creates: /opt/RedisInsight
+        remote_src: yes
+      become: yes
+
+    - name: Create RedisInsight desktop entry
+      ansible.builtin.template:
+        src: redisinsight.desktop.j2
+        dest: /usr/share/applications/redisinsight.desktop
+        mode: '0644'
+      become: yes
+  when: "'redis-desktop' in devtools_database_guis"
+
+# Additional database tools
+- name: Install additional database tools
+  ansible.builtin.apt:
+    name:
+      - sqlite3           # SQLite command line
+      - sqlitebrowser     # SQLite GUI
+      - redis-tools       # Redis CLI tools
+      - postgresql-client # PostgreSQL client
+      - mysql-client      # MySQL client
+      - mariadb-client    # MariaDB client
+    state: present
+  become: yes
+  when: >
+    devtools_install_dbeaver or
+    devtools_install_mysql_workbench or
+    devtools_install_pgadmin or
+    devtools_install_mongodb_compass

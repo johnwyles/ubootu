@@ -1,0 +1,65 @@
+---
+# Install and configure Fail2ban
+
+- name: Install Fail2ban
+  ansible.builtin.apt:
+    name:
+      - fail2ban
+      - python3-systemd
+    state: present
+  become: yes
+
+- name: Create Fail2ban local configuration directory
+  ansible.builtin.file:
+    path: /etc/fail2ban/jail.d
+    state: directory
+    mode: '0755'
+  become: yes
+
+- name: Configure Fail2ban defaults
+  ansible.builtin.template:
+    src: fail2ban-defaults.conf.j2
+    dest: /etc/fail2ban/jail.d/defaults.conf
+    mode: '0644'
+  become: yes
+  notify: restart fail2ban
+
+- name: Configure SSH jail
+  ansible.builtin.template:
+    src: fail2ban-ssh.conf.j2
+    dest: /etc/fail2ban/jail.d/sshd.conf
+    mode: '0644'
+  become: yes
+  notify: restart fail2ban
+
+- name: Configure additional jails for common services
+  ansible.builtin.template:
+    src: "fail2ban-{{ item }}.conf.j2"
+    dest: "/etc/fail2ban/jail.d/{{ item }}.conf"
+    mode: '0644'
+  become: yes
+  loop:
+    - nginx
+    - apache
+    - postfix
+  when: item in ['nginx', 'apache', 'postfix']  # Only create if service might be installed
+  failed_when: false
+  notify: restart fail2ban
+
+- name: Enable and start Fail2ban
+  ansible.builtin.systemd:
+    name: fail2ban
+    enabled: yes
+    state: started
+  become: yes
+
+- name: Check Fail2ban status
+  ansible.builtin.shell: fail2ban-client status
+  register: fail2ban_status
+  changed_when: false
+  become: yes
+
+- name: Display Fail2ban status
+  ansible.builtin.debug:
+    msg: "{{ fail2ban_status.stdout_lines }}"
+  when: fail2ban_status is defined

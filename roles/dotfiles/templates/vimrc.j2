@@ -1,0 +1,154 @@
+" Ansible managed .vimrc
+
+" Basic settings
+set nocompatible              " Be iMproved, required
+set encoding=utf-8
+set fileencoding=utf-8
+set backspace=indent,eol,start
+set history=1000
+set showcmd
+set showmode
+set autoread
+set hidden
+set mouse=a
+
+" UI settings
+set number
+set relativenumber
+set ruler
+set cursorline
+set showmatch
+set wildmenu
+set wildmode=list:longest,full
+set laststatus=2
+set scrolloff=5
+set sidescrolloff=5
+
+" Search settings
+set hlsearch
+set incsearch
+set ignorecase
+set smartcase
+
+" Indentation
+set expandtab
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set autoindent
+set smartindent
+
+" File type specific settings
+filetype plugin indent on
+autocmd FileType python setlocal expandtab shiftwidth=4 softtabstop=4
+autocmd FileType javascript setlocal expandtab shiftwidth=2 softtabstop=2
+autocmd FileType yaml setlocal expandtab shiftwidth=2 softtabstop=2
+autocmd FileType json setlocal expandtab shiftwidth=2 softtabstop=2
+autocmd FileType html setlocal expandtab shiftwidth=2 softtabstop=2
+autocmd FileType css setlocal expandtab shiftwidth=2 softtabstop=2
+
+" Backup and swap
+set backup
+set backupdir=~/.vim/backup//
+set directory=~/.vim/swap//
+set undofile
+set undodir=~/.vim/undo//
+
+" Color scheme
+syntax enable
+set background=dark
+{% if vim_colorscheme != 'default' %}
+colorscheme {{ vim_colorscheme }}
+{% endif %}
+
+" Key mappings
+let mapleader = ","
+nmap <leader>w :w!<cr>
+nmap <leader>q :q<cr>
+nmap <leader>/ :nohlsearch<cr>
+
+" Buffer navigation
+nnoremap <leader>bn :bnext<cr>
+nnoremap <leader>bp :bprevious<cr>
+nnoremap <leader>bd :bdelete<cr>
+
+" Window navigation
+nnoremap <C-j> <C-W>j
+nnoremap <C-k> <C-W>k
+nnoremap <C-h> <C-W>h
+nnoremap <C-l> <C-W>l
+
+{% if vim_enable_plugins and vim_plugin_manager == 'vim-plug' %}
+" Vim-Plug plugins
+call plug#begin('~/.vim/plugged')
+
+{% for plugin in vim_plugins %}
+Plug '{{ plugin }}'
+{% endfor %}
+
+" Language specific plugins
+{% if 'python' in development_languages %}
+Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
+Plug 'davidhalter/jedi-vim', { 'for': 'python' }
+{% endif %}
+
+{% if 'javascript' in development_languages or 'nodejs' in development_languages %}
+Plug 'pangloss/vim-javascript'
+Plug 'leafgarland/typescript-vim'
+Plug 'maxmellon/vim-jsx-pretty'
+{% endif %}
+
+{% if 'go' in development_languages %}
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+{% endif %}
+
+{% if 'rust' in development_languages %}
+Plug 'rust-lang/rust.vim'
+{% endif %}
+
+call plug#end()
+
+" Plugin configurations
+" NERDTree
+nnoremap <leader>n :NERDTreeToggle<cr>
+let NERDTreeShowHidden=1
+let NERDTreeIgnore=['\.pyc$', '\~$', '\.swp$', '\.git$', '__pycache__']
+
+" Airline
+let g:airline#extensions#tabline#enabled = 1
+let g:airline_powerline_fonts = 1
+
+" FZF
+nnoremap <C-p> :Files<cr>
+nnoremap <leader>b :Buffers<cr>
+nnoremap <leader>g :Rg<cr>
+
+" GitGutter
+let g:gitgutter_enabled = 1
+nmap ]h <Plug>(GitGutterNextHunk)
+nmap [h <Plug>(GitGutterPrevHunk)
+
+" ALE
+let g:ale_linters_explicit = 1
+let g:ale_fix_on_save = 1
+let g:ale_sign_error = '✗'
+let g:ale_sign_warning = '⚠'
+{% endif %}
+
+" Custom functions
+" Strip trailing whitespace
+function! StripTrailingWhitespace()
+    let l:save = winsaveview()
+    keeppatterns %s/\s\+$//e
+    call winrestview(l:save)
+endfunction
+nnoremap <leader>ss :call StripTrailingWhitespace()<cr>
+
+" Auto commands
+augroup vimrc
+    autocmd!
+    " Auto reload vimrc
+    autocmd BufWritePost .vimrc source %
+    " Remove trailing whitespace on save for certain file types
+    autocmd BufWritePre *.py,*.js,*.jsx,*.ts,*.tsx,*.json,*.yml,*.yaml,*.md call StripTrailingWhitespace()
+augroup END

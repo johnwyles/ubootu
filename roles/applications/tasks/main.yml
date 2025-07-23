@@ -1,0 +1,52 @@
+---
+# Main tasks file for applications role
+
+# Configure APT repositories first
+- name: Configure application repositories
+  ansible.builtin.include_tasks: repositories.yml
+  tags: ['repositories', 'setup']
+
+- name: Install web browsers
+  ansible.builtin.include_tasks: browsers.yml
+  when: web_browsers | length > 0
+  tags: ['browsers']
+
+- name: Install communication applications
+  ansible.builtin.include_tasks: communication.yml
+  when: communication_apps | length > 0
+  tags: ['communication']
+
+- name: Install productivity applications
+  ansible.builtin.include_tasks: productivity.yml
+  tags: ['productivity']
+
+- name: Install multimedia applications
+  ansible.builtin.include_tasks: multimedia.yml
+  when: multimedia_apps | length > 0
+  tags: ['multimedia']
+
+- name: Install cloud storage clients
+  ansible.builtin.include_tasks: cloud-storage.yml
+  when: cloud_storage | length > 0
+  tags: ['cloud']
+
+- name: Install utilities
+  ansible.builtin.include_tasks: utilities.yml
+  tags: ['utilities']
+
+- name: Install Wayland-specific tools
+  ansible.builtin.include_tasks: wayland-tools.yml
+  when: 
+    - wayland_tools is defined
+    - wayland_tools | length > 0
+    - de_hyprland_enabled | default(false) or de_sway_enabled | default(false) or de_wayfire_enabled | default(false) or de_river_enabled | default(false)
+  tags: ['wayland', 'utilities']
+
+- name: Install privacy and security applications
+  ansible.builtin.include_tasks: privacy-security-apps.yml
+  when: privacy_security_apps | length > 0
+  tags: ['privacy', 'security-apps']
+
+- name: Configure default applications
+  ansible.builtin.include_tasks: defaults.yml
+  tags: ['defaults']

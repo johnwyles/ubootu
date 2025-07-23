@@ -1,0 +1,75 @@
+---
+- name: Set default display manager
+  debconf:
+    name: "{{ de_display_manager[de_environment] }}"
+    question: shared/default-x-display-manager
+    value: "{{ de_display_manager[de_environment] }}"
+    vtype: select
+  become: yes
+
+- name: Configure auto-login for GDM3
+  ansible.builtin.lineinfile:
+    path: /etc/gdm3/custom.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    insertafter: '\[daemon\]'
+  become: yes
+  loop:
+    - { regexp: '^AutomaticLoginEnable', line: 'AutomaticLoginEnable = true' }
+    - { regexp: '^AutomaticLogin', line: 'AutomaticLogin = {{ de_autologin_user }}' }
+  when:
+    - de_autologin
+    - de_environment == 'gnome'
+  notify: restart display manager
+
+- name: Configure auto-login for LightDM
+  ansible.builtin.lineinfile:
+    path: /etc/lightdm/lightdm.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    insertafter: '\[Seat:\*\]'
+    create: yes
+  become: yes
+  loop:
+    - { regexp: '^autologin-user=', line: 'autologin-user={{ de_autologin_user }}' }
+    - { regexp: '^autologin-user-timeout=', line: 'autologin-user-timeout=0' }
+  when:
+    - de_autologin
+    - de_environment in ['xfce', 'mate', 'cinnamon']
+  notify: restart display manager
+
+- name: Configure auto-login for SDDM
+  ansible.builtin.lineinfile:
+    path: /etc/sddm.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    insertafter: '\[Autologin\]'
+    create: yes
+  become: yes
+  loop:
+    - { regexp: '^User=', line: 'User={{ de_autologin_user }}' }
+    - { regexp: '^Session=', line: 'Session=plasma' }
+  when:
+    - de_autologin
+    - de_environment == 'kde'
+  notify: restart display manager
+
+- name: Configure auto-login for greetd
+  ansible.builtin.template:
+    src: greetd-config.toml.j2
+    dest: /etc/greetd/config.toml
+    owner: root
+    group: root
+    mode: '0644'
+    backup: yes
+  become: yes
+  when:
+    - de_environment == 'hyprland'
+  notify: restart display manager
+
+- name: Enable display manager service
+  ansible.builtin.systemd:
+    name: "{{ de_display_manager[de_environment] }}"
+    enabled: yes
+    state: started
+  become: yes

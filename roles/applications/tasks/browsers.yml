@@ -1,0 +1,179 @@
+---
+# Install web browsers
+# Note: repositories.yml should be run first to set up APT repos
+
+- name: Install Firefox
+  ansible.builtin.apt:
+    name: firefox
+    state: present
+  become: yes
+  when: "'firefox' in web_browsers"
+
+- name: Install Google Chrome
+  ansible.builtin.apt:
+    name: google-chrome-stable
+    state: present
+  become: yes
+  when: "'chrome' in web_browsers or 'google-chrome' in web_browsers"
+
+- name: Install Chromium
+  ansible.builtin.apt:
+    name: chromium-browser
+    state: present
+  become: yes
+  when: "'chromium' in web_browsers"
+
+- name: Install Brave Browser
+  ansible.builtin.apt:
+    name: brave-browser
+    state: present
+  become: yes
+  when: "'brave' in web_browsers"
+
+- name: Install Vivaldi
+  ansible.builtin.apt:
+    name: vivaldi-stable
+    state: present
+  become: yes
+  when: "'vivaldi' in web_browsers"
+
+- name: Install Opera
+  ansible.builtin.apt:
+    name: opera-stable
+    state: present
+  become: yes
+  when: "'opera' in web_browsers"
+
+- name: Install Microsoft Edge
+  ansible.builtin.apt:
+    name: microsoft-edge-stable
+    state: present
+  become: yes
+  when: "'edge' in web_browsers"
+
+# Additional browsers that may need special handling
+
+- name: Install Firefox Developer Edition
+  block:
+    - name: Download Firefox Developer Edition
+      get_url:
+        url: "https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64&lang=en-US"
+        dest: /tmp/firefox-developer.tar.bz2
+        mode: '0644'
+    
+    - name: Extract Firefox Developer Edition
+      unarchive:
+        src: /tmp/firefox-developer.tar.bz2
+        dest: /opt/
+        remote_src: yes
+        creates: /opt/firefox/firefox
+    
+    - name: Create desktop entry for Firefox Developer Edition
+      copy:
+        content: |
+          [Desktop Entry]
+          Name=Firefox Developer Edition
+          Comment=Firefox Developer Edition Web Browser
+          Exec=/opt/firefox/firefox %u
+          Terminal=false
+          Type=Application
+          Icon=/opt/firefox/browser/chrome/icons/default/default128.png
+          Categories=Network;WebBrowser;
+          MimeType=text/html;text/xml;application/xhtml+xml;application/xml;application/rss+xml;application/rdf+xml;image/gif;image/jpeg;image/png;x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/ftp;x-scheme-handler/chrome;video/webm;application/x-xpinstall;
+          StartupNotify=true
+        dest: /usr/share/applications/firefox-developer.desktop
+        mode: '0644'
+  become: yes
+  when: "'firefox-developer' in web_browsers"
+
+- name: Install Tor Browser
+  apt:
+    name: torbrowser-launcher
+    state: present
+  become: yes
+  when: "'tor-browser' in web_browsers"
+
+- name: Install LibreWolf
+  apt:
+    name: librewolf
+    state: present
+  become: yes
+  when: "'librewolf' in web_browsers"
+
+- name: Install Waterfox
+  block:
+    - name: Download Waterfox
+      get_url:
+        url: "https://github.com/WaterfoxCo/Waterfox/releases/latest/download/waterfox-G-latest.en-US.linux-x86_64.tar.bz2"
+        dest: /tmp/waterfox.tar.bz2
+        mode: '0644'
+    
+    - name: Extract Waterfox
+      unarchive:
+        src: /tmp/waterfox.tar.bz2
+        dest: /opt/
+        remote_src: yes
+        creates: /opt/waterfox/waterfox
+    
+    - name: Create desktop entry for Waterfox
+      copy:
+        content: |
+          [Desktop Entry]
+          Name=Waterfox
+          Comment=Waterfox Web Browser
+          Exec=/opt/waterfox/waterfox %u
+          Terminal=false
+          Type=Application
+          Icon=/opt/waterfox/browser/chrome/icons/default/default128.png
+          Categories=Network;WebBrowser;
+          MimeType=text/html;text/xml;application/xhtml+xml;application/xml;application/rss+xml;application/rdf+xml;image/gif;image/jpeg;image/png;x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/ftp;x-scheme-handler/chrome;video/webm;application/x-xpinstall;
+          StartupNotify=true
+        dest: /usr/share/applications/waterfox.desktop
+        mode: '0644'
+  become: yes
+  when: "'waterfox' in web_browsers"
+
+# Browsers typically installed via Snap/Flatpak
+- name: Install Min Browser
+  community.general.snap:
+    name: min
+    state: present
+  become: yes
+  when: "'min' in web_browsers"
+
+- name: Install qutebrowser
+  apt:
+    name: qutebrowser
+    state: present
+  become: yes
+  when: "'qutebrowser' in web_browsers"
+
+- name: Install Midori
+  apt:
+    name: midori
+    state: present
+  become: yes
+  when: "'midori' in web_browsers"
+
+- name: Install GNOME Web (Epiphany)
+  apt:
+    name: epiphany-browser
+    state: present
+  become: yes
+  when: "'epiphany' in web_browsers"
+
+- name: Install Falkon
+  apt:
+    name: falkon
+    state: present
+  become: yes
+  when: "'falkon' in web_browsers"
+
+# Set default browser if specified
+- name: Set default browser
+  alternatives:
+    name: x-www-browser
+    path: "/usr/bin/{{ default_browser }}"
+  become: yes
+  when: default_browser is defined and default_browser != ""
+  ignore_errors: yes

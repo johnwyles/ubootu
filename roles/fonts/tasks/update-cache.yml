@@ -1,0 +1,34 @@
+---
+# Update font cache
+
+- name: Update user font cache
+  command: fc-cache -fv "{{ fonts_user_dir }}"
+  changed_when: true
+  when: not fonts_system_install
+
+- name: Update system font cache
+  command: fc-cache -fvs
+  changed_when: true
+  become: yes
+  when: fonts_system_install
+
+- name: Verify font installation
+  shell: fc-list | grep -i "{{ item }}"
+  loop:
+    - "JetBrains"
+    - "Hack"
+    - "Fira"
+  register: font_check
+  changed_when: false
+  failed_when: false
+  when: fonts_nerd_font_selection | length > 0
+
+- name: Display installed Nerd Fonts
+  debug:
+    msg: "Installed font: {{ item.item }}"
+  loop: "{{ font_check.results }}"
+  when: 
+    - font_check is defined
+    - item.rc == 0
+  loop_control:
+    label: "{{ item.item }}"

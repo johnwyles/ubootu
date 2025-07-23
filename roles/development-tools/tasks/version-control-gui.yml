@@ -1,0 +1,130 @@
+---
+# Install version control GUI tools
+
+- name: Install Git (base)
+  ansible.builtin.apt:
+    name: git
+    state: present
+  become: yes
+  when: devtools_install_git
+
+- name: Install GitKraken
+  block:
+    - name: Download GitKraken
+      ansible.builtin.get_url:
+        url: https://release.axocdn.com/linux/GitKraken-v9.12.0.deb
+        dest: /tmp/gitkraken.deb
+        mode: '0644'
+      become: yes
+
+    - name: Install GitKraken
+      ansible.builtin.apt:
+        deb: /tmp/gitkraken.deb
+        state: present
+      become: yes
+  when: devtools_install_gitkraken
+
+- name: Install GitHub Desktop
+  block:
+    - name: Download GitHub Desktop
+      ansible.builtin.get_url:
+        url: https://github.com/shiftkey/desktop/releases/download/release-3.3.6-linux1/GitHubDesktop-linux-amd64-3.3.6-linux1.deb
+        dest: /tmp/github-desktop.deb
+        mode: '0644'
+      become: yes
+
+    - name: Install GitHub Desktop
+      ansible.builtin.apt:
+        deb: /tmp/github-desktop.deb
+        state: present
+      become: yes
+  when: devtools_install_github_desktop
+
+- name: Install Sourcetree (via Wine)
+  block:
+    - name: Install Wine for Sourcetree
+      ansible.builtin.apt:
+        name: wine
+        state: present
+      become: yes
+
+    - name: Create Sourcetree installation script
+      ansible.builtin.copy:
+        content: |
+          #!/bin/bash
+          echo "Sourcetree requires Wine and manual installation"
+          echo "Please download from: https://www.sourcetreeapp.com/"
+          echo "Then run: wine SourceTreeSetup.exe"
+        dest: "/home/{{ primary_user }}/.local/bin/install-sourcetree.sh"
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0755'
+      become: yes
+  when: devtools_install_sourcetree
+
+- name: Install GitLab Desktop (placeholder)
+  block:
+    - name: Create GitLab Desktop installation note
+      ansible.builtin.copy:
+        content: |
+          #!/bin/bash
+          echo "GitLab Desktop is not yet available for Linux"
+          echo "Consider using GitLab CLI instead: https://gitlab.com/gitlab-org/cli"
+          echo "Or use the web interface: https://gitlab.com"
+        dest: "/home/{{ primary_user }}/.local/bin/gitlab-desktop-info.sh"
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0755'
+      become: yes
+  when: devtools_install_gitlab_desktop
+
+# Additional Git tools
+- name: Install additional Git tools
+  ansible.builtin.apt:
+    name:
+      - git-gui        # Basic Git GUI
+      - gitk           # Git repository browser
+      - gitg           # GNOME Git GUI
+      - qgit           # Qt-based Git GUI
+      - git-cola       # Git GUI with a nice interface
+      - meld           # Visual diff tool
+      - kdiff3         # 3-way merge tool
+    state: present
+  become: yes
+  when: devtools_install_git
+
+# GitHub CLI
+- name: Install GitHub CLI
+  ansible.builtin.apt:
+    name: gh
+    state: present
+  become: yes
+  when: 
+    - devtools_install_git
+    - use_third_party_repos | default(true)
+
+# GitLab CLI
+- name: Install GitLab CLI (glab)
+  block:
+    - name: Download GitLab CLI
+      ansible.builtin.get_url:
+        url: https://gitlab.com/gitlab-org/cli/-/releases/v1.36.0/downloads/glab_1.36.0_Linux_x86_64.tar.gz
+        dest: /tmp/glab.tar.gz
+        mode: '0644'
+      become: yes
+
+    - name: Extract GitLab CLI
+      ansible.builtin.unarchive:
+        src: /tmp/glab.tar.gz
+        dest: /tmp/
+        remote_src: yes
+      become: yes
+
+    - name: Install GitLab CLI
+      ansible.builtin.copy:
+        src: /tmp/bin/glab
+        dest: /usr/local/bin/glab
+        mode: '0755'
+        remote_src: yes
+      become: yes
+  when: devtools_install_git

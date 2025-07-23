@@ -1,0 +1,250 @@
+---
+# Install code editors
+
+- name: Install VS Code
+  ansible.builtin.apt:
+    name: code
+    state: present
+  become: yes
+  when:
+    - "'vscode' in devtools_editors or devtools_install_vscode"
+    - use_third_party_repos | default(true)
+
+- name: Install JetBrains Toolbox
+  block:
+    - name: Download JetBrains Toolbox
+      ansible.builtin.get_url:
+        url: https://download.jetbrains.com/toolbox/jetbrains-toolbox-1.27.2.13801.tar.gz
+        dest: /tmp/jetbrains-toolbox.tar.gz
+        mode: '0644'
+      become: yes
+
+    - name: Extract JetBrains Toolbox
+      ansible.builtin.unarchive:
+        src: /tmp/jetbrains-toolbox.tar.gz
+        dest: /opt/
+        creates: /opt/jetbrains-toolbox
+        remote_src: yes
+      become: yes
+
+    - name: Create JetBrains Toolbox symlink
+      ansible.builtin.shell: |
+        cd /opt && mv jetbrains-toolbox-* jetbrains-toolbox
+        ln -sf /opt/jetbrains-toolbox/jetbrains-toolbox /usr/local/bin/jetbrains-toolbox
+      become: yes
+      args:
+        creates: /usr/local/bin/jetbrains-toolbox
+  when: "'jetbrains' in devtools_editors"
+
+- name: Install Sublime Text
+  ansible.builtin.apt:
+    name: sublime-text
+    state: present
+  become: yes
+  when:
+    - "'sublime' in devtools_editors or devtools_install_sublime"
+    - use_third_party_repos | default(true)
+
+- name: Install Vim/Neovim with plugins
+  block:
+    - name: Install Vim and Neovim
+      ansible.builtin.apt:
+        name:
+          - vim
+          - neovim
+        state: present
+      become: yes
+
+    - name: Install vim-plug for Vim
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+        dest: "/home/{{ primary_user }}/.vim/autoload/plug.vim"
+        mode: '0644'
+      become: yes
+      become_user: "{{ primary_user }}"
+
+    - name: Install vim-plug for Neovim
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+        dest: "/home/{{ primary_user }}/.local/share/nvim/site/autoload/plug.vim"
+        mode: '0644'
+      become: yes
+      become_user: "{{ primary_user }}"
+
+    - name: Create basic vimrc with plugins
+      ansible.builtin.template:
+        src: vimrc.j2
+        dest: "/home/{{ primary_user }}/.vimrc"
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0644'
+      become: yes
+  when: "'vim' in devtools_editors or devtools_install_vim"
+
+- name: Install Emacs
+  ansible.builtin.apt:
+    name: emacs
+    state: present
+  become: yes
+  when: "'emacs' in devtools_editors or devtools_install_emacs"
+
+# Atom Editor
+- name: Install Atom
+  block:
+    - name: Download Atom
+      ansible.builtin.get_url:
+        url: https://github.com/atom/atom/releases/download/v1.60.0/atom-amd64.deb
+        dest: /tmp/atom.deb
+        mode: '0644'
+      become: yes
+
+    - name: Install Atom
+      ansible.builtin.apt:
+        deb: /tmp/atom.deb
+        state: present
+      become: yes
+  when: devtools_install_atom
+
+# Brackets Editor
+- name: Install Brackets
+  block:
+    - name: Download Brackets
+      ansible.builtin.get_url:
+        url: https://github.com/brackets-cont/brackets/releases/download/v2.1.3/brackets-2.1.3-linux-x64.tar.gz
+        dest: /tmp/brackets.tar.gz
+        mode: '0644'
+      become: yes
+
+    - name: Extract Brackets
+      ansible.builtin.unarchive:
+        src: /tmp/brackets.tar.gz
+        dest: /opt/
+        creates: /opt/brackets
+        remote_src: yes
+      become: yes
+
+    - name: Create Brackets symlink
+      ansible.builtin.file:
+        src: /opt/brackets/brackets
+        dest: /usr/local/bin/brackets
+        state: link
+      become: yes
+
+    - name: Create Brackets desktop entry
+      ansible.builtin.copy:
+        content: |
+          [Desktop Entry]
+          Version=1.0
+          Type=Application
+          Name=Brackets
+          Icon=/opt/brackets/brackets.png
+          Exec=/opt/brackets/brackets
+          Comment=A modern text editor for web design
+          Categories=Development;TextEditor;
+          Terminal=false
+          StartupWMClass=Brackets
+        dest: /usr/share/applications/brackets.desktop
+        mode: '0644'
+      become: yes
+  when: devtools_install_brackets
+
+# Zed Editor
+- name: Install Zed
+  block:
+    - name: Download Zed
+      ansible.builtin.get_url:
+        url: https://zed.dev/api/releases/stable/latest/zed-linux-x86_64.tar.gz
+        dest: /tmp/zed.tar.gz
+        mode: '0644'
+      become: yes
+
+    - name: Extract Zed
+      ansible.builtin.unarchive:
+        src: /tmp/zed.tar.gz
+        dest: /opt/
+        creates: /opt/zed
+        remote_src: yes
+      become: yes
+
+    - name: Create Zed symlink
+      ansible.builtin.file:
+        src: /opt/zed/zed
+        dest: /usr/local/bin/zed
+        state: link
+      become: yes
+
+    - name: Create Zed desktop entry
+      ansible.builtin.copy:
+        content: |
+          [Desktop Entry]
+          Version=1.0
+          Type=Application
+          Name=Zed
+          Icon=/opt/zed/zed.png
+          Exec=/opt/zed/zed
+          Comment=A high-performance, multiplayer code editor
+          Categories=Development;TextEditor;
+          Terminal=false
+          StartupWMClass=Zed
+        dest: /usr/share/applications/zed.desktop
+        mode: '0644'
+      become: yes
+  when: devtools_install_zed
+
+# Helix Editor
+- name: Install Helix
+  block:
+    - name: Download Helix
+      ansible.builtin.get_url:
+        url: https://github.com/helix-editor/helix/releases/download/23.10/helix-23.10-x86_64-linux.tar.xz
+        dest: /tmp/helix.tar.xz
+        mode: '0644'
+      become: yes
+
+    - name: Extract Helix
+      ansible.builtin.unarchive:
+        src: /tmp/helix.tar.xz
+        dest: /opt/
+        creates: /opt/helix
+        remote_src: yes
+      become: yes
+
+    - name: Create Helix symlink
+      ansible.builtin.shell: |
+        cd /opt && mv helix-* helix
+        ln -sf /opt/helix/hx /usr/local/bin/hx
+      become: yes
+      args:
+        creates: /usr/local/bin/hx
+
+    - name: Create Helix config directory
+      ansible.builtin.file:
+        path: "/home/{{ primary_user }}/.config/helix"
+        state: directory
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0755'
+      become: yes
+
+    - name: Create basic Helix config
+      ansible.builtin.copy:
+        content: |
+          theme = "default"
+          
+          [editor]
+          line-number = "relative"
+          mouse = false
+          
+          [editor.cursor-shape]
+          insert = "bar"
+          normal = "block"
+          select = "underline"
+          
+          [editor.file-picker]
+          hidden = false
+        dest: "/home/{{ primary_user }}/.config/helix/config.toml"
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0644'
+      become: yes
+  when: devtools_install_helix

@@ -1,0 +1,111 @@
+# Ansible managed custom fish configuration
+
+# Environment variables
+set -gx EDITOR "{{ 'code --wait' if 'vscode' in code_editors else 'vim' }}"
+set -gx VISUAL "$EDITOR"
+set -gx PAGER 'less'
+set -gx LESS '-R -F -X'
+
+# Custom environment variables
+{% for var in custom_env_vars %}
+set -gx {{ var.name }} "{{ var.value }}"
+{% endfor %}
+
+# Path additions
+fish_add_path ~/.local/bin
+fish_add_path ~/bin
+
+# Abbreviations (like aliases)
+{% for alias in shell_custom_aliases %}
+abbr -a {{ alias.alias }} '{{ alias.command }}'
+{% endfor %}
+
+# Additional abbreviations
+abbr -a g git
+abbr -a ga 'git add'
+abbr -a gc 'git commit'
+abbr -a gco 'git checkout'
+abbr -a gd 'git diff'
+abbr -a gl 'git log'
+abbr -a gp 'git push'
+abbr -a gpl 'git pull'
+abbr -a gs 'git status'
+
+# Docker abbreviations
+abbr -a d docker
+abbr -a dc docker-compose
+abbr -a dps 'docker ps'
+abbr -a dpsa 'docker ps -a'
+
+# FZF configuration (if installed)
+if type -q fzf
+    set -gx FZF_DEFAULT_OPTS '--height 40% --layout=reverse --border'
+    set -gx FZF_DEFAULT_COMMAND 'fd --type f --hidden --follow --exclude .git'
+    set -gx FZF_CTRL_T_COMMAND "$FZF_DEFAULT_COMMAND"
+end
+
+# Zoxide configuration (if installed)
+if type -q zoxide
+    zoxide init fish | source
+end
+
+# McFly configuration (if installed)
+if type -q mcfly
+    mcfly init fish | source
+end
+
+# Functions
+function mkcd -d "Create directory and cd into it"
+    mkdir -p $argv[1]; and cd $argv[1]
+end
+
+function backup -d "Create a backup of a file"
+    cp $argv[1] "$argv[1].backup-"(date +%Y%m%d-%H%M%S)
+end
+
+function extract -d "Extract various archive formats"
+    if test -f $argv[1]
+        switch $argv[1]
+            case '*.tar.bz2'
+                tar xjf $argv[1]
+            case '*.tar.gz'
+                tar xzf $argv[1]
+            case '*.bz2'
+                bunzip2 $argv[1]
+            case '*.rar'
+                unrar x $argv[1]
+            case '*.gz'
+                gunzip $argv[1]
+            case '*.tar'
+                tar xf $argv[1]
+            case '*.tbz2'
+                tar xjf $argv[1]
+            case '*.tgz'
+                tar xzf $argv[1]
+            case '*.zip'
+                unzip $argv[1]
+            case '*.Z'
+                uncompress $argv[1]
+            case '*.7z'
+                7z x $argv[1]
+            case '*'
+                echo "'$argv[1]' cannot be extracted"
+        end
+    else
+        echo "'$argv[1]' is not a valid file"
+    end
+end
+
+# Set theme (if not using a prompt decorator)
+{% if prompt_decorator == 'none' %}
+# Use fish's built-in prompt
+function fish_prompt
+    set -l last_status $status
+    set -l stat
+    if test $last_status -ne 0
+        set stat (set_color red)"[$last_status] "(set_color normal)
+    end
+    
+    string join '' -- (set_color green) (whoami) '@' (hostname) (set_color normal) ':' (set_color blue) (prompt_pwd) (set_color normal) (fish_vcs_prompt) (set_color normal) ' ' $stat '$ '
+end
+{% endif %}

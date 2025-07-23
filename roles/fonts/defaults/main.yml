@@ -1,0 +1,83 @@
+---
+# Fonts role default variables
+
+# Enable font installation
+fonts_install: true
+
+# Nerd Fonts configuration
+fonts_install_nerd_fonts: true
+fonts_nerd_font_selection:
+  - jetbrains-mono
+  - hack
+  - fira-code
+
+# Available Nerd Fonts
+fonts_available_nerd_fonts:
+  jetbrains-mono:
+    name: "JetBrainsMono Nerd Font"
+    url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip"
+    description: "Modern coding font with excellent readability"
+  hack:
+    name: "Hack Nerd Font"
+    url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip"
+    description: "Source code font for developers"
+  fira-code:
+    name: "FiraCode Nerd Font"
+    url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip"
+    description: "Monospaced font with programming ligatures"
+  cascadia-code:
+    name: "CascadiaCode Nerd Font"
+    url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/CascadiaCode.zip"
+    description: "Microsoft's fun new coding font"
+  source-code-pro:
+    name: "SourceCodePro Nerd Font"
+    url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/SourceCodePro.zip"
+    description: "Adobe's monospaced font"
+  ubuntu-mono:
+    name: "UbuntuMono Nerd Font"
+    url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/UbuntuMono.zip"
+    description: "Ubuntu's default monospace font"
+  inconsolata:
+    name: "Inconsolata Nerd Font"
+    url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Inconsolata.zip"
+    description: "Humanist monospace font"
+  meslo:
+    name: "MesloLG Nerd Font"
+    url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.zip"
+    description: "Customized version of Apple's Menlo font"
+
+# Font installation method
+fonts_system_install: false  # If true, install system-wide; if false, install for user
+
+# Font directories
+fonts_user_dir: "{{ ansible_env.HOME }}/.local/share/fonts"
+fonts_system_dir: "/usr/local/share/fonts"
+
+# Font cache update
+fonts_update_cache: true
+
+# Font rendering settings
+fonts_global_scaling: 100  # Percentage (80-150)
+fonts_rendering_mode: "subpixel"  # subpixel, grayscale, none
+
+# Powerline fonts (legacy, for compatibility)
+fonts_install_powerline: false
+
+# Additional system fonts
+fonts_install_system_extras: true
+fonts_system_extras:
+  - fonts-firacode
+  - fonts-hack
+  - fonts-inconsolata
+  - fonts-liberation
+  - fonts-noto
+  - fonts-noto-color-emoji
+  - fonts-roboto
+  - fonts-ubuntu
+
+# Font configuration templates
+fonts_configure_fontconfig: true
+fonts_fontconfig_hinting: "slight"  # none, slight, medium, full
+fonts_fontconfig_antialias: true
+fonts_fontconfig_rgba: "rgb"  # rgb, bgr, vrgb, vbgr, none
+fonts_fontconfig_lcdfilter: "lcddefault"  # lcddefault, lcdlight, lcdlegacy, lcdnone

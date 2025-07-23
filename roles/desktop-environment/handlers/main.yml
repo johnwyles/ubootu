@@ -1,0 +1,15 @@
+---
+- name: restart display manager
+  ansible.builtin.systemd:
+    name: "{{ de_display_manager.get(de_environment, 'gdm3') }}"
+    state: restarted
+  become: yes
+  when: de_environment in de_display_manager
+
+- name: restart greetd
+  ansible.builtin.systemd:
+    name: greetd
+    state: restarted
+  become: yes
+  listen: restart display manager
+  when: de_hyprland_enabled | default(false)

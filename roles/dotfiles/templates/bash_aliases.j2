@@ -1,0 +1,68 @@
+# Ansible managed bash aliases
+
+# Custom aliases
+{% for alias in shell_custom_aliases %}
+alias {{ alias.alias }}='{{ alias.command }}'
+{% endfor %}
+
+# Additional useful aliases
+alias please='sudo $(fc -ln -1)'
+alias reload='source ~/.bashrc'
+alias path='echo -e ${PATH//:/\\n}'
+alias now='date +"%Y-%m-%d %H:%M:%S"'
+alias week='date +%V'
+
+# Directory navigation
+alias cd..='cd ..'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+
+# Safety aliases
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+alias ln='ln -i'
+
+# Colorize commands
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+alias diff='diff --color=auto'
+
+# System shortcuts
+alias df='df -h'
+alias du='du -h'
+alias free='free -h'
+alias top='htop || top'
+
+# Git shortcuts (if not already defined)
+alias g='git'
+alias ga='git add'
+alias gd='git diff'
+alias gl='git log'
+alias gpl='git pull'
+alias gps='git push'
+alias gst='git status'
+
+# Docker shortcuts
+alias d='docker'
+alias dc='docker-compose'
+alias dps='docker ps'
+alias dpsa='docker ps -a'
+alias dimg='docker images'
+alias drm='docker rm'
+alias drmi='docker rmi'
+
+# Python shortcuts
+alias py='python3'
+alias pip='pip3'
+alias venv='python3 -m venv'
+alias activate='source venv/bin/activate || source .venv/bin/activate'
+
+# Modern replacements (if installed)
+command -v eza >/dev/null 2>&1 && alias ls='eza'
+command -v bat >/dev/null 2>&1 && alias cat='bat'
+command -v fd >/dev/null 2>&1 && alias find='fd'
+command -v rg >/dev/null 2>&1 && alias grep='rg'

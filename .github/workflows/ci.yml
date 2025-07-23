@@ -1,0 +1,148 @@
+---
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the codebase
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Lint YAML files
+        run: yamllint .
+
+      - name: Lint Ansible
+        run: ansible-lint
+
+  molecule:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        scenario:
+          - common
+          - security
+        ubuntu_version:
+          - '20.04'
+          - '22.04'
+          - '24.04'
+      fail-fast: false
+
+    steps:
+      - name: Check out the codebase
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Install Ansible dependencies
+        run: ansible-galaxy install -r requirements.yml
+
+      - name: Run Molecule tests - ${{ matrix.scenario }}
+        run: |
+          if [ "${{ matrix.scenario }}" = "common" ]; then
+            cd roles/common
+          elif [ "${{ matrix.scenario }}" = "security" ]; then
+            cd roles/security
+          fi
+          molecule test
+        env:
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'
+          MOLECULE_DISTRO: ubuntu:${{ matrix.ubuntu_version }}
+
+  python-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the codebase
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # No additional dependencies needed for basic tests
+
+      - name: Run Python tests
+        run: |
+          python3 tests/run_tests.py
+        continue-on-error: false  # Tests should pass now
+
+      - name: Test TUI components
+        run: |
+          # Test that main TUI files have proper syntax
+          python -m py_compile configure_standard_tui.py
+          python -m py_compile lib/ubootu_splash.py
+          python -m py_compile lib/show_profile_templates.py
+          python -m py_compile lib/menu_ui.py
+          # Test new modular TUI structure
+          python -m py_compile lib/tui/__init__.py
+          python -m py_compile lib/tui/app.py
+          python -m py_compile lib/tui/colors.py
+          python -m py_compile lib/tui/config.py
+          python -m py_compile lib/tui/core.py
+          python -m py_compile lib/tui/dialogs.py
+          python -m py_compile lib/tui/handlers.py
+          python -m py_compile lib/tui/menu_structure.py
+          python -m py_compile lib/tui/models.py
+          python -m py_compile lib/tui/renderer.py
+          # Test menu modules
+          python -m py_compile lib/tui/menus/__init__.py
+          python -m py_compile lib/tui/menus/base.py
+          python -m py_compile lib/tui/menus/applications.py
+          python -m py_compile lib/tui/menus/desktop.py
+          python -m py_compile lib/tui/menus/development.py
+          python -m py_compile lib/tui/menus/security.py
+          python -m py_compile lib/tui/menus/system.py
+
+  security-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the codebase
+        uses: actions/checkout@v4
+
+      - name: Run Trivy security scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'

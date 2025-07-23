@@ -1,0 +1,112 @@
+---
+# SSH hardening configuration
+
+- name: Backup original SSH config
+  ansible.builtin.copy:
+    src: /etc/ssh/sshd_config
+    dest: /etc/ssh/sshd_config.backup
+    owner: root
+    group: root
+    mode: '0600'
+    backup: yes
+    remote_src: yes
+  become: yes
+
+- name: Configure SSH settings
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    validate: 'sshd -t -f %s'
+  become: yes
+  loop:
+    - { regexp: '^#?PermitRootLogin', line: 'PermitRootLogin {{ "yes" if ssh_permit_root_login else "no" }}' }
+    - { regexp: '^#?PasswordAuthentication', line: 'PasswordAuthentication {{ "yes" if ssh_password_authentication else "no" }}' }
+    - { regexp: '^#?Port', line: 'Port {{ ssh_port }}' }
+    - { regexp: '^#?ClientAliveInterval', line: 'ClientAliveInterval {{ ssh_client_alive_interval }}' }
+    - { regexp: '^#?ClientAliveCountMax', line: 'ClientAliveCountMax {{ ssh_client_alive_count_max }}' }
+    - { regexp: '^#?MaxAuthTries', line: 'MaxAuthTries {{ ssh_max_auth_tries }}' }
+    - { regexp: '^#?MaxSessions', line: 'MaxSessions {{ ssh_max_sessions }}' }
+    - { regexp: '^#?X11Forwarding', line: 'X11Forwarding no' }
+    - { regexp: '^#?PermitEmptyPasswords', line: 'PermitEmptyPasswords no' }
+    - { regexp: '^#?Protocol', line: 'Protocol 2' }
+  notify: restart ssh
+
+- name: Configure SSH allowed users
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?AllowUsers'
+    line: 'AllowUsers {{ ssh_allowed_users | join(" ") }}'
+    state: "{{ 'present' if ssh_allowed_users | length > 0 else 'absent' }}"
+    validate: 'sshd -t -f %s'
+  become: yes
+  when: ssh_allowed_users is defined
+  notify: restart ssh
+
+- name: Enable SSH key-based authentication
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PubkeyAuthentication'
+    line: 'PubkeyAuthentication yes'
+    state: present
+    validate: 'sshd -t -f %s'
+  become: yes
+  notify: restart ssh
+
+- name: Disable SSH host-based authentication
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    validate: 'sshd -t -f %s'
+  become: yes
+  loop:
+    - { regexp: '^#?HostbasedAuthentication', line: 'HostbasedAuthentication no' }
+    - { regexp: '^#?IgnoreRhosts', line: 'IgnoreRhosts yes' }
+  notify: restart ssh
+
+- name: Set SSH banner
+  ansible.builtin.copy:
+    dest: /etc/ssh/banner
+    content: |
+      ******************************************************************
+      *                       AUTHORIZED ACCESS ONLY                    *
+      * Unauthorized access to this system is forbidden and will be    *
+      * prosecuted by law. By accessing this system, you agree that    *
+      * your actions may be monitored if unauthorized usage is         *
+      * suspected.                                                      *
+      ******************************************************************
+    mode: '0644'
+  become: yes
+
+- name: Configure SSH banner
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?Banner'
+    line: 'Banner /etc/ssh/banner'
+    state: present
+    validate: 'sshd -t -f %s'
+  become: yes
+  notify: restart ssh
+
+- name: Set secure SSH ciphers
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?Ciphers'
+    line: 'Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr'
+    state: present
+    validate: 'sshd -t -f %s'
+  become: yes
+  notify: restart ssh
+
+- name: Set secure SSH MACs
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?MACs'
+    line: 'MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com'
+    state: present
+    validate: 'sshd -t -f %s'
+  become: yes
+  notify: restart ssh

@@ -1,0 +1,65 @@
+---
+# Configure automatic security updates
+
+- name: Install unattended-upgrades
+  ansible.builtin.apt:
+    name:
+      - unattended-upgrades
+      - update-notifier-common
+    state: present
+  become: yes
+
+- name: Configure unattended-upgrades
+  ansible.builtin.template:
+    src: 50unattended-upgrades.j2
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    mode: '0644'
+  become: yes
+
+- name: Configure auto-upgrades
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Download-Upgradeable-Packages "1";
+      APT::Periodic::AutocleanInterval "7";
+      APT::Periodic::Unattended-Upgrade "1";
+    mode: '0644'
+  become: yes
+
+- name: Enable unattended-upgrades service
+  ansible.builtin.systemd:
+    name: unattended-upgrades
+    enabled: yes
+    state: started
+  become: yes
+
+- name: Configure update-notifier for desktop
+  ansible.builtin.lineinfile:
+    path: /etc/update-manager/release-upgrades
+    regexp: '^Prompt='
+    line: 'Prompt=lts'
+  become: yes
+  when: desktop_environment is defined
+
+# Configure automatic reboot if enabled
+- name: Configure automatic reboot settings
+  ansible.builtin.lineinfile:
+    path: /etc/apt/apt.conf.d/50unattended-upgrades
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  become: yes
+  loop:
+    - { regexp: '^//Unattended-Upgrade::Automatic-Reboot ', line: 'Unattended-Upgrade::Automatic-Reboot "{{ automatic_updates_reboot | lower }}";' }
+    - { regexp: '^//Unattended-Upgrade::Automatic-Reboot-Time ', line: 'Unattended-Upgrade::Automatic-Reboot-Time "{{ automatic_updates_reboot_time }}";' }
+  when: automatic_updates_reboot is defined
+
+- name: Configure email notifications for updates
+  ansible.builtin.lineinfile:
+    path: /etc/apt/apt.conf.d/50unattended-upgrades
+    regexp: '^//Unattended-Upgrade::Mail '
+    line: 'Unattended-Upgrade::Mail "root";'
+    state: present
+  become: yes
+  when: ansible_env.MAIL is defined or ansible_env.EMAIL is defined

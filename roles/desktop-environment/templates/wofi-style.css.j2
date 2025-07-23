@@ -1,0 +1,56 @@
+window {
+    margin: 0px;
+    border: 2px solid {{ de_hyprland_active_border_color | regex_replace('rgba\\((.*?)\\)', '#\\1') | regex_replace(' .*', '') }};
+    border-radius: {{ de_hyprland_rounding }}px;
+    background-color: rgba(43, 48, 59, 0.95);
+}
+
+#input {
+    margin: 5px;
+    border: none;
+    color: #fff;
+    background-color: rgba(66, 66, 66, 0.5);
+    border-radius: 5px;
+    padding: 10px;
+}
+
+#inner-box {
+    margin: 5px;
+    border: none;
+    background-color: transparent;
+}
+
+#outer-box {
+    margin: 5px;
+    border: none;
+    background-color: transparent;
+}
+
+#scroll {
+    margin: 0px;
+    border: none;
+}
+
+#text {
+    margin: 5px;
+    border: none;
+    color: #fff;
+}
+
+#entry {
+    border-radius: 5px;
+    padding: 10px;
+}
+
+#entry:selected {
+    background-color: rgba({{ de_hyprland_active_border_color | regex_replace('rgba\\((.*?)\\).*', '\\1') }}, 0.3);
+    border-radius: 5px;
+}
+
+#entry:hover {
+    background-color: rgba({{ de_hyprland_active_border_color | regex_replace('rgba\\((.*?)\\).*', '\\1') }}, 0.2);
+}
+
+#img {
+    margin-right: 10px;
+}

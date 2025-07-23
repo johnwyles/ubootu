@@ -1,0 +1,162 @@
+---
+- name: Install Wayland-specific tools
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  become: yes
+  loop: "{{ wayland_tools }}"
+  when: 
+    - wayland_tools is defined
+    - wayland_tools | length > 0
+    - item in ['wl-clipboard', 'wdisplays', 'wev', 'kanshi', 'gammastep', 'wlr-randr', 'swappy']  # Available in Ubuntu repos
+  ignore_errors: yes  # Some tools may not be available in all Ubuntu versions
+  tags: ['wayland', 'tools']
+
+- name: Install additional Wayland tools from source or PPA
+  block:
+    - name: Add wlroots PPA for additional tools
+      ansible.builtin.apt_repository:
+        repo: "ppa:wlroots/master"
+        state: present
+      become: yes
+      when: ansible_distribution_version is version('22.04', '>=')
+    
+    - name: Update apt cache after adding PPA
+      ansible.builtin.apt:
+        update_cache: yes
+      become: yes
+    
+    - name: Install wf-recorder for screen recording
+      ansible.builtin.apt:
+        name: wf-recorder
+        state: present
+      become: yes
+      ignore_errors: yes
+    
+    - name: Install swayimg image viewer
+      ansible.builtin.apt:
+        name: swayimg
+        state: present
+      become: yes
+      ignore_errors: yes
+    
+    - name: Install wtype for keyboard automation
+      ansible.builtin.apt:
+        name: wtype
+        state: present
+      become: yes
+      ignore_errors: yes
+  when: 
+    - wayland_tools is defined
+    - "'wf-recorder' in wayland_tools or 'swayimg' in wayland_tools or 'wtype' in wayland_tools"
+  tags: ['wayland', 'tools', 'ppa']
+
+- name: Install wlogout from GitHub releases
+  block:
+    - name: Check latest wlogout release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/ArtsyMacaw/wlogout/releases/latest
+        return_content: yes
+      register: wlogout_release
+      check_mode: no
+    
+    - name: Download wlogout binary
+      ansible.builtin.get_url:
+        url: "{{ item.browser_download_url }}"
+        dest: "/tmp/wlogout.tar.gz"
+        mode: '0644'
+      loop: "{{ wlogout_release.json.assets }}"
+      when: "'linux' in item.name and 'x86_64' in item.name"
+      register: wlogout_download
+    
+    - name: Extract and install wlogout
+      ansible.builtin.unarchive:
+        src: "/tmp/wlogout.tar.gz"
+        dest: "/usr/local/bin"
+        remote_src: yes
+        mode: '0755'
+      become: yes
+      when: wlogout_download is succeeded
+  when:
+    - wayland_tools is defined
+    - "'wlogout' in wayland_tools"
+  ignore_errors: yes
+  tags: ['wayland', 'tools', 'wlogout']
+
+- name: Install clipman clipboard manager
+  ansible.builtin.shell: |
+    GO111MODULE=on go install github.com/yory8/clipman@latest
+    cp ~/go/bin/clipman /usr/local/bin/
+  become: yes
+  args:
+    creates: /usr/local/bin/clipman
+  when:
+    - wayland_tools is defined
+    - "'clipman' in wayland_tools"
+  ignore_errors: yes
+  tags: ['wayland', 'tools', 'clipman']
+
+- name: Install nwg-launchers
+  block:
+    - name: Install nwg-launchers dependencies
+      ansible.builtin.apt:
+        name:
+          - libgtk-3-dev
+          - libgtk-layer-shell-dev
+          - libjson-c-dev
+          - meson
+        state: present
+      become: yes
+    
+    - name: Clone nwg-launchers repository
+      ansible.builtin.git:
+        repo: https://github.com/nwg-piotr/nwg-launchers.git
+        dest: /tmp/nwg-launchers
+        version: master
+    
+    - name: Build and install nwg-launchers
+      ansible.builtin.shell: |
+        cd /tmp/nwg-launchers
+        meson build
+        ninja -C build
+        sudo ninja -C build install
+      args:
+        creates: /usr/local/bin/nwggrid
+  when:
+    - wayland_tools is defined
+    - "'nwg-launchers' in wayland_tools"
+  ignore_errors: yes
+  tags: ['wayland', 'tools', 'nwg-launchers']
+
+- name: Create Wayland tools configuration directory
+  ansible.builtin.file:
+    path: "/home/{{ primary_user }}/.config/{{ item }}"
+    state: directory
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0755'
+  loop:
+    - kanshi
+    - wlogout
+    - gammastep
+  when: wayland_tools is defined
+  tags: ['wayland', 'config']
+
+- name: Deploy basic kanshi configuration
+  ansible.builtin.copy:
+    dest: "/home/{{ primary_user }}/.config/kanshi/config"
+    content: |
+      # Kanshi configuration for dynamic display management
+      # Add your display configurations here
+      # Example:
+      # profile {
+      #   output eDP-1 enable scale 1.5
+      #   output HDMI-A-1 enable position 1920,0
+      # }
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  when:
+    - wayland_tools is defined
+    - "'kanshi' in wayland_tools"
+  tags: ['wayland', 'config']

@@ -1,0 +1,80 @@
+---
+# Configure Vim/Neovim
+
+- name: Create Vim directories
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - .vim
+    - .vim/autoload
+    - .vim/bundle
+    - .vim/colors
+    - .vim/swap
+    - .vim/backup
+    - .vim/undo
+
+- name: Create Neovim directories
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.config/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - nvim
+    - nvim/autoload
+    - nvim/colors
+
+- name: Install vim-plug for Vim
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    dest: "{{ ansible_env.HOME }}/.vim/autoload/plug.vim"
+    mode: '0644'
+  when: vim_plugin_manager == 'vim-plug'
+
+- name: Install vim-plug for Neovim
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    dest: "{{ ansible_env.HOME }}/.config/nvim/autoload/plug.vim"
+    mode: '0644'
+  when: vim_plugin_manager == 'vim-plug'
+
+- name: Create .vimrc
+  ansible.builtin.template:
+    src: vimrc.j2
+    dest: "{{ ansible_env.HOME }}/.vimrc"
+    mode: '0644'
+    backup: yes
+
+- name: Create Neovim init.vim
+  ansible.builtin.template:
+    src: init.vim.j2
+    dest: "{{ ansible_env.HOME }}/.config/nvim/init.vim"
+    mode: '0644'
+    backup: yes
+
+- name: Install Vim plugins
+  ansible.builtin.shell: |
+    vim -E -s -u "{{ ansible_env.HOME }}/.vimrc" +PlugInstall +qall
+  when: vim_enable_plugins and vim_plugin_manager == 'vim-plug'
+  changed_when: false
+  failed_when: false
+
+- name: Download color schemes
+  ansible.builtin.get_url:
+    url: "{{ item.url }}"
+    dest: "{{ ansible_env.HOME }}/.vim/colors/{{ item.name }}.vim"
+    mode: '0644'
+  loop:
+    - { name: 'dracula', url: 'https://raw.githubusercontent.com/dracula/vim/master/colors/dracula.vim' }
+    - { name: 'gruvbox', url: 'https://raw.githubusercontent.com/morhetz/gruvbox/master/colors/gruvbox.vim' }
+    - { name: 'nord', url: 'https://raw.githubusercontent.com/arcticicestudio/nord-vim/main/colors/nord.vim' }
+  when: vim_colorscheme in ['dracula', 'gruvbox', 'nord']
+  failed_when: false
+
+- name: Copy color schemes to Neovim
+  ansible.builtin.copy:
+    src: "{{ ansible_env.HOME }}/.vim/colors/"
+    dest: "{{ ansible_env.HOME }}/.config/nvim/colors/"
+    remote_src: yes
+  failed_when: false

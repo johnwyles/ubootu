@@ -1,0 +1,178 @@
+---
+# Install self-hosted solutions
+
+- name: Install Nextcloud server
+  block:
+    - name: Install Nextcloud snap
+      snap:
+        name: nextcloud
+        state: present
+      become: yes
+
+    - name: Configure Nextcloud admin
+      ansible.builtin.shell: |
+        snap run nextcloud.manual-install admin "{{ vault_nextcloud_admin_pass | default('changeme123') }}"
+      become: yes
+      args:
+        creates: /var/snap/nextcloud/current/nextcloud/config/config.php
+  when: "'nextcloud' in devtools_selfhosted_services"
+
+- name: Install Jellyfin media server
+  block:
+    - name: Add Jellyfin GPG key
+      apt_key:
+        url: https://repo.jellyfin.org/ubuntu/jellyfin_team.gpg.key
+        state: present
+      become: yes
+
+    - name: Add Jellyfin repository
+      apt_repository:
+        repo: "deb https://repo.jellyfin.org/ubuntu {{ ansible_distribution_release }} main"
+        state: present
+        filename: jellyfin
+      become: yes
+
+    - name: Install Jellyfin
+      ansible.builtin.apt:
+        name: jellyfin
+        state: present
+        update_cache: yes
+      become: yes
+
+    - name: Enable Jellyfin service
+      ansible.builtin.systemd:
+        name: jellyfin
+        enabled: yes
+        state: started
+      become: yes
+
+    - name: Open firewall for Jellyfin
+      ufw:
+        rule: allow
+        port: '8096'
+        proto: tcp
+      become: yes
+      when: enable_firewall | default(true)
+  when: "'jellyfin' in devtools_selfhosted_services"
+
+- name: Install Plex media server
+  block:
+    - name: Download Plex server
+      ansible.builtin.get_url:
+        url: https://downloads.plex.tv/plex-media-server-new/1.32.8.7639-fb6452ebf/debian/plexmediaserver_1.32.8.7639-fb6452ebf_amd64.deb
+        dest: /tmp/plexmediaserver.deb
+        mode: '0644'
+      become: yes
+
+    - name: Install Plex
+      ansible.builtin.apt:
+        deb: /tmp/plexmediaserver.deb
+        state: present
+      become: yes
+
+    - name: Enable Plex service
+      ansible.builtin.systemd:
+        name: plexmediaserver
+        enabled: yes
+        state: started
+      become: yes
+  when: "'plex' in devtools_selfhosted_services"
+
+- name: Install Filebrowser
+  block:
+    - name: Download Filebrowser installer
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/filebrowser/get/master/get.sh
+        dest: /tmp/filebrowser-install.sh
+        mode: '0755'
+      become: yes
+
+    - name: Install Filebrowser
+      ansible.builtin.shell: /tmp/filebrowser-install.sh
+      become: yes
+      args:
+        creates: /usr/local/bin/filebrowser
+
+    - name: Create Filebrowser config directory
+      ansible.builtin.file:
+        path: /etc/filebrowser
+        state: directory
+        mode: '0755'
+      become: yes
+
+    - name: Create Filebrowser database
+      ansible.builtin.shell: |
+        filebrowser config init -d /etc/filebrowser/filebrowser.db
+        filebrowser config set -d /etc/filebrowser/filebrowser.db -a 0.0.0.0 -p 8080
+        filebrowser users add admin changeme --perm.admin -d /etc/filebrowser/filebrowser.db
+      become: yes
+      args:
+        creates: /etc/filebrowser/filebrowser.db
+
+    - name: Create Filebrowser service
+      ansible.builtin.template:
+        src: filebrowser.service.j2
+        dest: /etc/systemd/system/filebrowser.service
+        mode: '0644'
+      become: yes
+
+    - name: Enable Filebrowser service
+      ansible.builtin.systemd:
+        name: filebrowser
+        enabled: yes
+        state: started
+        daemon_reload: yes
+      become: yes
+  when: "'filebrowser' in devtools_selfhosted_services"
+
+- name: Install Seafile
+  block:
+    - name: Download Seafile server
+      ansible.builtin.get_url:
+        url: https://download.seadrive.org/seafile-server_9.0.10_x86-64.tar.gz
+        dest: /tmp/seafile-server.tar.gz
+        mode: '0644'
+      become: yes
+
+    - name: Create seafile user
+      ansible.builtin.user:
+        name: seafile
+        home: /opt/seafile
+        shell: /bin/bash
+        state: present
+      become: yes
+
+    - name: Extract Seafile
+      ansible.builtin.unarchive:
+        src: /tmp/seafile-server.tar.gz
+        dest: /opt/seafile
+        owner: seafile
+        group: seafile
+        remote_src: yes
+      become: yes
+      args:
+        creates: /opt/seafile/seafile-server-9.0.10
+  when: "'seafile' in devtools_selfhosted_services"
+
+- name: Install Portainer (Docker management GUI)
+  block:
+    - name: Create Portainer volume
+      docker_volume:
+        name: portainer_data
+      become: yes
+      when: install_docker | default(false)
+
+    - name: Run Portainer container
+      docker_container:
+        name: portainer
+        image: portainer/portainer-ce:latest
+        ports:
+          - "9000:9000"
+          - "8000:8000"
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+          - portainer_data:/data
+        restart_policy: always
+      become: yes
+      when: install_docker | default(false)
+  when: "'portainer' in devtools_selfhosted_services"

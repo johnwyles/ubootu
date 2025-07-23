@@ -1,0 +1,483 @@
+---
+# Third-party APT repositories for latest packages
+
+- name: Install repository management dependencies
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      - software-properties-common
+    state: present
+  become: yes
+
+# Docker
+- name: Add Docker repository
+  block:
+    - name: Create Docker keyring directory
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+      become: yes
+
+    - name: Add Docker GPG key
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: '0644'
+      become: yes
+
+    - name: Add Docker repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch={{ ansible_architecture | regex_replace('x86_64', 'amd64') }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+        filename: docker
+      become: yes
+  when: 
+    - dev is defined
+    - dev.docker is defined
+    - dev.docker | default(false)
+
+# VS Code
+- name: Add VS Code repository
+  block:
+    - name: Add Microsoft GPG key
+      ansible.builtin.get_url:
+        url: https://packages.microsoft.com/keys/microsoft.asc
+        dest: /etc/apt/keyrings/microsoft.asc
+        mode: '0644'
+      become: yes
+
+    - name: Add VS Code repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/microsoft.asc] https://packages.microsoft.com/repos/code stable main"
+        state: present
+        filename: vscode
+      become: yes
+  when: 
+    - dev is defined
+    - dev.vscode is defined
+    - dev.vscode | default(false)
+
+# Google Chrome
+- name: Add Google Chrome repository
+  block:
+    - name: Add Google GPG key
+      ansible.builtin.get_url:
+        url: https://dl.google.com/linux/linux_signing_key.pub
+        dest: /etc/apt/keyrings/google-chrome.asc
+        mode: '0644'
+      become: yes
+
+    - name: Add Chrome repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.asc] https://dl.google.com/linux/chrome/deb/ stable main"
+        state: present
+        filename: google-chrome
+      become: yes
+  when: 
+    - browser is defined
+    - browser.chrome is defined
+    - browser.chrome | default(false)
+
+# Brave Browser
+- name: Add Brave repository
+  block:
+    - name: Add Brave GPG key
+      ansible.builtin.get_url:
+        url: https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+        dest: /etc/apt/keyrings/brave-browser.asc
+        mode: '0644'
+      become: yes
+
+    - name: Add Brave repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/brave-browser.asc] https://brave-browser-apt-release.s3.brave.com/ stable main"
+        state: present
+        filename: brave-browser
+      become: yes
+  when: 
+    - browser is defined
+    - browser.brave is defined
+    - browser.brave | default(false)
+
+# Vivaldi
+- name: Add Vivaldi repository
+  block:
+    - name: Add Vivaldi GPG key
+      ansible.builtin.get_url:
+        url: https://repo.vivaldi.com/archive/linux_signing_key.pub
+        dest: /etc/apt/keyrings/vivaldi.asc
+        mode: '0644'
+      become: yes
+
+    - name: Add Vivaldi repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/vivaldi.asc] https://repo.vivaldi.com/archive/deb/ stable main"
+        state: present
+        filename: vivaldi
+      become: yes
+  when: 
+    - browser is defined
+    - browser.vivaldi is defined
+    - browser.vivaldi | default(false)
+
+# Microsoft Edge
+- name: Add Microsoft Edge repository
+  block:
+    - name: Add Microsoft GPG key for Edge (if not already present)
+      ansible.builtin.get_url:
+        url: https://packages.microsoft.com/keys/microsoft.asc
+        dest: /etc/apt/keyrings/microsoft.asc
+        mode: '0644'
+        force: no
+      become: yes
+
+    - name: Add Edge repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.asc] https://packages.microsoft.com/repos/edge stable main"
+        state: present
+        filename: microsoft-edge
+      become: yes
+  when: 
+    - browser is defined
+    - browser.edge is defined
+    - browser.edge | default(false)
+
+# Sublime Text
+- name: Add Sublime Text repository
+  block:
+    - name: Add Sublime GPG key
+      ansible.builtin.get_url:
+        url: https://download.sublimetext.com/sublimehq-pub.gpg
+        dest: /etc/apt/keyrings/sublime-text.asc
+        mode: '0644'
+      become: yes
+
+    - name: Add Sublime repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/sublime-text.asc] https://download.sublimetext.com/ apt/stable/"
+        state: present
+        filename: sublime-text
+      become: yes
+  when: 
+    - dev is defined
+    - dev.sublime is defined
+    - dev.sublime | default(false)
+
+# DBeaver
+- name: Add DBeaver repository
+  block:
+    - name: Add DBeaver GPG key
+      ansible.builtin.get_url:
+        url: https://dbeaver.io/debs/dbeaver.gpg.key
+        dest: /etc/apt/keyrings/dbeaver.asc
+        mode: '0644'
+      become: yes
+
+    - name: Add DBeaver repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/dbeaver.asc] https://dbeaver.io/debs/dbeaver-ce /"
+        state: present
+        filename: dbeaver
+      become: yes
+  when: 
+    - dev is defined
+    - dev.dbeaver is defined
+    - dev.dbeaver | default(false)
+
+# pgAdmin
+- name: Add pgAdmin repository
+  block:
+    - name: Add pgAdmin GPG key
+      ansible.builtin.get_url:
+        url: https://www.pgadmin.org/static/packages_pgadmin_org.pub
+        dest: /etc/apt/keyrings/pgadmin.asc
+        mode: '0644'
+      become: yes
+
+    - name: Add pgAdmin repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/pgadmin.asc] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/{{ ansible_distribution_release }} pgadmin4 main"
+        state: present
+        filename: pgadmin4
+      become: yes
+  when: 
+    - dev is defined
+    - dev.pgadmin is defined
+    - dev.pgadmin | default(false)
+
+# Insomnia
+- name: Add Insomnia repository
+  block:
+    - name: Add Insomnia GPG key
+      ansible.builtin.get_url:
+        url: https://insomnia.rest/keys/debian-public.key.asc
+        dest: /etc/apt/keyrings/insomnia.asc
+        mode: '0644'
+      become: yes
+
+    - name: Add Insomnia repository
+      ansible.builtin.apt_repository:
+        repo: "deb [trusted=yes arch=amd64 signed-by=/etc/apt/keyrings/insomnia.asc] https://download.konghq.com/insomnia-ubuntu/ default all"
+        state: present
+        filename: insomnia
+      become: yes
+  when: 
+    - dev is defined
+    - dev.insomnia is defined
+    - dev.insomnia | default(false)
+
+# Signal
+- name: Add Signal repository
+  block:
+    - name: Add Signal GPG key
+      ansible.builtin.get_url:
+        url: https://updates.signal.org/desktop/apt/keys.asc
+        dest: /etc/apt/keyrings/signal.asc
+        mode: '0644'
+      become: yes
+
+    - name: Add Signal repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/signal.asc] https://updates.signal.org/desktop/apt xenial main"
+        state: present
+        filename: signal
+      become: yes
+  when: 
+    - communication is defined
+    - communication.signal is defined
+    - communication.signal | default(false)
+
+# Slack
+- name: Add Slack repository
+  block:
+    - name: Add Slack GPG key
+      ansible.builtin.shell: |
+        curl -fsSL https://packagecloud.io/slacktechnologies/slack/gpgkey | gpg --dearmor -o /etc/apt/keyrings/slack.gpg
+      args:
+        creates: /etc/apt/keyrings/slack.gpg
+      become: yes
+
+    - name: Add Slack repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/slack.gpg] https://packagecloud.io/slacktechnologies/slack/debian/ jessie main"
+        state: present
+        filename: slack
+      become: yes
+  when: 
+    - communication is defined
+    - communication.slack is defined
+    - communication.slack | default(false)
+    - ansible_distribution_release not in ['plucky', 'oracular']  # Not supported on Ubuntu 24.10+
+
+# Discord (via deb file - no official repo)
+# Handled in applications role
+
+# Spotify
+- name: Add Spotify repository
+  block:
+    - name: Add Spotify GPG key
+      ansible.builtin.get_url:
+        url: https://download.spotify.com/debian/pubkey_6224F9941A8AA6D1.gpg
+        dest: /etc/apt/keyrings/spotify.asc
+        mode: '0644'
+      become: yes
+
+    - name: Add Spotify repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/spotify.asc] http://repository.spotify.com stable non-free"
+        state: present
+        filename: spotify
+      become: yes
+  when: 
+    - media is defined
+    - media.spotify is defined
+    - media.spotify | default(false)
+
+# Node.js (NodeSource)
+- name: Add NodeSource repository
+  block:
+    - name: Add NodeSource GPG key
+      ansible.builtin.shell: |
+        curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+      args:
+        creates: /etc/apt/keyrings/nodesource.gpg
+      become: yes
+
+    - name: Add NodeSource repository (Node.js 20.x)
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x {{ ansible_distribution_release }} main"
+        state: present
+        filename: nodesource
+      become: yes
+  when: 
+    - lang is defined
+    - lang.nodejs is defined
+    - lang.nodejs | default(false)
+    - ansible_distribution_release in ['focal', 'jammy', 'noble']  # Only supported LTS releases
+
+# PostgreSQL
+- name: Add PostgreSQL repository
+  block:
+    - name: Add PostgreSQL GPG key
+      ansible.builtin.shell: |
+        curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /etc/apt/keyrings/postgresql.gpg
+      args:
+        creates: /etc/apt/keyrings/postgresql.gpg
+      become: yes
+
+    - name: Add PostgreSQL repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/postgresql.gpg] https://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
+        state: present
+        filename: postgresql
+      become: yes
+  when: 
+    - dev is defined
+    - dev.postgresql is defined
+    - dev.postgresql | default(false)
+
+# MongoDB
+- name: Add MongoDB repository
+  block:
+    - name: Add MongoDB GPG key
+      ansible.builtin.shell: |
+        curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | gpg --dearmor -o /etc/apt/keyrings/mongodb.gpg
+      args:
+        creates: /etc/apt/keyrings/mongodb.gpg
+      become: yes
+
+    - name: Add MongoDB repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64,arm64 signed-by=/etc/apt/keyrings/mongodb.gpg] https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release }}/mongodb-org/7.0 multiverse"
+        state: present
+        filename: mongodb
+      become: yes
+  when: 
+    - dev is defined
+    - dev.mongodb is defined
+    - dev.mongodb | default(false)
+
+# Kubernetes
+- name: Add Kubernetes repository
+  block:
+    - name: Add Kubernetes GPG key
+      ansible.builtin.shell: |
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes.gpg
+      args:
+        creates: /etc/apt/keyrings/kubernetes.gpg
+      become: yes
+
+    - name: Add Kubernetes repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /"
+        state: present
+        filename: kubernetes
+      become: yes
+  when: 
+    - container is defined
+    - container.kubectl is defined
+    - container.kubectl | default(false)
+
+# HashiCorp (Terraform, Vagrant, etc.)
+- name: Add HashiCorp repository
+  block:
+    - name: Add HashiCorp GPG key
+      ansible.builtin.get_url:
+        url: https://apt.releases.hashicorp.com/gpg
+        dest: /etc/apt/keyrings/hashicorp.asc
+        mode: '0644'
+      become: yes
+
+    - name: Add HashiCorp repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/hashicorp.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+        state: present
+        filename: hashicorp
+      become: yes
+  when: 
+    - dev is defined
+    - dev.terraform is defined
+    - dev.terraform | default(false)
+
+# GitHub CLI
+- name: Add GitHub CLI repository
+  block:
+    - name: Add GitHub CLI GPG key
+      ansible.builtin.get_url:
+        url: https://cli.github.com/packages/githubcli-archive-keyring.gpg
+        dest: /etc/apt/keyrings/github-cli.asc
+        mode: '0644'
+      become: yes
+
+    - name: Add GitHub CLI repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/github-cli.asc] https://cli.github.com/packages stable main"
+        state: present
+        filename: github-cli
+      become: yes
+  when: 
+    - (dev is defined and dev.github_cli is defined and dev.github_cli | default(false)) or
+      (cli is defined and cli.gh is defined and cli.gh | default(false))
+
+# Fish Shell
+- name: Add Fish Shell repository
+  block:
+    - name: Add Fish Shell PPA
+      ansible.builtin.apt_repository:
+        repo: "ppa:fish-shell/release-3"
+        state: present
+      become: yes
+  when:
+    - cli is defined
+    - cli.fish is defined
+    - cli.fish | default(false)
+
+# Neovim
+- name: Add Neovim repository
+  block:
+    - name: Add Neovim PPA
+      ansible.builtin.apt_repository:
+        repo: "ppa:neovim-ppa/stable"
+        state: present
+      become: yes
+  when:
+    - (dev is defined and dev.vim is defined and dev.vim | default(false)) or
+      (cli is defined and cli.vim is defined and cli.vim | default(false))
+
+# Wine
+- name: Add Wine repository
+  block:
+    - name: Enable 32-bit architecture
+      ansible.builtin.command: dpkg --add-architecture i386
+      become: yes
+      when: ansible_architecture == "x86_64"
+
+    - name: Add Wine GPG key
+      ansible.builtin.shell: |
+        curl -fsSL https://dl.winehq.org/wine-builds/winehq.key | gpg --dearmor -o /etc/apt/keyrings/winehq.gpg
+      args:
+        creates: /etc/apt/keyrings/winehq.gpg
+      become: yes
+
+    - name: Add Wine repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/winehq.gpg] https://dl.winehq.org/wine-builds/ubuntu/ {{ ansible_distribution_release }} main"
+        state: present
+        filename: winehq
+      become: yes
+  when: 
+    - games is defined
+    - games.wine is defined
+    - games.wine | default(false)
+
+# Update apt cache after adding repositories
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+  become: yes
+  when: third_party_repos_added | default(false)

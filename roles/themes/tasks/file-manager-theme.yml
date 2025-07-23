@@ -1,0 +1,40 @@
+---
+# File manager theming
+
+- name: Configure Nautilus (GNOME Files) theme
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { key: "/org/gnome/nautilus/preferences/default-folder-viewer", value: "'list-view'" }
+    - { key: "/org/gtk/settings/color-scheme", value: "'prefer-dark'" }
+  when: desktop_environment == 'gnome'
+
+- name: Configure Dolphin (KDE) theme
+  ansible.builtin.lineinfile:
+    path: "/home/{{ primary_user }}/.config/dolphinrc"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    create: yes
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - { regexp: '^ColorScheme=', line: 'ColorScheme={{ themes_global_theme | capitalize }}' }
+  when:
+    - desktop_environment == 'kde'
+    - themes_global_theme != 'none'
+
+- name: Configure Thunar (XFCE) theme
+  ansible.builtin.lineinfile:
+    path: "/home/{{ primary_user }}/.config/Thunar/thunarrc"
+    regexp: '^misc-ui-theme='
+    line: 'misc-ui-theme={{ themes_global_theme | capitalize }}'
+    create: yes
+  become: yes
+  become_user: "{{ primary_user }}"
+  when:
+    - desktop_environment == 'xfce'
+    - themes_global_theme != 'none'

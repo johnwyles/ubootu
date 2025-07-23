@@ -1,0 +1,189 @@
+{
+    // Editor settings
+    "editor.fontSize": 14,
+    "editor.fontFamily": "{{ vscode_font_family | default('Fira Code, Consolas, monospace') }}",
+    "editor.fontLigatures": true,
+    "editor.tabSize": {{ vscode_tab_size | default(4) }},
+    "editor.insertSpaces": {{ vscode_use_spaces | default(true) | lower }},
+    "editor.formatOnSave": {{ vscode_format_on_save | default(true) | lower }},
+    "editor.formatOnPaste": {{ vscode_format_on_paste | default(true) | lower }},
+    "editor.formatOnType": {{ vscode_format_on_type | default(false) | lower }},
+    "editor.minimap.enabled": {{ vscode_minimap_enabled | default(true) | lower }},
+    "editor.bracketPairColorization.enabled": {{ vscode_bracket_colorization | default(true) | lower }},
+    "editor.guides.bracketPairs": "active",
+    "editor.stickyScroll.enabled": {{ vscode_sticky_scroll | default(true) | lower }},
+    "editor.cursorBlinking": "{{ vscode_cursor_blinking | default('blink') }}",
+    "editor.cursorSmoothCaretAnimation": {{ vscode_smooth_caret | default(true) | lower }},
+    "editor.smoothScrolling": {{ vscode_smooth_scrolling | default(true) | lower }},
+    "editor.wordWrap": "{{ vscode_word_wrap | default('on') }}",
+    "editor.renderWhitespace": "{{ vscode_render_whitespace | default('boundary') }}",
+    "editor.renderControlCharacters": {{ vscode_render_control_chars | default(false) | lower }},
+    
+    // Files settings
+    "files.autoSave": "{{ vscode_auto_save | default('afterDelay') }}",
+    "files.autoSaveDelay": {{ vscode_auto_save_delay | default(1000) }},
+    "files.trimTrailingWhitespace": {{ vscode_trim_whitespace | default(true) | lower }},
+    "files.insertFinalNewline": {{ vscode_insert_final_newline | default(true) | lower }},
+    "files.trimFinalNewlines": {{ vscode_trim_final_newlines | default(true) | lower }},
+    "files.encoding": "{{ vscode_encoding | default('utf8') }}",
+    "files.eol": "{{ vscode_eol | default('\\n') }}",
+    
+    // Workbench settings
+    "workbench.colorTheme": "{{ vscode_theme | default('One Dark Pro') }}",
+    "workbench.iconTheme": "{{ vscode_icon_theme | default('vscode-icons') }}",
+    "workbench.startupEditor": "{{ vscode_startup_editor | default('welcomePageInEmptyWorkbench') }}",
+    "workbench.editor.enablePreview": {{ vscode_enable_preview | default(false) | lower }},
+    "workbench.editor.showTabs": {{ vscode_show_tabs | default(true) | lower }},
+    "workbench.activityBar.visible": {{ vscode_activity_bar_visible | default(true) | lower }},
+    "workbench.statusBar.visible": {{ vscode_status_bar_visible | default(true) | lower }},
+    "workbench.sideBar.location": "{{ vscode_sidebar_location | default('left') }}",
+    
+    // Terminal settings
+    "terminal.integrated.fontSize": {{ vscode_terminal_font_size | default(14) }},
+    "terminal.integrated.fontFamily": "{{ vscode_terminal_font_family | default('MesloLGS NF, monospace') }}",
+    "terminal.integrated.shell.linux": "{{ vscode_terminal_shell | default('/bin/zsh') }}",
+    "terminal.integrated.cursorBlinking": {{ vscode_terminal_cursor_blinking | default(true) | lower }},
+    "terminal.integrated.cursorStyle": "{{ vscode_terminal_cursor_style | default('block') }}",
+    "terminal.integrated.scrollback": {{ vscode_terminal_scrollback | default(10000) }},
+    
+    // Language-specific settings
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.python",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[yaml]": {
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    },
+    "[markdown]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.wordWrap": "on"
+    },
+    
+    // Git settings
+    "git.enableSmartCommit": {{ vscode_git_smart_commit | default(true) | lower }},
+    "git.confirmSync": {{ vscode_git_confirm_sync | default(false) | lower }},
+    "git.autofetch": {{ vscode_git_autofetch | default(true) | lower }},
+    "git.showPushSuccessNotification": {{ vscode_git_push_notifications | default(true) | lower }},
+    "git.decorations.enabled": {{ vscode_git_decorations | default(true) | lower }},
+    
+    // Extension settings
+    "extensions.autoUpdate": {{ vscode_auto_update_extensions | default(true) | lower }},
+    "extensions.ignoreRecommendations": {{ vscode_ignore_recommendations | default(false) | lower }},
+    
+    // Security settings
+    "security.workspace.trust.enabled": {{ vscode_workspace_trust | default(true) | lower }},
+    "security.workspace.trust.startupPrompt": "{{ vscode_trust_startup_prompt | default('once') }}",
+    "security.workspace.trust.banner": "{{ vscode_trust_banner | default('untrusted') }}",
+    
+    // Performance settings
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "**/.git": true,
+        "**/.DS_Store": true,
+        "**/tmp": true,
+        "**/coverage": true,
+        "**/build": true,
+        "**/dist": true,
+        "**/.vscode": true,
+        "**/.idea": true,
+        "**/*.pyc": true,
+        "**/.pytest_cache": true,
+        "**/__pycache__": true,
+        "**/.mypy_cache": true,
+        "**/venv": true,
+        "**/env": true,
+        "**/.env": true
+    },
+    "files.watcherExclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "**/.git": true,
+        "**/tmp": true,
+        "**/coverage": true,
+        "**/build": true,
+        "**/dist": true,
+        "**/*.pyc": true,
+        "**/__pycache__": true,
+        "**/venv": true,
+        "**/env": true
+    },
+    
+    // Language support
+    "python.defaultInterpreterPath": "{{ vscode_python_interpreter | default('/usr/bin/python3') }}",
+    "python.formatting.provider": "{{ vscode_python_formatter | default('black') }}",
+    "python.linting.enabled": {{ vscode_python_linting | default(true) | lower }},
+    "python.linting.pylintEnabled": {{ vscode_python_pylint | default(true) | lower }},
+    "python.linting.flake8Enabled": {{ vscode_python_flake8 | default(false) | lower }},
+    "python.testing.pytestEnabled": {{ vscode_python_pytest | default(true) | lower }},
+    "python.testing.unittestEnabled": {{ vscode_python_unittest | default(false) | lower }},
+    
+    // Prettier settings
+    "prettier.tabWidth": {{ vscode_prettier_tab_width | default(2) }},
+    "prettier.useTabs": {{ vscode_prettier_use_tabs | default(false) | lower }},
+    "prettier.semi": {{ vscode_prettier_semicolons | default(true) | lower }},
+    "prettier.singleQuote": {{ vscode_prettier_single_quotes | default(true) | lower }},
+    "prettier.trailingComma": "{{ vscode_prettier_trailing_comma | default('es5') }}",
+    "prettier.printWidth": {{ vscode_prettier_print_width | default(80) }},
+    
+    // ESLint settings
+    "eslint.enable": {{ vscode_eslint_enabled | default(true) | lower }},
+    "eslint.format.enable": {{ vscode_eslint_format | default(true) | lower }},
+    "eslint.lintTask.enable": {{ vscode_eslint_lint_task | default(true) | lower }},
+    
+    // Additional customizations
+    "breadcrumbs.enabled": {{ vscode_breadcrumbs | default(true) | lower }},
+    "editor.inlayHints.enabled": "{{ vscode_inlay_hints | default('onUnlessPressed') }}",
+    "editor.linkedEditing": {{ vscode_linked_editing | default(false) | lower }},
+    "editor.suggest.snippetsPreventQuickSuggestions": {{ vscode_snippets_prevent_suggestions | default(false) | lower }},
+    "editor.acceptSuggestionOnEnter": "{{ vscode_accept_suggestion_on_enter | default('on') }}",
+    "editor.quickSuggestions": {
+        "other": {{ vscode_quick_suggestions_other | default(true) | lower }},
+        "comments": {{ vscode_quick_suggestions_comments | default(false) | lower }},
+        "strings": {{ vscode_quick_suggestions_strings | default(false) | lower }}
+    },
+    "editor.parameterHints.enabled": {{ vscode_parameter_hints | default(true) | lower }},
+    "editor.codeLens": {{ vscode_code_lens | default(true) | lower }},
+    "editor.folding": {{ vscode_folding | default(true) | lower }},
+    "editor.foldingHighlight": {{ vscode_folding_highlight | default(true) | lower }},
+    "editor.showFoldingControls": "{{ vscode_show_folding_controls | default('mouseover') }}",
+    
+    // Error lens settings (if extension is installed)
+    "errorLens.enabled": {{ vscode_error_lens_enabled | default(true) | lower }},
+    "errorLens.enabledDiagnosticLevels": {{ vscode_error_lens_levels | default('["error", "warning", "info"]') }},
+    "errorLens.fontSize": "{{ vscode_error_lens_font_size | default('12') }}",
+    
+    // GitLens settings (if extension is installed)
+    "gitlens.codeLens.enabled": {{ vscode_gitlens_code_lens | default(true) | lower }},
+    "gitlens.currentLine.enabled": {{ vscode_gitlens_current_line | default(true) | lower }},
+    "gitlens.hovers.enabled": {{ vscode_gitlens_hovers | default(true) | lower }},
+    "gitlens.blame.format": "{{ vscode_gitlens_blame_format | default('${message|50?} ${agoOrDate|14-}') }}",
+    "gitlens.blame.heatmap.enabled": {{ vscode_gitlens_heatmap | default(true) | lower }},
+    
+    // Live Server settings (if extension is installed)
+    "liveServer.settings.donotShowInfoMsg": {{ vscode_live_server_no_info | default(true) | lower }},
+    "liveServer.settings.donotVerifyTags": {{ vscode_live_server_no_verify | default(true) | lower }},
+    "liveServer.settings.port": {{ vscode_live_server_port | default(5500) }},
+    
+    // Auto-save related settings
+    "files.autoSaveDelay": {{ vscode_auto_save_delay | default(1000) }},
+    "editor.formatOnSaveMode": "{{ vscode_format_on_save_mode | default('file') }}",
+    "editor.codeActionsOnSave": {
+        "source.fixAll": {{ vscode_fix_all_on_save | default(true) | lower }},
+        "source.organizeImports": {{ vscode_organize_imports_on_save | default(true) | lower }}
+    }
+}

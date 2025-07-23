@@ -1,0 +1,25 @@
+---
+- name: Install GNOME desktop environment
+  ansible.builtin.apt:
+    name: "{{ de_packages.gnome }}"
+    state: present
+    install_recommends: yes
+  become: yes
+  register: gnome_install
+
+- name: Remove Ubuntu Pro advertisement
+  ansible.builtin.apt:
+    name: ubuntu-advantage-desktop-daemon
+    state: absent
+  become: yes
+  when: ansible_distribution_version is version('22.04', '>=')
+
+- name: Enable GNOME extensions
+  ansible.builtin.command: gnome-extensions enable {{ item }}
+  become: yes
+  become_user: "{{ primary_user }}"
+  loop:
+    - ubuntu-dock@ubuntu.com
+  failed_when: false
+  when: gnome_install is changed
+  changed_when: true

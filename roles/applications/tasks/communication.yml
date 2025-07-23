@@ -1,0 +1,90 @@
+---
+# Install communication applications
+
+- name: Install Slack
+  snap:
+    name: slack
+    state: present
+  become: yes
+  when: "'slack' in communication_apps and enable_snap | default(true)"
+
+- name: Install Discord
+  block:
+    - name: Download Discord .deb package
+      ansible.builtin.get_url:
+        url: "https://discord.com/api/download?platform=linux&format=deb"
+        dest: /tmp/discord.deb
+        mode: '0644'
+      become: yes
+
+    - name: Install Discord
+      ansible.builtin.apt:
+        deb: /tmp/discord.deb
+        state: present
+      become: yes
+
+    - name: Clean up Discord package
+      ansible.builtin.file:
+        path: /tmp/discord.deb
+        state: absent
+      become: yes
+  when: "'discord' in communication_apps"
+
+- name: Install Microsoft Teams
+  snap:
+    name: teams-for-linux
+    state: present
+  become: yes
+  when: "'teams' in communication_apps and enable_snap | default(true)"
+
+- name: Install Zoom
+  block:
+    - name: Download Zoom .deb package
+      ansible.builtin.get_url:
+        url: "https://zoom.us/client/latest/zoom_amd64.deb"
+        dest: /tmp/zoom_amd64.deb
+        mode: '0644'
+      become: yes
+
+    - name: Install Zoom
+      ansible.builtin.apt:
+        deb: /tmp/zoom_amd64.deb
+        state: present
+      become: yes
+
+    - name: Clean up Zoom package
+      ansible.builtin.file:
+        path: /tmp/zoom_amd64.deb
+        state: absent
+      become: yes
+  when: "'zoom' in communication_apps"
+
+- name: Install Signal Desktop
+  block:
+    - name: Add Signal GPG key
+      apt_key:
+        url: https://updates.signal.org/desktop/apt/keys.asc
+        state: present
+      become: yes
+
+    - name: Add Signal repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://updates.signal.org/desktop/apt xenial main"
+        state: present
+        filename: signal-xenial
+      become: yes
+
+    - name: Install Signal
+      ansible.builtin.apt:
+        name: signal-desktop
+        state: present
+        update_cache: yes
+      become: yes
+  when: "'signal' in communication_apps"
+
+- name: Install Telegram Desktop
+  ansible.builtin.apt:
+    name: telegram-desktop
+    state: present
+  become: yes
+  when: "'telegram' in communication_apps"

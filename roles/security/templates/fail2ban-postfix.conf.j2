@@ -1,0 +1,17 @@
+[postfix]
+enabled = false
+port = smtp,465,submission
+filter = postfix
+logpath = /var/log/mail.log
+
+[postfix-rbl]
+enabled = false
+port = smtp,465,submission
+filter = postfix[mode=rbl]
+logpath = /var/log/mail.log
+
+[postfix-sasl]
+enabled = false
+port = smtp,465,submission,imap,imaps,pop3,pop3s
+filter = postfix[mode=auth]
+logpath = /var/log/mail.log

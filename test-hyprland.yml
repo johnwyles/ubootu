@@ -1,0 +1,35 @@
+---
+# Test playbook for Hyprland installation
+- name: Test Hyprland installation
+  hosts: localhost
+  become: yes
+  vars:
+    primary_user: "{{ ansible_user_id }}"
+    de_hyprland_enabled: true
+    de_hyprland_build_from_source: false
+    wayland_tools:
+      - wl-clipboard
+      - wdisplays
+      - kanshi
+      - gammastep
+      - wlr-randr
+  
+  tasks:
+    - name: Display test configuration
+      ansible.builtin.debug:
+        msg: |
+          Testing Hyprland installation with:
+          - User: {{ primary_user }}
+          - Build from source: {{ de_hyprland_build_from_source }}
+          - Wayland tools: {{ wayland_tools | join(', ') }}
+    
+    - name: Include desktop-environment role
+      ansible.builtin.include_role:
+        name: desktop-environment
+      tags: ['desktop']
+    
+    - name: Include applications role for Wayland tools
+      ansible.builtin.include_role:
+        name: applications
+        tasks_from: wayland-tools.yml
+      tags: ['wayland-tools']

@@ -1,0 +1,229 @@
+---
+# Comprehensive application theming
+
+- name: Configure LibreOffice theme
+  block:
+    - name: Create LibreOffice config directory
+      ansible.builtin.file:
+        path: "/home/{{ primary_user }}/.config/libreoffice/4/user"
+        state: directory
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0755'
+        recurse: yes
+      become: yes
+
+    - name: Set LibreOffice dark theme
+      ansible.builtin.copy:
+        content: |
+          <?xml version="1.0" encoding="UTF-8"?>
+          <oor:items xmlns:oor="http://openoffice.org/2001/registry">
+            <item oor:path="/org.openoffice.Office.Common/Misc">
+              <prop oor:name="UseSystemUITheme" oor:op="fuse">
+                <value>true</value>
+              </prop>
+              <prop oor:name="ApplicationAppearance" oor:op="fuse">
+                <value>2</value>
+              </prop>
+            </item>
+          </oor:items>
+        dest: "/home/{{ primary_user }}/.config/libreoffice/4/user/registrymodifications.xcu"
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0644'
+      become: yes
+  when: "'libreoffice' in productivity_apps | default([])"
+
+- name: Configure Thunderbird theme
+  block:
+    - name: Set Thunderbird dark theme preference
+      ansible.builtin.lineinfile:
+        path: "/home/{{ primary_user }}/.thunderbird/profiles.ini"
+        line: |
+          user_pref("extensions.activeThemeID", "thunderbird-compact-dark@mozilla.org");
+          user_pref("ui.systemUsesDarkTheme", 1);
+        create: yes
+      become: yes
+      become_user: "{{ primary_user }}"
+  when: "'thunderbird' in productivity_apps | default([])"
+
+- name: Configure GIMP theme
+  block:
+    - name: Create GIMP config directory
+      ansible.builtin.file:
+        path: "/home/{{ primary_user }}/.config/GIMP/2.10"
+        state: directory
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0755'
+        recurse: yes
+      become: yes
+
+    - name: Set GIMP dark theme
+      ansible.builtin.lineinfile:
+        path: "/home/{{ primary_user }}/.config/GIMP/2.10/gimprc"
+        regexp: '^\(theme '
+        line: '(theme "Dark")'
+        create: yes
+      become: yes
+      become_user: "{{ primary_user }}"
+  when: "'gimp' in multimedia_apps | default([])"
+
+- name: Configure Spotify theme (via spicetify)
+  block:
+    - name: Install spicetify
+      ansible.builtin.shell: |
+        curl -fsSL https://raw.githubusercontent.com/spicetify/spicetify-cli/master/install.sh | sh
+      become: yes
+      become_user: "{{ primary_user }}"
+      args:
+        creates: "/home/{{ primary_user }}/.spicetify"
+
+    - name: Apply Spotify theme
+      ansible.builtin.shell: |
+        export PATH=$PATH:~/.spicetify
+        spicetify config current_theme {{ themes_global_theme | capitalize }}
+        spicetify config color_scheme dark
+        spicetify apply
+      become: yes
+      become_user: "{{ primary_user }}"
+      when: themes_global_theme != 'none'
+  when: "'spotify' in multimedia_apps | default([])"
+
+- name: Configure JetBrains IDEs theme
+  block:
+    - name: Find JetBrains config directories
+      ansible.builtin.find:
+        paths: "/home/{{ primary_user }}/.config/JetBrains"
+        patterns: "*"
+        file_type: directory
+      register: jetbrains_dirs
+      become: yes
+
+    - name: Set JetBrains dark theme
+      ansible.builtin.copy:
+        content: |
+          <application>
+            <component name="LafManager">
+              <laf class-name="com.intellij.ide.ui.laf.darcula.DarculaLaf" />
+            </component>
+          </application>
+        dest: "{{ item.path }}/options/laf.xml"
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0644'
+      become: yes
+      loop: "{{ jetbrains_dirs.files }}"
+      when: jetbrains_dirs.files | length > 0
+  when: "'jetbrains' in code_editors | default([])"
+
+- name: Configure Vim/Neovim theme
+  block:
+    - name: Create vim config directory
+      ansible.builtin.file:
+        path: "/home/{{ primary_user }}/.vim/colors"
+        state: directory
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0755'
+        recurse: yes
+      become: yes
+
+    - name: Download vim theme
+      ansible.builtin.get_url:
+        url: "{{ themes_sources[themes_global_theme].vim }}/raw/master/colors/{{ themes_global_theme }}.vim"
+        dest: "/home/{{ primary_user }}/.vim/colors/{{ themes_global_theme }}.vim"
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0644'
+      become: yes
+      when: themes_global_theme in themes_sources
+
+    - name: Set vim colorscheme
+      ansible.builtin.lineinfile:
+        path: "/home/{{ primary_user }}/.vimrc"
+        regexp: '^colorscheme'
+        line: "colorscheme {{ themes_global_theme }}"
+        create: yes
+      become: yes
+      become_user: "{{ primary_user }}"
+      when: themes_global_theme != 'none'
+
+    - name: Configure Neovim
+      block:
+        - name: Create neovim config directory
+          ansible.builtin.file:
+            path: "/home/{{ primary_user }}/.config/nvim"
+            state: directory
+            owner: "{{ primary_user }}"
+            group: "{{ primary_user }}"
+            mode: '0755'
+          become: yes
+
+        - name: Link vim theme to neovim
+          ansible.builtin.file:
+            src: "/home/{{ primary_user }}/.vim/colors"
+            dest: "/home/{{ primary_user }}/.config/nvim/colors"
+            state: link
+          become: yes
+          become_user: "{{ primary_user }}"
+  when: "'vim' in code_editors | default([])"
+
+- name: Configure Sublime Text theme
+  block:
+    - name: Install Package Control
+      ansible.builtin.get_url:
+        url: "https://packagecontrol.io/Package%20Control.sublime-package"
+        dest: "/home/{{ primary_user }}/.config/sublime-text/Installed Packages/Package Control.sublime-package"
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0644'
+      become: yes
+
+    - name: Configure Sublime preferences
+      ansible.builtin.template:
+        src: sublime-preferences.json.j2
+        dest: "/home/{{ primary_user }}/.config/sublime-text/Packages/User/Preferences.sublime-settings"
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0644'
+      become: yes
+  when: "'sublime' in code_editors | default([])"
+
+- name: Configure Obsidian theme
+  block:
+    - name: Create Obsidian config directory
+      ansible.builtin.file:
+        path: "/home/{{ primary_user }}/.config/obsidian/themes"
+        state: directory
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0755'
+        recurse: yes
+      become: yes
+
+    - name: Set Obsidian appearance
+      ansible.builtin.copy:
+        content: |
+          {
+            "baseFontSize": 16,
+            "theme": "obsidian",
+            "cssTheme": "{{ themes_global_theme | capitalize }}"
+          }
+        dest: "/home/{{ primary_user }}/.config/obsidian/appearance.json"
+        owner: "{{ primary_user }}"
+        group: "{{ primary_user }}"
+        mode: '0644'
+      become: yes
+  when: "'obsidian' in productivity_apps | default([])"
+
+- name: Configure system notifications theme
+  community.general.dconf:
+    key: "/org/gnome/desktop/notifications/application-theme"
+    value: "'{{ themes_global_theme }}'"
+    state: present
+  become: yes
+  become_user: "{{ primary_user }}"
+  when:
+    - desktop_environment == 'gnome'
+    - themes_global_theme != 'none'

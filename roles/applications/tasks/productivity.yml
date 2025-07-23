@@ -1,0 +1,98 @@
+---
+# Install productivity applications
+
+- name: Install LibreOffice suite
+  ansible.builtin.apt:
+    name:
+      - libreoffice
+      - libreoffice-gtk3
+      - libreoffice-style-breeze
+    state: present
+  become: yes
+  when: install_libreoffice | default(true)
+
+- name: Install Obsidian
+  block:
+    - name: Get latest Obsidian release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/obsidianmd/obsidian-releases/releases/latest
+        return_content: yes
+      register: obsidian_release
+
+    - name: Download Obsidian AppImage
+      ansible.builtin.get_url:
+        url: "{{ obsidian_release.json.assets | selectattr('name', 'match', '.*\\.AppImage$') | map(attribute='browser_download_url') | first }}"
+        dest: "/opt/Obsidian.AppImage"
+        mode: '0755'
+      become: yes
+
+    - name: Create Obsidian desktop entry
+      ansible.builtin.copy:
+        dest: /usr/share/applications/obsidian.desktop
+        content: |
+          [Desktop Entry]
+          Name=Obsidian
+          Exec=/opt/Obsidian.AppImage
+          Terminal=false
+          Type=Application
+          Icon=obsidian
+          StartupWMClass=obsidian
+          Categories=Office;TextEditor;
+        mode: '0644'
+      become: yes
+  when: "'obsidian' in productivity_apps"
+
+- name: Install Notion (via snap)
+  snap:
+    name: notion-snap-reborn
+    state: present
+  become: yes
+  when: "'notion' in productivity_apps and enable_snap | default(true)"
+
+- name: Install Thunderbird
+  ansible.builtin.apt:
+    name: thunderbird
+    state: present
+  become: yes
+  when: "'thunderbird' in productivity_apps"
+
+- name: Install Evolution
+  ansible.builtin.apt:
+    name:
+      - evolution
+      - evolution-ews
+      - evolution-plugins
+    state: present
+  become: yes
+  when: "'evolution' in productivity_apps"
+
+- name: Install Joplin
+  block:
+    - name: Get latest Joplin release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/laurent22/joplin/releases/latest
+        return_content: yes
+      register: joplin_release
+
+    - name: Download Joplin AppImage
+      ansible.builtin.get_url:
+        url: "{{ joplin_release.json.assets | selectattr('name', 'match', 'Joplin-.*\\.AppImage$') | map(attribute='browser_download_url') | first }}"
+        dest: "/opt/Joplin.AppImage"
+        mode: '0755'
+      become: yes
+
+    - name: Create Joplin desktop entry
+      ansible.builtin.copy:
+        dest: /usr/share/applications/joplin.desktop
+        content: |
+          [Desktop Entry]
+          Name=Joplin
+          Exec=/opt/Joplin.AppImage
+          Terminal=false
+          Type=Application
+          Icon=joplin
+          StartupWMClass=joplin
+          Categories=Office;TextEditor;
+        mode: '0644'
+      become: yes
+  when: "'joplin' in productivity_apps"

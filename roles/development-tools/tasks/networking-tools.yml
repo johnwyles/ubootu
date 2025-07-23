@@ -1,0 +1,170 @@
+---
+# Install networking and VPN tools
+
+- name: Install Tailscale
+  block:
+    - name: Add Tailscale GPG key
+      apt_key:
+        url: https://pkgs.tailscale.com/stable/ubuntu/{{ ansible_distribution_release }}.noarmor.gpg
+        state: present
+      become: yes
+
+    - name: Add Tailscale repository
+      apt_repository:
+        repo: "deb https://pkgs.tailscale.com/stable/ubuntu {{ ansible_distribution_release }} main"
+        state: present
+        filename: tailscale
+      become: yes
+
+    - name: Install Tailscale
+      ansible.builtin.apt:
+        name: tailscale
+        state: present
+        update_cache: yes
+      become: yes
+
+    - name: Install Tailscale GUI (Trayscale)
+      flatpak:
+        name: dev.deedles.Trayscale
+        state: present
+      become: yes
+      when: enable_flatpak | default(true)
+  when: "'tailscale' in devtools_networking_tools"
+
+- name: Install ZeroTier
+  block:
+    - name: Add ZeroTier GPG key
+      apt_key:
+        url: https://raw.githubusercontent.com/zerotier/ZeroTierOne/master/doc/contact%40zerotier.com.gpg
+        state: present
+      become: yes
+
+    - name: Add ZeroTier repository
+      apt_repository:
+        repo: "deb https://download.zerotier.com/debian/{{ ansible_distribution_release }} {{ ansible_distribution_release }} main"
+        state: present
+        filename: zerotier
+      become: yes
+
+    - name: Install ZeroTier
+      ansible.builtin.apt:
+        name: zerotier-one
+        state: present
+        update_cache: yes
+      become: yes
+
+    - name: Install ZeroTier GUI
+      snap:
+        name: zerotier-gui
+        state: present
+      become: yes
+      when: enable_snap | default(true)
+  when: "'zerotier' in devtools_networking_tools"
+
+- name: Install WireGuard and GUI
+  block:
+    - name: Install WireGuard
+      ansible.builtin.apt:
+        name:
+          - wireguard
+          - wireguard-tools
+        state: present
+      become: yes
+
+    - name: Install WireGuard GUI options
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      become: yes
+      loop:
+        - network-manager-openvpn-gnome
+      when: desktop_environment == 'gnome'
+  when: "'wireguard' in devtools_networking_tools"
+
+- name: Install NetBird
+  block:
+    - name: Download NetBird installer
+      ansible.builtin.get_url:
+        url: https://pkgs.netbird.io/install.sh
+        dest: /tmp/netbird-install.sh
+        mode: '0755'
+      become: yes
+
+    - name: Install NetBird
+      ansible.builtin.shell: /tmp/netbird-install.sh
+      become: yes
+      environment:
+        NB_USE_SYSTEM_DAEMON: "yes"
+  when: "'netbird' in devtools_networking_tools"
+
+- name: Install OpenVPN and GUI
+  block:
+    - name: Install OpenVPN
+      ansible.builtin.apt:
+        name:
+          - openvpn
+          - network-manager-openvpn
+          - network-manager-openvpn-gnome
+        state: present
+      become: yes
+  when: "'openvpn' in devtools_networking_tools"
+
+- name: Install Cockpit (Web-based server manager)
+  block:
+    - name: Install Cockpit
+      ansible.builtin.apt:
+        name:
+          - cockpit
+          - cockpit-podman
+          - cockpit-networkmanager
+          - cockpit-packagekit
+          - cockpit-storaged
+        state: present
+      become: yes
+
+    - name: Enable Cockpit service
+      ansible.builtin.systemd:
+        name: cockpit.socket
+        enabled: yes
+        state: started
+      become: yes
+
+    - name: Open firewall for Cockpit
+      ufw:
+        rule: allow
+        port: '9090'
+        proto: tcp
+      become: yes
+      when: enable_firewall | default(true)
+  when: "'cockpit' in devtools_networking_tools"
+
+- name: Install Webmin
+  block:
+    - name: Add Webmin GPG key
+      apt_key:
+        url: http://www.webmin.com/jcameron-key.asc
+        state: present
+      become: yes
+
+    - name: Add Webmin repository
+      apt_repository:
+        repo: "deb https://download.webmin.com/download/repository sarge contrib"
+        state: present
+        filename: webmin
+      become: yes
+
+    - name: Install Webmin
+      ansible.builtin.apt:
+        name: webmin
+        state: present
+        update_cache: yes
+      become: yes
+
+    - name: Open firewall for Webmin
+      ufw:
+        rule: allow
+        port: '10000'
+        proto: tcp
+      become: yes
+      when: enable_firewall | default(true)
+  when: "'webmin' in devtools_networking_tools"
