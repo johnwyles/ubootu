@@ -16,11 +16,11 @@ import re
 # Add lib to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
 
-from config_models import (
+from lib.config_models import (
     BootstrapConfiguration, DesktopEnvironment, DevelopmentLanguage, 
     Shell, TaskbarPosition, GlobalTheme
 )
-from error_handling import (
+from lib.error_handling import (
     ValidationError, ErrorCode, get_logger, BootstrapError,
     raise_config_error
 )
