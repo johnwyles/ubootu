@@ -1,165 +1,165 @@
 ---
 app_customizations: {}
 categories:
-    app-browsers:
-    - waterfox
-    - brave
-    - vivaldi
-    app-communication:
-    - teams
-    - discord
-    - zoom
-    app-media:
-    - spotify
-    - vlc
-    - gimp
-    app-productivity:
-    - obsidian
-    - notion
-    - thunderbird
-    desktop-env:
-    - gnome
-    desktop-settings:
-    - notifications
-    - display-settings
-    - keyboard-settings
-    - mouse-settings
-    desktop-themes:
-    - papirus-icons
-    - dark-theme
-    - numix-theme
-    - arc-theme
-    dev-containers:
-    - ansible
-    - terraform
-    - docker-desktop
-    - kubernetes
-    dev-ides:
-    - vim
-    - vscode
-    dev-languages:
-    - cpp
-    - go
-    - rust
-    - nodejs
-    - ruby
-    - python
-    dev-tools:
-    - mysql-workbench
-    - docker
-    - git
-    - postman
-    - redis-cli
-    - curl
-    security-basic:
-    - clamav
-    - auto-updates
-    - ufw-firewall
-    security-privacy:
-    - tor
-    - keepassxc
-    - protonvpn
-    - signal
-    - veracrypt
-    security-tools:
-    - burpsuite
-    - wireshark
-    - john
-    - metasploit
-    - nmap
-    system-hardware:
-    - nvidia-drivers
-    - bluetooth
-    - amd-drivers
-    - printers
-    system-perf:
-    - preload
-    - zram
-    - profile-sync
-    - powertop
-    system-services:
-    - ssh-server
-    - cups
-    - samba
-    - nfs
+        app-browsers:
+                - waterfox
+                - brave
+                - vivaldi
+        app-communication:
+                - teams
+                - discord
+                - zoom
+        app-media:
+                - spotify
+                - vlc
+                - gimp
+        app-productivity:
+                - obsidian
+                - notion
+                - thunderbird
+        desktop-env:
+                - gnome
+        desktop-settings:
+                - notifications
+                - display-settings
+                - keyboard-settings
+                - mouse-settings
+        desktop-themes:
+                - papirus-icons
+                - dark-theme
+                - numix-theme
+                - arc-theme
+        dev-containers:
+                - ansible
+                - terraform
+                - docker-desktop
+                - kubernetes
+        dev-ides:
+                - vim
+                - vscode
+        dev-languages:
+                - cpp
+                - go
+                - rust
+                - nodejs
+                - ruby
+                - python
+        dev-tools:
+                - mysql-workbench
+                - docker
+                - git
+                - postman
+                - redis-cli
+                - curl
+        security-basic:
+                - clamav
+                - auto-updates
+                - ufw-firewall
+        security-privacy:
+                - tor
+                - keepassxc
+                - protonvpn
+                - signal
+                - veracrypt
+        security-tools:
+                - burpsuite
+                - wireshark
+                - john
+                - metasploit
+                - nmap
+        system-hardware:
+                - nvidia-drivers
+                - bluetooth
+                - amd-drivers
+                - printers
+        system-perf:
+                - preload
+                - zram
+                - profile-sync
+                - powertop
+        system-services:
+                - ssh-server
+                - cups
+                - samba
+                - nfs
 configurable_values:
-    display-settings:
-      type: slider
-      unit: '%'
-      value: 100
-    keyboard-settings:
-      type: slider
-      unit: ''
-      value: 10
-    mouse-settings:
-      type: slider
-      unit: ''
-      value: 7
+        display-settings:
+                type: slider
+                unit: '%'
+                value: 100
+        keyboard-settings:
+                type: slider
+                unit: ''
+                value: 10
+        mouse-settings:
+                type: slider
+                unit: ''
+                value: 7
 configuration_date: '2025-07-19T14:20:04.569855'
 generated_by: Ubootu - Professional Ubuntu Desktop Configuration Tool
 selected_items:
-- teams
-- ssh-server
-- notifications
-- ansible
-- mysql-workbench
-- clamav
-- gnome
-- nvidia-drivers
-- papirus-icons
-- docker
-- burpsuite
-- auto-updates
-- bluetooth
-- display-settings
-- dark-theme
-- tor
-- spotify
-- git
-- obsidian
-- wireshark
-- keepassxc
-- amd-drivers
-- cups
-- postman
-- cpp
-- terraform
-- waterfox
-- preload
-- go
-- zram
-- notion
-- profile-sync
-- vlc
-- redis-cli
-- docker-desktop
-- john
-- thunderbird
-- brave
-- kubernetes
-- vim
-- rust
-- metasploit
-- nodejs
-- protonvpn
-- powertop
-- discord
-- nmap
-- samba
-- gimp
-- zoom
-- signal
-- curl
-- numix-theme
-- veracrypt
-- printers
-- ufw-firewall
-- keyboard-settings
-- mouse-settings
-- vscode
-- nfs
-- arc-theme
-- vivaldi
-- ruby
-- python
+        - teams
+        - ssh-server
+        - notifications
+        - ansible
+        - mysql-workbench
+        - clamav
+        - gnome
+        - nvidia-drivers
+        - papirus-icons
+        - docker
+        - burpsuite
+        - auto-updates
+        - bluetooth
+        - display-settings
+        - dark-theme
+        - tor
+        - spotify
+        - git
+        - obsidian
+        - wireshark
+        - keepassxc
+        - amd-drivers
+        - cups
+        - postman
+        - cpp
+        - terraform
+        - waterfox
+        - preload
+        - go
+        - zram
+        - notion
+        - profile-sync
+        - vlc
+        - redis-cli
+        - docker-desktop
+        - john
+        - thunderbird
+        - brave
+        - kubernetes
+        - vim
+        - rust
+        - metasploit
+        - nodejs
+        - protonvpn
+        - powertop
+        - discord
+        - nmap
+        - samba
+        - gimp
+        - zoom
+        - signal
+        - curl
+        - numix-theme
+        - veracrypt
+        - printers
+        - ufw-firewall
+        - keyboard-settings
+        - mouse-settings
+        - vscode
+        - nfs
+        - arc-theme
+        - vivaldi
+        - ruby
+        - python
 ui_version: 2.0_unbootu
