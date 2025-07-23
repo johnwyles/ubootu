@@ -2,6 +2,8 @@
 Unit tests for tui/colors.py - Color management module
 """
 
+
+from __future__ import annotations
 import pytest
 from unittest.mock import Mock, patch
 from lib.tui import colors

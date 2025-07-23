@@ -70,7 +70,7 @@ class ConfigurationValidator:
     """Comprehensive configuration validator"""
     
     def __init__(self):
-        self.logger = get_logger()
+        self.logger = get_logger(__name__)
         self.rules = self._build_validation_rules()
     
     def validate(self, config: BootstrapConfiguration) -> ValidationResult:
@@ -348,7 +348,7 @@ class SchemaValidator:
     """JSON Schema-like validation for configuration"""
     
     def __init__(self):
-        self.logger = get_logger()
+        self.logger = get_logger(__name__)
     
     def validate_against_schema(self, config_dict: Dict[str, Any]) -> ValidationResult:
         """Validate configuration dictionary against expected schema"""

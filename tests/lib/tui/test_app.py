@@ -2,6 +2,8 @@
 Unit tests for tui/app.py - Main TUI application.
 """
 
+
+from __future__ import annotations
 import curses
 from unittest.mock import patch, Mock, MagicMock, call
 

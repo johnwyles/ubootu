@@ -2,6 +2,8 @@
 Unit tests for tui.menus.base - Base menu builder class
 """
 
+
+from __future__ import annotations
 import pytest
 from unittest.mock import Mock, MagicMock
 from lib.tui.menus.base import MenuBuilder
