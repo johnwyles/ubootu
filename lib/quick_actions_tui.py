@@ -10,9 +10,9 @@ import curses
 import subprocess
 import time
 from typing import List, Tuple
-from tui_dialogs import ListDialog, ConfirmDialog, MessageDialog, ProgressDialog
-from tui_components import KeyHintBar, HelpOverlay, CommandResult, ErrorDetailsDialog
-from menu_dialog import MenuDialog
+from lib.tui_dialogs import ListDialog, ConfirmDialog, MessageDialog, ProgressDialog
+from lib.tui_components import KeyHintBar, HelpOverlay, CommandResult, ErrorDetailsDialog
+from lib.menu_dialog import MenuDialog
 
 
 class QuickActions:
