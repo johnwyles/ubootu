@@ -7,11 +7,7 @@ from unittest.mock import Mock, MagicMock, patch, call
 import curses
 
 import lib.menu_ui
-from lib.menu_ui import (
-    SelectionMode, CategoryState, MenuItem, MenuCategory,
-    SystemPreferences, show_menu, calculate_category_state,
-    DropdownConfig, SliderConfig, MultiSelectConfig
-)
+from lib.menu_ui import MenuOption, MenuUI, SliderConfig, DropdownConfig, MultiSelectConfig, create_menu_ui
 
 
 class TestMenuUi:
@@ -29,50 +25,22 @@ class TestMenuUi:
         """Test that module can be imported"""
         assert lib.menu_ui is not None
     
-    def test_selection_mode_enum(self):
-        """Test SelectionMode enum values"""
-        assert SelectionMode.NAVIGATE.value == "navigate"
-        assert SelectionMode.SELECT.value == "select"
-        assert SelectionMode.CONFIGURE.value == "configure"
-    
-    def test_category_state_enum(self):
-        """Test CategoryState enum values"""
-        assert CategoryState.NONE == "none"
-        assert CategoryState.PARTIAL == "partial"
-        assert CategoryState.ALL == "all"
-    
-    def test_menu_item_creation(self):
-        """Test MenuItem dataclass"""
-        item = MenuItem(
-            id="test-item",
-            name="Test Item",
-            description="Test description",
-            parent="test-parent"
+    def test_menu_option_class(self):
+        """Test MenuOption class"""
+        option = MenuOption(
+            name="Test Option",
+            key="t",
+            description="Test description"
         )
-        assert item.id == "test-item"
-        assert item.name == "Test Item"
-        assert item.selected is False  # Default value
-        assert item.children == []  # Default value
+        assert option.name == "Test Option"
+        assert option.key == "t"
+        assert option.description == "Test description"
     
-    def test_menu_category_creation(self):
-        """Test MenuCategory dataclass"""
-        category = MenuCategory(
-            id="test-cat",
-            name="Test Category",
-            description="Test category description",
-            parent="root",
-            children=["item1", "item2"]
-        )
-        assert category.id == "test-cat"
-        assert len(category.children) == 2
-    
-    def test_system_preferences(self):
-        """Test SystemPreferences dataclass"""
-        prefs = SystemPreferences()
-        assert prefs.username == ""
-        assert prefs.full_name == ""
-        assert prefs.timezone == "UTC"
-        assert prefs.desktop_environment == "gnome"
+    def test_menu_ui_initialization(self, mock_stdscr):
+        """Test MenuUI class initialization"""
+        with patch('curses.initscr', return_value=mock_stdscr):
+            menu = MenuUI(title="Test Menu")
+            assert menu.title == "Test Menu"
     
     def test_config_classes(self):
         """Test configuration dataclasses"""
@@ -104,39 +72,7 @@ class TestMenuUi:
         assert len(multi.options) == 2
         assert multi.max_selections == 2
     
-    @patch('curses.wrapper')
-    def test_show_menu_function(self, mock_wrapper):
-        """Test show_menu function exists and is callable"""
-        # Verify function exists
-        assert hasattr(lib.menu_ui, 'show_menu')
-        assert callable(lib.menu_ui.show_menu)
-        
-        # Test calling it (will be mocked)
-        result = show_menu(None)
-        mock_wrapper.assert_called_once()
-    
-    def test_calculate_category_state(self):
-        """Test calculate_category_state function"""
-        # All items selected
-        items = [
-            MenuItem("1", "Item 1", "", "cat", selected=True),
-            MenuItem("2", "Item 2", "", "cat", selected=True)
-        ]
-        state = calculate_category_state(items, "cat")
-        assert state == CategoryState.ALL
-        
-        # No items selected
-        items = [
-            MenuItem("1", "Item 1", "", "cat", selected=False),
-            MenuItem("2", "Item 2", "", "cat", selected=False)
-        ]
-        state = calculate_category_state(items, "cat")
-        assert state == CategoryState.NONE
-        
-        # Some items selected
-        items = [
-            MenuItem("1", "Item 1", "", "cat", selected=True),
-            MenuItem("2", "Item 2", "", "cat", selected=False)
-        ]
-        state = calculate_category_state(items, "cat")
-        assert state == CategoryState.PARTIAL
+    def test_create_menu_ui_function(self):
+        """Test create_menu_ui function"""
+        assert hasattr(lib.menu_ui, 'create_menu_ui')
+        assert callable(lib.menu_ui.create_menu_ui)
