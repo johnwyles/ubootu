@@ -4,11 +4,11 @@ Unit tests for tui.menus.base - Base menu builder class
 
 import pytest
 from unittest.mock import Mock, MagicMock
-from lib.tui.menus.base import BaseMenuBuilder
+from lib.tui.menus.base import MenuBuilder
 
 
-class TestBaseMenuBuilder:
-    """Test BaseMenuBuilder menu builder"""
+class TestMenuBuilder:
+    """Test MenuBuilder menu builder"""
     
     @pytest.fixture
     def menu_builder(self):

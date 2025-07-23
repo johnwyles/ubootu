@@ -9,8 +9,8 @@ import os
 import curses
 import yaml
 from typing import List, Tuple, Optional
-from tui_dialogs import ListDialog, MessageDialog
-from profile_manager import ProfileManager
+from lib.tui_dialogs import ListDialog, MessageDialog
+from lib.profile_manager import ProfileManager
 
 
 def show_profile_selector(stdscr) -> Optional[str]:

@@ -7,8 +7,8 @@ Browse and manage configuration history
 import sys
 import curses
 from typing import List, Tuple
-from tui_dialogs import ListDialog, TextInputDialog, ConfirmDialog, MessageDialog
-from profile_manager import ProfileManager
+from lib.tui_dialogs import ListDialog, TextInputDialog, ConfirmDialog, MessageDialog
+from lib.profile_manager import ProfileManager
 
 
 class HistoryViewer:
