@@ -5,7 +5,7 @@ Unit tests for backup_config_tui - Configuration backup interface
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.backup_config_tui import *
+import lib.backup_config_tui
 
 
 class TestBackupConfigTui:

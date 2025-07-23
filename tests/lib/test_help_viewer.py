@@ -5,7 +5,7 @@ Unit tests for help_viewer - Help documentation viewer
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.help_viewer import *
+import lib.help_viewer
 
 
 class TestHelpViewer:

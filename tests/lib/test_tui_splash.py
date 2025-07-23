@@ -5,7 +5,7 @@ Unit tests for tui_splash - TUI splash screen
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.tui_splash import *
+import lib.tui_splash
 
 
 class TestTuiSplash:

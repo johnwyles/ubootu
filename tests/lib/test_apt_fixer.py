@@ -5,7 +5,7 @@ Unit tests for apt_fixer - APT package management utilities
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.apt_fixer import *
+import lib.apt_fixer
 
 
 class TestAptFixer:

@@ -5,7 +5,7 @@ Unit tests for overlay_dialog - Overlay dialog system
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.overlay_dialog import *
+import lib.overlay_dialog
 
 
 class TestOverlayDialog:

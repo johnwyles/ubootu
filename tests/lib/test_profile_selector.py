@@ -5,7 +5,7 @@ Unit tests for profile_selector - Profile selection interface
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.profile_selector import *
+import lib.profile_selector
 
 
 class TestProfileSelector:

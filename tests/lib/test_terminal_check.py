@@ -5,7 +5,7 @@ Unit tests for terminal_check - Terminal compatibility checker
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.terminal_check import *
+import lib.terminal_check
 
 
 class TestTerminalCheck:

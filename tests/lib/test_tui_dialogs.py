@@ -5,7 +5,7 @@ Unit tests for tui_dialogs - TUI dialog system
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.tui_dialogs import *
+import lib.tui_dialogs
 
 
 class TestTuiDialogs:

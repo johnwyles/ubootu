@@ -5,7 +5,7 @@ Unit tests for history_viewer - Command history viewer
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.history_viewer import *
+import lib.history_viewer
 
 
 class TestHistoryViewer:

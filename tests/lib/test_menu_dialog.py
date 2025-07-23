@@ -5,7 +5,7 @@ Unit tests for menu_dialog - Menu dialog system
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from lib.menu_dialog import *
+import lib.menu_dialog
 
 
 class TestMenuDialog:
