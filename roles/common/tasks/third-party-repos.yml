@@ -36,7 +36,7 @@
         state: present
         filename: docker
       become: yes
-  when: 
+  when:
     - dev is defined
     - dev.docker is defined
     - dev.docker | default(false)
@@ -57,7 +57,7 @@
         state: present
         filename: vscode
       become: yes
-  when: 
+  when:
     - dev is defined
     - dev.vscode is defined
     - dev.vscode | default(false)
@@ -78,7 +78,7 @@
         state: present
         filename: google-chrome
       become: yes
-  when: 
+  when:
     - browser is defined
     - browser.chrome is defined
     - browser.chrome | default(false)
@@ -99,7 +99,7 @@
         state: present
         filename: brave-browser
       become: yes
-  when: 
+  when:
     - browser is defined
     - browser.brave is defined
     - browser.brave | default(false)
@@ -120,7 +120,7 @@
         state: present
         filename: vivaldi
       become: yes
-  when: 
+  when:
     - browser is defined
     - browser.vivaldi is defined
     - browser.vivaldi | default(false)
@@ -142,7 +142,7 @@
         state: present
         filename: microsoft-edge
       become: yes
-  when: 
+  when:
     - browser is defined
     - browser.edge is defined
     - browser.edge | default(false)
@@ -163,7 +163,7 @@
         state: present
         filename: sublime-text
       become: yes
-  when: 
+  when:
     - dev is defined
     - dev.sublime is defined
     - dev.sublime | default(false)
@@ -184,7 +184,7 @@
         state: present
         filename: dbeaver
       become: yes
-  when: 
+  when:
     - dev is defined
     - dev.dbeaver is defined
     - dev.dbeaver | default(false)
@@ -205,7 +205,7 @@
         state: present
         filename: pgadmin4
       become: yes
-  when: 
+  when:
     - dev is defined
     - dev.pgadmin is defined
     - dev.pgadmin | default(false)
@@ -226,7 +226,7 @@
         state: present
         filename: insomnia
       become: yes
-  when: 
+  when:
     - dev is defined
     - dev.insomnia is defined
     - dev.insomnia | default(false)
@@ -247,7 +247,7 @@
         state: present
         filename: signal
       become: yes
-  when: 
+  when:
     - communication is defined
     - communication.signal is defined
     - communication.signal | default(false)
@@ -268,7 +268,7 @@
         state: present
         filename: slack
       become: yes
-  when: 
+  when:
     - communication is defined
     - communication.slack is defined
     - communication.slack | default(false)
@@ -293,7 +293,7 @@
         state: present
         filename: spotify
       become: yes
-  when: 
+  when:
     - media is defined
     - media.spotify is defined
     - media.spotify | default(false)
@@ -314,7 +314,7 @@
         state: present
         filename: nodesource
       become: yes
-  when: 
+  when:
     - lang is defined
     - lang.nodejs is defined
     - lang.nodejs | default(false)
@@ -336,7 +336,7 @@
         state: present
         filename: postgresql
       become: yes
-  when: 
+  when:
     - dev is defined
     - dev.postgresql is defined
     - dev.postgresql | default(false)
@@ -357,7 +357,7 @@
         state: present
         filename: mongodb
       become: yes
-  when: 
+  when:
     - dev is defined
     - dev.mongodb is defined
     - dev.mongodb | default(false)
@@ -378,7 +378,7 @@
         state: present
         filename: kubernetes
       become: yes
-  when: 
+  when:
     - container is defined
     - container.kubectl is defined
     - container.kubectl | default(false)
@@ -399,7 +399,7 @@
         state: present
         filename: hashicorp
       become: yes
-  when: 
+  when:
     - dev is defined
     - dev.terraform is defined
     - dev.terraform | default(false)
@@ -420,7 +420,7 @@
         state: present
         filename: github-cli
       become: yes
-  when: 
+  when:
     - (dev is defined and dev.github_cli is defined and dev.github_cli | default(false)) or
       (cli is defined and cli.gh is defined and cli.gh | default(false))
 
@@ -470,7 +470,7 @@
         state: present
         filename: winehq
       become: yes
-  when: 
+  when:
     - games is defined
     - games.wine is defined
     - games.wine | default(false)

@@ -97,7 +97,7 @@ devtools_modern_replacements:
   - lsd         # Deluxe ls replacement
   - bat         # Better cat with syntax highlighting
   - ripgrep     # Fast grep alternative
-  - fd          # Fast find alternative  
+  - fd          # Fast find alternative
   - fzf         # Fuzzy finder
   - duf         # Modern df replacement
   - dust        # Modern du replacement

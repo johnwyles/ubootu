@@ -23,9 +23,12 @@ class TUIConfigManager:
     
     def get_current_menu_items(self) -> List['MenuItem']:
         """Get items for current menu level"""
+        if self.current_menu not in self.menu_items:
+            return []
         current = self.menu_items[self.current_menu]
         if current.children:
-            return [self.menu_items[child_id] for child_id in current.children]
+            return [self.menu_items[child_id] for child_id in current.children 
+                    if child_id in self.menu_items]
         return []
     
     def navigate_to_menu(self, menu_id: str, save_breadcrumb: bool = True):
@@ -55,6 +58,10 @@ class TUIConfigManager:
         path = []
         current = self.current_menu
         
+        # Include root in breadcrumb if we're at root level
+        if current == "root" and current in self.menu_items:
+            return self.menu_items[current].label
+        
         while current and current != "root":
             if current in self.menu_items:
                 item = self.menu_items[current]
@@ -64,7 +71,7 @@ class TUIConfigManager:
                 break
         
         path.reverse()
-        return " > ".join(path)
+        return " > ".join(path) if path else ""
     
     def get_category_selection_status(self, category_id: str) -> str:
         """Get selection status for a category: 'full', 'partial', 'empty'"""

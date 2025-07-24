@@ -41,8 +41,10 @@ class TestAptFixer:
                     # If function takes no required args, try calling it
                     if not any(p.default == p.empty for p in sig.parameters.values()):
                         try:
-                            result = func()
-                            assert result is not None or result is None  # Just check it runs
+                            # Don't call main as it exits
+                            if name != 'main':
+                                result = func()
+                                assert result is not None or result is None  # Just check it runs
                         except Exception:
                             pass
     

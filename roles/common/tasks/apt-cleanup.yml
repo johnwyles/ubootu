@@ -18,7 +18,7 @@
         patterns: "*.list"
       register: apt_list_files
       become: yes
-      
+
     - name: Backup sources.list.d before cleanup
       archive:
         path: /etc/apt/sources.list.d
@@ -26,20 +26,20 @@
         format: gz
       become: yes
       when: apt_list_files.files | length > 0
-      
+
     - name: Remove duplicate repository entries
       shell: |
         #!/bin/bash
         set -euo pipefail
-        
+
         # Function to normalize repository entries for comparison
         normalize_repo() {
             echo "$1" | sed -e 's/\s\+/ /g' -e 's/\/$//' -e 's/ $//'
         }
-        
+
         # Track seen repositories
         declare -A seen_repos
-        
+
         # Process main sources.list
         if [ -f /etc/apt/sources.list ]; then
             temp_file=$(mktemp)
@@ -56,7 +56,7 @@
             done < /etc/apt/sources.list
             mv "$temp_file" /etc/apt/sources.list
         fi
-        
+
         # Process .list files in sources.list.d
         for list_file in /etc/apt/sources.list.d/*.list; do
             if [ -f "$list_file" ]; then
@@ -72,7 +72,7 @@
                         echo "$line" >> "$temp_file"
                     fi
                 done < "$list_file"
-                
+
                 # Only update file if it changed
                 if ! cmp -s "$list_file" "$temp_file"; then
                     mv "$temp_file" "$list_file"
@@ -88,7 +88,7 @@
       changed_when: cleanup_result.rc == 0
       tags:
         - apt-cleanup
-        
+
     - name: Fix broken packages
       apt:
         state: fixed
@@ -96,7 +96,7 @@
       ignore_errors: yes
       tags:
         - apt-cleanup
-        
+
     - name: Remove orphaned packages
       apt:
         autoremove: yes
@@ -104,7 +104,7 @@
       become: yes
       tags:
         - apt-cleanup
-        
+
     - name: Update apt cache after cleanup
       apt:
         update_cache: yes
@@ -125,7 +125,7 @@
       register: dpkg_configure
       changed_when: dpkg_configure.rc == 0
       failed_when: dpkg_configure.rc > 1
-      
+
     - name: Fix interrupted dpkg
       command: apt-get install -f -y
       become: yes

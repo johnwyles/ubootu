@@ -9,13 +9,28 @@ from unittest.mock import Mock, MagicMock
 from lib.tui.menus.base import MenuBuilder
 
 
-class TestMenuBuilder:
-    """Test MenuBuilder menu builder"""
+class TestMenuBuilder(MenuBuilder):
+    """Concrete test implementation of MenuBuilder"""
+    def build(self):
+        """Build test menu structure"""
+        # Add some test items
+        self.add_category("test-root", "Test Root", "Root category", parent="root", children=["test-cat1", "test-cat2"])
+        self.add_category("test-cat1", "Test Category 1", "First test category", parent="test-root", children=["test-item1", "test-config"])
+        self.add_category("test-cat2", "Test Category 2", "Second test category", parent="test-root", children=["test-item2"])
+        self.add_selectable("test-item1", "Test Item 1", "First test item", parent="test-cat1")
+        self.add_selectable("test-item2", "Test Item 2", "Second test item", parent="test-cat2")
+        self.add_configurable("test-config", "Test Config", "Test configurable item", 
+                              parent="test-cat1", config_type="slider", config_range=(0, 100))
+        return self.items
+
+
+class TestMenuBuilderClass:
+    """Test MenuBuilder base class"""
     
     @pytest.fixture
     def menu_builder(self):
         """Create menu builder instance"""
-        return BaseMenuBuilder()
+        return TestMenuBuilder()
     
     def test_build_creates_menu_structure(self, menu_builder):
         """Test that build() creates proper menu structure"""
@@ -45,7 +60,7 @@ class TestMenuBuilder:
         items = menu_builder.build()
         
         for item in items.values():
-            if item.parent:
+            if item.parent and item.parent != 'root':
                 assert item.parent in items, f"Parent {item.parent} not found for {item.id}"
             
             if item.children:

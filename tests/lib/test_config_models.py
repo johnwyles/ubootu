@@ -31,9 +31,9 @@ class TestConfigModels:
         assert DesktopEnvironment.GNOME.value == "gnome"
         assert DesktopEnvironment.KDE.value == "kde"
         
-        # Test Shell
-        assert Shell.BASH.value == "bash"
-        assert Shell.ZSH.value == "zsh"
+        # Test Shell - these have full paths as values
+        assert Shell.BASH.value == "/bin/bash"
+        assert Shell.ZSH.value == "/bin/zsh"
         
         # Test DevelopmentLanguage
         assert DevelopmentLanguage.PYTHON.value == "python"
@@ -52,23 +52,25 @@ class TestConfigModels:
     
     def test_user_config(self):
         """Test UserConfig dataclass"""
+        # UserConfig uses primary_user, not username
         config = UserConfig(
-            username="testuser",
-            full_name="Test User",
-            email="test@example.com"
+            primary_user="testuser",
+            primary_user_shell=Shell.BASH
         )
-        assert config.username == "testuser"
-        assert config.full_name == "Test User"
-        assert config.email == "test@example.com"
+        assert config.primary_user == "testuser"
+        assert config.primary_user_shell == Shell.BASH
+        assert config.create_user_groups == ["docker", "vboxusers"]
     
     def test_bootstrap_configuration(self):
         """Test BootstrapConfiguration dataclass"""
         # Test using create_default_config
         config = create_default_config()
         assert isinstance(config, BootstrapConfiguration)
-        assert config.version is not None
+        # BootstrapConfiguration doesn't have a version attribute
         assert isinstance(config.system, SystemConfig)
         assert isinstance(config.user, UserConfig)
+        assert isinstance(config.desktop, DesktopConfig)
+        assert isinstance(config.security, SecurityConfig)
     
     @patch('builtins.open', create=True)
     @patch('yaml.safe_load')

@@ -28,19 +28,22 @@ class TestMenuUi:
     def test_menu_option_class(self):
         """Test MenuOption class"""
         option = MenuOption(
-            name="Test Option",
             key="t",
+            icon="🔧",
+            title="Test Option",
             description="Test description"
         )
-        assert option.name == "Test Option"
+        assert option.title == "Test Option"
         assert option.key == "t"
         assert option.description == "Test description"
+        assert option.icon == "🔧"
     
     def test_menu_ui_initialization(self, mock_stdscr):
         """Test MenuUI class initialization"""
         with patch('curses.initscr', return_value=mock_stdscr):
-            menu = MenuUI(title="Test Menu")
-            assert menu.title == "Test Menu"
+            menu = MenuUI()
+            assert menu.console is not None
+            assert menu.current_selection == 0
     
     def test_config_classes(self):
         """Test configuration dataclasses"""

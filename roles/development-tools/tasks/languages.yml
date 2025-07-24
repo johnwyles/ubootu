@@ -33,10 +33,10 @@
         repo: ppa:deadsnakes/ppa
         state: present
       become: yes
-      when: 
+      when:
         - use_third_party_repos | default(true)
         - ansible_distribution == 'Ubuntu'
-    
+
     - name: Install Python versions
       ansible.builtin.apt:
         name:
@@ -62,7 +62,7 @@
         state: present
       become: yes
       ignore_errors: yes  # Some versions might not be available on all Ubuntu versions
-    
+
     - name: Install Python package managers
       ansible.builtin.pip:
         name:
@@ -83,20 +83,20 @@
         state: present
       become: yes
       when: use_third_party_repos | default(true)
-    
+
     - name: Add NodeSource LTS repository
       ansible.builtin.apt_repository:
         repo: "deb https://deb.nodesource.com/node_20.x {{ ansible_distribution_release }} main"
         state: present
       become: yes
       when: use_third_party_repos | default(true)
-    
+
     - name: Install Node.js
       ansible.builtin.apt:
         name: nodejs
         state: present
       become: yes
-    
+
     - name: Install additional Node.js package managers
       ansible.builtin.shell: |
         npm install -g yarn pnpm
@@ -113,7 +113,7 @@
         dest: /tmp/go.tar.gz
         mode: '0644'
       when: use_third_party_repos | default(true)
-    
+
     - name: Extract Go
       ansible.builtin.unarchive:
         src: /tmp/go.tar.gz
@@ -122,14 +122,14 @@
         creates: /usr/local/go/bin/go
       become: yes
       when: use_third_party_repos | default(true)
-    
+
     - name: Install Go from apt (fallback)
       ansible.builtin.apt:
         name: golang-go
         state: present
       become: yes
       when: not (use_third_party_repos | default(true))
-    
+
     - name: Set Go environment variables
       ansible.builtin.lineinfile:
         path: "/home/{{ primary_user }}/.bashrc"
@@ -153,12 +153,12 @@
           - build-essential
         state: present
       become: yes
-    
+
     - name: Check if rustup is installed
       ansible.builtin.stat:
         path: "/home/{{ primary_user }}/.cargo/bin/rustc"
       register: rust_installed
-    
+
     - name: Install rustup
       ansible.builtin.shell: |
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -176,14 +176,14 @@
         state: present
       become: yes
       when: use_third_party_repos | default(true)
-    
+
     - name: Add Adoptium repository
       ansible.builtin.apt_repository:
         repo: "deb https://packages.adoptium.net/artifactory/deb {{ ansible_distribution_release }} main"
         state: present
       become: yes
       when: use_third_party_repos | default(true)
-    
+
     - name: Install Java versions
       ansible.builtin.apt:
         name:
@@ -194,7 +194,7 @@
         state: present
       become: yes
       ignore_errors: yes  # Some versions might not be available
-    
+
     - name: Install Java build tools
       ansible.builtin.apt:
         name:
@@ -215,7 +215,7 @@
         rm packages-microsoft-prod.deb
       become: yes
       when: use_third_party_repos | default(true)
-    
+
     - name: Install .NET SDK
       ansible.builtin.apt:
         name:
@@ -238,7 +238,7 @@
           - rubygems
         state: present
       become: yes
-    
+
     - name: Install bundler
       ansible.builtin.gem:
         name: bundler
@@ -255,10 +255,10 @@
         repo: ppa:ondrej/php
         state: present
       become: yes
-      when: 
+      when:
         - use_third_party_repos | default(true)
         - ansible_distribution == 'Ubuntu'
-    
+
     - name: Install PHP and extensions
       ansible.builtin.apt:
         name:
@@ -278,7 +278,7 @@
           - php-pear
         state: present
       become: yes
-    
+
     - name: Install Composer
       ansible.builtin.shell: |
         curl -sS https://getcomposer.org/installer | php
@@ -313,13 +313,13 @@
           - zlib1g-dev
         state: present
       become: yes
-    
+
     - name: Download Swift
       ansible.builtin.get_url:
         url: "https://download.swift.org/swift-5.9.2-release/ubuntu2204/swift-5.9.2-RELEASE/swift-5.9.2-RELEASE-ubuntu22.04.tar.gz"
         dest: /tmp/swift.tar.gz
       when: ansible_distribution_version == '22.04'
-    
+
     - name: Extract Swift
       ansible.builtin.unarchive:
         src: /tmp/swift.tar.gz
@@ -328,7 +328,7 @@
         creates: /usr/local/swift-5.9.2-RELEASE-ubuntu22.04/usr/bin/swift
       become: yes
       when: ansible_distribution_version == '22.04'
-    
+
     - name: Create Swift symlinks
       ansible.builtin.file:
         src: "/usr/local/swift-5.9.2-RELEASE-ubuntu22.04/usr/bin/{{ item }}"
@@ -353,14 +353,14 @@
       args:
         executable: /bin/bash
       when: devtools_install_sdkman
-    
+
     - name: Install Kotlin manually
       block:
         - name: Download Kotlin compiler
           ansible.builtin.get_url:
             url: "https://github.com/JetBrains/kotlin/releases/download/v1.9.21/kotlin-compiler-1.9.21.zip"
             dest: /tmp/kotlin-compiler.zip
-        
+
         - name: Extract Kotlin
           ansible.builtin.unarchive:
             src: /tmp/kotlin-compiler.zip
@@ -368,7 +368,7 @@
             remote_src: yes
             creates: /opt/kotlinc
           become: yes
-        
+
         - name: Create Kotlin symlinks
           ansible.builtin.file:
             src: "/opt/kotlinc/bin/{{ item }}"
@@ -388,7 +388,7 @@
       ansible.builtin.get_url:
         url: "https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz"
         dest: /tmp/zig.tar.xz
-    
+
     - name: Extract Zig
       ansible.builtin.unarchive:
         src: /tmp/zig.tar.xz
@@ -396,7 +396,7 @@
         remote_src: yes
         creates: /opt/zig-linux-x86_64-0.11.0
       become: yes
-    
+
     - name: Create Zig symlink
       ansible.builtin.file:
         src: "/opt/zig-linux-x86_64-0.11.0/zig"
@@ -438,14 +438,14 @@
         state: present
       become: yes
       when: use_third_party_repos | default(true)
-    
+
     - name: Add R repository
       ansible.builtin.apt_repository:
         repo: "deb https://cloud.r-project.org/bin/linux/ubuntu {{ ansible_distribution_release }}-cran40/"
         state: present
       become: yes
       when: use_third_party_repos | default(true)
-    
+
     - name: Install R
       ansible.builtin.apt:
         name:
@@ -466,7 +466,7 @@
       become: yes
       args:
         creates: /usr/local/bin/stack
-    
+
     - name: Install GHC via Stack
       ansible.builtin.shell: |
         stack setup
@@ -483,14 +483,14 @@
         state: present
       become: yes
       when: use_third_party_repos | default(true)
-    
+
     - name: Add Erlang Solutions repository
       ansible.builtin.apt_repository:
         repo: "deb https://packages.erlang-solutions.com/ubuntu {{ ansible_distribution_release }} contrib"
         state: present
       become: yes
       when: use_third_party_repos | default(true)
-    
+
     - name: Install Erlang and Elixir
       ansible.builtin.apt:
         name:
@@ -512,7 +512,7 @@
           - build-essential
         state: present
       become: yes
-    
+
     - name: Initialize OPAM
       ansible.builtin.shell: |
         opam init --disable-sandboxing -y
@@ -527,7 +527,7 @@
     name: fsharp
     state: present
   become: yes
-  when: 
+  when:
     - "'fsharp' in devtools_languages"
     - "'dotnet' in devtools_languages"  # F# requires .NET
 
@@ -541,7 +541,7 @@
           - rlwrap
         state: present
       become: yes
-    
+
     - name: Install Clojure
       ansible.builtin.shell: |
         curl -O https://download.clojure.org/install/linux-install-1.11.1.1435.sh
@@ -550,7 +550,7 @@
       become: yes
       args:
         creates: /usr/local/bin/clojure
-    
+
     - name: Install Leiningen
       ansible.builtin.get_url:
         url: https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein
@@ -572,7 +572,7 @@
       args:
         executable: /bin/bash
       when: devtools_install_sdkman
-    
+
     - name: Install Scala manually
       ansible.builtin.apt:
         name:
@@ -589,7 +589,7 @@
       ansible.builtin.get_url:
         url: "https://julialang-s3.julialang.org/bin/linux/x64/1.9/julia-1.9.4-linux-x86_64.tar.gz"
         dest: /tmp/julia.tar.gz
-    
+
     - name: Extract Julia
       ansible.builtin.unarchive:
         src: /tmp/julia.tar.gz
@@ -597,7 +597,7 @@
         remote_src: yes
         creates: /opt/julia-1.9.4
       become: yes
-    
+
     - name: Create Julia symlink
       ansible.builtin.file:
         src: "/opt/julia-1.9.4/bin/julia"
@@ -620,12 +620,12 @@
           - libglu1-mesa
         state: present
       become: yes
-    
+
     - name: Download Flutter SDK
       ansible.builtin.get_url:
         url: "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.16.5-stable.tar.xz"
         dest: /tmp/flutter.tar.xz
-    
+
     - name: Extract Flutter
       ansible.builtin.unarchive:
         src: /tmp/flutter.tar.xz
@@ -633,7 +633,7 @@
         remote_src: yes
         creates: /opt/flutter
       become: yes
-    
+
     - name: Set Flutter PATH
       ansible.builtin.lineinfile:
         path: "/home/{{ primary_user }}/.bashrc"
@@ -641,7 +641,7 @@
         create: yes
       become: yes
       become_user: "{{ primary_user }}"
-    
+
     - name: Accept Flutter licenses
       ansible.builtin.shell: |
         /opt/flutter/bin/flutter doctor --android-licenses -y
@@ -655,7 +655,7 @@
   ansible.builtin.shell: |
     npm install -g typescript ts-node @types/node
   become: yes
-  when: 
+  when:
     - "'typescript' in devtools_languages"
     - "'nodejs' in devtools_languages"  # TypeScript requires Node.js
 
@@ -664,7 +664,7 @@
   ansible.builtin.shell: |
     npm install -g coffeescript
   become: yes
-  when: 
+  when:
     - "'coffeescript' in devtools_languages"
     - "'nodejs' in devtools_languages"  # CoffeeScript requires Node.js
 
@@ -676,7 +676,7 @@
         url: "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
         dest: /tmp/miniconda.sh
         mode: '0755'
-    
+
     - name: Install Miniconda
       ansible.builtin.shell: |
         /tmp/miniconda.sh -b -p /home/{{ primary_user }}/miniconda3
@@ -684,13 +684,13 @@
       become_user: "{{ primary_user }}"
       args:
         creates: "/home/{{ primary_user }}/miniconda3"
-    
+
     - name: Initialize Conda
       ansible.builtin.shell: |
         /home/{{ primary_user }}/miniconda3/bin/conda init bash
       become: yes
       become_user: "{{ primary_user }}"
-    
+
     - name: Install Mamba
       ansible.builtin.shell: |
         /home/{{ primary_user }}/miniconda3/bin/conda install -n base -c conda-forge mamba -y

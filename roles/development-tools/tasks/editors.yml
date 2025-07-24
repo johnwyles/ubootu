@@ -230,16 +230,16 @@
       ansible.builtin.copy:
         content: |
           theme = "default"
-          
+
           [editor]
           line-number = "relative"
           mouse = false
-          
+
           [editor.cursor-shape]
           insert = "bar"
           normal = "block"
           select = "underline"
-          
+
           [editor.file-picker]
           hidden = false
         dest: "/home/{{ primary_user }}/.config/helix/config.toml"
