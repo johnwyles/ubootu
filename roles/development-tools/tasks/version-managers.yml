@@ -29,7 +29,7 @@
       become_user: "{{ primary_user }}"
       args:
         executable: /bin/bash
-  when: 
+  when:
     - "'nvm' in devtools_version_managers"
     - "'nodejs' in devtools_languages"
 
@@ -102,7 +102,7 @@
       args:
         executable: /bin/bash
       ignore_errors: yes  # Some versions might fail on certain Ubuntu versions
-  when: 
+  when:
     - "'pyenv' in devtools_version_managers"
     - "'python' in devtools_languages"
 
@@ -167,7 +167,7 @@
       args:
         executable: /bin/bash
       ignore_errors: yes
-  when: 
+  when:
     - "'rbenv' in devtools_version_managers"
     - "'ruby' in devtools_languages"
 
@@ -219,7 +219,7 @@
       args:
         executable: /bin/bash
       ignore_errors: yes
-  when: 
+  when:
     - "'jenv' in devtools_version_managers"
     - "'java' in devtools_languages"
 
@@ -314,7 +314,7 @@
       become_user: "{{ primary_user }}"
       args:
         executable: /bin/bash
-  when: 
+  when:
     - "'rustup' in devtools_version_managers"
     - "'rust' in devtools_languages"
 
@@ -360,7 +360,7 @@
       args:
         executable: /bin/bash
       ignore_errors: yes
-  when: 
+  when:
     - "'gvm' in devtools_version_managers"
     - "'go' in devtools_languages"
 

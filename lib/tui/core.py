@@ -245,12 +245,67 @@ def run_tui(selected_sections=None):
 def main():
     """Main entry point"""
     import sys
+    import os
+    
+    # Check for help flag
+    if '--help' in sys.argv or '-h' in sys.argv:
+        print("Ubootu Configuration Tool")
+        print("Usage: configure_standard_tui.py [sections...]")
+        print("\nAvailable sections:")
+        print("  development - Development tools and languages")
+        print("  desktop     - Desktop environments and themes")
+        print("  applications - User applications")
+        print("  security    - Security tools and hardening")
+        print("  system      - System configuration")
+        print("\nExamples:")
+        print("  configure_standard_tui.py              # Configure all sections")
+        print("  configure_standard_tui.py development  # Configure only development tools")
+        print("  configure_standard_tui.py desktop apps # Configure desktop and applications")
+        sys.exit(0)
+    
+    # Check if we're in a terminal
+    if not sys.stdout.isatty() and not os.environ.get('FORCE_TUI'):
+        print("Error: Not running in a terminal. The TUI requires an interactive terminal.")
+        print("If you're sure you want to run this (e.g., in a script), set FORCE_TUI=1")
+        sys.exit(1)
+    
+    # Check terminal compatibility
+    try:
+        from lib.terminal_check import can_run_tui
+        can_run, issues, warnings = can_run_tui()
+        
+        if not can_run:
+            print("Error: Terminal is not compatible with the TUI")
+            for issue in issues:
+                print(f"  - {issue}")
+            print("\nPlease use a modern terminal emulator or set TERM=xterm-256color")
+            sys.exit(1)
+        
+        # Print warnings but continue
+        if warnings:
+            for warning in warnings:
+                print(f"Warning: {warning}")
+            print()  # Add blank line before TUI starts
+    except Exception as e:
+        # If terminal check fails, try to continue anyway
+        print(f"Warning: Could not check terminal compatibility: {e}")
     
     # Parse command line arguments for section selection
     selected_sections = None
     if len(sys.argv) > 1:
-        selected_sections = sys.argv[1:]
+        # Filter out help flags
+        args = [arg for arg in sys.argv[1:] if arg not in ['--help', '-h']]
+        if args:
+            selected_sections = args
     
     # Run the TUI
-    exit_code = run_tui(selected_sections)
-    sys.exit(exit_code)
+    try:
+        exit_code = run_tui(selected_sections)
+        sys.exit(exit_code)
+    except Exception as e:
+        print(f"\nError: Failed to run TUI: {e}")
+        print("This usually happens when:")
+        print("  - The terminal doesn't support required features")
+        print("  - TERM environment variable is not set correctly")
+        print("  - Running in a non-interactive environment")
+        sys.exit(1)

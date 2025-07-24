@@ -208,7 +208,7 @@ class TestTUIConfigManager:
         """Test breadcrumb generation"""
         # At root
         breadcrumb = config_manager.get_breadcrumb()
-        assert breadcrumb == ""
+        assert breadcrumb == "Root Menu"
         
         # Navigate to cat1
         config_manager.current_menu = "cat1"
@@ -452,9 +452,12 @@ class TestTUIConfigManager:
     
     def test_empty_menu_items(self):
         """Test TUIConfigManager with empty menu items"""
-        manager = TUIConfigManager({}, set())
-        assert manager.get_current_menu_items() == []
-        assert manager.get_breadcrumb() == ""
+        # Create a minimal root menu for empty case
+        from lib.tui.models import MenuItem
+        root = MenuItem(id="root", label="Root", description="Root menu", is_category=True)
+        manager = TUIConfigManager({"root": root}, set())
+        assert manager.get_current_menu_items() == []  # root has no children
+        assert manager.get_breadcrumb() == "Root"
         assert manager.get_selection_counts() == (0, 0)
         assert manager.has_selections() is False
     

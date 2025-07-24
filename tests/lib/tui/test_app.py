@@ -270,6 +270,14 @@ class TestUbootuTUIApp:
 class TestSelectionLogic:
     """Test selection logic and state management."""
     
+    @pytest.fixture
+    def mock_stdscr(self):
+        """Create a mock curses screen."""
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (50, 100)  # Default size
+        stdscr.getch.return_value = -1  # No input by default
+        return stdscr
+    
     @patch('lib.tui.app.build_menu_structure')
     @patch('lib.tui.app.init_colors')
     def test_recursive_category_selection(self, mock_init_colors, mock_build_menu, mock_stdscr):

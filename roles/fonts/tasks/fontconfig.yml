@@ -38,7 +38,7 @@
     state: link
     force: yes
   become: yes
-  when: 
+  when:
     - fonts_fontconfig_rgba == "rgb"
     - fonts_system_install
 

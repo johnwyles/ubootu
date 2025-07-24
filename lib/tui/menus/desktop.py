@@ -42,7 +42,7 @@ class DesktopMenuBuilder(MenuBuilder):
         # Desktop environment items
         self.add_selectable("gnome", "GNOME", 
             "Default Ubuntu desktop",
-            parent="desktop-env", default=True)
+            parent="desktop-env")
         
         self.add_selectable("kde", "KDE Plasma", 
             "Feature-rich desktop environment",
@@ -180,7 +180,7 @@ class DesktopMenuBuilder(MenuBuilder):
         self.add_configurable(
             "nerd-fonts-pack", "Nerd Fonts Collection", 
             "JetBrains Mono, Hack, FiraCode, etc.",
-            parent="fonts-installation", default=True,
+            parent="fonts-installation",
             config_type="dropdown",
             config_value="jetbrains-mono",
             config_options=[
@@ -261,7 +261,7 @@ class DesktopMenuBuilder(MenuBuilder):
         
         self.add_selectable("prompt-starship", "Starship", 
             "Fast, customizable, cross-shell prompt",
-            parent="shell-prompts", default=True, ansible_var="shell_prompt_starship")
+            parent="shell-prompts", ansible_var="shell_prompt_starship")
         
         self.add_selectable("prompt-ohmyposh", "Oh My Posh", 
             "Powerful prompt theme engine",
@@ -290,7 +290,7 @@ class DesktopMenuBuilder(MenuBuilder):
         
         self.add_selectable("icons-papirus", "Papirus Icons", 
             "Modern flat icon theme",
-            parent="icon-themes", default=True, ansible_var="icon_theme_papirus")
+            parent="icon-themes", ansible_var="icon_theme_papirus")
         
         self.add_selectable("icons-numix", "Numix Icons", 
             "Circle icon theme",
@@ -319,7 +319,7 @@ class DesktopMenuBuilder(MenuBuilder):
         
         self.add_selectable("cursor-bibata", "Bibata Cursors", 
             "Modern animated cursors",
-            parent="cursor-themes", default=True, ansible_var="cursor_theme_bibata")
+            parent="cursor-themes", ansible_var="cursor_theme_bibata")
         
         self.add_selectable("cursor-capitaine", "Capitaine Cursors", 
             "macOS-inspired cursors",
@@ -336,7 +336,7 @@ class DesktopMenuBuilder(MenuBuilder):
         
         self.add_selectable("term-dracula", "Dracula Terminal", 
             "Dark theme for terminal",
-            parent="terminal-themes", default=True, ansible_var="terminal_theme_dracula")
+            parent="terminal-themes", ansible_var="terminal_theme_dracula")
         
         self.add_selectable("term-catppuccin", "Catppuccin Terminal", 
             "Soothing pastel theme",
@@ -386,7 +386,7 @@ class DesktopMenuBuilder(MenuBuilder):
         self.add_configurable(
             "mouse-speed", "Mouse Speed", 
             "Pointer movement speed",
-            parent="mouse-touchpad", default=True,
+            parent="mouse-touchpad",
             config_type="slider",
             config_range=(-10, 10), config_value=0, config_unit="",
             ansible_var="de_mouse_speed"
@@ -395,7 +395,7 @@ class DesktopMenuBuilder(MenuBuilder):
         self.add_configurable(
             "mouse-acceleration", "Mouse Acceleration", 
             "Enable adaptive pointer speed",
-            parent="mouse-touchpad", default=True,
+            parent="mouse-touchpad",
             config_type="toggle",
             config_value=True,
             ansible_var="de_mouse_acceleration"
@@ -422,7 +422,7 @@ class DesktopMenuBuilder(MenuBuilder):
         self.add_configurable(
             "touchpad-tap-click", "Tap to Click", 
             "Tap touchpad to click",
-            parent="mouse-touchpad", default=True,
+            parent="mouse-touchpad",
             config_type="toggle",
             config_value=True,
             ansible_var="de_touchpad_tap_to_click"
@@ -431,7 +431,7 @@ class DesktopMenuBuilder(MenuBuilder):
         self.add_configurable(
             "touchpad-two-finger", "Two-Finger Scrolling", 
             "Scroll with two fingers",
-            parent="mouse-touchpad", default=True,
+            parent="mouse-touchpad",
             config_type="toggle",
             config_value=True,
             ansible_var="de_touchpad_two_finger_scroll"
@@ -449,7 +449,7 @@ class DesktopMenuBuilder(MenuBuilder):
         self.add_configurable(
             "touchpad-gestures", "Multi-touch Gestures", 
             "Enable touchpad gestures",
-            parent="mouse-touchpad", default=True,
+            parent="mouse-touchpad",
             config_type="toggle",
             config_value=True,
             ansible_var="de_touchpad_gestures"
@@ -458,7 +458,7 @@ class DesktopMenuBuilder(MenuBuilder):
         self.add_configurable(
             "touchpad-disable-typing", "Disable While Typing", 
             "Disable touchpad while typing",
-            parent="mouse-touchpad", default=True,
+            parent="mouse-touchpad",
             config_type="toggle",
             config_value=True,
             ansible_var="de_touchpad_disable_while_typing"
@@ -477,7 +477,7 @@ class DesktopMenuBuilder(MenuBuilder):
         self.add_configurable(
             "key-repeat-delay", "Key Repeat Delay", 
             "Delay before key repeat",
-            parent="keyboard-input", default=True,
+            parent="keyboard-input",
             config_type="slider",
             config_range=(100, 1000), config_value=500, config_unit="ms",
             ansible_var="de_key_repeat_delay"
@@ -486,7 +486,7 @@ class DesktopMenuBuilder(MenuBuilder):
         self.add_configurable(
             "key-repeat-rate", "Key Repeat Rate", 
             "Speed of key repeat",
-            parent="keyboard-input", default=True,
+            parent="keyboard-input",
             config_type="slider",
             config_range=(10, 100), config_value=30, config_unit="/s",
             ansible_var="de_key_repeat_interval"
@@ -526,7 +526,7 @@ class DesktopMenuBuilder(MenuBuilder):
         self.add_configurable(
             "media-keys", "Media Keys", 
             "Enable media control keys",
-            parent="keyboard-input", default=True,
+            parent="keyboard-input",
             config_type="toggle",
             config_value=True,
             ansible_var="de_media_keys_enabled"
@@ -580,7 +580,7 @@ class DesktopMenuBuilder(MenuBuilder):
         self.add_configurable(
             "display-scale", "Display Scaling", 
             "UI scaling factor",
-            parent="displays", default=True,
+            parent="displays",
             config_type="dropdown",
             config_value=1.0,
             config_options=[

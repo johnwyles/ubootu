@@ -99,7 +99,7 @@
     name: gh
     state: present
   become: yes
-  when: 
+  when:
     - devtools_install_git
     - use_third_party_repos | default(true)
 

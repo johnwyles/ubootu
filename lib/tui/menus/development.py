@@ -288,7 +288,7 @@ class DevelopmentMenuBuilder(MenuBuilder):
             "dev-containers", "Containers & DevOps", 
             "Container platforms and orchestration",
             parent="development",
-            children=["docker-desktop", "kubernetes", "terraform", "ansible"]
+            children=["docker-desktop", "kubernetes", "terraform-iac", "ansible"]
         )
         
         # Container items
@@ -300,7 +300,7 @@ class DevelopmentMenuBuilder(MenuBuilder):
             "Container orchestration tools (kubectl, minikube)",
             parent="dev-containers")
         
-        self.add_selectable("terraform", "Terraform", 
+        self.add_selectable("terraform-iac", "Terraform", 
             "Infrastructure as code tool",
             parent="dev-containers")
         
@@ -456,10 +456,10 @@ class DevelopmentMenuBuilder(MenuBuilder):
             "cli-network-tools", "Network Utilities", 
             "Modern network analysis tools",
             parent="dev-cli-modern",
-            children=["httpie", "bandwhich", "gping", "trippy", "dog", "curlie", "xh"]
+            children=["httpie-cli", "bandwhich", "gping", "trippy", "dog", "curlie", "xh"]
         )
         
-        self.add_selectable("httpie", "HTTPie", 
+        self.add_selectable("httpie-cli", "HTTPie", 
             "User-friendly curl replacement",
             parent="cli-network-tools", default=True, ansible_var="modern_cli_install_httpie")
         
@@ -530,14 +530,14 @@ class DevelopmentMenuBuilder(MenuBuilder):
             "cli-dev-tools", "Development CLI", 
             "Git and development utilities",
             parent="dev-cli-modern",
-            children=["gh", "lazygit", "tig", "gitui", "delta-git", "forgit", "git-extras"]
+            children=["gh", "lazygit-cli", "tig", "gitui", "delta-git", "forgit", "git-extras"]
         )
         
         self.add_selectable("gh", "GitHub CLI", 
             "GitHub's official command line tool",
             parent="cli-dev-tools", default=True, ansible_var="modern_cli_install_gh")
         
-        self.add_selectable("lazygit", "lazygit", 
+        self.add_selectable("lazygit-cli", "lazygit", 
             "Simple terminal UI for git",
             parent="cli-dev-tools", default=True, ansible_var="modern_cli_install_lazygit")
         

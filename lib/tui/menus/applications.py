@@ -286,7 +286,7 @@ class ApplicationsMenuBuilder(MenuBuilder):
             parent="applications",
             children=["libreoffice", "onlyoffice", "thunderbird", "evolution", "notion", "obsidian", 
                      "logseq", "joplin", "standard-notes", "zettlr", "typora", "marktext", "ghostwriter",
-                     "slack", "mattermost", "element", "todoist", "planner", "gnome-todo", "super-productivity",
+                     "todoist", "planner", "gnome-todo", "super-productivity",
                      "focalboard", "wekan", "nextcloud-desktop", "dropbox", "megasync", "rclone-browser"]
         )
         

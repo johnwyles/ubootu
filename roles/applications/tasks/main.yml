@@ -36,7 +36,7 @@
 
 - name: Install Wayland-specific tools
   ansible.builtin.include_tasks: wayland-tools.yml
-  when: 
+  when:
     - wayland_tools is defined
     - wayland_tools | length > 0
     - de_hyprland_enabled | default(false) or de_sway_enabled | default(false) or de_wayfire_enabled | default(false) or de_river_enabled | default(false)

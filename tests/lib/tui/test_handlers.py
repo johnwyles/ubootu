@@ -268,9 +268,16 @@ class TestTUIEventHandler:
         assert "python" in handler.selected_items
     
     @patch('builtins.open', new_callable=mock_open)
-    def test_handle_key_back_navigation(self, mock_file, handler):
+    def test_handle_key_back_navigation(self, mock_file, handler, sample_menu_items):
         """Test back navigation keys."""
-        menu_getter = Mock(return_value=[])
+        # Menu getter should return the current menu items
+        def get_menu_items():
+            current = handler.menu_items.get(handler.current_menu)
+            if current and current.children:
+                return [handler.menu_items[child_id] for child_id in current.children]
+            return []
+        
+        menu_getter = Mock(side_effect=get_menu_items)
         help_callback = Mock()
         
         # Setup: we're in a submenu
@@ -297,9 +304,10 @@ class TestTUIEventHandler:
         assert handler.current_menu == "root"
     
     @patch('builtins.open', new_callable=mock_open)
-    def test_handle_key_select_all(self, mock_file, handler):
+    def test_handle_key_select_all(self, mock_file, handler, sample_menu_items):
         """Test select all keys."""
-        menu_getter = Mock(return_value=[])
+        # Return some menu items to prevent early return
+        menu_getter = Mock(return_value=[sample_menu_items["python"], sample_menu_items["nodejs"]])
         help_callback = Mock()
         
         with patch.object(handler, '_select_all_in_category') as mock_select:
@@ -312,9 +320,10 @@ class TestTUIEventHandler:
             mock_select.assert_called_with(False)
     
     @patch('builtins.open', new_callable=mock_open)
-    def test_handle_key_function_keys(self, mock_file, handler):
+    def test_handle_key_function_keys(self, mock_file, handler, sample_menu_items):
         """Test function keys."""
-        menu_getter = Mock(return_value=[])
+        # Return some menu items to prevent early return
+        menu_getter = Mock(return_value=[sample_menu_items["python"]])
         help_callback = Mock()
         
         with patch.object(handler, '_show_actions_popup', return_value=True) as mock_popup:
@@ -348,9 +357,9 @@ class TestTUIEventHandler:
         help_callback.assert_called_once()
     
     @patch('builtins.open', new_callable=mock_open)
-    def test_handle_key_quit(self, mock_file, handler):
+    def test_handle_key_quit(self, mock_file, handler, sample_menu_items):
         """Test quit keys."""
-        menu_getter = Mock(return_value=[])
+        menu_getter = Mock(return_value=[sample_menu_items["python"]])
         help_callback = Mock()
         
         with patch.object(handler, '_handle_exit', return_value=False) as mock_exit:
@@ -366,9 +375,9 @@ class TestTUIEventHandler:
             mock_exit.assert_called_once()
     
     @patch('builtins.open', new_callable=mock_open)
-    def test_handle_key_escape(self, mock_file, handler):
+    def test_handle_key_escape(self, mock_file, handler, sample_menu_items):
         """Test ESC key behavior."""
-        menu_getter = Mock(return_value=[])
+        menu_getter = Mock(return_value=[sample_menu_items["python"]])
         help_callback = Mock()
         
         # ESC with breadcrumb - go back
@@ -498,17 +507,17 @@ class TestTUIEventHandler:
     
     def test_show_exit_confirmation(self, handler):
         """Test exit confirmation dialog."""
-        # Mock selecting YES
-        handler.stdscr.getch.side_effect = [ord('\n')]  # Enter on first option
+        # Mock selecting YES - need to move UP from default NO position
+        handler.stdscr.getch.side_effect = [curses.KEY_UP, ord('\n')]  # Move to YES, then enter
         
         result = handler._show_exit_confirmation()
         
         assert result is False  # Exit
         assert handler.cancelled is True
         
-        # Mock selecting NO
+        # Mock selecting NO (default position)
         handler.cancelled = False
-        handler.stdscr.getch.side_effect = [curses.KEY_DOWN, ord('\n')]  # Move to NO, then enter
+        handler.stdscr.getch.side_effect = [ord('\n')]  # Just enter on default NO
         
         result = handler._show_exit_confirmation()
         

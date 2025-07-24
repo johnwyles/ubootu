@@ -5,7 +5,7 @@
     state: present
   become: yes
   loop: "{{ wayland_tools }}"
-  when: 
+  when:
     - wayland_tools is defined
     - wayland_tools | length > 0
     - item in ['wl-clipboard', 'wdisplays', 'wev', 'kanshi', 'gammastep', 'wlr-randr', 'swappy']  # Available in Ubuntu repos
@@ -20,33 +20,33 @@
         state: present
       become: yes
       when: ansible_distribution_version is version('22.04', '>=')
-    
+
     - name: Update apt cache after adding PPA
       ansible.builtin.apt:
         update_cache: yes
       become: yes
-    
+
     - name: Install wf-recorder for screen recording
       ansible.builtin.apt:
         name: wf-recorder
         state: present
       become: yes
       ignore_errors: yes
-    
+
     - name: Install swayimg image viewer
       ansible.builtin.apt:
         name: swayimg
         state: present
       become: yes
       ignore_errors: yes
-    
+
     - name: Install wtype for keyboard automation
       ansible.builtin.apt:
         name: wtype
         state: present
       become: yes
       ignore_errors: yes
-  when: 
+  when:
     - wayland_tools is defined
     - "'wf-recorder' in wayland_tools or 'swayimg' in wayland_tools or 'wtype' in wayland_tools"
   tags: ['wayland', 'tools', 'ppa']
@@ -59,7 +59,7 @@
         return_content: yes
       register: wlogout_release
       check_mode: no
-    
+
     - name: Download wlogout binary
       ansible.builtin.get_url:
         url: "{{ item.browser_download_url }}"
@@ -68,7 +68,7 @@
       loop: "{{ wlogout_release.json.assets }}"
       when: "'linux' in item.name and 'x86_64' in item.name"
       register: wlogout_download
-    
+
     - name: Extract and install wlogout
       ansible.builtin.unarchive:
         src: "/tmp/wlogout.tar.gz"
@@ -107,13 +107,13 @@
           - meson
         state: present
       become: yes
-    
+
     - name: Clone nwg-launchers repository
       ansible.builtin.git:
         repo: https://github.com/nwg-piotr/nwg-launchers.git
         dest: /tmp/nwg-launchers
         version: master
-    
+
     - name: Build and install nwg-launchers
       ansible.builtin.shell: |
         cd /tmp/nwg-launchers

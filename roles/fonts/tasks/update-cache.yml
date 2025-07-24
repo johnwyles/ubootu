@@ -27,7 +27,7 @@
   debug:
     msg: "Installed font: {{ item.item }}"
   loop: "{{ font_check.results }}"
-  when: 
+  when:
     - font_check is defined
     - item.rc == 0
   loop_control:

@@ -92,7 +92,7 @@
   when: "'vivaldi' in web_browsers"
   become: yes
 
-# Opera Browser Repository  
+# Opera Browser Repository
 - name: Add Opera GPG key
   get_url:
     url: https://deb.opera.com/archive.key

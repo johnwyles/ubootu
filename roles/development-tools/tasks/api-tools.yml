@@ -110,7 +110,7 @@
 # Additional API tools
 - name: Install curl (enhanced)
   ansible.builtin.apt:
-    name: 
+    name:
       - curl
       - jq          # JSON processor
       - wget        # Alternative downloader

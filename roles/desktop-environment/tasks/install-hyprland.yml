@@ -31,7 +31,7 @@
         repo: "deb http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} universe"
         state: present
       become: yes
-    
+
     - name: Install Hyprland from repository
       ansible.builtin.apt:
         name: hyprland
@@ -52,7 +52,7 @@
         state: present
       become: yes
       when: not de_hyprland_build_from_source
-    
+
     - name: Install Hyprland from PPA
       ansible.builtin.apt:
         name: hyprland
@@ -83,20 +83,20 @@
           - wayland-protocols
         state: present
       become: yes
-    
+
     - name: Create build directory
       ansible.builtin.file:
         path: "/tmp/hyprland-build"
         state: directory
         mode: '0755'
-    
+
     - name: Clone Hyprland repository
       ansible.builtin.git:
         repo: "https://github.com/hyprwm/Hyprland.git"
         dest: "/tmp/hyprland-build/Hyprland"
         version: "v0.39.1"  # Last version compatible with Ubuntu 24.04
         force: yes
-    
+
     - name: Build and install Hyprland
       ansible.builtin.shell: |
         cd /tmp/hyprland-build/Hyprland
@@ -105,13 +105,13 @@
       become: yes
       args:
         creates: /usr/local/bin/Hyprland
-    
+
     - name: Install Hyprland binary
       ansible.builtin.shell: |
         cd /tmp/hyprland-build/Hyprland
         sudo make install
       become: yes
-    
+
     - name: Clean up build directory
       ansible.builtin.file:
         path: "/tmp/hyprland-build"
@@ -251,7 +251,7 @@
         - 'export GBM_BACKEND=nvidia-drm'
         - '__GLX_VENDOR_LIBRARY_NAME=nvidia'
         - 'export WLR_DRM_DEVICES=/dev/dri/card1:/dev/dri/card0'
-    
+
     - name: Warn about NVIDIA limitations
       ansible.builtin.debug:
         msg: |

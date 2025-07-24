@@ -3,7 +3,7 @@
 
 - name: Apply VS Code customizations
   ansible.builtin.include_tasks: vscode.yml
-  when: 
+  when:
     - app_customizations is defined
     - app_customizations.vscode is defined
     - "'vscode' in code_editors"
