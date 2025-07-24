@@ -9,7 +9,8 @@
   become_user: "{{ primary_user }}"
   loop:
     - { key: "/org/gnome/desktop/peripherals/mouse/speed", value: "{{ de_mouse_speed }}" }
-    - { key: "/org/gnome/desktop/peripherals/mouse/accel-profile", value: "'{{ de_mouse_acceleration | ternary('default', 'flat') }}'" }
+    - key: "/org/gnome/desktop/peripherals/mouse/accel-profile"
+      value: "'{{ de_mouse_acceleration | ternary('default', 'flat') }}'"
     - { key: "/org/gnome/desktop/peripherals/mouse/natural-scroll", value: "{{ de_natural_scroll | bool | lower }}" }
   tags: ['desktop-config', 'mouse']
 
@@ -22,11 +23,15 @@
   become_user: "{{ primary_user }}"
   loop:
     - { key: "/org/gnome/desktop/peripherals/touchpad/speed", value: "{{ de_mouse_speed }}" }
-    - { key: "/org/gnome/desktop/peripherals/touchpad/tap-to-click", value: "{{ de_touchpad_tap_to_click | bool | lower }}" }
-    - { key: "/org/gnome/desktop/peripherals/touchpad/two-finger-scrolling-enabled", value: "{{ de_touchpad_two_finger_scroll | bool | lower }}" }
-    - { key: "/org/gnome/desktop/peripherals/touchpad/edge-scrolling-enabled", value: "{{ de_touchpad_edge_scroll | bool | lower }}" }
+    - key: "/org/gnome/desktop/peripherals/touchpad/tap-to-click"
+      value: "{{ de_touchpad_tap_to_click | bool | lower }}"
+    - key: "/org/gnome/desktop/peripherals/touchpad/two-finger-scrolling-enabled"
+      value: "{{ de_touchpad_two_finger_scroll | bool | lower }}"
+    - key: "/org/gnome/desktop/peripherals/touchpad/edge-scrolling-enabled"
+      value: "{{ de_touchpad_edge_scroll | bool | lower }}"
     - { key: "/org/gnome/desktop/peripherals/touchpad/natural-scroll", value: "{{ de_natural_scroll | bool | lower }}" }
-    - { key: "/org/gnome/desktop/peripherals/touchpad/disable-while-typing", value: "{{ de_touchpad_disable_while_typing | bool | lower }}" }
+    - key: "/org/gnome/desktop/peripherals/touchpad/disable-while-typing"
+      value: "{{ de_touchpad_disable_while_typing | bool | lower }}"
   tags: ['desktop-config', 'touchpad']
 
 # Keyboard Settings
@@ -82,7 +87,11 @@
     - name: Set custom keybinding paths
       community.general.dconf:
         key: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings"
-        value: "{{ range(de_custom_shortcuts | length) | list | map('regex_replace', '^(.*)$', \"'/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom\\\\1/'\") | list }}"
+        value: >
+          {{ range(de_custom_shortcuts | length) | list |
+             map('regex_replace', '^(.*)$',
+                 \"'/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom\\\\1/'\") |
+             list }}
         state: present
       become: yes
       become_user: "{{ primary_user }}"
@@ -152,8 +161,10 @@
   become: yes
   become_user: "{{ primary_user }}"
   loop:
-    - { key: "/org/gnome/desktop/notifications/show-banners", value: "{{ de_notification_bubble_enabled | bool | lower }}" }
-    - { key: "/org/gnome/desktop/notifications/show-in-lock-screen", value: "{{ de_notification_show_in_lock_screen | bool | lower }}" }
+    - key: "/org/gnome/desktop/notifications/show-banners"
+      value: "{{ de_notification_bubble_enabled | bool | lower }}"
+    - key: "/org/gnome/desktop/notifications/show-in-lock-screen"
+      value: "{{ de_notification_show_in_lock_screen | bool | lower }}"
   tags: ['desktop-config', 'notifications']
 
 # Display Settings
@@ -165,8 +176,10 @@
   become: yes
   become_user: "{{ primary_user }}"
   loop:
-    - { key: "/org/gnome/desktop/interface/scaling-factor", value: "uint32 {{ (de_display_scale | float) | round | int }}" }
-    - { key: "/org/gnome/mutter/experimental-features", value: "{{ de_fractional_scaling_enabled | ternary(['scale-monitor-framebuffer'], []) }}" }
+    - key: "/org/gnome/desktop/interface/scaling-factor"
+      value: "uint32 {{ (de_display_scale | float) | round | int }}"
+    - key: "/org/gnome/mutter/experimental-features"
+      value: "{{ de_fractional_scaling_enabled | ternary(['scale-monitor-framebuffer'], []) }}"
   tags: ['desktop-config', 'display']
 
 - name: Configure night light
@@ -177,11 +190,16 @@
   become: yes
   become_user: "{{ primary_user }}"
   loop:
-    - { key: "/org/gnome/settings-daemon/plugins/color/night-light-enabled", value: "{{ de_night_light_enabled | bool | lower }}" }
-    - { key: "/org/gnome/settings-daemon/plugins/color/night-light-temperature", value: "uint32 {{ de_night_light_temperature }}" }
-    - { key: "/org/gnome/settings-daemon/plugins/color/night-light-schedule-automatic", value: "{{ (de_night_light_schedule == 'sunset-to-sunrise') | bool | lower }}" }
-    - { key: "/org/gnome/settings-daemon/plugins/color/night-light-schedule-from", value: "{{ de_night_light_start_hour }}.0" }
-    - { key: "/org/gnome/settings-daemon/plugins/color/night-light-schedule-to", value: "{{ de_night_light_end_hour }}.0" }
+    - key: "/org/gnome/settings-daemon/plugins/color/night-light-enabled"
+      value: "{{ de_night_light_enabled | bool | lower }}"
+    - key: "/org/gnome/settings-daemon/plugins/color/night-light-temperature"
+      value: "uint32 {{ de_night_light_temperature }}"
+    - key: "/org/gnome/settings-daemon/plugins/color/night-light-schedule-automatic"
+      value: "{{ (de_night_light_schedule == 'sunset-to-sunrise') | bool | lower }}"
+    - key: "/org/gnome/settings-daemon/plugins/color/night-light-schedule-from"
+      value: "{{ de_night_light_start_hour }}.0"
+    - key: "/org/gnome/settings-daemon/plugins/color/night-light-schedule-to"
+      value: "{{ de_night_light_end_hour }}.0"
   when: de_night_light_enabled
   tags: ['desktop-config', 'display']
 
@@ -237,8 +255,10 @@
   become: yes
   become_user: "{{ primary_user }}"
   loop:
-    - { key: "/org/gnome/shell/extensions/desktop-icons/show-home", value: "{{ de_show_desktop_icons | bool | lower }}" }
-    - { key: "/org/gnome/shell/extensions/desktop-icons/show-trash", value: "{{ de_show_desktop_icons | bool | lower }}" }
+    - key: "/org/gnome/shell/extensions/desktop-icons/show-home"
+      value: "{{ de_show_desktop_icons | bool | lower }}"
+    - key: "/org/gnome/shell/extensions/desktop-icons/show-trash"
+      value: "{{ de_show_desktop_icons | bool | lower }}"
     - { key: "/org/gnome/nautilus/desktop/home-icon-visible", value: "{{ de_show_desktop_icons | bool | lower }}" }
     - { key: "/org/gnome/nautilus/desktop/trash-icon-visible", value: "{{ de_show_desktop_icons | bool | lower }}" }
   tags: ['desktop-config', 'appearance']
@@ -282,8 +302,10 @@
   loop:
     - { key: "/org/gnome/shell/extensions/dash-to-dock/dock-position", value: "'{{ de_panel_position | upper }}'" }
     - { key: "/org/gnome/shell/extensions/dash-to-dock/autohide", value: "{{ de_panel_autohide | bool | lower }}" }
-    - { key: "/org/gnome/shell/extensions/dash-to-dock/hide-delay", value: "{{ de_panel_autohide_hide_delay / 1000.0 }}" }
-    - { key: "/org/gnome/shell/extensions/dash-to-dock/show-delay", value: "{{ de_panel_autohide_show_delay / 1000.0 }}" }
+    - key: "/org/gnome/shell/extensions/dash-to-dock/hide-delay"
+      value: "{{ de_panel_autohide_hide_delay / 1000.0 }}"
+    - key: "/org/gnome/shell/extensions/dash-to-dock/show-delay"
+      value: "{{ de_panel_autohide_show_delay / 1000.0 }}"
     - { key: "/org/gnome/shell/extensions/dash-to-dock/dash-max-icon-size", value: "{{ de_panel_size }}" }
     - { key: "/org/gnome/shell/extensions/dash-to-dock/transparency-mode", value: "'FIXED'" }
     - { key: "/org/gnome/shell/extensions/dash-to-dock/background-opacity", value: "{{ 1.0 - de_panel_transparency }}" }
@@ -327,8 +349,10 @@
   become: yes
   become_user: "{{ primary_user }}"
   loop:
-    - { key: "/org/gnome/settings-daemon/plugins/power/lid-close-ac-action", value: "'{{ de_laptop_lid_close_action }}'" }
-    - { key: "/org/gnome/settings-daemon/plugins/power/lid-close-battery-action", value: "'{{ de_laptop_lid_close_action }}'" }
+    - key: "/org/gnome/settings-daemon/plugins/power/lid-close-ac-action"
+      value: "'{{ de_laptop_lid_close_action }}'"
+    - key: "/org/gnome/settings-daemon/plugins/power/lid-close-battery-action"
+      value: "'{{ de_laptop_lid_close_action }}'"
     - { key: "/org/gnome/settings-daemon/plugins/power/power-button-action", value: "'{{ de_power_button_action }}'" }
   when: de_configure_power
   tags: ['desktop-config', 'power']

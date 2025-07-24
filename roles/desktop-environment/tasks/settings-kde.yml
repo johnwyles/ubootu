@@ -6,9 +6,11 @@
 - name: Configure KDE mouse settings
   ansible.builtin.shell: |
     kwriteconfig5 --file ~/.config/kcminputrc --group Mouse --key cursorTheme "{{ de_cursor_theme }}"
-    kwriteconfig5 --file ~/.config/kcminputrc --group Mouse --key XLbInptAccelProfileFlat "{{ de_mouse_acceleration | ternary('false', 'true') }}"
+    kwriteconfig5 --file ~/.config/kcminputrc --group Mouse \
+      --key XLbInptAccelProfileFlat "{{ de_mouse_acceleration | ternary('false', 'true') }}"
     kwriteconfig5 --file ~/.config/kcminputrc --group Mouse --key XLbInptPointerAcceleration "{{ de_mouse_speed }}"
-    kwriteconfig5 --file ~/.config/kcminputrc --group Mouse --key XLbInptNaturalScroll "{{ de_natural_scroll | bool | lower }}"
+    kwriteconfig5 --file ~/.config/kcminputrc --group Mouse \
+      --key XLbInptNaturalScroll "{{ de_natural_scroll | bool | lower }}"
     kwriteconfig5 --file ~/.config/kcminputrc --group Mouse --key XLbInptScrollFactor "{{ de_scroll_speed }}"
   become: yes
   become_user: "{{ primary_user }}"
@@ -16,11 +18,16 @@
 
 - name: Configure KDE touchpad settings
   ansible.builtin.shell: |
-    kwriteconfig5 --file ~/.config/touchpadrc --group Touchpad --key TapToClick "{{ de_touchpad_tap_to_click | bool | lower }}"
-    kwriteconfig5 --file ~/.config/touchpadrc --group Touchpad --key TwoFingerScroll "{{ de_touchpad_two_finger_scroll | bool | lower }}"
-    kwriteconfig5 --file ~/.config/touchpadrc --group Touchpad --key EdgeScroll "{{ de_touchpad_edge_scroll | bool | lower }}"
-    kwriteconfig5 --file ~/.config/touchpadrc --group Touchpad --key NaturalScroll "{{ de_natural_scroll | bool | lower }}"
-    kwriteconfig5 --file ~/.config/touchpadrc --group Touchpad --key DisableWhileTyping "{{ de_touchpad_disable_while_typing | bool | lower }}"
+    kwriteconfig5 --file ~/.config/touchpadrc --group Touchpad \
+      --key TapToClick "{{ de_touchpad_tap_to_click | bool | lower }}"
+    kwriteconfig5 --file ~/.config/touchpadrc --group Touchpad \
+      --key TwoFingerScroll "{{ de_touchpad_two_finger_scroll | bool | lower }}"
+    kwriteconfig5 --file ~/.config/touchpadrc --group Touchpad \
+      --key EdgeScroll "{{ de_touchpad_edge_scroll | bool | lower }}"
+    kwriteconfig5 --file ~/.config/touchpadrc --group Touchpad \
+      --key NaturalScroll "{{ de_natural_scroll | bool | lower }}"
+    kwriteconfig5 --file ~/.config/touchpadrc --group Touchpad \
+      --key DisableWhileTyping "{{ de_touchpad_disable_while_typing | bool | lower }}"
     kwriteconfig5 --file ~/.config/touchpadrc --group Touchpad --key PointerAcceleration "{{ de_mouse_speed }}"
   become: yes
   become_user: "{{ primary_user }}"

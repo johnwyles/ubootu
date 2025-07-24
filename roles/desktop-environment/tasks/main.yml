@@ -3,7 +3,9 @@
   ansible.builtin.assert:
     that:
       - de_environment in de_packages.keys() or de_hyprland_enabled or de_sway_enabled or de_i3_enabled
-    fail_msg: "Invalid desktop environment: {{ de_environment }}. Valid options are: {{ de_packages.keys() | join(', ') }} or enable a window manager"
+    fail_msg: >
+      Invalid desktop environment: {{ de_environment }}.
+      Valid options are: {{ de_packages.keys() | join(', ') }} or enable a window manager
   tags: always
 
 - name: Install desktop environment

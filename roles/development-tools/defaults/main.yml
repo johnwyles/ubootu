@@ -179,7 +179,9 @@ devtools_productivity_tools:
   - asdf        # Version manager
 
 # All CLI tools combined (for compatibility)
-devtools_modern_cli_tools: "{{ devtools_modern_replacements + devtools_file_managers[:3] + devtools_dev_cli_tools[:3] + ['jq', 'tldr', 'httpie'] }}"
+devtools_modern_cli_tools: >
+  {{ devtools_modern_replacements + devtools_file_managers[:3] +
+     devtools_dev_cli_tools[:3] + ['jq', 'tldr', 'httpie'] }}
 
 # Enable comprehensive CLI tools by default
 use_comprehensive_cli_tools: true
@@ -231,7 +233,9 @@ devtools_selected_system_monitoring: >-
     {%- if devtools_cli_selections.htop | default(false) -%}{{ selected.append('htop') or '' }}{%- endif -%}
     {%- if devtools_cli_selections.glances | default(false) -%}{{ selected.append('glances') or '' }}{%- endif -%}
     {%- if devtools_cli_selections.neofetch | default(false) -%}{{ selected.append('neofetch') or '' }}{%- endif -%}
-    {%- if devtools_cli_selections.screenfetch | default(false) -%}{{ selected.append('screenfetch') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections.screenfetch | default(false) -%}
+      {{ selected.append('screenfetch') or '' }}
+    {%- endif -%}
     {%- if devtools_cli_selections.fastfetch | default(false) -%}{{ selected.append('fastfetch') or '' }}{%- endif -%}
     {%- if devtools_cli_selections.bashtop | default(false) -%}{{ selected.append('bashtop') or '' }}{%- endif -%}
     {%- if devtools_cli_selections.gotop | default(false) -%}{{ selected.append('gotop') or '' }}{%- endif -%}
@@ -285,8 +289,12 @@ devtools_selected_dev_cli_tools: >-
     {%- if devtools_cli_selections.hub | default(false) -%}{{ selected.append('hub') or '' }}{%- endif -%}
     {%- if devtools_cli_selections.lazygit | default(false) -%}{{ selected.append('lazygit') or '' }}{%- endif -%}
     {%- if devtools_cli_selections.tig | default(false) -%}{{ selected.append('tig') or '' }}{%- endif -%}
-    {%- if devtools_cli_selections['diff-so-fancy'] | default(false) -%}{{ selected.append('diff-so-fancy') or '' }}{%- endif -%}
-    {%- if devtools_cli_selections['git-extras'] | default(false) -%}{{ selected.append('git-extras') or '' }}{%- endif -%}
+    {%- if devtools_cli_selections['diff-so-fancy'] | default(false) -%}
+      {{ selected.append('diff-so-fancy') or '' }}
+    {%- endif -%}
+    {%- if devtools_cli_selections['git-extras'] | default(false) -%}
+      {{ selected.append('git-extras') or '' }}
+    {%- endif -%}
     {%- if devtools_cli_selections.gitleaks | default(false) -%}{{ selected.append('gitleaks') or '' }}{%- endif -%}
     {{ selected }}
   {%- else -%}
@@ -332,11 +340,22 @@ devtools_k8s_tools:
 devtools_install_k8s_tools: "{{ install_kubernetes_tools | default(false) }}"
 
 # Version Managers
-devtools_install_nvm: "{{ 'nvm' in devtools_version_managers or ('nodejs' in devtools_languages and devtools_version_managers | length == 0) }}"
-devtools_install_pyenv: "{{ 'pyenv' in devtools_version_managers or ('python' in devtools_languages and devtools_version_managers | length == 0) }}"
-devtools_install_rbenv: "{{ 'rbenv' in devtools_version_managers or ('ruby' in devtools_languages and devtools_version_managers | length == 0) }}"
-devtools_install_rustup: "{{ 'rustup' in devtools_version_managers or ('rust' in devtools_languages and devtools_version_managers | length == 0) }}"
-devtools_install_sdkman: "{{ 'jenv' not in devtools_version_managers and ('java' in devtools_languages or 'kotlin' in devtools_languages or 'scala' in devtools_languages) }}"
+devtools_install_nvm: >
+  {{ 'nvm' in devtools_version_managers or
+     ('nodejs' in devtools_languages and devtools_version_managers | length == 0) }}
+devtools_install_pyenv: >
+  {{ 'pyenv' in devtools_version_managers or
+     ('python' in devtools_languages and devtools_version_managers | length == 0) }}
+devtools_install_rbenv: >
+  {{ 'rbenv' in devtools_version_managers or
+     ('ruby' in devtools_languages and devtools_version_managers | length == 0) }}
+devtools_install_rustup: >
+  {{ 'rustup' in devtools_version_managers or
+     ('rust' in devtools_languages and devtools_version_managers | length == 0) }}
+devtools_install_sdkman: >
+  {{ 'jenv' not in devtools_version_managers and
+     ('java' in devtools_languages or 'kotlin' in devtools_languages or
+      'scala' in devtools_languages) }}
 devtools_install_jenv: "{{ 'jenv' in devtools_version_managers }}"
 devtools_install_gvm: "{{ 'gvm' in devtools_version_managers }}"
 devtools_install_asdf: "{{ 'asdf' in devtools_version_managers }}"

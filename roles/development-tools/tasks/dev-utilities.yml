@@ -27,7 +27,10 @@
 
     - name: Download direnv
       ansible.builtin.get_url:
-        url: "{{ direnv_release.json.assets | selectattr('name', 'match', 'direnv\\.linux-amd64$') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ direnv_release.json.assets |
+             selectattr('name', 'match', 'direnv\\.linux-amd64$') |
+             map(attribute='browser_download_url') | first }}
         dest: /usr/local/bin/direnv
         mode: '0755'
       become: yes
@@ -51,7 +54,10 @@
 
     - name: Download mkcert
       ansible.builtin.get_url:
-        url: "{{ mkcert_release.json.assets | selectattr('name', 'match', 'mkcert.*linux-amd64$') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ mkcert_release.json.assets |
+             selectattr('name', 'match', 'mkcert.*linux-amd64$') |
+             map(attribute='browser_download_url') | first }}
         dest: /usr/local/bin/mkcert
         mode: '0755'
       become: yes

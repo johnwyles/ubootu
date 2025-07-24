@@ -132,7 +132,10 @@
 
     - name: Download and extract Nebula
       ansible.builtin.unarchive:
-        src: "{{ nebula_release.json.assets | selectattr('name', 'match', '.*linux-amd64\\.tar\\.gz$') | map(attribute='browser_download_url') | first }}"
+        src: >
+          {{ nebula_release.json.assets |
+             selectattr('name', 'match', '.*linux-amd64\\.tar\\.gz$') |
+             map(attribute='browser_download_url') | first }}
         dest: /usr/local/bin
         remote_src: yes
         mode: '0755'

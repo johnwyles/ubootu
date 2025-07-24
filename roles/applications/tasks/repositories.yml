@@ -20,7 +20,9 @@
 
 - name: Add Google Chrome repository
   apt_repository:
-    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main"
+    repo: >
+      deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg]
+      https://dl.google.com/linux/chrome/deb/ stable main
     state: present
     filename: google-chrome
   when: "'chrome' in web_browsers or 'google-chrome' in web_browsers"
@@ -32,7 +34,9 @@
     url: https://packages.microsoft.com/keys/microsoft.asc
     dest: /usr/share/keyrings/microsoft.asc
     mode: '0644'
-  when: "'edge' in web_browsers or 'vscode' in productivity_apps or 'vscode' in selected_items or 'teams' in communication_apps"
+  when: >
+    'edge' in web_browsers or 'vscode' in productivity_apps or
+    'vscode' in selected_items or 'teams' in communication_apps
   become: yes
 
 - name: Convert Microsoft key to GPG format
@@ -40,12 +44,16 @@
     gpg --dearmor < /usr/share/keyrings/microsoft.asc > /usr/share/keyrings/microsoft.gpg
   args:
     creates: /usr/share/keyrings/microsoft.gpg
-  when: "'edge' in web_browsers or 'vscode' in productivity_apps or 'vscode' in selected_items or 'teams' in communication_apps"
+  when: >
+    'edge' in web_browsers or 'vscode' in productivity_apps or
+    'vscode' in selected_items or 'teams' in communication_apps
   become: yes
 
 - name: Add Microsoft Edge repository
   apt_repository:
-    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/edge stable main"
+    repo: >
+      deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg]
+      https://packages.microsoft.com/repos/edge stable main
     state: present
     filename: microsoft-edge
   when: "'edge' in web_browsers"
@@ -54,7 +62,8 @@
 # Brave Browser Repository
 - name: Add Brave GPG key
   get_url:
-    url: https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+    url: >
+      https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
     dest: /usr/share/keyrings/brave-browser-archive-keyring.gpg
     mode: '0644'
   when: "'brave' in web_browsers"
@@ -62,7 +71,9 @@
 
 - name: Add Brave repository
   apt_repository:
-    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg] https://brave-browser-apt-release.s3.brave.com/ stable main"
+    repo: >
+      deb [arch=amd64 signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg]
+      https://brave-browser-apt-release.s3.brave.com/ stable main
     state: present
     filename: brave-browser
   when: "'brave' in web_browsers"
@@ -127,7 +138,9 @@
 # VSCode Repository
 - name: Add VSCode repository
   apt_repository:
-    repo: "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/code stable main"
+    repo: >
+      deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/microsoft.gpg]
+      https://packages.microsoft.com/repos/code stable main
     state: present
     filename: vscode
   when: "'vscode' in productivity_apps or 'vscode' in selected_items"
@@ -192,7 +205,10 @@
 
 - name: Add Docker repository
   apt_repository:
-    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    repo: >
+      deb [arch=amd64 signed-by=/usr/share/keyrings/docker.gpg]
+      https://download.docker.com/linux/ubuntu
+      {{ ansible_distribution_release }} stable
     state: present
     filename: docker
   when: "'docker' in selected_items or 'docker-desktop' in selected_items"
@@ -216,7 +232,9 @@
 
 - name: Add Slack repository
   apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/slack.gpg] https://packagecloud.io/slacktechnologies/slack/debian/ jessie main"
+    repo: >
+      deb [signed-by=/usr/share/keyrings/slack.gpg]
+      https://packagecloud.io/slacktechnologies/slack/debian/ jessie main
     state: present
     filename: slack
   when: "'slack' in communication_apps or 'slack' in productivity_apps"
@@ -225,7 +243,9 @@
 # Teams Repository (uses Microsoft key)
 - name: Add Microsoft Teams repository
   apt_repository:
-    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/ms-teams stable main"
+    repo: >
+      deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg]
+      https://packages.microsoft.com/repos/ms-teams stable main
     state: present
     filename: teams
   when: "'teams' in communication_apps"
@@ -250,7 +270,9 @@
 
 - name: Add Element repository
   apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/element-io-archive-keyring.gpg] https://packages.element.io/debian/ default main"
+    repo: >
+      deb [signed-by=/usr/share/keyrings/element-io-archive-keyring.gpg]
+      https://packages.element.io/debian/ default main
     state: present
     filename: element-io
   when: "'element' in communication_apps or 'element' in privacy_security_apps"
@@ -291,7 +313,9 @@
 
 - name: Add GitHub CLI repository
   apt_repository:
-    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main"
+    repo: >
+      deb [arch=amd64 signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg]
+      https://cli.github.com/packages stable main
     state: present
     filename: github-cli
   when: "'gh-cli' in selected_items or 'gh' in selected_items"
@@ -315,7 +339,9 @@
 
 - name: Add HashiCorp repository
   apt_repository:
-    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/hashicorp.gpg] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+    repo: >
+      deb [arch=amd64 signed-by=/usr/share/keyrings/hashicorp.gpg]
+      https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main
     state: present
     filename: hashicorp
   when: "'terraform' in selected_items or 'vagrant' in selected_items"
@@ -380,7 +406,9 @@
 
 - name: Add Tor repository
   apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/tor.gpg] https://deb.torproject.org/torproject.org {{ ansible_distribution_release }} main"
+    repo: >
+      deb [signed-by=/usr/share/keyrings/tor.gpg]
+      https://deb.torproject.org/torproject.org {{ ansible_distribution_release }} main
     state: present
     filename: tor
   when: "'tor-browser' in web_browsers"
@@ -397,7 +425,9 @@
 
 - name: Add LibreWolf repository
   apt_repository:
-    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/librewolf.gpg] https://deb.librewolf.net {{ ansible_distribution_release }} main"
+    repo: >
+      deb [arch=amd64 signed-by=/usr/share/keyrings/librewolf.gpg]
+      https://deb.librewolf.net {{ ansible_distribution_release }} main
     state: present
     filename: librewolf
   when: "'librewolf' in web_browsers"
@@ -407,5 +437,8 @@
 - name: Update apt cache
   apt:
     update_cache: yes
-  when: web_browsers | length > 0 or communication_apps | length > 0 or multimedia_apps | length > 0 or privacy_security_apps | length > 0 or selected_items | length > 0
+  when: >
+    web_browsers | length > 0 or communication_apps | length > 0 or
+    multimedia_apps | length > 0 or privacy_security_apps | length > 0 or
+    selected_items | length > 0
   become: yes

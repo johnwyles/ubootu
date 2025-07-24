@@ -39,7 +39,11 @@
   when:
     - wayland_tools is defined
     - wayland_tools | length > 0
-    - de_hyprland_enabled | default(false) or de_sway_enabled | default(false) or de_wayfire_enabled | default(false) or de_river_enabled | default(false)
+    - >
+      de_hyprland_enabled | default(false) or
+      de_sway_enabled | default(false) or
+      de_wayfire_enabled | default(false) or
+      de_river_enabled | default(false)
   tags: ['wayland', 'utilities']
 
 - name: Install privacy and security applications

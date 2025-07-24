@@ -210,7 +210,8 @@
   block:
     - name: Add Microsoft package repository
       ansible.builtin.shell: |
-        wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+        wget https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb \
+          -O packages-microsoft-prod.deb
         dpkg -i packages-microsoft-prod.deb
         rm packages-microsoft-prod.deb
       become: yes

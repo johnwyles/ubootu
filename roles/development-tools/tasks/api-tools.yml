@@ -75,7 +75,10 @@
 
     - name: Download Bruno AppImage
       ansible.builtin.get_url:
-        url: "{{ bruno_release.json.assets | selectattr('name', 'match', '.*\\.AppImage$') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ bruno_release.json.assets |
+             selectattr('name', 'match', '.*\\.AppImage$') |
+             map(attribute='browser_download_url') | first }}
         dest: "/home/{{ primary_user }}/.local/bin/bruno.AppImage"
         mode: '0755'
       become: yes

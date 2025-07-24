@@ -1,6 +1,8 @@
 ---
 # Desktop environment to install
-de_environment: "{{ desktop_environment | default('gnome') if not (de_hyprland_enabled | default(false)) else 'hyprland' }}"
+de_environment: >
+  {{ desktop_environment | default('gnome')
+     if not (de_hyprland_enabled | default(false)) else 'hyprland' }}
 
 # Desktop environment packages
 de_packages:
@@ -194,7 +196,8 @@ de_hot_corners:
   bottom_right: ""
 
 # Notification Settings
-de_notification_position: "top-right"  # Options: "top-right", "top-left", "bottom-right", "bottom-left", "top-center", "bottom-center"
+# Options: "top-right", "top-left", "bottom-right", "bottom-left", "top-center", "bottom-center"
+de_notification_position: "top-right"
 de_notification_duration: 5  # seconds
 de_notification_dnd: false
 de_notification_sounds: false
