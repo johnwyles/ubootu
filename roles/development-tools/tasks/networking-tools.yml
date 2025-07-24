@@ -41,7 +41,9 @@
 
     - name: Add ZeroTier repository
       apt_repository:
-        repo: "deb https://download.zerotier.com/debian/{{ ansible_distribution_release }} {{ ansible_distribution_release }} main"
+        repo: >
+          deb https://download.zerotier.com/debian/{{ ansible_distribution_release }}
+          {{ ansible_distribution_release }} main
         state: present
         filename: zerotier
       become: yes

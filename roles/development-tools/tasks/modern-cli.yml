@@ -29,7 +29,10 @@
   block:
     - name: Download tool packages
       ansible.builtin.get_url:
-        url: "{{ item.json.assets | selectattr('name', 'match', '.*amd64\\.deb$') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ item.json.assets |
+             selectattr('name', 'match', '.*amd64\\.deb$') |
+             map(attribute='browser_download_url') | first }}
         dest: "/tmp/{{ item.item.name }}.deb"
         mode: '0644'
       loop: "{{ github_releases.results }}"
@@ -79,7 +82,10 @@
 
     - name: Download jq binary
       ansible.builtin.get_url:
-        url: "{{ jq_release.json.assets | selectattr('name', 'match', 'jq-linux64') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ jq_release.json.assets |
+             selectattr('name', 'match', 'jq-linux64') |
+             map(attribute='browser_download_url') | first }}
         dest: /usr/local/bin/jq
         mode: '0755'
       become: yes

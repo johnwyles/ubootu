@@ -23,7 +23,9 @@ multimedia_apps:
 cloud_storage: []  # Options: dropbox, insync, onedrive, nextcloud
 
 # Privacy and security applications
-privacy_security_apps: []  # Options: tor-browser, element, wire, jami, session, veracrypt, cryptomator, onionshare, mat2, wireshark, gufw, opensnitch, bleachbit, stacer, protonvpn
+privacy_security_apps: []  # Options: tor-browser, element, wire, jami, session, veracrypt,
+                        # cryptomator, onionshare, mat2, wireshark, gufw, opensnitch,
+                        # bleachbit, stacer, protonvpn
 
 # Essential utilities to install
 essential_utilities:

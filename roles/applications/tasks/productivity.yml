@@ -21,7 +21,10 @@
 
     - name: Download Obsidian AppImage
       ansible.builtin.get_url:
-        url: "{{ obsidian_release.json.assets | selectattr('name', 'match', '.*\\.AppImage$') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ obsidian_release.json.assets |
+             selectattr('name', 'match', '.*\\.AppImage$') |
+             map(attribute='browser_download_url') | first }}
         dest: "/opt/Obsidian.AppImage"
         mode: '0755'
       become: yes
@@ -76,7 +79,10 @@
 
     - name: Download Joplin AppImage
       ansible.builtin.get_url:
-        url: "{{ joplin_release.json.assets | selectattr('name', 'match', 'Joplin-.*\\.AppImage$') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ joplin_release.json.assets |
+             selectattr('name', 'match', 'Joplin-.*\\.AppImage$') |
+             map(attribute='browser_download_url') | first }}
         dest: "/opt/Joplin.AppImage"
         mode: '0755'
       become: yes

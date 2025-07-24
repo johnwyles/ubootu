@@ -8,7 +8,8 @@
   when:
     - wayland_tools is defined
     - wayland_tools | length > 0
-    - item in ['wl-clipboard', 'wdisplays', 'wev', 'kanshi', 'gammastep', 'wlr-randr', 'swappy']  # Available in Ubuntu repos
+    - item in ['wl-clipboard', 'wdisplays', 'wev', 'kanshi', 'gammastep', 'wlr-randr',
+               'swappy']  # Available in Ubuntu repos
   ignore_errors: yes  # Some tools may not be available in all Ubuntu versions
   tags: ['wayland', 'tools']
 

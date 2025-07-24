@@ -10,7 +10,10 @@
 
     - name: Download btop
       ansible.builtin.get_url:
-        url: "{{ btop_release.json.assets | selectattr('name', 'match', 'btop-.*-linux-x86_64\\.tbz$') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ btop_release.json.assets |
+             selectattr('name', 'match', 'btop-.*-linux-x86_64\\.tbz$') |
+             map(attribute='browser_download_url') | first }}
         dest: /tmp/btop.tbz
         mode: '0644'
       become: yes
@@ -79,7 +82,10 @@
 
     - name: Download Stacer
       ansible.builtin.get_url:
-        url: "{{ stacer_release.json.assets | selectattr('name', 'match', 'stacer.*\\.deb$') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ stacer_release.json.assets |
+             selectattr('name', 'match', 'stacer.*\\.deb$') |
+             map(attribute='browser_download_url') | first }}
         dest: /tmp/stacer.deb
         mode: '0644'
       become: yes
@@ -140,7 +146,10 @@
 
     - name: Download node_exporter
       ansible.builtin.get_url:
-        url: "{{ node_exporter_release.json.assets | selectattr('name', 'match', 'node_exporter.*linux-amd64\\.tar\\.gz$') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ node_exporter_release.json.assets |
+             selectattr('name', 'match', 'node_exporter.*linux-amd64\\.tar\\.gz$') |
+             map(attribute='browser_download_url') | first }}
         dest: /tmp/node_exporter.tar.gz
         mode: '0644'
       become: yes

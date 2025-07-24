@@ -10,7 +10,10 @@
 
     - name: Download k9s
       ansible.builtin.get_url:
-        url: "{{ k9s_release.json.assets | selectattr('name', 'match', 'k9s_Linux_amd64\\.tar\\.gz$') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ k9s_release.json.assets |
+             selectattr('name', 'match', 'k9s_Linux_amd64\\.tar\\.gz$') |
+             map(attribute='browser_download_url') | first }}
         dest: /tmp/k9s.tar.gz
         mode: '0644'
       become: yes
@@ -33,7 +36,10 @@
 
     - name: Download Lens AppImage
       ansible.builtin.get_url:
-        url: "{{ lens_release.json.assets | selectattr('name', 'match', 'Lens.*\\.AppImage$') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ lens_release.json.assets |
+             selectattr('name', 'match', 'Lens.*\\.AppImage$') |
+             map(attribute='browser_download_url') | first }}
         dest: "/home/{{ primary_user }}/.local/bin/lens.AppImage"
         mode: '0755'
       become: yes
@@ -58,7 +64,10 @@
 
     - name: Download lazydocker
       ansible.builtin.get_url:
-        url: "{{ lazydocker_release.json.assets | selectattr('name', 'match', 'lazydocker.*Linux_x86_64\\.tar\\.gz$') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ lazydocker_release.json.assets |
+             selectattr('name', 'match', 'lazydocker.*Linux_x86_64\\.tar\\.gz$') |
+             map(attribute='browser_download_url') | first }}
         dest: /tmp/lazydocker.tar.gz
         mode: '0644'
       become: yes
@@ -107,7 +116,10 @@
 
     - name: Download kind
       ansible.builtin.get_url:
-        url: "{{ kind_release.json.assets | selectattr('name', 'match', 'kind-linux-amd64$') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ kind_release.json.assets |
+             selectattr('name', 'match', 'kind-linux-amd64$') |
+             map(attribute='browser_download_url') | first }}
         dest: /usr/local/bin/kind
         mode: '0755'
       become: yes

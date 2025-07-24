@@ -43,7 +43,13 @@
     - autojump
     - direnv
   become: yes
-  when: item in (devtools_selected_file_managers + devtools_selected_system_monitoring + devtools_selected_network_tools + devtools_selected_text_processing + devtools_selected_dev_cli_tools + devtools_selected_productivity_tools)
+  when: >
+    item in (devtools_selected_file_managers +
+             devtools_selected_system_monitoring +
+             devtools_selected_network_tools +
+             devtools_selected_text_processing +
+             devtools_selected_dev_cli_tools +
+             devtools_selected_productivity_tools)
 
 # Install tools from GitHub releases
 - name: Get latest GitHub releases for modern CLI tools
@@ -85,7 +91,14 @@
     - { name: gitleaks, repo: "zricethezav/gitleaks" }
     # Productivity
     - { name: zoxide, repo: "ajeetdsouza/zoxide" }
-  when: item.name in (devtools_selected_modern_replacements + devtools_selected_file_managers + devtools_selected_system_monitoring + devtools_selected_network_tools + devtools_selected_text_processing + devtools_selected_dev_cli_tools + devtools_selected_productivity_tools)
+  when: >
+    item.name in (devtools_selected_modern_replacements +
+                  devtools_selected_file_managers +
+                  devtools_selected_system_monitoring +
+                  devtools_selected_network_tools +
+                  devtools_selected_text_processing +
+                  devtools_selected_dev_cli_tools +
+                  devtools_selected_productivity_tools)
   loop_control:
     label: "{{ item.name }}"
 
@@ -93,7 +106,10 @@
   block:
     - name: Download .deb packages
       ansible.builtin.get_url:
-        url: "{{ item.json.assets | selectattr('name', 'match', '.*amd64\\.deb$') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ item.json.assets |
+             selectattr('name', 'match', '.*amd64\\.deb$') |
+             map(attribute='browser_download_url') | first }}
         dest: "/tmp/{{ item.item.name }}.deb"
         mode: '0644'
       loop: "{{ github_releases.results }}"
@@ -144,7 +160,10 @@
 
     - name: Download jq binary
       ansible.builtin.get_url:
-        url: "{{ jq_release.json.assets | selectattr('name', 'match', 'jq-linux64') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ jq_release.json.assets |
+             selectattr('name', 'match', 'jq-linux64') |
+             map(attribute='browser_download_url') | first }}
         dest: /usr/local/bin/jq
         mode: '0755'
       become: yes
@@ -159,7 +178,10 @@
 
     - name: Download yq binary
       ansible.builtin.get_url:
-        url: "{{ yq_release.json.assets | selectattr('name', 'match', 'yq_linux_amd64$') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ yq_release.json.assets |
+             selectattr('name', 'match', 'yq_linux_amd64$') |
+             map(attribute='browser_download_url') | first }}
         dest: /usr/local/bin/yq
         mode: '0755'
       become: yes
@@ -179,7 +201,11 @@
     - thefuck
     - csvkit
     - glances
-  when: item in (devtools_selected_network_tools + devtools_selected_productivity_tools + devtools_selected_text_processing + devtools_selected_system_monitoring)
+  when: >
+    item in (devtools_selected_network_tools +
+             devtools_selected_productivity_tools +
+             devtools_selected_text_processing +
+             devtools_selected_system_monitoring)
 
 # Install Rust-based tools via Cargo (if Rust is installed)
 - name: Check if cargo is installed
@@ -261,7 +287,10 @@
 
     - name: Download and extract hub
       ansible.builtin.unarchive:
-        src: "{{ hub_release.json.assets | selectattr('name', 'match', '.*linux-amd64.*\\.tgz$') | map(attribute='browser_download_url') | first }}"
+        src: >
+          {{ hub_release.json.assets |
+             selectattr('name', 'match', '.*linux-amd64.*\\.tgz$') |
+             map(attribute='browser_download_url') | first }}
         dest: /tmp
         remote_src: yes
       become: yes

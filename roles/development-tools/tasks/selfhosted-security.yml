@@ -344,8 +344,12 @@
           - "3000:3000"
         env:
           NODE_ENV: production
-          SECRET_KEY: "{{ vault_outline_secret | default(lookup('password', '/dev/null chars=ascii_letters,digits length=32')) }}"
-          UTILS_SECRET: "{{ vault_outline_utils | default(lookup('password', '/dev/null chars=ascii_letters,digits length=32')) }}"
+          SECRET_KEY: >
+            {{ vault_outline_secret |
+               default(lookup('password', '/dev/null chars=ascii_letters,digits length=32')) }}
+          UTILS_SECRET: >
+            {{ vault_outline_utils |
+               default(lookup('password', '/dev/null chars=ascii_letters,digits length=32')) }}
           DATABASE_URL: "postgres://outline:{{ vault_outline_db_pass | default('changeme123') }}@postgres:5432/outline"
           PGSSLMODE: disable
           REDIS_URL: redis://redis:6379

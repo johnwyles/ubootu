@@ -210,14 +210,20 @@
 
     - name: Download OpenSnitch daemon
       ansible.builtin.get_url:
-        url: "{{ opensnitch_release.json.assets | selectattr('name', 'match', '.*daemon.*amd64\\.deb$') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ opensnitch_release.json.assets |
+             selectattr('name', 'match', '.*daemon.*amd64\\.deb$') |
+             map(attribute='browser_download_url') | first }}
         dest: /tmp/opensnitch-daemon.deb
         mode: '0644'
       become: yes
 
     - name: Download OpenSnitch UI
       ansible.builtin.get_url:
-        url: "{{ opensnitch_release.json.assets | selectattr('name', 'match', '.*ui.*\\.deb$') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ opensnitch_release.json.assets |
+             selectattr('name', 'match', '.*ui.*\\.deb$') |
+             map(attribute='browser_download_url') | first }}
         dest: /tmp/opensnitch-ui.deb
         mode: '0644'
       become: yes
@@ -250,7 +256,10 @@
 
     - name: Download Stacer
       ansible.builtin.get_url:
-        url: "{{ stacer_release.json.assets | selectattr('name', 'match', '.*amd64\\.deb$') | map(attribute='browser_download_url') | first }}"
+        url: >
+          {{ stacer_release.json.assets |
+             selectattr('name', 'match', '.*amd64\\.deb$') |
+             map(attribute='browser_download_url') | first }}
         dest: /tmp/stacer.deb
         mode: '0644'
       become: yes
