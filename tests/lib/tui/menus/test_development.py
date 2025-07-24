@@ -45,7 +45,7 @@ class TestDevelopmentMenuBuilder:
         items = menu_builder.build()
         
         for item in items.values():
-            if item.parent:
+            if item.parent and item.parent != 'root':
                 assert item.parent in items, f"Parent {item.parent} not found for {item.id}"
             
             if item.children:

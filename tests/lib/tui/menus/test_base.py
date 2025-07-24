@@ -9,13 +9,43 @@ from unittest.mock import Mock, MagicMock
 from lib.tui.menus.base import MenuBuilder
 
 
-class TestMenuBuilder:
+class TestMenuBuilder(MenuBuilder):
+    """Concrete test implementation of MenuBuilder"""
+    
+    def build(self):
+        """Build test menu structure"""
+        # Add a root category
+        self.add_category("root", "Root", "Root category")
+        
+        # Add some child categories
+        self.add_category("cat1", "Category 1", "First category", parent="root")
+        self.add_category("cat2", "Category 2", "Second category", parent="root")
+        
+        # Add some items
+        self.add_selectable("item1", "Item 1", "First item", parent="cat1", default=True)
+        self.add_selectable("item2", "Item 2", "Second item", parent="cat1")
+        self.add_selectable("item3", "Item 3", "Third item", parent="cat2")
+        
+        # Add a configurable item
+        self.add_configurable("slider1", "Slider 1", "Test slider", 
+                            parent="cat2", config_type="slider", 
+                            config_range=(0, 100), config_value=50)
+        
+        # Update children lists
+        self.items["root"].children = ["cat1", "cat2"]
+        self.items["cat1"].children = ["item1", "item2"]
+        self.items["cat2"].children = ["item3", "slider1"]
+        
+        return self.items
+
+
+class TestMenuBuilderClass:
     """Test MenuBuilder menu builder"""
     
     @pytest.fixture
     def menu_builder(self):
         """Create menu builder instance"""
-        return BaseMenuBuilder()
+        return TestMenuBuilder()
     
     def test_build_creates_menu_structure(self, menu_builder):
         """Test that build() creates proper menu structure"""

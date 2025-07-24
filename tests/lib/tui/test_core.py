@@ -18,8 +18,7 @@ class TestCore:
     def setup(self):
         """Setup test fixtures"""
         with patch('lib.tui.core.curses'):
-            with patch('lib.tui.core.yaml'):
-                yield {}
+            yield {}
     
     def test_import(self):
         """Test that module can be imported"""
