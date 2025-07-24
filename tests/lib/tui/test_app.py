@@ -10,7 +10,8 @@ from unittest.mock import patch, Mock, MagicMock, call
 import pytest
 
 from lib.tui.app import UbootuTUI
-from lib.tui.models import MenuItem
+from lib.tui.menu_structure import MenuItem, build_menu_structure
+from lib.tui.colors import init_colors
 
 
 class TestUbootuTUIApp:
@@ -54,8 +55,8 @@ class TestUbootuTUIApp:
             )
         }
     
-    @patch('lib.tui.app.build_menu_structure')
-    @patch('lib.tui.app.init_colors')
+    @patch('lib.tui.menu_structure.build_menu_structure')
+    @patch('lib.tui.colors.init_colors')
     def test_initialization(self, mock_init_colors, mock_build_menu, mock_stdscr, sample_menu_structure):
         """Test UbootuTUI initialization."""
         mock_build_menu.return_value = sample_menu_structure
@@ -75,8 +76,8 @@ class TestUbootuTUIApp:
         mock_build_menu.assert_called_once()
         mock_init_colors.assert_called_once()
     
-    @patch('lib.tui.app.build_menu_structure')
-    @patch('lib.tui.app.init_colors')
+    @patch('lib.tui.menu_structure.build_menu_structure')
+    @patch('lib.tui.colors.init_colors')
     @patch('curses.curs_set')
     def test_init_curses(self, mock_curs_set, mock_init_colors, mock_build_menu, mock_stdscr):
         """Test curses initialization."""
@@ -89,8 +90,8 @@ class TestUbootuTUIApp:
         mock_stdscr.keypad.assert_called_once_with(True)
         mock_stdscr.timeout.assert_called_once_with(50)
     
-    @patch('lib.tui.app.build_menu_structure')
-    @patch('lib.tui.app.init_colors')
+    @patch('lib.tui.menu_structure.build_menu_structure')
+    @patch('lib.tui.colors.init_colors')
     @patch('curses.curs_set', side_effect=Exception("Terminal doesn't support"))
     def test_init_curses_error_handling(self, mock_curs_set, mock_init_colors, mock_build_menu, mock_stdscr):
         """Test curses initialization error handling."""
@@ -100,8 +101,8 @@ class TestUbootuTUIApp:
         tui = UbootuTUI(mock_stdscr)
         assert tui is not None
     
-    @patch('lib.tui.app.build_menu_structure')
-    @patch('lib.tui.app.init_colors')
+    @patch('lib.tui.menu_structure.build_menu_structure')
+    @patch('lib.tui.colors.init_colors')
     def test_small_terminal(self, mock_init_colors, mock_build_menu, mock_stdscr):
         """Test initialization with small terminal."""
         mock_stdscr.getmaxyx.return_value = (10, 40)  # Small terminal
@@ -111,8 +112,8 @@ class TestUbootuTUIApp:
         tui = UbootuTUI(mock_stdscr)
         assert tui is not None
     
-    @patch('lib.tui.app.build_menu_structure')
-    @patch('lib.tui.app.init_colors')
+    @patch('lib.tui.menu_structure.build_menu_structure')
+    @patch('lib.tui.colors.init_colors')
     def test_apply_defaults(self, mock_init_colors, mock_build_menu, mock_stdscr, sample_menu_structure):
         """Test applying default selections."""
         mock_build_menu.return_value = sample_menu_structure
@@ -129,8 +130,8 @@ class TestUbootuTUIApp:
         assert sample_menu_structure["subitem2"].selected is True
         assert sample_menu_structure["item2"].selected is False
     
-    @patch('lib.tui.app.build_menu_structure')
-    @patch('lib.tui.app.init_colors')
+    @patch('lib.tui.menu_structure.build_menu_structure')
+    @patch('lib.tui.colors.init_colors')
     def test_get_current_menu_items(self, mock_init_colors, mock_build_menu, mock_stdscr, sample_menu_structure):
         """Test getting current menu items."""
         mock_build_menu.return_value = sample_menu_structure
@@ -155,8 +156,8 @@ class TestUbootuTUIApp:
         items = tui.get_current_menu_items()
         assert len(items) == 0
     
-    @patch('lib.tui.app.build_menu_structure')
-    @patch('lib.tui.app.init_colors')
+    @patch('lib.tui.menu_structure.build_menu_structure')
+    @patch('lib.tui.colors.init_colors')
     def test_get_category_selection_status(self, mock_init_colors, mock_build_menu, mock_stdscr, sample_menu_structure):
         """Test category selection status calculation."""
         mock_build_menu.return_value = sample_menu_structure
@@ -186,8 +187,8 @@ class TestUbootuTUIApp:
         status = tui.get_category_selection_status("nonexistent")
         assert status == 'empty'
     
-    @patch('lib.tui.app.build_menu_structure')
-    @patch('lib.tui.app.init_colors')
+    @patch('lib.tui.menu_structure.build_menu_structure')
+    @patch('lib.tui.colors.init_colors')
     def test_get_all_selectable_items(self, mock_init_colors, mock_build_menu, mock_stdscr):
         """Test getting all selectable items in a category."""
         # Create nested structure
@@ -221,8 +222,8 @@ class TestUbootuTUIApp:
         items = tui._get_all_selectable_items("item1")
         assert len(items) == 0
     
-    @patch('lib.tui.app.build_menu_structure')
-    @patch('lib.tui.app.init_colors')
+    @patch('lib.tui.menu_structure.build_menu_structure')
+    @patch('lib.tui.colors.init_colors')
     def test_run_normal(self, mock_init_colors, mock_build_menu, mock_stdscr):
         """Test normal run of TUI."""
         mock_build_menu.return_value = {}
@@ -240,8 +241,8 @@ class TestUbootuTUIApp:
         mock_stdscr.refresh.assert_called_once()
         mock_stdscr.getch.assert_called_once()
     
-    @patch('lib.tui.app.build_menu_structure')
-    @patch('lib.tui.app.init_colors')
+    @patch('lib.tui.menu_structure.build_menu_structure')
+    @patch('lib.tui.colors.init_colors')
     def test_run_keyboard_interrupt(self, mock_init_colors, mock_build_menu, mock_stdscr):
         """Test run with keyboard interrupt."""
         mock_build_menu.return_value = {}
@@ -253,8 +254,8 @@ class TestUbootuTUIApp:
         assert exit_code == 1
         assert tui.cancelled
     
-    @patch('lib.tui.app.build_menu_structure')
-    @patch('lib.tui.app.init_colors')
+    @patch('lib.tui.menu_structure.build_menu_structure')
+    @patch('lib.tui.colors.init_colors')
     def test_run_exception(self, mock_init_colors, mock_build_menu, mock_stdscr):
         """Test run with general exception."""
         mock_build_menu.return_value = {}
@@ -270,8 +271,16 @@ class TestUbootuTUIApp:
 class TestSelectionLogic:
     """Test selection logic and state management."""
     
-    @patch('lib.tui.app.build_menu_structure')
-    @patch('lib.tui.app.init_colors')
+    @pytest.fixture
+    def mock_stdscr(self):
+        """Create a mock curses screen."""
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (30, 100)  # height, width
+        stdscr.getch.return_value = ord('q')  # Default to quit
+        return stdscr
+    
+    @patch('lib.tui.menu_structure.build_menu_structure')
+    @patch('lib.tui.colors.init_colors')
     def test_recursive_category_selection(self, mock_init_colors, mock_build_menu, mock_stdscr):
         """Test recursive category selection status."""
         # Create deeply nested structure
