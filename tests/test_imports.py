@@ -11,25 +11,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 def test_tui_imports():
     """Test that all TUI modules can be imported without errors."""
-    # List of modules to import
+    # List of modules to import (now using enhanced_menu_ui)
     modules_to_import = [
-        "lib.tui",
-        "lib.tui.app",
-        "lib.tui.colors",
-        "lib.tui.config",
-        "lib.tui.core",
-        "lib.tui.dialogs",
-        "lib.tui.handlers",
-        "lib.tui.menu_structure",
-        "lib.tui.models",
-        "lib.tui.renderer",
-        "lib.tui.menus",
-        "lib.tui.menus.base",
-        "lib.tui.menus.applications",
-        "lib.tui.menus.desktop",
-        "lib.tui.menus.development",
-        "lib.tui.menus.security",
-        "lib.tui.menus.system",
+        "lib.enhanced_menu_ui",
+        "lib.enhanced_menu_ui_old",
     ]
 
     errors = []
@@ -53,7 +38,7 @@ def test_main_script_imports():
     """Test that the main configure script can import TUI modules."""
     try:
         # Test importing from the main script's perspective
-        from lib.tui import main, run_tui
+        from lib.enhanced_menu_ui import main, run_tui
 
         print("✓ Main TUI functions imported successfully from configure_standard_tui.py perspective")
     except ImportError as e:

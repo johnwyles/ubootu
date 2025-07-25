@@ -38,37 +38,29 @@ class TestIntegration:
         assert validator is not None
 
     @pytest.mark.integration
-    def test_menu_builders_integration(self):
-        """Test all menu builders together"""
-        from lib.tui.menus.applications import ApplicationsMenuBuilder
-        from lib.tui.menus.desktop import DesktopMenuBuilder
-        from lib.tui.menus.development import DevelopmentMenuBuilder
-        from lib.tui.menus.security import SecurityMenuBuilder
-        from lib.tui.menus.system import SystemMenuBuilder
+    @patch("lib.enhanced_menu_ui.Console")
+    def test_menu_builders_integration(self, mock_console):
+        """Test enhanced menu UI system"""
+        from lib.enhanced_menu_ui import EnhancedMenuUI
 
-        # Build all menus
-        builders = [
-            DesktopMenuBuilder(),
-            ApplicationsMenuBuilder(),
-            DevelopmentMenuBuilder(),
-            SecurityMenuBuilder(),
-            SystemMenuBuilder(),
-        ]
-
-        all_items = {}
-        for builder in builders:
-            items = builder.build()
-            all_items.update(items)
-
+        # Create UI instance
+        ui = EnhancedMenuUI()
+        
         # Verify we have many items
-        assert len(all_items) > 100
+        assert len(ui.menu_items) > 100
 
         # Check some known items exist
-        assert "desktop-env" in all_items  # Fixed: was 'desktop-environment'
-        assert "applications" in all_items
-        assert "development" in all_items
-        assert "security" in all_items
-        assert "system" in all_items
+        assert "desktop" in ui.menu_items
+        assert "applications" in ui.menu_items
+        assert "development" in ui.menu_items
+        assert "security" in ui.menu_items
+        assert "system" in ui.menu_items
+        assert "ai-ml" in ui.menu_items  # New AI/ML category
+
+        # Check that AI/ML has subcategories
+        ai_ml = ui.menu_items["ai-ml"]
+        assert ai_ml.is_category
+        assert len(ai_ml.children) > 0
 
     @pytest.mark.integration
     @patch("curses.initscr")
