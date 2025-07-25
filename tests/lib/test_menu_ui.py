@@ -8,14 +8,8 @@ from unittest.mock import MagicMock, Mock, call, patch
 import pytest
 
 import lib.menu_ui
-from lib.menu_ui import (
-    DropdownConfig,
-    MenuOption,
-    MenuUI,
-    MultiSelectConfig,
-    SliderConfig,
-    create_menu_ui,
-)
+from lib.menu_ui import (DropdownConfig, MenuOption, MenuUI, MultiSelectConfig,
+                         SliderConfig, create_menu_ui)
 
 
 class TestMenuUi:

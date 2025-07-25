@@ -7,15 +7,10 @@ import sys
 # Add the project root to the Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from test_imports import (
-    test_main_script_imports,
-    test_splash_and_ui_imports,
-    test_tui_imports,
-)
-from test_tui_compilation import (
-    test_other_lib_modules_compile,
-    test_tui_modules_compile,
-)
+from test_imports import (test_main_script_imports, test_splash_and_ui_imports,
+                          test_tui_imports)
+from test_tui_compilation import (test_other_lib_modules_compile,
+                                  test_tui_modules_compile)
 
 
 def run_all_tests():
