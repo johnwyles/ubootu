@@ -6,14 +6,14 @@ Hierarchical TUI with modular design for professional desktop configuration
 This is now a lightweight wrapper around the refactored TUI modules.
 """
 
-import sys
 import os
+import sys
 
 # Add the lib directory to the Python path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'lib'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "lib"))
 
 # Import the new modular TUI
-from tui import run_tui, main
+from tui import main, run_tui
 
 
 # Maintain backward compatibility with the original interface

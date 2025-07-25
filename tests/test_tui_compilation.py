@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Test that all TUI modules compile successfully."""
 
+import os
 import py_compile
 import sys
-import os
 from pathlib import Path
 
 # Add the project root to the Python path
@@ -14,7 +14,7 @@ def test_tui_modules_compile():
     """Test that all TUI Python modules compile without syntax errors."""
     project_root = Path(__file__).parent.parent
     tui_path = project_root / "lib" / "tui"
-    
+
     # List of TUI modules to test
     tui_modules = [
         "configure_standard_tui.py",
@@ -39,7 +39,7 @@ def test_tui_modules_compile():
         "lib/tui/menus/security.py",
         "lib/tui/menus/system.py",
     ]
-    
+
     errors = []
     for module in tui_modules:
         module_path = project_root / module
@@ -49,7 +49,7 @@ def test_tui_modules_compile():
         except py_compile.PyCompileError as e:
             errors.append(f"✗ {module}: {e}")
             print(f"✗ {module} failed to compile: {e}")
-    
+
     # Assert no compilation errors
     assert not errors, f"Compilation errors found:\n" + "\n".join(errors)
     print(f"\nAll {len(tui_modules)} TUI modules compiled successfully!")
@@ -59,7 +59,7 @@ def test_other_lib_modules_compile():
     """Test that other lib modules compile without syntax errors."""
     project_root = Path(__file__).parent.parent
     lib_path = project_root / "lib"
-    
+
     # List of other lib modules
     other_modules = [
         "lib/__init__.py",
@@ -83,7 +83,7 @@ def test_other_lib_modules_compile():
         "lib/tui_dialogs.py",
         "lib/tui_splash.py",
     ]
-    
+
     errors = []
     for module in other_modules:
         module_path = project_root / module
@@ -94,7 +94,7 @@ def test_other_lib_modules_compile():
             except py_compile.PyCompileError as e:
                 errors.append(f"✗ {module}: {e}")
                 print(f"✗ {module} failed to compile: {e}")
-    
+
     # Assert no compilation errors
     assert not errors, f"Compilation errors found:\n" + "\n".join(errors)
     print(f"\nAll lib modules compiled successfully!")

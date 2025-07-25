@@ -10,6 +10,7 @@ from enum import Enum
 
 class ErrorCode(Enum):
     """Error codes for validation and bootstrap errors"""
+
     INVALID_CONFIG = "INVALID_CONFIG"
     MISSING_REQUIRED = "MISSING_REQUIRED"
     CONFLICT = "CONFLICT"
@@ -19,6 +20,7 @@ class ErrorCode(Enum):
 
 class ValidationError(Exception):
     """Raised when configuration validation fails"""
+
     def __init__(self, message: str, code: ErrorCode = ErrorCode.INVALID_CONFIG):
         self.message = message
         self.code = code
@@ -27,6 +29,7 @@ class ValidationError(Exception):
 
 class BootstrapError(Exception):
     """Raised when bootstrap process fails"""
+
     def __init__(self, message: str, code: ErrorCode = ErrorCode.SYSTEM_ERROR):
         self.message = message
         self.code = code
@@ -39,7 +42,7 @@ def get_logger(name: str) -> logging.Logger:
     if not logger.handlers:
         handler = logging.StreamHandler()
         formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         )
         handler.setFormatter(formatter)
         logger.addHandler(handler)

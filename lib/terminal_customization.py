@@ -4,13 +4,14 @@ Terminal Customization Module for Ubootu
 Handles color schemes, fonts, and terminal settings
 """
 
-from typing import Dict, List, Tuple, Any
 from dataclasses import dataclass
+from typing import Any, Dict, List, Tuple
 
 
 @dataclass
 class ColorScheme:
     """Represents a terminal color scheme"""
+
     name: str
     display_name: str
     description: str
@@ -25,6 +26,7 @@ class ColorScheme:
 @dataclass
 class FontConfig:
     """Represents a terminal font configuration"""
+
     name: str
     display_name: str
     description: str
@@ -39,6 +41,7 @@ class FontConfig:
 @dataclass
 class TerminalProfile:
     """Complete terminal profile with all settings"""
+
     name: str
     terminal_app: str
     color_scheme: str
@@ -55,14 +58,14 @@ class TerminalProfile:
 
 class TerminalCustomization:
     """Manages terminal customization options"""
-    
+
     def __init__(self):
         self.color_schemes = self._init_color_schemes()
         self.fonts = self._init_fonts()
         self.terminal_apps = self._init_terminal_apps()
         self.cursor_styles = ["block", "underline", "beam"]
         self.bell_options = ["none", "visual", "sound"]
-    
+
     def _init_color_schemes(self) -> Dict[str, ColorScheme]:
         """Initialize available color schemes"""
         schemes = {
@@ -86,15 +89,14 @@ class TerminalCustomization:
                     "bright_blue": "#D6ACFF",
                     "bright_magenta": "#FF92DF",
                     "bright_cyan": "#A4FFFF",
-                    "bright_white": "#FFFFFF"
+                    "bright_white": "#FFFFFF",
                 },
                 background="#282A36",
                 foreground="#F8F8F2",
                 cursor="#F8F8F2",
                 selection="#44475A",
-                preview="🧛 Dark with vibrant purples and pinks"
+                preview="🧛 Dark with vibrant purples and pinks",
             ),
-            
             "catppuccin_mocha": ColorScheme(
                 name="catppuccin_mocha",
                 display_name="Catppuccin Mocha",
@@ -115,15 +117,14 @@ class TerminalCustomization:
                     "bright_blue": "#89B4FA",
                     "bright_magenta": "#F5C2E7",
                     "bright_cyan": "#94E2D5",
-                    "bright_white": "#A6ADC8"
+                    "bright_white": "#A6ADC8",
                 },
                 background="#1E1E2E",
                 foreground="#CDD6F4",
                 cursor="#F5E0DC",
                 selection="#313244",
-                preview="🐱 Soothing pastel colors"
+                preview="🐱 Soothing pastel colors",
             ),
-            
             "catppuccin_latte": ColorScheme(
                 name="catppuccin_latte",
                 display_name="Catppuccin Latte",
@@ -144,15 +145,14 @@ class TerminalCustomization:
                     "bright_blue": "#1E66F5",
                     "bright_magenta": "#EA76CB",
                     "bright_cyan": "#179299",
-                    "bright_white": "#BCC0CC"
+                    "bright_white": "#BCC0CC",
                 },
                 background="#EFF1F5",
                 foreground="#4C4F69",
                 cursor="#DC8A78",
                 selection="#CCD0DA",
-                preview="☕ Light and warm"
+                preview="☕ Light and warm",
             ),
-            
             "solarized_dark": ColorScheme(
                 name="solarized_dark",
                 display_name="Solarized Dark",
@@ -173,15 +173,14 @@ class TerminalCustomization:
                     "bright_blue": "#839496",
                     "bright_magenta": "#6C71C4",
                     "bright_cyan": "#93A1A1",
-                    "bright_white": "#FDF6E3"
+                    "bright_white": "#FDF6E3",
                 },
                 background="#002B36",
                 foreground="#839496",
                 cursor="#839496",
                 selection="#073642",
-                preview="☀️ Ethan Schoonover's precision colors"
+                preview="☀️ Ethan Schoonover's precision colors",
             ),
-            
             "nord": ColorScheme(
                 name="nord",
                 display_name="Nord",
@@ -202,15 +201,14 @@ class TerminalCustomization:
                     "bright_blue": "#81A1C1",
                     "bright_magenta": "#B48EAD",
                     "bright_cyan": "#8FBCBB",
-                    "bright_white": "#ECEFF4"
+                    "bright_white": "#ECEFF4",
                 },
                 background="#2E3440",
                 foreground="#D8DEE9",
                 cursor="#D8DEE9",
                 selection="#434C5E",
-                preview="❄️ Cool and north-bluish"
+                preview="❄️ Cool and north-bluish",
             ),
-            
             "gruvbox_dark": ColorScheme(
                 name="gruvbox_dark",
                 display_name="Gruvbox Dark",
@@ -231,15 +229,14 @@ class TerminalCustomization:
                     "bright_blue": "#83A598",
                     "bright_magenta": "#D3869B",
                     "bright_cyan": "#8EC07C",
-                    "bright_white": "#EBDBB2"
+                    "bright_white": "#EBDBB2",
                 },
                 background="#282828",
                 foreground="#EBDBB2",
                 cursor="#EBDBB2",
                 selection="#504945",
-                preview="🎸 Retro and warm"
+                preview="🎸 Retro and warm",
             ),
-            
             "tokyo_night": ColorScheme(
                 name="tokyo_night",
                 display_name="Tokyo Night",
@@ -260,15 +257,14 @@ class TerminalCustomization:
                     "bright_blue": "#7AA2F7",
                     "bright_magenta": "#BB9AF7",
                     "bright_cyan": "#7DCFFF",
-                    "bright_white": "#C0CAF5"
+                    "bright_white": "#C0CAF5",
                 },
                 background="#1A1B26",
                 foreground="#C0CAF5",
                 cursor="#C0CAF5",
                 selection="#33467C",
-                preview="🌃 Tokyo city lights"
+                preview="🌃 Tokyo city lights",
             ),
-            
             "one_dark": ColorScheme(
                 name="one_dark",
                 display_name="One Dark",
@@ -289,15 +285,14 @@ class TerminalCustomization:
                     "bright_blue": "#61AFEF",
                     "bright_magenta": "#C678DD",
                     "bright_cyan": "#56B6C2",
-                    "bright_white": "#FFFFFF"
+                    "bright_white": "#FFFFFF",
                 },
                 background="#282C34",
                 foreground="#ABB2BF",
                 cursor="#ABB2BF",
                 selection="#3E4451",
-                preview="⚛️ Atom-inspired elegance"
+                preview="⚛️ Atom-inspired elegance",
             ),
-            
             "material_ocean": ColorScheme(
                 name="material_ocean",
                 display_name="Material Ocean",
@@ -318,15 +313,14 @@ class TerminalCustomization:
                     "bright_blue": "#82AAFF",
                     "bright_magenta": "#C792EA",
                     "bright_cyan": "#89DDFF",
-                    "bright_white": "#FFFFFF"
+                    "bright_white": "#FFFFFF",
                 },
                 background="#0F111A",
                 foreground="#8F93A2",
                 cursor="#FFCC00",
                 selection="#1F2233",
-                preview="🌊 Deep ocean material"
+                preview="🌊 Deep ocean material",
             ),
-            
             "monokai": ColorScheme(
                 name="monokai",
                 display_name="Monokai",
@@ -347,18 +341,18 @@ class TerminalCustomization:
                     "bright_blue": "#66D9EF",
                     "bright_magenta": "#AE81FF",
                     "bright_cyan": "#A1EFE4",
-                    "bright_white": "#F9F8F5"
+                    "bright_white": "#F9F8F5",
                 },
                 background="#272822",
                 foreground="#F8F8F2",
                 cursor="#F8F8F0",
                 selection="#49483E",
-                preview="🎨 Sublime Text classic"
-            )
+                preview="🎨 Sublime Text classic",
+            ),
         }
-        
+
         return schemes
-    
+
     def _init_fonts(self) -> Dict[str, FontConfig]:
         """Initialize available fonts"""
         fonts = {
@@ -371,9 +365,8 @@ class TerminalCustomization:
                 ligatures=False,
                 powerline=True,
                 nerd_fonts=True,
-                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24]
+                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24],
             ),
-            
             "hack": FontConfig(
                 name="hack",
                 display_name="Hack",
@@ -383,9 +376,8 @@ class TerminalCustomization:
                 ligatures=False,
                 powerline=True,
                 nerd_fonts=True,
-                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24]
+                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24],
             ),
-            
             "jetbrains": FontConfig(
                 name="jetbrains",
                 display_name="JetBrains Mono",
@@ -395,9 +387,8 @@ class TerminalCustomization:
                 ligatures=True,
                 powerline=True,
                 nerd_fonts=True,
-                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24]
+                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24],
             ),
-            
             "firacode": FontConfig(
                 name="firacode",
                 display_name="Fira Code",
@@ -407,9 +398,8 @@ class TerminalCustomization:
                 ligatures=True,
                 powerline=True,
                 nerd_fonts=True,
-                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24]
+                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24],
             ),
-            
             "cascadia": FontConfig(
                 name="cascadia",
                 display_name="Cascadia Code",
@@ -419,9 +409,8 @@ class TerminalCustomization:
                 ligatures=True,
                 powerline=True,
                 nerd_fonts=True,
-                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24]
+                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24],
             ),
-            
             "source_code_pro": FontConfig(
                 name="source_code_pro",
                 display_name="Source Code Pro",
@@ -431,9 +420,8 @@ class TerminalCustomization:
                 ligatures=False,
                 powerline=True,
                 nerd_fonts=True,
-                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24]
+                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24],
             ),
-            
             "iosevka": FontConfig(
                 name="iosevka",
                 display_name="Iosevka",
@@ -443,9 +431,8 @@ class TerminalCustomization:
                 ligatures=True,
                 powerline=True,
                 nerd_fonts=True,
-                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24]
+                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24],
             ),
-            
             "ubuntu_mono": FontConfig(
                 name="ubuntu_mono",
                 display_name="Ubuntu Mono",
@@ -455,9 +442,8 @@ class TerminalCustomization:
                 ligatures=False,
                 powerline=True,
                 nerd_fonts=True,
-                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24]
+                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24],
             ),
-            
             "droid_sans": FontConfig(
                 name="droid_sans",
                 display_name="Droid Sans Mono",
@@ -467,9 +453,8 @@ class TerminalCustomization:
                 ligatures=False,
                 powerline=True,
                 nerd_fonts=True,
-                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24]
+                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24],
             ),
-            
             "roboto": FontConfig(
                 name="roboto",
                 display_name="Roboto Mono",
@@ -479,12 +464,12 @@ class TerminalCustomization:
                 ligatures=False,
                 powerline=True,
                 nerd_fonts=True,
-                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24]
-            )
+                sizes=[10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24],
+            ),
         }
-        
+
         return fonts
-    
+
     def _init_terminal_apps(self) -> Dict[str, Dict[str, Any]]:
         """Initialize supported terminal applications"""
         apps = {
@@ -497,8 +482,8 @@ class TerminalCustomization:
                     "blur": False,
                     "ligatures": True,
                     "custom_css": False,
-                    "profiles": True
-                }
+                    "profiles": True,
+                },
             },
             "konsole": {
                 "name": "Konsole",
@@ -509,8 +494,8 @@ class TerminalCustomization:
                     "blur": True,
                     "ligatures": True,
                     "custom_css": False,
-                    "profiles": True
-                }
+                    "profiles": True,
+                },
             },
             "terminator": {
                 "name": "Terminator",
@@ -521,8 +506,8 @@ class TerminalCustomization:
                     "blur": False,
                     "ligatures": True,
                     "custom_css": False,
-                    "profiles": True
-                }
+                    "profiles": True,
+                },
             },
             "alacritty": {
                 "name": "Alacritty",
@@ -533,8 +518,8 @@ class TerminalCustomization:
                     "blur": True,
                     "ligatures": True,
                     "custom_css": False,
-                    "profiles": False
-                }
+                    "profiles": False,
+                },
             },
             "kitty": {
                 "name": "Kitty",
@@ -545,8 +530,8 @@ class TerminalCustomization:
                     "blur": True,
                     "ligatures": True,
                     "custom_css": True,
-                    "profiles": False
-                }
+                    "profiles": False,
+                },
             },
             "wezterm": {
                 "name": "WezTerm",
@@ -557,8 +542,8 @@ class TerminalCustomization:
                     "blur": True,
                     "ligatures": True,
                     "custom_css": True,
-                    "profiles": True
-                }
+                    "profiles": True,
+                },
             },
             "tilix": {
                 "name": "Tilix",
@@ -569,35 +554,39 @@ class TerminalCustomization:
                     "blur": False,
                     "ligatures": True,
                     "custom_css": False,
-                    "profiles": True
-                }
-            }
+                    "profiles": True,
+                },
+            },
         }
-        
+
         return apps
-    
+
     def get_color_scheme(self, name: str) -> ColorScheme:
         """Get a specific color scheme"""
         return self.color_schemes.get(name)
-    
+
     def get_font(self, name: str) -> FontConfig:
         """Get a specific font configuration"""
         return self.fonts.get(name)
-    
+
     def get_terminal_app(self, name: str) -> Dict[str, Any]:
         """Get terminal app configuration"""
         return self.terminal_apps.get(name)
-    
+
     def list_color_schemes(self) -> List[Tuple[str, str, str]]:
         """List all available color schemes"""
-        return [(name, scheme.display_name, scheme.preview) 
-                for name, scheme in self.color_schemes.items()]
-    
+        return [
+            (name, scheme.display_name, scheme.preview)
+            for name, scheme in self.color_schemes.items()
+        ]
+
     def list_fonts(self) -> List[Tuple[str, str, bool]]:
         """List all available fonts with ligature support"""
-        return [(name, font.display_name, font.ligatures) 
-                for name, font in self.fonts.items()]
-    
+        return [
+            (name, font.display_name, font.ligatures)
+            for name, font in self.fonts.items()
+        ]
+
     def create_terminal_profile(self, **kwargs) -> TerminalProfile:
         """Create a new terminal profile with settings"""
         return TerminalProfile(
@@ -612,15 +601,15 @@ class TerminalCustomization:
             cursor_style=kwargs.get("cursor_style", "block"),
             cursor_blink=kwargs.get("cursor_blink", True),
             bell=kwargs.get("bell", "visual"),
-            window_size=kwargs.get("window_size", (80, 24))
+            window_size=kwargs.get("window_size", (80, 24)),
         )
-    
+
     def export_color_scheme(self, scheme_name: str, terminal_app: str) -> str:
         """Export color scheme in terminal-specific format"""
         scheme = self.color_schemes.get(scheme_name)
         if not scheme:
             return ""
-        
+
         if terminal_app == "alacritty":
             return self._export_alacritty_colors(scheme)
         elif terminal_app == "kitty":
@@ -629,7 +618,7 @@ class TerminalCustomization:
             return self._export_wezterm_colors(scheme)
         else:
             return self._export_generic_colors(scheme)
-    
+
     def _export_alacritty_colors(self, scheme: ColorScheme) -> str:
         """Export colors in Alacritty format"""
         config = f"""# {scheme.display_name} color scheme
@@ -663,7 +652,7 @@ colors:
     white: '{scheme.colors["bright_white"]}'
 """
         return config
-    
+
     def _export_kitty_colors(self, scheme: ColorScheme) -> str:
         """Export colors in Kitty format"""
         config = f"""# {scheme.display_name} color scheme
@@ -694,7 +683,7 @@ color14 {scheme.colors["bright_cyan"]}
 color15 {scheme.colors["bright_white"]}
 """
         return config
-    
+
     def _export_wezterm_colors(self, scheme: ColorScheme) -> str:
         """Export colors in WezTerm format"""
         config = f"""-- {scheme.display_name} color scheme
@@ -730,7 +719,7 @@ return {{
 }}
 """
         return config
-    
+
     def _export_generic_colors(self, scheme: ColorScheme) -> str:
         """Export colors in generic format"""
         config = f"""# {scheme.display_name} color scheme
