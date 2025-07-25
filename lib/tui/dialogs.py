@@ -47,9 +47,7 @@ class TUIDialogs:
                 # Clear the dialog area
                 for y in range(start_y, start_y + dialog_height):
                     if y < height:
-                        self.stdscr.addstr(
-                            y, start_x, " " * min(dialog_width, width - start_x)
-                        )
+                        self.stdscr.addstr(y, start_x, " " * min(dialog_width, width - start_x))
 
                 # Draw dialog border with vibrant colors
                 # Black on green
@@ -61,39 +59,29 @@ class TUIDialogs:
                 # Title
                 title = f" Configure {item.label} "
                 title_x = start_x + (dialog_width - len(title)) // 2
-                self.stdscr.addstr(
-                    start_y + 1, start_x, "│" + " " * (dialog_width - 2) + "│"
-                )
+                self.stdscr.addstr(start_y + 1, start_x, "│" + " " * (dialog_width - 2) + "│")
                 self.stdscr.addstr(start_y + 1, title_x, title)
 
                 # Separator
-                self.stdscr.addstr(
-                    start_y + 2, start_x, "├" + "─" * (dialog_width - 2) + "┤"
-                )
+                self.stdscr.addstr(start_y + 2, start_x, "├" + "─" * (dialog_width - 2) + "┤")
 
                 # Description with detailed explanation for specific items
                 desc = item.description[: dialog_width - 4]
                 desc_x = start_x + (dialog_width - len(desc)) // 2
-                self.stdscr.addstr(
-                    start_y + 3, start_x, "│" + " " * (dialog_width - 2) + "│"
-                )
+                self.stdscr.addstr(start_y + 3, start_x, "│" + " " * (dialog_width - 2) + "│")
                 self.stdscr.addstr(start_y + 3, desc_x, desc)
 
                 # Add detailed explanation for specific items
                 if item.id == "swappiness":
                     detail = "Low: Keeps apps in RAM | High: Frees RAM aggressively"
                     detail_x = start_x + (dialog_width - len(detail)) // 2
-                    self.stdscr.addstr(
-                        start_y + 4, start_x, "│" + " " * (dialog_width - 2) + "│"
-                    )
+                    self.stdscr.addstr(start_y + 4, start_x, "│" + " " * (dialog_width - 2) + "│")
                     self.stdscr.addstr(start_y + 4, detail_x, detail)
                     slider_y_offset = 1
                 elif item.id == "cpu-governor":
                     detail = "1=Save power | 3=Balanced | 5=Max performance"
                     detail_x = start_x + (dialog_width - len(detail)) // 2
-                    self.stdscr.addstr(
-                        start_y + 4, start_x, "│" + " " * (dialog_width - 2) + "│"
-                    )
+                    self.stdscr.addstr(start_y + 4, start_x, "│" + " " * (dialog_width - 2) + "│")
                     self.stdscr.addstr(start_y + 4, detail_x, detail)
                     slider_y_offset = 1
                 else:
@@ -101,9 +89,7 @@ class TUIDialogs:
 
                 # Slider
                 slider_y = start_y + 4 + slider_y_offset
-                self.stdscr.addstr(
-                    slider_y, start_x, "│" + " " * (dialog_width - 2) + "│"
-                )
+                self.stdscr.addstr(slider_y, start_x, "│" + " " * (dialog_width - 2) + "│")
 
                 # Slider track
                 slider_width = dialog_width - 10
@@ -112,9 +98,7 @@ class TUIDialogs:
                 # Calculate slider position
                 value_range = max_val - min_val
                 if value_range > 0:
-                    slider_pos = int(
-                        (current_value - min_val) / value_range * (slider_width - 1)
-                    )
+                    slider_pos = int((current_value - min_val) / value_range * (slider_width - 1))
                 else:
                     slider_pos = 0
 
@@ -128,18 +112,14 @@ class TUIDialogs:
                 value_text = f"{current_value}{item.config_unit}"
                 value_y = start_y + 5 + slider_y_offset
                 value_x = start_x + (dialog_width - len(value_text)) // 2
-                self.stdscr.addstr(
-                    value_y, start_x, "│" + " " * (dialog_width - 2) + "│"
-                )
+                self.stdscr.addstr(value_y, start_x, "│" + " " * (dialog_width - 2) + "│")
                 self.stdscr.addstr(value_y, value_x, value_text)
 
                 # Instructions
                 instructions = "← → arrows to adjust, ENTER to confirm, ESC to cancel"
                 inst_y = start_y + 6 + slider_y_offset
                 inst_x = start_x + (dialog_width - len(instructions)) // 2
-                self.stdscr.addstr(
-                    inst_y, start_x, "│" + " " * (dialog_width - 2) + "│"
-                )
+                self.stdscr.addstr(inst_y, start_x, "│" + " " * (dialog_width - 2) + "│")
                 if len(instructions) <= dialog_width - 4:
                     self.stdscr.addstr(inst_y, inst_x, instructions)
 
@@ -161,12 +141,7 @@ class TUIDialogs:
                 elif key == curses.KEY_RIGHT or key == ord("l"):
                     if current_value < max_val:
                         current_value += 1
-                elif (
-                    key == ord("\n")
-                    or key == curses.KEY_ENTER
-                    or key == 10
-                    or key == 13
-                ):
+                elif key == ord("\n") or key == curses.KEY_ENTER or key == 10 or key == 13:
                     # Confirm - save the value
                     item.config_value = current_value
                     item.selected = True  # Mark as configured
@@ -206,9 +181,7 @@ class TUIDialogs:
                 # Clear the dialog area
                 for y in range(start_y, start_y + dialog_height):
                     if y < height:
-                        self.stdscr.addstr(
-                            y, start_x, " " * min(dialog_width, width - start_x)
-                        )
+                        self.stdscr.addstr(y, start_x, " " * min(dialog_width, width - start_x))
 
                 # Draw dialog border
                 # Top border
@@ -218,22 +191,16 @@ class TUIDialogs:
                 # Title
                 title = f" Configure {item.label} "
                 title_x = start_x + (dialog_width - len(title)) // 2
-                self.stdscr.addstr(
-                    start_y + 1, start_x, "│" + " " * (dialog_width - 2) + "│"
-                )
+                self.stdscr.addstr(start_y + 1, start_x, "│" + " " * (dialog_width - 2) + "│")
                 self.stdscr.addstr(start_y + 1, title_x, title)
 
                 # Separator
-                self.stdscr.addstr(
-                    start_y + 2, start_x, "├" + "─" * (dialog_width - 2) + "┤"
-                )
+                self.stdscr.addstr(start_y + 2, start_x, "├" + "─" * (dialog_width - 2) + "┤")
 
                 # Description
                 desc = item.description[: dialog_width - 4]
                 desc_x = start_x + (dialog_width - len(desc)) // 2
-                self.stdscr.addstr(
-                    start_y + 3, start_x, "│" + " " * (dialog_width - 2) + "│"
-                )
+                self.stdscr.addstr(start_y + 3, start_x, "│" + " " * (dialog_width - 2) + "│")
                 self.stdscr.addstr(start_y + 3, desc_x, desc)
 
                 # Options
@@ -257,15 +224,11 @@ class TUIDialogs:
                 instructions = "↑↓ to select, ENTER to confirm, ESC to cancel"
                 inst_y = start_y + 4 + len(item.config_options) + 1
                 inst_x = start_x + (dialog_width - len(instructions)) // 2
-                self.stdscr.addstr(
-                    inst_y, start_x, "│" + " " * (dialog_width - 2) + "│"
-                )
+                self.stdscr.addstr(inst_y, start_x, "│" + " " * (dialog_width - 2) + "│")
                 self.stdscr.addstr(inst_y, inst_x, instructions)
 
                 # Bottom border
-                self.stdscr.addstr(
-                    inst_y + 1, start_x, "└" + "─" * (dialog_width - 2) + "┘"
-                )
+                self.stdscr.addstr(inst_y + 1, start_x, "└" + "─" * (dialog_width - 2) + "┘")
 
                 self.stdscr.refresh()
 
@@ -278,12 +241,7 @@ class TUIDialogs:
                 elif key == curses.KEY_DOWN or key == ord("j"):
                     if current_index < len(item.config_options) - 1:
                         current_index += 1
-                elif (
-                    key == ord("\n")
-                    or key == curses.KEY_ENTER
-                    or key == 10
-                    or key == 13
-                ):
+                elif key == ord("\n") or key == curses.KEY_ENTER or key == 10 or key == 13:
                     # Confirm - save the value
                     item.config_value = item.config_options[current_index][0]
                     item.selected = True
@@ -315,42 +273,30 @@ class TUIDialogs:
                 # Clear the dialog area
                 for y in range(start_y, start_y + dialog_height):
                     if y < height:
-                        self.stdscr.addstr(
-                            y, start_x, " " * min(dialog_width, width - start_x)
-                        )
+                        self.stdscr.addstr(y, start_x, " " * min(dialog_width, width - start_x))
 
                 # Draw dialog border
                 # Top border
-                self.stdscr.addstr(
-                    start_y, start_x, "┌" + "─" * (dialog_width - 2) + "┐"
-                )
+                self.stdscr.addstr(start_y, start_x, "┌" + "─" * (dialog_width - 2) + "┐")
 
                 # Title
                 title = f" Configure {item.label} "
                 title_x = start_x + (dialog_width - len(title)) // 2
-                self.stdscr.addstr(
-                    start_y + 1, start_x, "│" + " " * (dialog_width - 2) + "│"
-                )
+                self.stdscr.addstr(start_y + 1, start_x, "│" + " " * (dialog_width - 2) + "│")
                 self.stdscr.addstr(start_y + 1, title_x, title)
 
                 # Separator
-                self.stdscr.addstr(
-                    start_y + 2, start_x, "├" + "─" * (dialog_width - 2) + "┤"
-                )
+                self.stdscr.addstr(start_y + 2, start_x, "├" + "─" * (dialog_width - 2) + "┤")
 
                 # Description
                 desc = item.description[: dialog_width - 4]
                 desc_x = start_x + (dialog_width - len(desc)) // 2
-                self.stdscr.addstr(
-                    start_y + 3, start_x, "│" + " " * (dialog_width - 2) + "│"
-                )
+                self.stdscr.addstr(start_y + 3, start_x, "│" + " " * (dialog_width - 2) + "│")
                 self.stdscr.addstr(start_y + 3, desc_x, desc)
 
                 # Toggle switch
                 toggle_y = start_y + 4
-                self.stdscr.addstr(
-                    toggle_y, start_x, "│" + " " * (dialog_width - 2) + "│"
-                )
+                self.stdscr.addstr(toggle_y, start_x, "│" + " " * (dialog_width - 2) + "│")
 
                 # Draw toggle visualization
                 if current_value:
@@ -369,15 +315,11 @@ class TUIDialogs:
                 instructions = "SPACE to toggle, ENTER to confirm, ESC to cancel"
                 inst_y = start_y + 5
                 inst_x = start_x + (dialog_width - len(instructions)) // 2
-                self.stdscr.addstr(
-                    inst_y, start_x, "│" + " " * (dialog_width - 2) + "│"
-                )
+                self.stdscr.addstr(inst_y, start_x, "│" + " " * (dialog_width - 2) + "│")
                 self.stdscr.addstr(inst_y, inst_x, instructions[: dialog_width - 4])
 
                 # Bottom border
-                self.stdscr.addstr(
-                    start_y + 6, start_x, "└" + "─" * (dialog_width - 2) + "┘"
-                )
+                self.stdscr.addstr(start_y + 6, start_x, "└" + "─" * (dialog_width - 2) + "┘")
 
                 self.stdscr.refresh()
 
@@ -386,12 +328,7 @@ class TUIDialogs:
 
                 if key == ord(" "):
                     current_value = not current_value
-                elif (
-                    key == ord("\n")
-                    or key == curses.KEY_ENTER
-                    or key == 10
-                    or key == 13
-                ):
+                elif key == ord("\n") or key == curses.KEY_ENTER or key == 10 or key == 13:
                     # Confirm - save the value
                     item.config_value = current_value
                     item.selected = True
@@ -429,42 +366,30 @@ class TUIDialogs:
                 # Clear the dialog area
                 for y in range(start_y, start_y + dialog_height):
                     if y < height:
-                        self.stdscr.addstr(
-                            y, start_x, " " * min(dialog_width, width - start_x)
-                        )
+                        self.stdscr.addstr(y, start_x, " " * min(dialog_width, width - start_x))
 
                 # Draw dialog border
                 # Top border
-                self.stdscr.addstr(
-                    start_y, start_x, "┌" + "─" * (dialog_width - 2) + "┐"
-                )
+                self.stdscr.addstr(start_y, start_x, "┌" + "─" * (dialog_width - 2) + "┐")
 
                 # Title
                 title = f" Configure {item.label} "
                 title_x = start_x + (dialog_width - len(title)) // 2
-                self.stdscr.addstr(
-                    start_y + 1, start_x, "│" + " " * (dialog_width - 2) + "│"
-                )
+                self.stdscr.addstr(start_y + 1, start_x, "│" + " " * (dialog_width - 2) + "│")
                 self.stdscr.addstr(start_y + 1, title_x, title)
 
                 # Separator
-                self.stdscr.addstr(
-                    start_y + 2, start_x, "├" + "─" * (dialog_width - 2) + "┤"
-                )
+                self.stdscr.addstr(start_y + 2, start_x, "├" + "─" * (dialog_width - 2) + "┤")
 
                 # Description
                 desc = item.description[: dialog_width - 4]
                 desc_x = start_x + (dialog_width - len(desc)) // 2
-                self.stdscr.addstr(
-                    start_y + 3, start_x, "│" + " " * (dialog_width - 2) + "│"
-                )
+                self.stdscr.addstr(start_y + 3, start_x, "│" + " " * (dialog_width - 2) + "│")
                 self.stdscr.addstr(start_y + 3, desc_x, desc)
 
                 # Text input field
                 input_y = start_y + 4
-                self.stdscr.addstr(
-                    input_y, start_x, "│" + " " * (dialog_width - 2) + "│"
-                )
+                self.stdscr.addstr(input_y, start_x, "│" + " " * (dialog_width - 2) + "│")
 
                 # Draw input box
                 input_width = dialog_width - 8
@@ -473,11 +398,7 @@ class TUIDialogs:
                 self.stdscr.addstr(input_y, input_x + input_width, "]")
 
                 # Display current value
-                display_value = (
-                    current_value[-input_width:]
-                    if len(current_value) > input_width
-                    else current_value
-                )
+                display_value = current_value[-input_width:] if len(current_value) > input_width else current_value
                 self.stdscr.addstr(
                     input_y,
                     input_x,
@@ -493,27 +414,18 @@ class TUIDialogs:
                 instructions = "Type to edit, ENTER to confirm, ESC to cancel"
                 inst_y = start_y + 6
                 inst_x = start_x + (dialog_width - len(instructions)) // 2
-                self.stdscr.addstr(
-                    inst_y, start_x, "│" + " " * (dialog_width - 2) + "│"
-                )
+                self.stdscr.addstr(inst_y, start_x, "│" + " " * (dialog_width - 2) + "│")
                 self.stdscr.addstr(inst_y, inst_x, instructions)
 
                 # Bottom border
-                self.stdscr.addstr(
-                    start_y + 7, start_x, "└" + "─" * (dialog_width - 2) + "┘"
-                )
+                self.stdscr.addstr(start_y + 7, start_x, "└" + "─" * (dialog_width - 2) + "┘")
 
                 self.stdscr.refresh()
 
                 # Handle input
                 key = self.stdscr.getch()
 
-                if (
-                    key == ord("\n")
-                    or key == curses.KEY_ENTER
-                    or key == 10
-                    or key == 13
-                ):
+                if key == ord("\n") or key == curses.KEY_ENTER or key == 10 or key == 13:
                     # Confirm - save the value
                     item.config_value = current_value
                     item.selected = True
@@ -573,27 +485,21 @@ class TUIDialogs:
             # Configuration-specific info
             help_lines.append("Configuration:")
             if item.config_type == "slider":
-                help_lines.append(
-                    f"• Range: {item.config_range[0]} to {item.config_range[1]}{item.config_unit}"
-                )
+                help_lines.append(f"• Range: {item.config_range[0]} to {item.config_range[1]}{item.config_unit}")
                 help_lines.append(f"• Current: {item.config_value}{item.config_unit}")
             elif item.config_type == "dropdown":
                 help_lines.append(f"• Current: {item.config_value}")
                 if item.config_options:
                     help_lines.append(f"• Options: {len(item.config_options)} choices")
             elif item.config_type == "toggle":
-                help_lines.append(
-                    f"• Current: {'Enabled' if item.config_value else 'Disabled'}"
-                )
+                help_lines.append(f"• Current: {'Enabled' if item.config_value else 'Disabled'}")
             elif item.config_type == "text":
                 help_lines.append(f"• Current: {item.config_value or '(not set)'}")
         else:
             help_lines.append("Type: Toggle Item")
             help_lines.append("Actions:")
             help_lines.append("• SPACE or ENTER : Select/deselect")
-            help_lines.append(
-                f"• Status: {'Selected' if item.selected else 'Not selected'}"
-            )
+            help_lines.append(f"• Status: {'Selected' if item.selected else 'Not selected'}")
 
         # Ansible variable mapping
         if item.ansible_var:
@@ -621,9 +527,7 @@ class TUIDialogs:
             # Draw popup background
             for y in range(start_y, start_y + popup_height):
                 if y < height:
-                    self.stdscr.addstr(
-                        y, start_x, " " * min(popup_width, width - start_x)
-                    )
+                    self.stdscr.addstr(y, start_x, " " * min(popup_width, width - start_x))
 
             # Draw border
             # Top border
@@ -639,16 +543,12 @@ class TUIDialogs:
                     self.stdscr.addstr(y, start_x + 2, display_line)
                     # Right border
                     padding = popup_width - len(display_line) - 3
-                    self.stdscr.addstr(
-                        y, start_x + 2 + len(display_line), " " * padding + "║"
-                    )
+                    self.stdscr.addstr(y, start_x + 2 + len(display_line), " " * padding + "║")
 
             # Bottom border
             bottom_y = start_y + popup_height - 1
             if bottom_y < height:
-                self.stdscr.addstr(
-                    bottom_y, start_x, "╚" + "═" * (popup_width - 2) + "╝"
-                )
+                self.stdscr.addstr(bottom_y, start_x, "╚" + "═" * (popup_width - 2) + "╝")
 
             self.stdscr.refresh()
 

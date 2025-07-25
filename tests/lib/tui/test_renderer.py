@@ -42,12 +42,8 @@ class TestTUIRenderer:
                 is_category=True,
                 children=["python", "nodejs"],
             ),
-            "python": MenuItem(
-                "python", "Python", "Python development", parent="development"
-            ),
-            "nodejs": MenuItem(
-                "nodejs", "Node.js", "Node.js development", parent="development"
-            ),
+            "python": MenuItem("python", "Python", "Python development", parent="development"),
+            "nodejs": MenuItem("nodejs", "Node.js", "Node.js development", parent="development"),
             "desktop": MenuItem(
                 "desktop",
                 "Desktop",
@@ -55,9 +51,7 @@ class TestTUIRenderer:
                 parent="root",
                 is_category=True,
             ),
-            "actions": MenuItem(
-                "actions", "Actions", "Actions menu", parent="root", is_category=True
-            ),
+            "actions": MenuItem("actions", "Actions", "Actions menu", parent="root", is_category=True),
         }
         return items
 
@@ -158,9 +152,7 @@ class TestTUIRenderer:
                 children=["item1"],
             ),
             MenuItem("item1", "Item 1", "First item", parent="cat1"),
-            MenuItem(
-                "cat2", "Category 2", "Second category", is_category=True, children=[]
-            ),
+            MenuItem("cat2", "Category 2", "Second category", is_category=True, children=[]),
         ]
 
         # Mock category selection status
@@ -174,10 +166,7 @@ class TestTUIRenderer:
     def test_draw_menu_scrolling(self, renderer, mock_stdscr):
         """Test menu drawing with scrolling."""
         # Create many items to test scrolling
-        menu_items = [
-            MenuItem(f"item{i}", f"Item {i}", f"Item {i} description")
-            for i in range(50)
-        ]
+        menu_items = [MenuItem(f"item{i}", f"Item {i}", f"Item {i} description") for i in range(50)]
 
         mock_stdscr.getmaxyx.return_value = (20, 100)  # Limited height
 
@@ -190,9 +179,7 @@ class TestTUIRenderer:
 
     def test_draw_menu_with_description(self, renderer, mock_stdscr):
         """Test menu drawing with F1 instruction in description."""
-        renderer.menu_items["root"].description = (
-            "Navigate: arrows | Press F1 for actions"
-        )
+        renderer.menu_items["root"].description = "Navigate: arrows | Press F1 for actions"
         renderer.current_menu = "root"
 
         menu_items = []
@@ -264,15 +251,9 @@ class TestTUIRenderer:
     def test_get_category_selection_status(self, renderer):
         """Test category selection status calculation."""
         # Add some child items
-        renderer.menu_items["dev-child1"] = MenuItem(
-            "dev-child1", "Child 1", "Child 1", parent="development"
-        )
-        renderer.menu_items["dev-child2"] = MenuItem(
-            "dev-child2", "Child 2", "Child 2", parent="development"
-        )
-        renderer.menu_items["dev-child3"] = MenuItem(
-            "dev-child3", "Child 3", "Child 3", parent="development"
-        )
+        renderer.menu_items["dev-child1"] = MenuItem("dev-child1", "Child 1", "Child 1", parent="development")
+        renderer.menu_items["dev-child2"] = MenuItem("dev-child2", "Child 2", "Child 2", parent="development")
+        renderer.menu_items["dev-child3"] = MenuItem("dev-child3", "Child 3", "Child 3", parent="development")
         renderer.menu_items["development"].children = [
             "dev-child1",
             "dev-child2",

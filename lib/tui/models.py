@@ -24,7 +24,5 @@ class MenuItem:
     config_range: Tuple[int, int] = (1, 10)  # For sliders: (min, max)
     config_value: Any = 5  # Current value for configurable items (int, str, bool, etc.)
     config_unit: str = ""  # Unit for display (e.g., "seconds", "%", "px")
-    config_options: Optional[List[Tuple[str, str]]] = (
-        None  # For dropdowns: [(value, display_label)]
-    )
+    config_options: Optional[List[Tuple[str, str]]] = None  # For dropdowns: [(value, display_label)]
     ansible_var: Optional[str] = None  # Maps to Ansible variable name

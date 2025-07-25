@@ -9,8 +9,7 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 
 import lib.error_handling
-from lib.error_handling import (BootstrapError, ErrorCode, ValidationError,
-                                get_logger, raise_config_error)
+from lib.error_handling import BootstrapError, ErrorCode, ValidationError, get_logger, raise_config_error
 
 
 class TestErrorHandling:
@@ -78,9 +77,7 @@ class TestErrorHandling:
 
         def validate_config(config):
             if not config:
-                raise ValidationError(
-                    "Config cannot be empty", ErrorCode.MISSING_REQUIRED
-                )
+                raise ValidationError("Config cannot be empty", ErrorCode.MISSING_REQUIRED)
             if "invalid" in config:
                 raise ValidationError("Invalid configuration", ErrorCode.INVALID_CONFIG)
             return True

@@ -6,7 +6,6 @@ Display help documentation in a scrollable TUI interface
 
 import curses
 import sys
-from typing import List
 
 
 class HelpViewer:
@@ -177,9 +176,7 @@ class HelpViewer:
         content_width = self.width - 4
 
         # Draw visible content lines
-        visible_lines = content[
-            self.scroll_offset : self.scroll_offset + content_height
-        ]
+        visible_lines = content[self.scroll_offset : self.scroll_offset + content_height]
 
         for i, line in enumerate(visible_lines):
             y = content_start_y + i
@@ -203,13 +200,13 @@ class HelpViewer:
         if self.scroll_offset > 0:
             try:
                 self.stdscr.addstr(content_start_y - 1, self.width - 3, "↑")
-            except:
+            except Exception:
                 pass
 
         if self.scroll_offset + content_height < len(content):
             try:
                 self.stdscr.addstr(self.height - 3, self.width - 3, "↓")
-            except:
+            except Exception:
                 pass
 
     def draw_instructions(self):
@@ -263,9 +260,7 @@ class HelpViewer:
             elif key == curses.KEY_NPAGE:  # Page Down
                 _, content = self.sections[self.current_section]
                 max_scroll = max(0, len(content) - (self.height - 6))
-                self.scroll_offset = min(
-                    max_scroll, self.scroll_offset + (self.height - 6)
-                )
+                self.scroll_offset = min(max_scroll, self.scroll_offset + (self.height - 6))
             elif key == curses.KEY_HOME:
                 self.scroll_offset = 0
             elif key == curses.KEY_END:

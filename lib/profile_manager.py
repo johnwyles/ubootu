@@ -10,7 +10,7 @@ import shutil
 import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List
 
 import yaml
 
@@ -19,9 +19,7 @@ class ProfileManager:
     """Manages configuration profiles with Git integration"""
 
     def __init__(self, base_dir: str = None):
-        self.base_dir = Path(
-            base_dir or os.path.expanduser("~/.config/ubuntu-bootstrap")
-        )
+        self.base_dir = Path(base_dir or os.path.expanduser("~/.config/ubuntu-bootstrap"))
         self.profiles_dir = self.base_dir / "profiles"
         self.backups_dir = self.base_dir / "backups"
         self.current_config = self.profiles_dir / "current.yml"
@@ -63,9 +61,7 @@ class ProfileManager:
                 capture_output=True,
             )
 
-    def save_profile(
-        self, config: Dict[str, Any], name: str = None, commit_message: str = None
-    ) -> str:
+    def save_profile(self, config: Dict[str, Any], name: str = None, commit_message: str = None) -> str:
         """Save configuration profile with Git tracking"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -87,9 +83,7 @@ class ProfileManager:
         # Git commit
         subprocess.run(["git", "add", "."], cwd=self.base_dir)
         message = commit_message or f"Update configuration - {timestamp}"
-        subprocess.run(
-            ["git", "commit", "-m", message], cwd=self.base_dir, capture_output=True
-        )
+        subprocess.run(["git", "commit", "-m", message], cwd=self.base_dir, capture_output=True)
 
         return str(self.current_config)
 
@@ -157,9 +151,7 @@ class ProfileManager:
         return {
             "name": name,
             "path": str(profile_path),
-            "modified": datetime.fromtimestamp(stat.st_mtime).strftime(
-                "%Y-%m-%d %H:%M"
-            ),
+            "modified": datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M"),
             "size": stat.st_size,
             "summary": self._generate_summary(config),
         }
@@ -171,9 +163,7 @@ class ProfileManager:
             "themes_enabled": config.get("enable_themes", False),
             "development_tools": config.get("enable_development_tools", False),
             "security_hardening": config.get("enable_security", False),
-            "applications_count": len(
-                config.get("applications", {}).get("web_browsers", [])
-            )
+            "applications_count": len(config.get("applications", {}).get("web_browsers", []))
             + len(config.get("applications", {}).get("code_editors", []))
             + len(config.get("applications", {}).get("media_apps", [])),
         }
@@ -201,9 +191,7 @@ class ProfileManager:
             temp2 = f2.name
 
         # Run diff
-        result = subprocess.run(
-            ["diff", "-u", temp1, temp2], capture_output=True, text=True
-        )
+        result = subprocess.run(["diff", "-u", temp1, temp2], capture_output=True, text=True)
 
         # Cleanup
         os.unlink(temp1)
@@ -230,9 +218,7 @@ class ProfileManager:
         for line in result.stdout.strip().split("\n"):
             if line:
                 commit_hash, date, message = line.split("|", 2)
-                history.append(
-                    {"hash": commit_hash[:8], "date": date, "message": message}
-                )
+                history.append({"hash": commit_hash[:8], "date": date, "message": message})
 
         return history
 
@@ -265,17 +251,13 @@ class ProfileManager:
 
     def switch_branch(self, branch_name: str) -> bool:
         """Switch to a different Git branch"""
-        result = subprocess.run(
-            ["git", "checkout", branch_name], cwd=self.base_dir, capture_output=True
-        )
+        result = subprocess.run(["git", "checkout", branch_name], cwd=self.base_dir, capture_output=True)
 
         return result.returncode == 0
 
     def list_branches(self) -> List[str]:
         """List all Git branches"""
-        result = subprocess.run(
-            ["git", "branch"], cwd=self.base_dir, capture_output=True, text=True
-        )
+        result = subprocess.run(["git", "branch"], cwd=self.base_dir, capture_output=True, text=True)
 
         branches = []
         for line in result.stdout.strip().split("\n"):
@@ -309,9 +291,7 @@ class ProfileManager:
             )
             branch = result.stdout.strip()
 
-        result = subprocess.run(
-            ["git", "push", remote, branch], cwd=self.base_dir, capture_output=True
-        )
+        result = subprocess.run(["git", "push", remote, branch], cwd=self.base_dir, capture_output=True)
 
         return result.returncode == 0
 

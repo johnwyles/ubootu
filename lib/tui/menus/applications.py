@@ -91,33 +91,19 @@ class ApplicationsMenuBuilder(MenuBuilder):
             parent="app-browsers",
         )
 
-        self.add_selectable(
-            "chromium", "Chromium", "Open source browser", parent="app-browsers"
-        )
+        self.add_selectable("chromium", "Chromium", "Open source browser", parent="app-browsers")
 
-        self.add_selectable(
-            "brave", "Brave Browser", "Privacy-focused browser", parent="app-browsers"
-        )
+        self.add_selectable("brave", "Brave Browser", "Privacy-focused browser", parent="app-browsers")
 
-        self.add_selectable(
-            "opera", "Opera", "Feature-rich web browser", parent="app-browsers"
-        )
+        self.add_selectable("opera", "Opera", "Feature-rich web browser", parent="app-browsers")
 
-        self.add_selectable(
-            "vivaldi", "Vivaldi", "Customizable browser", parent="app-browsers"
-        )
+        self.add_selectable("vivaldi", "Vivaldi", "Customizable browser", parent="app-browsers")
 
-        self.add_selectable(
-            "edge", "Microsoft Edge", "Microsoft's browser", parent="app-browsers"
-        )
+        self.add_selectable("edge", "Microsoft Edge", "Microsoft's browser", parent="app-browsers")
 
-        self.add_selectable(
-            "waterfox", "Waterfox", "Firefox-based browser", parent="app-browsers"
-        )
+        self.add_selectable("waterfox", "Waterfox", "Firefox-based browser", parent="app-browsers")
 
-        self.add_selectable(
-            "librewolf", "LibreWolf", "Privacy-hardened Firefox", parent="app-browsers"
-        )
+        self.add_selectable("librewolf", "LibreWolf", "Privacy-hardened Firefox", parent="app-browsers")
 
         self.add_selectable(
             "tor-browser",
@@ -126,9 +112,7 @@ class ApplicationsMenuBuilder(MenuBuilder):
             parent="app-browsers",
         )
 
-        self.add_selectable(
-            "min", "Min Browser", "Minimal web browser", parent="app-browsers"
-        )
+        self.add_selectable("min", "Min Browser", "Minimal web browser", parent="app-browsers")
 
         self.add_selectable(
             "qutebrowser",
@@ -137,9 +121,7 @@ class ApplicationsMenuBuilder(MenuBuilder):
             parent="app-browsers",
         )
 
-        self.add_selectable(
-            "midori", "Midori", "Lightweight web browser", parent="app-browsers"
-        )
+        self.add_selectable("midori", "Midori", "Lightweight web browser", parent="app-browsers")
 
         self.add_selectable(
             "epiphany",
@@ -148,21 +130,13 @@ class ApplicationsMenuBuilder(MenuBuilder):
             parent="app-browsers",
         )
 
-        self.add_selectable(
-            "falkon", "Falkon", "KDE web browser", parent="app-browsers"
-        )
+        self.add_selectable("falkon", "Falkon", "KDE web browser", parent="app-browsers")
 
-        self.add_selectable(
-            "seamonkey", "SeaMonkey", "Internet suite", parent="app-browsers"
-        )
+        self.add_selectable("seamonkey", "SeaMonkey", "Internet suite", parent="app-browsers")
 
-        self.add_selectable(
-            "palemoon", "Pale Moon", "Firefox-based browser", parent="app-browsers"
-        )
+        self.add_selectable("palemoon", "Pale Moon", "Firefox-based browser", parent="app-browsers")
 
-        self.add_selectable(
-            "basilisk", "Basilisk", "Firefox-based browser", parent="app-browsers"
-        )
+        self.add_selectable("basilisk", "Basilisk", "Firefox-based browser", parent="app-browsers")
 
         self.add_selectable(
             "ungoogled-chromium",
@@ -225,26 +199,16 @@ class ApplicationsMenuBuilder(MenuBuilder):
             default=True,
         )
 
-        self.add_selectable(
-            "mpv", "mpv", "Lightweight video player", parent="app-media"
-        )
+        self.add_selectable("mpv", "mpv", "Lightweight video player", parent="app-media")
 
-        self.add_selectable(
-            "celluloid", "Celluloid", "Simple GTK+ frontend for mpv", parent="app-media"
-        )
+        self.add_selectable("celluloid", "Celluloid", "Simple GTK+ frontend for mpv", parent="app-media")
 
-        self.add_selectable(
-            "smplayer", "SMPlayer", "Feature-rich media player", parent="app-media"
-        )
+        self.add_selectable("smplayer", "SMPlayer", "Feature-rich media player", parent="app-media")
 
         # Music players
-        self.add_selectable(
-            "spotify", "Spotify", "Music streaming service", parent="app-media"
-        )
+        self.add_selectable("spotify", "Spotify", "Music streaming service", parent="app-media")
 
-        self.add_selectable(
-            "rhythmbox", "Rhythmbox", "GNOME music player", parent="app-media"
-        )
+        self.add_selectable("rhythmbox", "Rhythmbox", "GNOME music player", parent="app-media")
 
         self.add_selectable(
             "clementine",
@@ -253,17 +217,11 @@ class ApplicationsMenuBuilder(MenuBuilder):
             parent="app-media",
         )
 
-        self.add_selectable(
-            "strawberry", "Strawberry", "Modern music player", parent="app-media"
-        )
+        self.add_selectable("strawberry", "Strawberry", "Modern music player", parent="app-media")
 
-        self.add_selectable(
-            "audacious", "Audacious", "Lightweight audio player", parent="app-media"
-        )
+        self.add_selectable("audacious", "Audacious", "Lightweight audio player", parent="app-media")
 
-        self.add_selectable(
-            "lollypop", "Lollypop", "Modern music player", parent="app-media"
-        )
+        self.add_selectable("lollypop", "Lollypop", "Modern music player", parent="app-media")
 
         # Image editors
         self.add_selectable(
@@ -274,70 +232,40 @@ class ApplicationsMenuBuilder(MenuBuilder):
             default=True,
         )
 
-        self.add_selectable(
-            "krita", "Krita", "Digital painting application", parent="app-media"
-        )
+        self.add_selectable("krita", "Krita", "Digital painting application", parent="app-media")
 
-        self.add_selectable(
-            "inkscape", "Inkscape", "Vector graphics editor", parent="app-media"
-        )
+        self.add_selectable("inkscape", "Inkscape", "Vector graphics editor", parent="app-media")
 
-        self.add_selectable(
-            "darktable", "darktable", "Photography workflow", parent="app-media"
-        )
+        self.add_selectable("darktable", "darktable", "Photography workflow", parent="app-media")
 
-        self.add_selectable(
-            "rawtherapee", "RawTherapee", "Raw image processing", parent="app-media"
-        )
+        self.add_selectable("rawtherapee", "RawTherapee", "Raw image processing", parent="app-media")
 
-        self.add_selectable(
-            "digikam", "digiKam", "Photo management", parent="app-media"
-        )
+        self.add_selectable("digikam", "digiKam", "Photo management", parent="app-media")
 
         # Audio production
-        self.add_selectable(
-            "audacity", "Audacity", "Audio editing software", parent="app-media"
-        )
+        self.add_selectable("audacity", "Audacity", "Audio editing software", parent="app-media")
 
-        self.add_selectable(
-            "ardour", "Ardour", "Digital audio workstation", parent="app-media"
-        )
+        self.add_selectable("ardour", "Ardour", "Digital audio workstation", parent="app-media")
 
-        self.add_selectable(
-            "lmms", "LMMS", "Music production suite", parent="app-media"
-        )
+        self.add_selectable("lmms", "LMMS", "Music production suite", parent="app-media")
 
         self.add_selectable("hydrogen", "Hydrogen", "Drum machine", parent="app-media")
 
         # 3D and CAD
-        self.add_selectable(
-            "blender", "Blender", "3D creation suite", parent="app-media"
-        )
+        self.add_selectable("blender", "Blender", "3D creation suite", parent="app-media")
 
-        self.add_selectable(
-            "freecad", "FreeCAD", "Parametric 3D CAD modeler", parent="app-media"
-        )
+        self.add_selectable("freecad", "FreeCAD", "Parametric 3D CAD modeler", parent="app-media")
 
-        self.add_selectable(
-            "openscad", "OpenSCAD", "Script-based 3D CAD modeler", parent="app-media"
-        )
+        self.add_selectable("openscad", "OpenSCAD", "Script-based 3D CAD modeler", parent="app-media")
 
         # Video editing
-        self.add_selectable(
-            "kdenlive", "Kdenlive", "Professional video editor", parent="app-media"
-        )
+        self.add_selectable("kdenlive", "Kdenlive", "Professional video editor", parent="app-media")
 
-        self.add_selectable(
-            "shotcut", "Shotcut", "Open source video editor", parent="app-media"
-        )
+        self.add_selectable("shotcut", "Shotcut", "Open source video editor", parent="app-media")
 
-        self.add_selectable(
-            "openshot", "OpenShot", "Easy-to-use video editor", parent="app-media"
-        )
+        self.add_selectable("openshot", "OpenShot", "Easy-to-use video editor", parent="app-media")
 
-        self.add_selectable(
-            "pitivi", "Pitivi", "Video editor for GNOME", parent="app-media"
-        )
+        self.add_selectable("pitivi", "Pitivi", "Video editor for GNOME", parent="app-media")
 
         self.add_selectable(
             "davinci-resolve",
@@ -361,17 +289,11 @@ class ApplicationsMenuBuilder(MenuBuilder):
             parent="app-media",
         )
 
-        self.add_selectable(
-            "kazam", "Kazam", "Desktop screen recorder", parent="app-media"
-        )
+        self.add_selectable("kazam", "Kazam", "Desktop screen recorder", parent="app-media")
 
-        self.add_selectable(
-            "peek", "Peek", "Animated GIF screen recorder", parent="app-media"
-        )
+        self.add_selectable("peek", "Peek", "Animated GIF screen recorder", parent="app-media")
 
-        self.add_selectable(
-            "flameshot", "Flameshot", "Screenshot software", parent="app-media"
-        )
+        self.add_selectable("flameshot", "Flameshot", "Screenshot software", parent="app-media")
 
         self.add_selectable("shutter", "Shutter", "Screenshot tool", parent="app-media")
 
@@ -442,9 +364,7 @@ class ApplicationsMenuBuilder(MenuBuilder):
         )
 
         # Note-taking applications
-        self.add_selectable(
-            "notion", "Notion", "All-in-one workspace", parent="app-productivity"
-        )
+        self.add_selectable("notion", "Notion", "All-in-one workspace", parent="app-productivity")
 
         self.add_selectable(
             "obsidian",
@@ -453,13 +373,9 @@ class ApplicationsMenuBuilder(MenuBuilder):
             parent="app-productivity",
         )
 
-        self.add_selectable(
-            "logseq", "Logseq", "Local-first knowledge graph", parent="app-productivity"
-        )
+        self.add_selectable("logseq", "Logseq", "Local-first knowledge graph", parent="app-productivity")
 
-        self.add_selectable(
-            "joplin", "Joplin", "Open source note-taking", parent="app-productivity"
-        )
+        self.add_selectable("joplin", "Joplin", "Open source note-taking", parent="app-productivity")
 
         self.add_selectable(
             "standard-notes",
@@ -475,9 +391,7 @@ class ApplicationsMenuBuilder(MenuBuilder):
             parent="app-productivity",
         )
 
-        self.add_selectable(
-            "typora", "Typora", "Markdown editor and reader", parent="app-productivity"
-        )
+        self.add_selectable("typora", "Typora", "Markdown editor and reader", parent="app-productivity")
 
         self.add_selectable(
             "marktext",
@@ -494,9 +408,7 @@ class ApplicationsMenuBuilder(MenuBuilder):
         )
 
         # Team communication
-        self.add_selectable(
-            "slack", "Slack", "Team communication platform", parent="app-productivity"
-        )
+        self.add_selectable("slack", "Slack", "Team communication platform", parent="app-productivity")
 
         self.add_selectable(
             "mattermost",
@@ -520,9 +432,7 @@ class ApplicationsMenuBuilder(MenuBuilder):
             parent="app-productivity",
         )
 
-        self.add_selectable(
-            "planner", "Planner", "Task manager for GNOME", parent="app-productivity"
-        )
+        self.add_selectable("planner", "Planner", "Task manager for GNOME", parent="app-productivity")
 
         self.add_selectable(
             "gnome-todo",
@@ -545,9 +455,7 @@ class ApplicationsMenuBuilder(MenuBuilder):
             parent="app-productivity",
         )
 
-        self.add_selectable(
-            "wekan", "WeKan", "Open source kanban board", parent="app-productivity"
-        )
+        self.add_selectable("wekan", "WeKan", "Open source kanban board", parent="app-productivity")
 
         # Cloud storage
         self.add_selectable(
@@ -557,9 +465,7 @@ class ApplicationsMenuBuilder(MenuBuilder):
             parent="app-productivity",
         )
 
-        self.add_selectable(
-            "dropbox", "Dropbox", "Cloud storage service", parent="app-productivity"
-        )
+        self.add_selectable("dropbox", "Dropbox", "Cloud storage service", parent="app-productivity")
 
         self.add_selectable(
             "megasync",
@@ -628,9 +534,7 @@ class ApplicationsMenuBuilder(MenuBuilder):
             parent="app-communication",
         )
 
-        self.add_selectable(
-            "zoom", "Zoom", "Video conferencing software", parent="app-communication"
-        )
+        self.add_selectable("zoom", "Zoom", "Video conferencing software", parent="app-communication")
 
         self.add_selectable(
             "telegram",
@@ -647,25 +551,15 @@ class ApplicationsMenuBuilder(MenuBuilder):
         )
 
         # Privacy-focused messaging
-        self.add_selectable(
-            "signal", "Signal", "Private messaging app", parent="app-communication"
-        )
+        self.add_selectable("signal", "Signal", "Private messaging app", parent="app-communication")
 
-        self.add_selectable(
-            "element", "Element", "Matrix protocol client", parent="app-communication"
-        )
+        self.add_selectable("element", "Element", "Matrix protocol client", parent="app-communication")
 
-        self.add_selectable(
-            "riot", "Riot.im", "Matrix client (legacy)", parent="app-communication"
-        )
+        self.add_selectable("riot", "Riot.im", "Matrix client (legacy)", parent="app-communication")
 
-        self.add_selectable(
-            "wire", "Wire", "Secure messenger", parent="app-communication"
-        )
+        self.add_selectable("wire", "Wire", "Secure messenger", parent="app-communication")
 
-        self.add_selectable(
-            "session", "Session", "Private messenger", parent="app-communication"
-        )
+        self.add_selectable("session", "Session", "Private messenger", parent="app-communication")
 
         self.add_selectable(
             "jami",
@@ -675,9 +569,7 @@ class ApplicationsMenuBuilder(MenuBuilder):
         )
 
         # Business communication
-        self.add_selectable(
-            "slack", "Slack", "Business messaging platform", parent="app-communication"
-        )
+        self.add_selectable("slack", "Slack", "Business messaging platform", parent="app-communication")
 
         self.add_selectable(
             "mattermost-desktop",
@@ -693,14 +585,10 @@ class ApplicationsMenuBuilder(MenuBuilder):
             parent="app-communication",
         )
 
-        self.add_selectable(
-            "gitter", "Gitter", "Chat for developers", parent="app-communication"
-        )
+        self.add_selectable("gitter", "Gitter", "Chat for developers", parent="app-communication")
 
         # Video calling
-        self.add_selectable(
-            "skype", "Skype", "Video calling service", parent="app-communication"
-        )
+        self.add_selectable("skype", "Skype", "Video calling service", parent="app-communication")
 
         self.add_selectable(
             "jitsi-meet",
@@ -710,9 +598,7 @@ class ApplicationsMenuBuilder(MenuBuilder):
         )
 
         # Voice chat/gaming
-        self.add_selectable(
-            "mumble", "Mumble", "Low-latency voice chat", parent="app-communication"
-        )
+        self.add_selectable("mumble", "Mumble", "Low-latency voice chat", parent="app-communication")
 
         self.add_selectable(
             "teamspeak",
@@ -722,29 +608,17 @@ class ApplicationsMenuBuilder(MenuBuilder):
         )
 
         # IRC clients
-        self.add_selectable(
-            "hexchat", "HexChat", "IRC client", parent="app-communication"
-        )
+        self.add_selectable("hexchat", "HexChat", "IRC client", parent="app-communication")
 
-        self.add_selectable(
-            "irssi", "Irssi", "Terminal-based IRC client", parent="app-communication"
-        )
+        self.add_selectable("irssi", "Irssi", "Terminal-based IRC client", parent="app-communication")
 
-        self.add_selectable(
-            "weechat", "WeeChat", "Extensible chat client", parent="app-communication"
-        )
+        self.add_selectable("weechat", "WeeChat", "Extensible chat client", parent="app-communication")
 
-        self.add_selectable(
-            "quassel", "Quassel IRC", "Modern IRC client", parent="app-communication"
-        )
+        self.add_selectable("quassel", "Quassel IRC", "Modern IRC client", parent="app-communication")
 
-        self.add_selectable(
-            "konversation", "Konversation", "KDE IRC client", parent="app-communication"
-        )
+        self.add_selectable("konversation", "Konversation", "KDE IRC client", parent="app-communication")
 
-        self.add_selectable(
-            "polari", "Polari", "GNOME IRC client", parent="app-communication"
-        )
+        self.add_selectable("polari", "Polari", "GNOME IRC client", parent="app-communication")
 
         # Multi-protocol clients
         self.add_selectable(

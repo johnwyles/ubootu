@@ -575,17 +575,11 @@ class TerminalCustomization:
 
     def list_color_schemes(self) -> List[Tuple[str, str, str]]:
         """List all available color schemes"""
-        return [
-            (name, scheme.display_name, scheme.preview)
-            for name, scheme in self.color_schemes.items()
-        ]
+        return [(name, scheme.display_name, scheme.preview) for name, scheme in self.color_schemes.items()]
 
     def list_fonts(self) -> List[Tuple[str, str, bool]]:
         """List all available fonts with ligature support"""
-        return [
-            (name, font.display_name, font.ligatures)
-            for name, font in self.fonts.items()
-        ]
+        return [(name, font.display_name, font.ligatures) for name, font in self.fonts.items()]
 
     def create_terminal_profile(self, **kwargs) -> TerminalProfile:
         """Create a new terminal profile with settings"""

@@ -9,7 +9,7 @@ serving as the single source of truth for the configuration schema.
 import os
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import yaml
 
@@ -83,9 +83,7 @@ class UserConfig:
 
     primary_user: Optional[str] = None
     primary_user_shell: Shell = Shell.BASH
-    create_user_groups: List[str] = field(
-        default_factory=lambda: ["docker", "vboxusers"]
-    )
+    create_user_groups: List[str] = field(default_factory=lambda: ["docker", "vboxusers"])
 
 
 @dataclass
@@ -169,17 +167,11 @@ class ApplicationsConfig:
         ]
     )
 
-    productivity_apps: List[str] = field(
-        default_factory=lambda: ["firefox", "thunderbird", "libreoffice", "keepassxc"]
-    )
+    productivity_apps: List[str] = field(default_factory=lambda: ["firefox", "thunderbird", "libreoffice", "keepassxc"])
 
-    multimedia_apps: List[str] = field(
-        default_factory=lambda: ["vlc", "gimp", "audacity"]
-    )
+    multimedia_apps: List[str] = field(default_factory=lambda: ["vlc", "gimp", "audacity"])
 
-    communication_apps: List[str] = field(
-        default_factory=lambda: ["discord", "slack", "zoom"]
-    )
+    communication_apps: List[str] = field(default_factory=lambda: ["discord", "slack", "zoom"])
 
 
 @dataclass
@@ -207,9 +199,7 @@ class DotfilesConfig:
         """Validate dotfiles configuration"""
         errors = []
         if self.configure_dotfiles and not self.dotfiles_repo:
-            errors.append(
-                "Dotfiles repository URL is required when dotfiles are enabled"
-            )
+            errors.append("Dotfiles repository URL is required when dotfiles are enabled")
         return errors
 
 
@@ -256,9 +246,7 @@ class BootstrapConfiguration:
     security: SecurityConfig = field(default_factory=SecurityConfig)
     development: DevelopmentConfig = field(default_factory=DevelopmentConfig)
     applications: ApplicationsConfig = field(default_factory=ApplicationsConfig)
-    package_management: PackageManagementConfig = field(
-        default_factory=PackageManagementConfig
-    )
+    package_management: PackageManagementConfig = field(default_factory=PackageManagementConfig)
     dotfiles: DotfilesConfig = field(default_factory=DotfilesConfig)
     updates: UpdatesConfig = field(default_factory=UpdatesConfig)
     backup: BackupConfig = field(default_factory=BackupConfig)
@@ -275,13 +263,8 @@ class BootstrapConfiguration:
         errors.extend(self.backup.validate())
 
         # Cross-section validation
-        if (
-            self.development.install_docker
-            and "docker" not in self.user.create_user_groups
-        ):
-            errors.append(
-                "Docker group should be added to user groups when Docker is enabled"
-            )
+        if self.development.install_docker and "docker" not in self.user.create_user_groups:
+            errors.append("Docker group should be added to user groups when Docker is enabled")
 
         return errors
 
@@ -317,9 +300,7 @@ class BootstrapConfiguration:
             "ssh_password_authentication": self.security.ssh_password_authentication,
             # Development
             "enable_development_tools": self.development.enable_development_tools,
-            "development_languages": [
-                lang.value for lang in self.development.development_languages
-            ],
+            "development_languages": [lang.value for lang in self.development.development_languages],
             "install_docker": self.development.install_docker,
             "install_vscode": self.development.install_vscode,
             "install_jetbrains_toolbox": self.development.install_jetbrains_toolbox,
@@ -394,12 +375,8 @@ class BootstrapConfiguration:
         config.system.enable_performance_tweaks = data.get(
             "enable_performance_tweaks", config.system.enable_performance_tweaks
         )
-        config.system.swappiness_value = data.get(
-            "swappiness_value", config.system.swappiness_value
-        )
-        config.system.enable_tmpfs = data.get(
-            "enable_tmpfs", config.system.enable_tmpfs
-        )
+        config.system.swappiness_value = data.get("swappiness_value", config.system.swappiness_value)
+        config.system.enable_tmpfs = data.get("enable_tmpfs", config.system.enable_tmpfs)
 
         # User
         config.user.primary_user = data.get("primary_user")
@@ -408,40 +385,26 @@ class BootstrapConfiguration:
                 config.user.primary_user_shell = Shell(data["primary_user_shell"])
             except ValueError:
                 pass  # Keep default
-        config.user.create_user_groups = data.get(
-            "create_user_groups", config.user.create_user_groups
-        )
+        config.user.create_user_groups = data.get("create_user_groups", config.user.create_user_groups)
 
         # Desktop
         if "desktop_environment" in data:
             try:
-                config.desktop.desktop_environment = DesktopEnvironment(
-                    data["desktop_environment"]
-                )
+                config.desktop.desktop_environment = DesktopEnvironment(data["desktop_environment"])
             except ValueError:
                 pass  # Keep default
         config.desktop.install_desktop_environment = data.get(
             "install_desktop_environment", config.desktop.install_desktop_environment
         )
-        config.desktop.desktop_autologin = data.get(
-            "desktop_autologin", config.desktop.desktop_autologin
-        )
-        config.desktop.desktop_theme = data.get(
-            "desktop_theme", config.desktop.desktop_theme
-        )
+        config.desktop.desktop_autologin = data.get("desktop_autologin", config.desktop.desktop_autologin)
+        config.desktop.desktop_theme = data.get("desktop_theme", config.desktop.desktop_theme)
         if "taskbar_position" in data:
             try:
-                config.desktop.taskbar_position = TaskbarPosition(
-                    data["taskbar_position"]
-                )
+                config.desktop.taskbar_position = TaskbarPosition(data["taskbar_position"])
             except ValueError:
                 pass  # Keep default
-        config.desktop.desktop_icons = data.get(
-            "desktop_icons", config.desktop.desktop_icons
-        )
-        config.desktop.desktop_icon_size = data.get(
-            "desktop_icon_size", config.desktop.desktop_icon_size
-        )
+        config.desktop.desktop_icons = data.get("desktop_icons", config.desktop.desktop_icons)
+        config.desktop.desktop_icon_size = data.get("desktop_icon_size", config.desktop.desktop_icon_size)
         config.desktop.trackpad_natural_scroll = data.get(
             "trackpad_natural_scroll", config.desktop.trackpad_natural_scroll
         )
@@ -452,18 +415,10 @@ class BootstrapConfiguration:
                 pass  # Keep default
 
         # Security
-        config.security.enable_security = data.get(
-            "enable_security", config.security.enable_security
-        )
-        config.security.enable_firewall = data.get(
-            "enable_firewall", config.security.enable_firewall
-        )
-        config.security.enable_fail2ban = data.get(
-            "enable_fail2ban", config.security.enable_fail2ban
-        )
-        config.security.ssh_permit_root_login = data.get(
-            "ssh_permit_root_login", config.security.ssh_permit_root_login
-        )
+        config.security.enable_security = data.get("enable_security", config.security.enable_security)
+        config.security.enable_firewall = data.get("enable_firewall", config.security.enable_firewall)
+        config.security.enable_fail2ban = data.get("enable_fail2ban", config.security.enable_fail2ban)
+        config.security.ssh_permit_root_login = data.get("ssh_permit_root_login", config.security.ssh_permit_root_login)
         config.security.ssh_password_authentication = data.get(
             "ssh_password_authentication", config.security.ssh_password_authentication
         )
@@ -476,23 +431,15 @@ class BootstrapConfiguration:
             config.development.development_languages = []
             for lang_str in data["development_languages"]:
                 try:
-                    config.development.development_languages.append(
-                        DevelopmentLanguage(lang_str)
-                    )
+                    config.development.development_languages.append(DevelopmentLanguage(lang_str))
                 except ValueError:
                     pass  # Skip invalid languages
-        config.development.install_docker = data.get(
-            "install_docker", config.development.install_docker
-        )
-        config.development.install_vscode = data.get(
-            "install_vscode", config.development.install_vscode
-        )
+        config.development.install_docker = data.get("install_docker", config.development.install_docker)
+        config.development.install_vscode = data.get("install_vscode", config.development.install_vscode)
         config.development.install_jetbrains_toolbox = data.get(
             "install_jetbrains_toolbox", config.development.install_jetbrains_toolbox
         )
-        config.development.install_github_cli = data.get(
-            "install_github_cli", config.development.install_github_cli
-        )
+        config.development.install_github_cli = data.get("install_github_cli", config.development.install_github_cli)
         config.development.install_hashicorp_tools = data.get(
             "install_hashicorp_tools", config.development.install_hashicorp_tools
         )
@@ -501,29 +448,15 @@ class BootstrapConfiguration:
         config.applications.install_applications = data.get(
             "install_applications", config.applications.install_applications
         )
-        config.applications.default_browser = data.get(
-            "default_browser", config.applications.default_browser
-        )
-        config.applications.essential_packages = data.get(
-            "essential_packages", config.applications.essential_packages
-        )
-        config.applications.productivity_apps = data.get(
-            "productivity_apps", config.applications.productivity_apps
-        )
-        config.applications.multimedia_apps = data.get(
-            "multimedia_apps", config.applications.multimedia_apps
-        )
-        config.applications.communication_apps = data.get(
-            "communication_apps", config.applications.communication_apps
-        )
+        config.applications.default_browser = data.get("default_browser", config.applications.default_browser)
+        config.applications.essential_packages = data.get("essential_packages", config.applications.essential_packages)
+        config.applications.productivity_apps = data.get("productivity_apps", config.applications.productivity_apps)
+        config.applications.multimedia_apps = data.get("multimedia_apps", config.applications.multimedia_apps)
+        config.applications.communication_apps = data.get("communication_apps", config.applications.communication_apps)
 
         # Package Management
-        config.package_management.enable_flatpak = data.get(
-            "enable_flatpak", config.package_management.enable_flatpak
-        )
-        config.package_management.enable_snap = data.get(
-            "enable_snap", config.package_management.enable_snap
-        )
+        config.package_management.enable_flatpak = data.get("enable_flatpak", config.package_management.enable_flatpak)
+        config.package_management.enable_snap = data.get("enable_snap", config.package_management.enable_snap)
         config.package_management.enable_appimage_support = data.get(
             "enable_appimage_support", config.package_management.enable_appimage_support
         )
@@ -538,12 +471,8 @@ class BootstrapConfiguration:
         )
 
         # Dotfiles
-        config.dotfiles.configure_dotfiles = data.get(
-            "configure_dotfiles", config.dotfiles.configure_dotfiles
-        )
-        config.dotfiles.dotfiles_repo = data.get(
-            "dotfiles_repo", config.dotfiles.dotfiles_repo
-        )
+        config.dotfiles.configure_dotfiles = data.get("configure_dotfiles", config.dotfiles.configure_dotfiles)
+        config.dotfiles.dotfiles_repo = data.get("dotfiles_repo", config.dotfiles.dotfiles_repo)
         config.dotfiles.dotfiles_repo_local_dest = data.get(
             "dotfiles_repo_local_dest", config.dotfiles.dotfiles_repo_local_dest
         )
@@ -555,28 +484,16 @@ class BootstrapConfiguration:
         config.updates.enable_automatic_updates = data.get(
             "enable_automatic_updates", config.updates.enable_automatic_updates
         )
-        config.updates.automatic_reboot = data.get(
-            "automatic_reboot", config.updates.automatic_reboot
-        )
-        config.updates.automatic_reboot_time = data.get(
-            "automatic_reboot_time", config.updates.automatic_reboot_time
-        )
+        config.updates.automatic_reboot = data.get("automatic_reboot", config.updates.automatic_reboot)
+        config.updates.automatic_reboot_time = data.get("automatic_reboot_time", config.updates.automatic_reboot_time)
 
         # Backup
-        config.backup.enable_backup = data.get(
-            "enable_backup", config.backup.enable_backup
-        )
-        config.backup.backup_directories = data.get(
-            "backup_directories", config.backup.backup_directories
-        )
-        config.backup.backup_destination = data.get(
-            "backup_destination", config.backup.backup_destination
-        )
+        config.backup.enable_backup = data.get("enable_backup", config.backup.enable_backup)
+        config.backup.backup_directories = data.get("backup_directories", config.backup.backup_directories)
+        config.backup.backup_destination = data.get("backup_destination", config.backup.backup_destination)
 
         # Features
-        config.features.experimental_features = data.get(
-            "experimental_features", config.features.experimental_features
-        )
+        config.features.experimental_features = data.get("experimental_features", config.features.experimental_features)
         config.features.bleeding_edge_packages = data.get(
             "bleeding_edge_packages", config.features.bleeding_edge_packages
         )

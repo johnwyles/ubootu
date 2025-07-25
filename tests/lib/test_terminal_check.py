@@ -11,8 +11,7 @@ from unittest.mock import MagicMock, Mock, call, patch
 
 import pytest
 
-from lib.terminal_check import (can_run_tui, check_terminal_capabilities,
-                                print_compatibility_report, test_curses_basic)
+from lib.terminal_check import can_run_tui, check_terminal_capabilities, print_compatibility_report, test_curses_basic
 
 
 class TestCheckTerminalCapabilities:
@@ -142,9 +141,7 @@ class TestCheckTerminalCapabilities:
         assert "Cannot determine locale settings" in warnings
 
     @patch("sys.stdout.isatty", return_value=True)
-    @patch.dict(
-        os.environ, {"TERM": "xterm", "SSH_CLIENT": "192.168.1.1 22 22"}, clear=True
-    )
+    @patch.dict(os.environ, {"TERM": "xterm", "SSH_CLIENT": "192.168.1.1 22 22"}, clear=True)
     @patch("os.get_terminal_size")
     def test_ssh_session(self, mock_size, mock_isatty):
         """Test in SSH session."""
@@ -168,9 +165,7 @@ class TestCheckTerminalCapabilities:
         assert "Running over SSH - some features may not work correctly" in warnings
 
     @patch("sys.stdout.isatty", return_value=True)
-    @patch.dict(
-        os.environ, {"TERM": "screen", "STY": "12345.pts-0.hostname"}, clear=True
-    )
+    @patch.dict(os.environ, {"TERM": "screen", "STY": "12345.pts-0.hostname"}, clear=True)
     @patch("os.get_terminal_size")
     def test_gnu_screen(self, mock_size, mock_isatty):
         """Test inside GNU Screen."""
@@ -303,9 +298,7 @@ class TestTestCursesBasic:
         # Verify color initialization
         mock_has_colors.assert_called_once()
         mock_start_color.assert_called_once()
-        mock_init_pair.assert_called_once_with(
-            1, curses.COLOR_GREEN, curses.COLOR_BLACK
-        )
+        mock_init_pair.assert_called_once_with(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
 
 
 class TestCanRunTUI:
@@ -341,9 +334,7 @@ class TestCanRunTUI:
         "lib.terminal_check.check_terminal_capabilities",
         return_value=([], ["SSH detected"]),
     )
-    @patch(
-        "lib.terminal_check.test_curses_basic", return_value=(False, "Curses failed")
-    )
+    @patch("lib.terminal_check.test_curses_basic", return_value=(False, "Curses failed"))
     def test_cannot_run_curses_failure(self, mock_curses_test, mock_check_caps):
         """Test when curses test fails."""
         can_run, issues, warnings = can_run_tui()

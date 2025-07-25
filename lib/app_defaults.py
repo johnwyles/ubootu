@@ -48,7 +48,11 @@ class AppDefaults:
                     "workbench.colorTheme": "One Dark Pro",
                     "terminal.integrated.fontFamily": "MesloLGS NF",
                 },
-                "help": "These VS Code customizations are based on what 90% of developers configure manually. Auto-save prevents losing work, format-on-save keeps code clean, and the selected extensions provide essential functionality for modern development workflows.",
+                "help": (
+                    "These VS Code customizations are based on what 90% of developers configure manually. "
+                    "Auto-save prevents losing work, format-on-save keeps code clean, and the selected "
+                    "extensions provide essential functionality for modern development workflows."
+                ),
                 "preview": """
 [VS Code Preview]
 ┌─ Explorer ──┬─ editor.py ─────────────────┐
@@ -76,7 +80,10 @@ class AppDefaults:
                     "cm": "commit -m",
                     "unstage": "reset HEAD --",
                     "last": "log -1 HEAD",
-                    "visual": "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'",
+                    "visual": (
+                        "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset "
+                        "%s %Cgreen(%cr) %C(bold blue)<%an>%Creset'"
+                    ),
                     "undo": "reset --soft HEAD~1",
                     "amend": "commit --amend --no-edit",
                     "sync": "!git pull --rebase && git push",
@@ -90,7 +97,11 @@ class AppDefaults:
                     "help.autocorrect": 10,
                     "core.editor": "code --wait",
                 },
-                "help": "These Git settings include the most commonly used configurations that developers set up manually. The aliases save typing time, and the settings provide sensible defaults for modern Git workflows.",
+                "help": (
+                    "These Git settings include the most commonly used configurations that developers set up "
+                    "manually. The aliases save typing time, and the settings provide sensible defaults for "
+                    "modern Git workflows."
+                ),
             },
             "terminal": {
                 "name": "Terminal & Shell",
@@ -203,7 +214,11 @@ class AppDefaults:
 │  Enhanced tracking protection active ✓   │
 └──────────────────────────────────────────┘
                 """,
-                "help": "These Firefox settings prioritize privacy and security while maintaining usability. Container tabs help separate work/personal browsing, and the extensions block ads and trackers for a cleaner browsing experience.",
+                "help": (
+                    "These Firefox settings prioritize privacy and security while maintaining usability. "
+                    "Container tabs help separate work/personal browsing, and the extensions block ads and "
+                    "trackers for a cleaner browsing experience."
+                ),
             },
             "vlc": {
                 "name": "VLC Media Player",
@@ -231,7 +246,11 @@ class AppDefaults:
                     "Shift+Right": "Jump forward 1 min",
                     "Shift+Left": "Jump back 1 min",
                 },
-                "help": "These VLC settings optimize media playback for modern systems. Hardware acceleration improves performance, and the configured shortcuts provide quick access to common functions.",
+                "help": (
+                    "These VLC settings optimize media playback for modern systems. Hardware acceleration "
+                    "improves performance, and the configured shortcuts provide quick access to common "
+                    "functions."
+                ),
             },
             "thunderbird": {
                 "name": "Thunderbird Email",
@@ -251,7 +270,10 @@ class AppDefaults:
                     "mail.compose.attachment_reminder": True,
                     "mail.tabs.autoHide": False,
                 },
-                "help": "These Thunderbird settings improve email productivity with conversation threading, better spam detection, and helpful reminders for attachments.",
+                "help": (
+                    "These Thunderbird settings improve email productivity with conversation threading, "
+                    "better spam detection, and helpful reminders for attachments."
+                ),
             },
             "libreoffice": {
                 "name": "LibreOffice Suite",
@@ -271,7 +293,10 @@ class AppDefaults:
                     "compatibility.ms_format_default": True,
                     "tools.grammar_checking": True,
                 },
-                "help": "These LibreOffice settings improve compatibility with Microsoft Office files and add modern conveniences like auto-save and grammar checking.",
+                "help": (
+                    "These LibreOffice settings improve compatibility with Microsoft Office files and add "
+                    "modern conveniences like auto-save and grammar checking."
+                ),
             },
             "system": {
                 "name": "System Preferences",
@@ -491,13 +516,17 @@ class AppDefaults:
                     "file_history_enabled": True,
                     "retain_file_history_days": 30,
                 },
-                "help": "These comprehensive system settings optimize your Ubuntu desktop for productivity and usability. From mouse sensitivity to clipboard management, workspace configuration to notification control, these settings create a personalized and efficient desktop environment. Each setting is carefully chosen based on common user preferences and productivity best practices.",
+                "help": (
+                    "These comprehensive system settings optimize your Ubuntu desktop for productivity "
+                    "and usability. From mouse sensitivity to clipboard management, workspace "
+                    "configuration to notification control, these settings create a personalized and "
+                    "efficient desktop environment. Each setting is carefully chosen based on common user "
+                    "preferences and productivity best practices."
+                ),
             },
         }
 
-    def get_app_config(
-        self, app_name: str, user_type: str = "developer"
-    ) -> Dict[str, Any]:
+    def get_app_config(self, app_name: str, user_type: str = "developer") -> Dict[str, Any]:
         """Get configuration for a specific application"""
         apps = self.developer_apps if user_type == "developer" else self.user_apps
         return apps.get(app_name, {})
@@ -507,9 +536,7 @@ class AppDefaults:
         apps = self.developer_apps if user_type == "developer" else self.user_apps
         return list(apps.keys())
 
-    def generate_config_files(
-        self, app_name: str, settings: Dict[str, Any]
-    ) -> Dict[str, str]:
+    def generate_config_files(self, app_name: str, settings: Dict[str, Any]) -> Dict[str, str]:
         """Generate configuration file contents for an application"""
         generators = {
             "vscode": self._generate_vscode_config,
@@ -530,10 +557,7 @@ class AppDefaults:
         config = {
             "settings.json": json.dumps(settings.get("settings", {}), indent=2),
             "extensions.txt": "\n".join(
-                [
-                    ext.split(" - ")[0].lower().replace(" ", "-")
-                    for ext in settings.get("extensions", [])
-                ]
+                [ext.split(" - ")[0].lower().replace(" ", "-") for ext in settings.get("extensions", [])]
             ),
         }
         return config

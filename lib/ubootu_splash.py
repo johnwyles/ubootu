@@ -91,21 +91,13 @@ class UbootuSplash:
         title_text.append(" 🚀\n\n", style="bright_yellow")
         title_text.append(f"{self.tagline}\n", style="bright_cyan")
         title_text.append(f"Version {self.version}\n\n", style="bright_white")
-        title_text.append(
-            "Configure Your Ubuntu Desktop Environment\n", style="bright_green"
-        )
-        title_text.append(
-            "400+ Tools • Hierarchical Menus • Easy Setup", style="bright_cyan"
-        )
+        title_text.append("Configure Your Ubuntu Desktop Environment\n", style="bright_green")
+        title_text.append("400+ Tools • Hierarchical Menus • Easy Setup", style="bright_cyan")
 
         # Create panels with vibrant colors
-        logo_panel = Panel(
-            Align.center(logo_text), border_style="bright_blue", padding=(1, 2)
-        )
+        logo_panel = Panel(Align.center(logo_text), border_style="bright_blue", padding=(1, 2))
 
-        title_panel = Panel(
-            Align.center(title_text), border_style="bright_green", padding=(1, 2)
-        )
+        title_panel = Panel(Align.center(title_text), border_style="bright_green", padding=(1, 2))
 
         # Display splash
         console.print(logo_panel)
@@ -216,19 +208,12 @@ class UbootuSplash:
         print()
 
         # Title and description
-        print(
-            f"{colors['yellow']}{colors['bold']}{'🚀 ' + self.tagline + ' 🚀'.center(80)}{colors['end']}"
-        )
-        print(
-            f"{colors['cyan']}{'Version ' + self.version + ' • Professional Ubuntu Desktop Configuration'.center(80)}{colors['end']}"
-        )
+        print(f"{colors['yellow']}{colors['bold']}{'🚀 ' + self.tagline + ' 🚀'.center(80)}{colors['end']}")
+        version_text = f"Version {self.version} • Professional Ubuntu Desktop Configuration"
+        print(f"{colors['cyan']}{version_text.center(80)}{colors['end']}")
         print()
-        print(
-            f"{colors['green']}{'Configure Your Ubuntu Desktop Environment'.center(80)}{colors['end']}"
-        )
-        print(
-            f"{colors['cyan']}{'400+ Tools • Hierarchical Menus • Easy Setup'.center(80)}{colors['end']}"
-        )
+        print(f"{colors['green']}{'Configure Your Ubuntu Desktop Environment'.center(80)}{colors['end']}")
+        print(f"{colors['cyan']}{'400+ Tools • Hierarchical Menus • Easy Setup'.center(80)}{colors['end']}")
         print()
         print()
 
@@ -241,9 +226,7 @@ class UbootuSplash:
         print()
 
         # Show options
-        print(
-            f"{colors['white']}{colors['bold']}What would you like to do?{colors['end']}"
-        )
+        print(f"{colors['white']}{colors['bold']}What would you like to do?{colors['end']}")
         print()
 
         options = [

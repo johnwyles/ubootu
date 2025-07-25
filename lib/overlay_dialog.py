@@ -5,7 +5,7 @@ Creates popup dialogs that overlay on existing screen content
 """
 
 import curses
-from typing import Any, List, Optional, Tuple
+from typing import List, Tuple
 
 
 class OverlayDialog:
@@ -37,7 +37,7 @@ class OverlayDialog:
                 self.stdscr.addch(y + i, x + w, " ", curses.A_REVERSE)
                 if x + w + 1 < self.width:
                     self.stdscr.addch(y + i, x + w + 1, " ", curses.A_REVERSE)
-            except:
+            except Exception:
                 pass
 
         # Draw shadow below
@@ -45,7 +45,7 @@ class OverlayDialog:
             try:
                 if y + h < self.height and x + i < self.width:
                     self.stdscr.addch(y + h, x + i, " ", curses.A_REVERSE)
-            except:
+            except Exception:
                 pass
 
     def draw_box_with_shadow(self, y, x, h, w, title=""):
@@ -155,9 +155,7 @@ class SelectionOverlay(OverlayDialog):
             self.restore_screen()
 
             # Draw dialog with shadow
-            self.draw_box_with_shadow(
-                dialog_y, dialog_x, dialog_height, dialog_width, title
-            )
+            self.draw_box_with_shadow(dialog_y, dialog_x, dialog_height, dialog_width, title)
 
             # Draw instructions
             for i, instruction in enumerate(instructions):
@@ -165,20 +163,18 @@ class SelectionOverlay(OverlayDialog):
                     if instruction:
                         # Center short lines, left-align bullet points
                         if instruction.startswith("•"):
-                            self.stdscr.addstr(
-                                dialog_y + 2 + i, dialog_x + 3, instruction
-                            )
+                            self.stdscr.addstr(dialog_y + 2 + i, dialog_x + 3, instruction)
                         else:
                             x_pos = dialog_x + (dialog_width - len(instruction)) // 2
                             self.stdscr.addstr(dialog_y + 2 + i, x_pos, instruction)
-                except:
+                except Exception:
                     pass
 
             # Draw separator line
             try:
                 for i in range(dialog_x + 1, dialog_x + dialog_width - 1):
                     self.stdscr.addch(list_start_y - 1, i, curses.ACS_HLINE)
-            except:
+            except Exception:
                 pass
 
             # Draw list items
@@ -211,27 +207,21 @@ class SelectionOverlay(OverlayDialog):
                         # Fill the rest of the line for highlight
                         remaining = dialog_width - 10 - len(display_name)
                         if remaining > 0:
-                            self.stdscr.addstr(
-                                y, x + len(display_name), " " * remaining
-                            )
+                            self.stdscr.addstr(y, x + len(display_name), " " * remaining)
                         self.stdscr.attroff(curses.A_REVERSE)
-                except:
+                except Exception:
                     pass
 
             # Draw scroll indicators
             if scroll_offset > 0:
                 try:
-                    self.stdscr.addstr(
-                        list_start_y - 1, dialog_x + dialog_width - 4, " ▲ "
-                    )
-                except:
+                    self.stdscr.addstr(list_start_y - 1, dialog_x + dialog_width - 4, " ▲ ")
+                except Exception:
                     pass
             if scroll_offset + list_height < len(items):
                 try:
-                    self.stdscr.addstr(
-                        list_start_y + list_height, dialog_x + dialog_width - 4, " ▼ "
-                    )
-                except:
+                    self.stdscr.addstr(list_start_y + list_height, dialog_x + dialog_width - 4, " ▼ ")
+                except Exception:
                     pass
 
             # Draw key hints at bottom of dialog - ALWAYS include help
@@ -242,10 +232,8 @@ class SelectionOverlay(OverlayDialog):
 
             try:
                 hint_x = dialog_x + (dialog_width - len(hint_text)) // 2
-                self.stdscr.addstr(
-                    dialog_y + dialog_height - 2, hint_x, hint_text, curses.A_DIM
-                )
-            except:
+                self.stdscr.addstr(dialog_y + dialog_height - 2, hint_x, hint_text, curses.A_DIM)
+            except Exception:
                 pass
 
             self.stdscr.refresh()
@@ -327,13 +315,10 @@ class MessageOverlay(OverlayDialog):
 
         # Restore background and draw dialog
         self.restore_screen()
-        self.draw_box_with_shadow(
-            dialog_y, dialog_x, dialog_height, dialog_width, title
-        )
+        self.draw_box_with_shadow(dialog_y, dialog_x, dialog_height, dialog_width, title)
 
-        # Draw icon based on type
-        icons = {"info": "ℹ️", "warning": "⚠️", "error": "❌", "success": "✅"}
-        icon = icons.get(msg_type, "ℹ️")
+        # Icons available for future implementation
+        # icons = {"info": "ℹ️", "warning": "⚠️", "error": "❌", "success": "✅"}
 
         # Draw message
         for i, line in enumerate(lines[: dialog_height - 6]):
@@ -343,17 +328,15 @@ class MessageOverlay(OverlayDialog):
                     line = line[: dialog_width - 9] + "..."
                 x_pos = dialog_x + (dialog_width - len(line)) // 2
                 self.stdscr.addstr(dialog_y + 2 + i, x_pos, line)
-            except:
+            except Exception:
                 pass
 
         # Draw instruction
         instruction = "Press any key to continue"
         try:
             inst_x = dialog_x + (dialog_width - len(instruction)) // 2
-            self.stdscr.addstr(
-                dialog_y + dialog_height - 2, inst_x, instruction, curses.A_DIM
-            )
-        except:
+            self.stdscr.addstr(dialog_y + dialog_height - 2, inst_x, instruction, curses.A_DIM)
+        except Exception:
             pass
 
         self.stdscr.refresh()
@@ -386,9 +369,7 @@ class ConfirmOverlay(OverlayDialog):
         while True:
             # Restore background and draw dialog
             self.restore_screen()
-            self.draw_box_with_shadow(
-                dialog_y, dialog_x, dialog_height, dialog_width, title
-            )
+            self.draw_box_with_shadow(dialog_y, dialog_x, dialog_height, dialog_width, title)
 
             # Draw message
             for i, line in enumerate(lines[: dialog_height - 8]):
@@ -397,7 +378,7 @@ class ConfirmOverlay(OverlayDialog):
                         line = line[: dialog_width - 9] + "..."
                     x_pos = dialog_x + (dialog_width - len(line)) // 2
                     self.stdscr.addstr(dialog_y + 2 + i, x_pos, line)
-                except:
+                except Exception:
                     pass
 
             # Draw buttons
@@ -412,17 +393,15 @@ class ConfirmOverlay(OverlayDialog):
                 attrs = curses.A_REVERSE if i == selected else 0
                 try:
                     self.stdscr.addstr(button_y, x, button, attrs)
-                except:
+                except Exception:
                     pass
 
             # Draw key hints - ALWAYS include help
             hint_text = "[H] Help  [←→/TAB] Switch  [ENTER] Select  [ESC] Cancel"
             try:
                 hint_x = dialog_x + (dialog_width - len(hint_text)) // 2
-                self.stdscr.addstr(
-                    dialog_y + dialog_height - 2, hint_x, hint_text, curses.A_DIM
-                )
-            except:
+                self.stdscr.addstr(dialog_y + dialog_height - 2, hint_x, hint_text, curses.A_DIM)
+            except Exception:
                 pass
 
             self.stdscr.refresh()

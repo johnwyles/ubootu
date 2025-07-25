@@ -16,9 +16,7 @@ if TYPE_CHECKING:
 class TUIEventHandler:
     """Handles all event processing for the TUI"""
 
-    def __init__(
-        self, stdscr, menu_items: Dict[str, "MenuItem"], selected_items: Set[str]
-    ):
+    def __init__(self, stdscr, menu_items: Dict[str, "MenuItem"], selected_items: Set[str]):
         self.stdscr = stdscr
         self.menu_items = menu_items
         self.selected_items = selected_items
@@ -35,9 +33,7 @@ class TUIEventHandler:
         """Set the dialog handler for configuration dialogs"""
         self.dialog_handler = dialog_handler
 
-    def handle_key(
-        self, key: int, menu_items_getter: Callable, show_help_callback: Callable
-    ) -> bool:
+    def handle_key(self, key: int, menu_items_getter: Callable, show_help_callback: Callable) -> bool:
         """Handle keyboard input"""
         menu_items = menu_items_getter()
 
@@ -46,9 +42,7 @@ class TUIEventHandler:
 
         # Debug: Log every key press
         with open("/tmp/debug_tui.log", "a") as f:
-            f.write(
-                f"Key pressed: {key} (char: {chr(key) if 32 <= key <= 126 else 'special'})\n"
-            )
+            f.write(f"Key pressed: {key} (char: {chr(key) if 32 <= key <= 126 else 'special'})\n")
 
         # Navigation
         if key == curses.KEY_UP or key == ord("k") or key == ord("K"):
@@ -100,9 +94,7 @@ class TUIEventHandler:
                     f.write(
                         f"SUCCESS: Entering category {current_item.id}, breadcrumb_stack will be: {len(self.breadcrumb_stack) + 1}\n"
                     )
-                self.breadcrumb_stack.append(
-                    (self.current_menu, self.current_item, self.scroll_offset)
-                )
+                self.breadcrumb_stack.append((self.current_menu, self.current_item, self.scroll_offset))
                 self.current_menu = current_item.id
                 self.current_item = 0
                 self.scroll_offset = 0
@@ -115,24 +107,18 @@ class TUIEventHandler:
 
                     if current_item.id == "action-install":
                         with open("/tmp/debug_tui.log", "a") as f:
-                            f.write(
-                                f"Calling _handle_install() - this SHOULD exit TUI\n"
-                            )
+                            f.write(f"Calling _handle_install() - this SHOULD exit TUI\n")
                         return self._handle_install()  # This exits with installation
                     elif current_item.id == "action-save":
                         with open("/tmp/debug_tui.log", "a") as f:
-                            f.write(
-                                f"Calling _handle_save() - this should CONTINUE TUI\n"
-                            )
+                            f.write(f"Calling _handle_save() - this should CONTINUE TUI\n")
                         result = self._handle_save()  # This continues (returns True)
                         with open("/tmp/debug_tui.log", "a") as f:
                             f.write(f"_handle_save() returned: {result}\n")
                         return result
                     elif current_item.id == "action-reset":
                         with open("/tmp/debug_tui.log", "a") as f:
-                            f.write(
-                                f"Calling _handle_reset() - this should CONTINUE TUI\n"
-                            )
+                            f.write(f"Calling _handle_reset() - this should CONTINUE TUI\n")
                         result = self._handle_reset()  # This continues (returns True)
                         with open("/tmp/debug_tui.log", "a") as f:
                             f.write(f"_handle_reset() returned: {result}\n")
@@ -150,9 +136,7 @@ class TUIEventHandler:
                     # Handle configurable items vs regular toggle items
                     if current_item.is_configurable and self.dialog_handler:
                         with open("/tmp/debug_tui.log", "a") as f:
-                            f.write(
-                                f"CONFIGURING ITEM: {current_item.id} (type: {current_item.config_type})\n"
-                            )
+                            f.write(f"CONFIGURING ITEM: {current_item.id} (type: {current_item.config_type})\n")
                         self.dialog_handler.show_configuration_dialog(current_item)
                     else:
                         # For all other items, toggle selection (this should NOT cause exit)
@@ -171,15 +155,11 @@ class TUIEventHandler:
             current_item = menu_items[self.current_item]
 
             with open("/tmp/debug_tui.log", "a") as f:
-                f.write(
-                    f"RIGHT arrow pressed on: {current_item.id} (is_category: {current_item.is_category})\n"
-                )
+                f.write(f"RIGHT arrow pressed on: {current_item.id} (is_category: {current_item.is_category})\n")
 
             if current_item.is_category:
                 # Enter submenu (same as ENTER on category)
-                self.breadcrumb_stack.append(
-                    (self.current_menu, self.current_item, self.scroll_offset)
-                )
+                self.breadcrumb_stack.append((self.current_menu, self.current_item, self.scroll_offset))
                 self.current_menu = current_item.id
                 self.current_item = 0
                 self.scroll_offset = 0
@@ -195,20 +175,12 @@ class TUIEventHandler:
                         self.selected_items.discard(current_item.id)
 
         # Back/Up one level - multiple keys for convenience
-        elif (
-            key == curses.KEY_BACKSPACE
-            or key == 127
-            or key == curses.KEY_LEFT
-            or key == ord("b")
-            or key == ord("B")
-        ):
+        elif key == curses.KEY_BACKSPACE or key == 127 or key == curses.KEY_LEFT or key == ord("b") or key == ord("B"):
             # ESC key is handled separately for quit, but if we're not at root, ESC goes back
             if self.breadcrumb_stack:
                 with open("/tmp/debug_tui.log", "a") as f:
                     f.write(f"Going back one level with key {key}\n")
-                self.current_menu, self.current_item, self.scroll_offset = (
-                    self.breadcrumb_stack.pop()
-                )
+                self.current_menu, self.current_item, self.scroll_offset = self.breadcrumb_stack.pop()
 
         # Quick select/deselect all in category
         elif key == ord("a") or key == ord("A"):
@@ -230,23 +202,17 @@ class TUIEventHandler:
         # Quit with Q key only
         elif key == ord("q") or key == ord("Q"):
             with open("/tmp/debug_tui.log", "a") as f:
-                f.write(
-                    f"Q/q key pressed: {key} (ord('q')={ord('q')}, ord('Q')={ord('Q')})\n"
-                )
+                f.write(f"Q/q key pressed: {key} (ord('q')={ord('q')}, ord('Q')={ord('Q')})\n")
             return self._handle_exit()
 
         # Escape key - go back if possible, otherwise quit (immediate response)
         elif key == 27:  # Escape
             with open("/tmp/debug_tui.log", "a") as f:
-                f.write(
-                    f"ESC key (27) pressed - breadcrumb_stack length: {len(self.breadcrumb_stack)}\n"
-                )
+                f.write(f"ESC key (27) pressed - breadcrumb_stack length: {len(self.breadcrumb_stack)}\n")
             if self.breadcrumb_stack:
                 with open("/tmp/debug_tui.log", "a") as f:
                     f.write(f"ESC - going back one level\n")
-                self.current_menu, self.current_item, self.scroll_offset = (
-                    self.breadcrumb_stack.pop()
-                )
+                self.current_menu, self.current_item, self.scroll_offset = self.breadcrumb_stack.pop()
                 # Force immediate refresh for responsive ESC
                 return True
             else:
@@ -342,7 +308,9 @@ class TUIEventHandler:
             msg = "✅ Ubootu configuration saved successfully! Continue configuring or go to Actions > Install"
             safe_msg = msg.encode("ascii", "ignore").decode("ascii")
             if len(safe_msg.strip()) < len(msg.strip()) * 0.7:
-                safe_msg = "*** UNBOOTU SUCCESS: Configuration saved! Continue configuring or go to Actions > Install ***"
+                safe_msg = (
+                    "*** UNBOOTU SUCCESS: Configuration saved! Continue configuring or go to Actions > Install ***"
+                )
             self.stdscr.addstr(height - 5, 2, safe_msg[: width - 4])
             self.stdscr.refresh()
             curses.napms(2000)  # Wait 2 seconds
@@ -426,9 +394,7 @@ class TUIEventHandler:
                     # Magenta popup
                     self.stdscr.addstr(start_y + i, start_x, " " * popup_width)
                     # Draw border and title
-                self.stdscr.addstr(
-                    start_y, start_x, "┌" + "─" * (popup_width - 2) + "┐"
-                )
+                self.stdscr.addstr(start_y, start_x, "┌" + "─" * (popup_width - 2) + "┐")
 
                 # Title
                 title = "⚠️  EXIT CONFIRMATION  ⚠️"
@@ -443,9 +409,7 @@ class TUIEventHandler:
                 self.stdscr.addstr(start_y + 2, msg_x, msg)
 
                 # Separator
-                self.stdscr.addstr(
-                    start_y + 3, start_x, "├" + "─" * (popup_width - 2) + "┤"
-                )
+                self.stdscr.addstr(start_y + 3, start_x, "├" + "─" * (popup_width - 2) + "┤")
                 # Draw options
                 for i, option in enumerate(options):
                     y = start_y + 4 + i
@@ -453,14 +417,10 @@ class TUIEventHandler:
                         # Highlight selected option
                         # Cyan selection
                         self.stdscr.attron(curses.A_BOLD)
-                        self.stdscr.addstr(
-                            y, start_x + 2, f"▶ {option:<{popup_width-6}}"
-                        )
+                        self.stdscr.addstr(y, start_x + 2, f"▶ {option:<{popup_width-6}}")
                         self.stdscr.attroff(curses.A_BOLD)
                     else:
-                        self.stdscr.addstr(
-                            y, start_x + 2, f"  {option:<{popup_width-6}}"
-                        )
+                        self.stdscr.addstr(y, start_x + 2, f"  {option:<{popup_width-6}}")
                         # Bottom border
                 self.stdscr.addstr(
                     start_y + popup_height - 1,
@@ -593,9 +553,7 @@ class TUIEventHandler:
                 for y in range(start_y, start_y + popup_height):
                     if y < height:
                         try:
-                            self.stdscr.addstr(
-                                y, start_x, " " * min(popup_width, width - start_x)
-                            )
+                            self.stdscr.addstr(y, start_x, " " * min(popup_width, width - start_x))
                         except curses.error:
                             pass
 
@@ -604,14 +562,10 @@ class TUIEventHandler:
                     # Draw background and border
                     # White on magenta
                     for y in range(start_y, start_y + popup_height):
-                        self.stdscr.addstr(
-                            y, start_x, "│" + " " * (popup_width - 2) + "│"
-                        )
+                        self.stdscr.addstr(y, start_x, "│" + " " * (popup_width - 2) + "│")
 
                     # Top border
-                    self.stdscr.addstr(
-                        start_y, start_x, "┌" + "─" * (popup_width - 2) + "┐"
-                    )
+                    self.stdscr.addstr(start_y, start_x, "┌" + "─" * (popup_width - 2) + "┐")
 
                     # Title
                     title = "ACTIONS MENU (F1-F10)"
@@ -626,9 +580,7 @@ class TUIEventHandler:
                     self.stdscr.addstr(start_y + 2, inst_x, inst)
 
                     # Separator
-                    self.stdscr.addstr(
-                        start_y + 3, start_x, "├" + "─" * (popup_width - 2) + "┤"
-                    )
+                    self.stdscr.addstr(start_y + 3, start_x, "├" + "─" * (popup_width - 2) + "┤")
                 except curses.error:
                     pass
 
@@ -640,25 +592,17 @@ class TUIEventHandler:
                         if i == current_action:
                             # Selected item - black on cyan (high contrast)
                             # Black on cyan
-                            self.stdscr.addstr(
-                                item_y, start_x, "│" + " " * (popup_width - 2) + "│"
-                            )
+                            self.stdscr.addstr(item_y, start_x, "│" + " " * (popup_width - 2) + "│")
                             self.stdscr.attron(curses.A_BOLD)
                             self.stdscr.addstr(item_y, start_x + 3, f"▶ {action_title}")
                             self.stdscr.attroff(curses.A_BOLD)
-                            self.stdscr.addstr(
-                                item_y + 1, start_x, "│" + " " * (popup_width - 2) + "│"
-                            )
-                            self.stdscr.addstr(
-                                item_y + 1, start_x + 5, action_desc[: popup_width - 8]
-                            )
+                            self.stdscr.addstr(item_y + 1, start_x, "│" + " " * (popup_width - 2) + "│")
+                            self.stdscr.addstr(item_y + 1, start_x + 5, action_desc[: popup_width - 8])
                         else:
                             # Unselected item - white on magenta
                             # White on magenta
                             self.stdscr.addstr(item_y, start_x + 3, f"  {action_title}")
-                            self.stdscr.addstr(
-                                item_y + 1, start_x + 5, action_desc[: popup_width - 8]
-                            )
+                            self.stdscr.addstr(item_y + 1, start_x + 5, action_desc[: popup_width - 8])
                     except curses.error:
                         pass
 
@@ -681,12 +625,7 @@ class TUIEventHandler:
                     current_action = (current_action - 1) % len(action_items)
                 elif key == curses.KEY_DOWN or key == ord("j"):
                     current_action = (current_action + 1) % len(action_items)
-                elif (
-                    key == ord("\n")
-                    or key == curses.KEY_ENTER
-                    or key == 10
-                    or key == 13
-                ):
+                elif key == ord("\n") or key == curses.KEY_ENTER or key == 10 or key == 13:
                     # Execute selected action
                     if current_action == 0:  # Install
                         return self._handle_install()

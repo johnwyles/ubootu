@@ -8,37 +8,21 @@ import os
 import sys
 import time
 from dataclasses import dataclass
-from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
 try:
     from rich import box
     from rich.align import Align
     from rich.console import Console
-    from rich.layout import Layout
-    from rich.live import Live
     from rich.panel import Panel
     from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn
     from rich.prompt import Confirm, Prompt
-    from rich.table import Table
-    from rich.text import Text
 except ImportError:
-    print(
-        "ERROR: Rich library not found. Please install with: sudo apt install python3-rich"
-    )
+    print("ERROR: Rich library not found. Please install with: sudo apt install python3-rich")
     sys.exit(1)
 
-# Try to import keyboard, but make it optional
-try:
-    import keyboard
-
-    KEYBOARD_AVAILABLE = True
-except ImportError:
-    KEYBOARD_AVAILABLE = False
-    print("Note: keyboard module not available. Arrow key navigation will be disabled.")
-    print(
-        "Install with: sudo apt install python3-keyboard or use number keys for navigation."
-    )
+# Keyboard module disabled for simplicity
+KEYBOARD_AVAILABLE = False
 
 
 @dataclass
@@ -76,8 +60,7 @@ class MenuUI:
 [bold cyan] ╱     [bold white]██║   ██║██████╔╝██║   ██║██║   ██║   ██║   ██║   ██║[/][/]
 [bold cyan]╱      [bold white]██║   ██║██╔══██╗██║   ██║██║   ██║   ██║   ██║   ██║[/][/]
        [bold white]╚██████╔╝██████╔╝╚██████╔╝╚██████╔╝   ██║   ╚██████╔╝[/]
-        [bold white]╚═════╝ ╚═════╝  ╚═════╝  ╚═════╝    ╚═╝    ╚═════╝[/] 
-                    
+        [bold white]╚═════╝ ╚═════╝  ╚═════╝  ╚═════╝    ╚═╝    ╚═════╝[/]
                     [bold magenta]Professional Ubuntu Desktop Configuration Tool[/]
         """
 
@@ -114,8 +97,7 @@ class MenuUI:
         # Header
         header = Panel(
             Align.center(
-                "[bold]🚀 Ubootu 🚀[/]\n"
-                "[dim]Professional Ubuntu Desktop Configuration Tool[/]",
+                "[bold]🚀 Ubootu 🚀[/]\n" "[dim]Professional Ubuntu Desktop Configuration Tool[/]",
                 vertical="middle",
             ),
             box=box.DOUBLE_EDGE,
@@ -127,9 +109,7 @@ class MenuUI:
 
         # Menu options
         options = [
-            MenuOption(
-                "1", "🚀", "Fresh Install", "Configure a brand new Ubuntu installation"
-            ),
+            MenuOption("1", "🚀", "Fresh Install", "Configure a brand new Ubuntu installation"),
             MenuOption(
                 "2",
                 "🔧",
@@ -137,9 +117,7 @@ class MenuUI:
                 "Tweak your existing configuration",
                 visible=has_config,
             ),
-            MenuOption(
-                "3", "📦", "Apply Profile", "Restore from a saved configuration"
-            ),
+            MenuOption("3", "📦", "Apply Profile", "Restore from a saved configuration"),
             MenuOption(
                 "4",
                 "💾",
@@ -166,20 +144,15 @@ class MenuUI:
         for i, option in enumerate(visible_options):
             style = "bold cyan" if i == self.current_selection else "dim"
             self.console.print(
-                f"  [{style}]{option.icon} {option.title}[/]".ljust(30)
-                + f"[dim]{option.description}[/]"
+                f"  [{style}]{option.icon} {option.title}[/]".ljust(30) + f"[dim]{option.description}[/]"
             )
 
         self.console.print()
-        self.console.print(
-            "[dim]Use ↑/↓ arrows to navigate, Enter to select, or press the number key[/]"
-        )
+        self.console.print("[dim]Use ↑/↓ arrows to navigate, Enter to select, or press the number key[/]")
 
         if has_config:
             self.console.print()
-            self.console.print(
-                "[dim][Current Profile: work-laptop] [Last Updated: 2 days ago][/]"
-            )
+            self.console.print("[dim][Current Profile: work-laptop] [Last Updated: 2 days ago][/]")
 
         # Get user input
         try:
@@ -193,9 +166,7 @@ class MenuUI:
             self.console.print()
             try:
                 valid_choices = [opt.key for opt in visible_options]
-                choice = input(
-                    f"Enter your choice [{'/'.join(valid_choices)}]: "
-                ).strip()
+                choice = input(f"Enter your choice [{'/'.join(valid_choices)}]: ").strip()
                 if choice not in valid_choices:
                     return "8"  # Default to exit
                 return choice
@@ -317,7 +288,7 @@ class MenuUI:
                 return choice.lower()
             else:
                 raise Exception("Not in interactive terminal")
-        except:
+        except Exception:
             # Fallback to simple input
             self.console.print()
             self.console.print("[yellow]Please type your choice and press Enter:[/]")
@@ -332,15 +303,11 @@ class MenuUI:
                 if not choice:
                     choice = "c"
                 elif choice not in ["1", "2", "3", "4", "5", "c", "C"]:
-                    self.console.print(
-                        "[dim]Invalid choice, defaulting to custom configuration[/]"
-                    )
+                    self.console.print("[dim]Invalid choice, defaulting to custom configuration[/]")
                     choice = "c"
                 return choice.lower()
             except (EOFError, KeyboardInterrupt):
-                self.console.print(
-                    "\n[dim]Selection cancelled, defaulting to custom configuration[/]"
-                )
+                self.console.print("\n[dim]Selection cancelled, defaulting to custom configuration[/]")
                 return "c"
             except Exception as e:
                 self.console.print(f"\n[red]Error: {e}[/]")
@@ -352,8 +319,7 @@ class MenuUI:
         self.clear_screen()
 
         header = Panel(
-            "[bold]Choose What to Configure[/]\n"
-            "[dim]Select the sections you want to set up[/]",
+            "[bold]Choose What to Configure[/]\n" "[dim]Select the sections you want to set up[/]",
             box=box.ROUNDED,
             border_style="bright_blue",
         )
@@ -372,11 +338,8 @@ class MenuUI:
         ]
 
         selected = []
-        current = 0
 
-        self.console.print(
-            "[dim]Press Space to toggle, Enter to continue, Q to go back[/]\n"
-        )
+        self.console.print("[dim]Press Space to toggle, Enter to continue, Q to go back[/]\n")
 
         # For simplicity in this implementation, we'll use a prompt-based approach
         # In a real implementation, this would be interactive with keyboard events
@@ -393,8 +356,7 @@ class MenuUI:
         self.clear_screen()
 
         panel = Panel(
-            f"[bold]{app_name} Customization[/]\n"
-            f"[dim]{customizations.get('description', '')}[/]",
+            f"[bold]{app_name} Customization[/]\n" f"[dim]{customizations.get('description', '')}[/]",
             box=box.ROUNDED,
             border_style="bright_blue",
         )
@@ -433,9 +395,7 @@ class MenuUI:
                 for shortcut, action in shortcuts_items:
                     self.console.print(f"  • {shortcut}: {action}")
                 if len(customizations["shortcuts"]) > 8:
-                    self.console.print(
-                        f"  ... and {len(customizations['shortcuts']) - 8} more shortcuts"
-                    )
+                    self.console.print(f"  ... and {len(customizations['shortcuts']) - 8} more shortcuts")
                 self.console.print()
 
         # Show preview if available
@@ -460,9 +420,7 @@ class MenuUI:
         self.console.print(options_text)
 
         try:
-            choice = Prompt.ask(
-                "[bold]Your choice[/]", choices=["a", "c", "s", "?"], default="a"
-            )
+            choice = Prompt.ask("[bold]Your choice[/]", choices=["a", "c", "s", "?"], default="a")
         except (EOFError, KeyboardInterrupt):
             # Fallback to simple input
             self.console.print()
@@ -508,13 +466,9 @@ class MenuUI:
         for key, title, description in categories:
             if key in customizations:
                 category_data = customizations[key]
-                settings_count = (
-                    len(category_data) if isinstance(category_data, dict) else 0
-                )
+                settings_count = len(category_data) if isinstance(category_data, dict) else 0
                 self.console.print(f"  {title}")
-                self.console.print(
-                    f"    [dim]{description} ({settings_count} settings)[/]"
-                )
+                self.console.print(f"    [dim]{description} ({settings_count} settings)[/]")
         self.console.print()
 
         # Show sample of keyboard shortcuts
@@ -546,17 +500,13 @@ class MenuUI:
             self.console.print(
                 f"These customizations are designed to provide a better out-of-the-box experience for {app_name}."
             )
-            self.console.print(
-                "They include common settings that developers and users typically configure manually."
-            )
+            self.console.print("They include common settings that developers and users typically configure manually.")
 
         self.console.print()
         self.console.print("[dim]Press Enter to continue...[/]")
         input()
 
-    def show_detailed_customization(
-        self, app_name: str, customizations: Dict[str, Any]
-    ):
+    def show_detailed_customization(self, app_name: str, customizations: Dict[str, Any]):
         """Show detailed customization options for user to pick and choose"""
         self.clear_screen()
 
@@ -632,9 +582,7 @@ class MenuUI:
         for key, title in categories:
             if key in customizations:
                 category_data = customizations[key]
-                settings_count = (
-                    len(category_data) if isinstance(category_data, dict) else 0
-                )
+                settings_count = len(category_data) if isinstance(category_data, dict) else 0
 
                 if Confirm.ask(f"  {title} ({settings_count} settings)"):
                     selected_customizations[key] = category_data
@@ -689,9 +637,7 @@ class MenuUI:
         # Quick stats
         self.console.print("[bold]Quick Stats:[/]")
         self.console.print(f"  📦 Packages Installed: {stats.get('packages', 0)}")
-        self.console.print(
-            f"  ⚡ Boot Time Improved: ~{stats.get('boot_improvement', '0')}s"
-        )
+        self.console.print(f"  ⚡ Boot Time Improved: ~{stats.get('boot_improvement', '0')}s")
         self.console.print(f"  🔒 Security Score: {stats.get('security_score', 'A+')}")
         self.console.print()
 

@@ -35,12 +35,8 @@ class TestUbootuTUIApp:
                 is_category=True,
                 children=["item1", "item2"],
             ),
-            "item1": MenuItem(
-                "item1", "Item 1", "First item", parent="root", default=True
-            ),
-            "item2": MenuItem(
-                "item2", "Item 2", "Second item", parent="root", default=False
-            ),
+            "item1": MenuItem("item1", "Item 1", "First item", parent="root", default=True),
+            "item2": MenuItem("item2", "Item 2", "Second item", parent="root", default=False),
             "category1": MenuItem(
                 "category1",
                 "Category 1",
@@ -48,9 +44,7 @@ class TestUbootuTUIApp:
                 is_category=True,
                 children=["subitem1", "subitem2"],
             ),
-            "subitem1": MenuItem(
-                "subitem1", "Sub Item 1", "First sub item", parent="category1"
-            ),
+            "subitem1": MenuItem("subitem1", "Sub Item 1", "First sub item", parent="category1"),
             "subitem2": MenuItem(
                 "subitem2",
                 "Sub Item 2",
@@ -62,9 +56,7 @@ class TestUbootuTUIApp:
 
     @patch("lib.tui.app.build_menu_structure")
     @patch("lib.tui.app.init_colors")
-    def test_initialization(
-        self, mock_init_colors, mock_build_menu, mock_stdscr, sample_menu_structure
-    ):
+    def test_initialization(self, mock_init_colors, mock_build_menu, mock_stdscr, sample_menu_structure):
         """Test UbootuTUI initialization."""
         mock_build_menu.return_value = sample_menu_structure
 
@@ -86,9 +78,7 @@ class TestUbootuTUIApp:
     @patch("lib.tui.app.build_menu_structure")
     @patch("lib.tui.app.init_colors")
     @patch("curses.curs_set")
-    def test_init_curses(
-        self, mock_curs_set, mock_init_colors, mock_build_menu, mock_stdscr
-    ):
+    def test_init_curses(self, mock_curs_set, mock_init_colors, mock_build_menu, mock_stdscr):
         """Test curses initialization."""
         mock_build_menu.return_value = {}
 
@@ -102,9 +92,7 @@ class TestUbootuTUIApp:
     @patch("lib.tui.app.build_menu_structure")
     @patch("lib.tui.app.init_colors")
     @patch("curses.curs_set", side_effect=Exception("Terminal doesn't support"))
-    def test_init_curses_error_handling(
-        self, mock_curs_set, mock_init_colors, mock_build_menu, mock_stdscr
-    ):
+    def test_init_curses_error_handling(self, mock_curs_set, mock_init_colors, mock_build_menu, mock_stdscr):
         """Test curses initialization error handling."""
         mock_build_menu.return_value = {}
 
@@ -125,9 +113,7 @@ class TestUbootuTUIApp:
 
     @patch("lib.tui.app.build_menu_structure")
     @patch("lib.tui.app.init_colors")
-    def test_apply_defaults(
-        self, mock_init_colors, mock_build_menu, mock_stdscr, sample_menu_structure
-    ):
+    def test_apply_defaults(self, mock_init_colors, mock_build_menu, mock_stdscr, sample_menu_structure):
         """Test applying default selections."""
         mock_build_menu.return_value = sample_menu_structure
 
@@ -145,9 +131,7 @@ class TestUbootuTUIApp:
 
     @patch("lib.tui.app.build_menu_structure")
     @patch("lib.tui.app.init_colors")
-    def test_get_current_menu_items(
-        self, mock_init_colors, mock_build_menu, mock_stdscr, sample_menu_structure
-    ):
+    def test_get_current_menu_items(self, mock_init_colors, mock_build_menu, mock_stdscr, sample_menu_structure):
         """Test getting current menu items."""
         mock_build_menu.return_value = sample_menu_structure
 
@@ -173,9 +157,7 @@ class TestUbootuTUIApp:
 
     @patch("lib.tui.app.build_menu_structure")
     @patch("lib.tui.app.init_colors")
-    def test_get_category_selection_status(
-        self, mock_init_colors, mock_build_menu, mock_stdscr, sample_menu_structure
-    ):
+    def test_get_category_selection_status(self, mock_init_colors, mock_build_menu, mock_stdscr, sample_menu_structure):
         """Test category selection status calculation."""
         mock_build_menu.return_value = sample_menu_structure
 
@@ -206,15 +188,11 @@ class TestUbootuTUIApp:
 
     @patch("lib.tui.app.build_menu_structure")
     @patch("lib.tui.app.init_colors")
-    def test_get_all_selectable_items(
-        self, mock_init_colors, mock_build_menu, mock_stdscr
-    ):
+    def test_get_all_selectable_items(self, mock_init_colors, mock_build_menu, mock_stdscr):
         """Test getting all selectable items in a category."""
         # Create nested structure
         menu_structure = {
-            "root": MenuItem(
-                "root", "Root", "Root", is_category=True, children=["cat1"]
-            ),
+            "root": MenuItem("root", "Root", "Root", is_category=True, children=["cat1"]),
             "cat1": MenuItem(
                 "cat1",
                 "Cat1",
@@ -276,9 +254,7 @@ class TestUbootuTUIApp:
 
     @patch("lib.tui.app.build_menu_structure")
     @patch("lib.tui.app.init_colors")
-    def test_run_keyboard_interrupt(
-        self, mock_init_colors, mock_build_menu, mock_stdscr
-    ):
+    def test_run_keyboard_interrupt(self, mock_init_colors, mock_build_menu, mock_stdscr):
         """Test run with keyboard interrupt."""
         mock_build_menu.return_value = {}
         mock_stdscr.getch.side_effect = KeyboardInterrupt()
@@ -316,15 +292,11 @@ class TestSelectionLogic:
 
     @patch("lib.tui.app.build_menu_structure")
     @patch("lib.tui.app.init_colors")
-    def test_recursive_category_selection(
-        self, mock_init_colors, mock_build_menu, mock_stdscr
-    ):
+    def test_recursive_category_selection(self, mock_init_colors, mock_build_menu, mock_stdscr):
         """Test recursive category selection status."""
         # Create deeply nested structure
         menu_structure = {
-            "root": MenuItem(
-                "root", "Root", "Root", is_category=True, children=["level1"]
-            ),
+            "root": MenuItem("root", "Root", "Root", is_category=True, children=["level1"]),
             "level1": MenuItem(
                 "level1",
                 "L1",
@@ -339,9 +311,7 @@ class TestSelectionLogic:
                 is_category=True,
                 children=["item1", "item2"],
             ),
-            "level2b": MenuItem(
-                "level2b", "L2B", "Level 2B", is_category=True, children=["item3"]
-            ),
+            "level2b": MenuItem("level2b", "L2B", "Level 2B", is_category=True, children=["item3"]),
             "item1": MenuItem("item1", "Item1", "Item 1"),
             "item2": MenuItem("item2", "Item2", "Item 2"),
             "item3": MenuItem("item3", "Item3", "Item 3"),
@@ -362,13 +332,9 @@ class TestSelectionLogic:
         # Select all items in level2a
         tui.selected_items.add("item2")
         assert tui.get_category_selection_status("level2a") == "full"
-        assert (
-            tui.get_category_selection_status("level1") == "partial"
-        )  # level2b still empty
+        assert tui.get_category_selection_status("level1") == "partial"  # level2b still empty
 
         # Select item in level2b
         tui.selected_items.add("item3")
         assert tui.get_category_selection_status("level2b") == "full"
-        assert (
-            tui.get_category_selection_status("level1") == "full"
-        )  # All items selected
+        assert tui.get_category_selection_status("level1") == "full"  # All items selected

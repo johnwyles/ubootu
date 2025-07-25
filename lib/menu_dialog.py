@@ -169,9 +169,7 @@ class MenuDialog:
                 self.stdscr.addstr(content_start_y - 1, indicator_x, "↑", curses.A_BOLD)
             if scroll_offset + list_height < len(items):
                 indicator_x = item_x + max_item_width + 2
-                self.stdscr.addstr(
-                    content_start_y + list_height, indicator_x, "↓", curses.A_BOLD
-                )
+                self.stdscr.addstr(content_start_y + list_height, indicator_x, "↓", curses.A_BOLD)
 
             # Draw footer lines
             if footer_lines:
@@ -262,6 +260,4 @@ class QuickMenu:
         # Convert to full format with empty descriptions
         items = [(opt[0], opt[1], "") for opt in options]
 
-        return self.menu.show(
-            title=title, items=items, box_mode=False, allow_help=False
-        )
+        return self.menu.show(title=title, items=items, box_mode=False, allow_help=False)

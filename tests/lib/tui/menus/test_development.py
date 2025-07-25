@@ -48,15 +48,11 @@ class TestDevelopmentMenuBuilder:
 
         for item in items.values():
             if item.parent and item.parent != "root":
-                assert (
-                    item.parent in items
-                ), f"Parent {item.parent} not found for {item.id}"
+                assert item.parent in items, f"Parent {item.parent} not found for {item.id}"
 
             if item.children:
                 for child_id in item.children:
-                    assert (
-                        child_id in items
-                    ), f"Child {child_id} not found for {item.id}"
+                    assert child_id in items, f"Child {child_id} not found for {item.id}"
                     if items[child_id].parent != item.id:
                         print(
                             f"Parent mismatch: {item.id} lists {child_id} as child, but {child_id} has parent {items[child_id].parent}"

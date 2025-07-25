@@ -465,9 +465,7 @@ class TestTUIConfigManager:
         # Create a minimal root menu for empty case
         from lib.tui.models import MenuItem
 
-        root = MenuItem(
-            id="root", label="Root", description="Root menu", is_category=True
-        )
+        root = MenuItem(id="root", label="Root", description="Root menu", is_category=True)
         manager = TUIConfigManager({"root": root}, set())
         assert manager.get_current_menu_items() == []  # root has no children
         assert manager.get_breadcrumb() == "Root"

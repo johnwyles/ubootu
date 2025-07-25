@@ -49,9 +49,7 @@ class SecurityMenuBuilder(MenuBuilder):
             default=True,
         )
 
-        self.add_selectable(
-            "clamav", "ClamAV", "Open source antivirus", parent="security-basic"
-        )
+        self.add_selectable("clamav", "ClamAV", "Open source antivirus", parent="security-basic")
 
         self.add_selectable(
             "auto-updates",
@@ -149,9 +147,7 @@ class SecurityMenuBuilder(MenuBuilder):
         )
 
         # Password cracking tools
-        self.add_selectable(
-            "john", "John the Ripper", "Password cracking tool", parent="security-tools"
-        )
+        self.add_selectable("john", "John the Ripper", "Password cracking tool", parent="security-tools")
 
         self.add_selectable(
             "hashcat",
@@ -493,9 +489,7 @@ class SecurityMenuBuilder(MenuBuilder):
         )
 
         # VPN services
-        self.add_selectable(
-            "protonvpn", "ProtonVPN", "Secure VPN service", parent="security-privacy"
-        )
+        self.add_selectable("protonvpn", "ProtonVPN", "Secure VPN service", parent="security-privacy")
 
         self.add_selectable(
             "mullvad-vpn",
@@ -554,9 +548,7 @@ class SecurityMenuBuilder(MenuBuilder):
         )
 
         # Secure messaging
-        self.add_selectable(
-            "signal", "Signal", "Secure messaging app", parent="security-privacy"
-        )
+        self.add_selectable("signal", "Signal", "Secure messaging app", parent="security-privacy")
 
         self.add_selectable(
             "session",
