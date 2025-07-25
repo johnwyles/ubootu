@@ -187,7 +187,10 @@
 
 - name: Download and extract DNSCrypt-proxy
   ansible.builtin.unarchive:
-    src: "{{ dnscrypt_release.json.assets | selectattr('name', 'match', '.*linux_x86_64\\.tar\\.gz$') | map(attribute='browser_download_url') | first }}"
+    src: >-
+      {{ dnscrypt_release.json.assets |
+         selectattr('name', 'match', '.*linux_x86_64\\.tar\\.gz$') |
+         map(attribute='browser_download_url') | first }}
     dest: /opt/
     remote_src: yes
     owner: root

@@ -104,7 +104,10 @@
 
 - name: Download and install RustScan
   ansible.builtin.get_url:
-    url: "{{ rustscan_release.json.assets | selectattr('name', 'match', '.*amd64\\.deb$') | map(attribute='browser_download_url') | first }}"
+    url: >-
+      {{ rustscan_release.json.assets |
+         selectattr('name', 'match', '.*amd64\\.deb$') |
+         map(attribute='browser_download_url') | first }}
     dest: /tmp/rustscan.deb
     mode: '0644'
   become: yes
@@ -194,7 +197,10 @@
 
 - name: Download and extract Bettercap
   ansible.builtin.unarchive:
-    src: "{{ bettercap_release.json.assets | selectattr('name', 'match', '.*linux_amd64.*\\.tar\\.gz$') | map(attribute='browser_download_url') | first }}"
+    src: >-
+      {{ bettercap_release.json.assets |
+         selectattr('name', 'match', '.*linux_amd64.*\\.tar\\.gz$') |
+         map(attribute='browser_download_url') | first }}
     dest: /usr/local/bin
     remote_src: yes
     mode: '0755'

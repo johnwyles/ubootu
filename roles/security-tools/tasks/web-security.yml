@@ -89,7 +89,10 @@
 
 - name: Download and extract Gobuster
   ansible.builtin.unarchive:
-    src: "{{ gobuster_release.json.assets | selectattr('name', 'match', '.*Linux_x86_64\\.tar\\.gz$') | map(attribute='browser_download_url') | first }}"
+    src: >-
+      {{ gobuster_release.json.assets |
+         selectattr('name', 'match', '.*Linux_x86_64\\.tar\\.gz$') |
+         map(attribute='browser_download_url') | first }}
     dest: /usr/local/bin
     remote_src: yes
     mode: '0755'

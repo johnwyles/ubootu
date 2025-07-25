@@ -31,7 +31,9 @@
 
 - name: Add Kismet repository
   apt_repository:
-    repo: "deb https://www.kismetwireless.net/repos/apt/release/{{ ansible_distribution_release }} {{ ansible_distribution_release }} main"
+    repo: >-
+      deb https://www.kismetwireless.net/repos/apt/release/{{ ansible_distribution_release }}
+      {{ ansible_distribution_release }} main
     state: present
     filename: kismet
   become: yes

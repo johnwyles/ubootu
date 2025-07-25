@@ -9,13 +9,8 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 
 import lib.error_handling
-from lib.error_handling import (
-    BootstrapError,
-    ErrorCode,
-    ValidationError,
-    get_logger,
-    raise_config_error,
-)
+from lib.error_handling import (BootstrapError, ErrorCode, ValidationError,
+                                get_logger, raise_config_error)
 
 
 class TestErrorHandling:

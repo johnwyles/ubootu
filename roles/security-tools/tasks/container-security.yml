@@ -75,7 +75,10 @@
 
 - name: Download and install Dive
   ansible.builtin.get_url:
-    url: "{{ dive_release.json.assets | selectattr('name', 'match', '.*linux_amd64\\.deb$') | map(attribute='browser_download_url') | first }}"
+    url: >-
+      {{ dive_release.json.assets |
+         selectattr('name', 'match', '.*linux_amd64\\.deb$') |
+         map(attribute='browser_download_url') | first }}
     dest: /tmp/dive.deb
     mode: '0644'
   become: yes
@@ -126,7 +129,10 @@
 
 - name: Download and install Dockle
   ansible.builtin.get_url:
-    url: "{{ dockle_release.json.assets | selectattr('name', 'match', '.*Linux-64bit\\.deb$') | map(attribute='browser_download_url') | first }}"
+    url: >-
+      {{ dockle_release.json.assets |
+         selectattr('name', 'match', '.*Linux-64bit\\.deb$') |
+         map(attribute='browser_download_url') | first }}
     dest: /tmp/dockle.deb
     mode: '0644'
   become: yes
@@ -195,7 +201,9 @@
 # kubectl-who-can
 - name: Install kubectl-who-can
   ansible.builtin.shell: |
-    curl -sSL https://github.com/aquasecurity/kubectl-who-can/releases/latest/download/kubectl-who-can_linux_x86_64.tar.gz | tar xz -C /usr/local/bin kubectl-who-can
+    curl -sSL \
+      https://github.com/aquasecurity/kubectl-who-can/releases/latest/download/kubectl-who-can_linux_x86_64.tar.gz |
+      tar xz -C /usr/local/bin kubectl-who-can
   become: yes
   args:
     creates: /usr/local/bin/kubectl-who-can

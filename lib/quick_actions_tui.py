@@ -12,13 +12,10 @@ import time
 from typing import List, Tuple
 
 from lib.menu_dialog import MenuDialog
-from lib.tui_components import (
-    CommandResult,
-    ErrorDetailsDialog,
-    HelpOverlay,
-    KeyHintBar,
-)
-from lib.tui_dialogs import ConfirmDialog, ListDialog, MessageDialog, ProgressDialog
+from lib.tui_components import (CommandResult, ErrorDetailsDialog, HelpOverlay,
+                                KeyHintBar)
+from lib.tui_dialogs import (ConfirmDialog, ListDialog, MessageDialog,
+                             ProgressDialog)
 
 
 class QuickActions:

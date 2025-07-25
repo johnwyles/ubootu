@@ -286,7 +286,8 @@ class TestIntegration:
     @patch("builtins.open", mock_open(read_data="test: data"))
     def test_config_validator(self, mock_yaml):
         """Test config validator"""
-        from lib.config_validator import ValidationResult, validate_configuration_file
+        from lib.config_validator import (ValidationResult,
+                                          validate_configuration_file)
 
         mock_yaml.return_value = {"test": "data"}
 
