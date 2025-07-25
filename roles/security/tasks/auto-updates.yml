@@ -51,8 +51,10 @@
     state: present
   become: yes
   loop:
-    - { regexp: '^//Unattended-Upgrade::Automatic-Reboot ', line: 'Unattended-Upgrade::Automatic-Reboot "{{ automatic_updates_reboot | lower }}";' }
-    - { regexp: '^//Unattended-Upgrade::Automatic-Reboot-Time ', line: 'Unattended-Upgrade::Automatic-Reboot-Time "{{ automatic_updates_reboot_time }}";' }
+    - regexp: '^//Unattended-Upgrade::Automatic-Reboot '
+      line: 'Unattended-Upgrade::Automatic-Reboot "{{ automatic_updates_reboot | lower }}";'
+    - regexp: '^//Unattended-Upgrade::Automatic-Reboot-Time '
+      line: 'Unattended-Upgrade::Automatic-Reboot-Time "{{ automatic_updates_reboot_time }}";'
   when: automatic_updates_reboot is defined
 
 - name: Configure email notifications for updates

@@ -81,7 +81,8 @@
   block:
     - name: Generate GRUB password hash
       ansible.builtin.shell: |
-        echo -e "{{ vault_grub_password | default('changeme123') }}\n{{ vault_grub_password | default('changeme123') }}" | grub-mkpasswd-pbkdf2 | grep -oP '(?<=is ).*'
+        pass="{{ vault_grub_password | default('changeme123') }}"
+        echo -e "${pass}\n${pass}" | grub-mkpasswd-pbkdf2 | grep -oP '(?<=is ).*'
       register: grub_password_hash
       changed_when: false
       no_log: true
@@ -422,7 +423,10 @@
   ansible.builtin.lineinfile:
     path: /etc/default/grub
     regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
-    line: 'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash mitigations={{ cpu_mitigations }} slab_nomerge init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 vsyscall=none debugfs=off"'
+    line: >-
+      GRUB_CMDLINE_LINUX_DEFAULT="quiet splash mitigations={{ cpu_mitigations }}
+      slab_nomerge init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1
+      vsyscall=none debugfs=off"
     backup: yes
   become: yes
   notify: update grub

@@ -37,7 +37,8 @@
 - name: Configure KDE keyboard repeat settings
   ansible.builtin.shell: |
     kwriteconfig5 --file ~/.config/kcminputrc --group Keyboard --key RepeatDelay "{{ de_key_repeat_delay }}"
-    kwriteconfig5 --file ~/.config/kcminputrc --group Keyboard --key RepeatRate "{{ 1000 / de_key_repeat_interval | int }}"
+    kwriteconfig5 --file ~/.config/kcminputrc --group Keyboard \
+      --key RepeatRate "{{ 1000 / de_key_repeat_interval | int }}"
     kwriteconfig5 --file ~/.config/kcminputrc --group Keyboard --key NumLock "0"  # 0=leave unchanged, 1=on, 2=off
   become: yes
   become_user: "{{ primary_user }}"
@@ -54,15 +55,20 @@
 # Custom Keyboard Shortcuts
 - name: Configure KDE custom shortcuts
   ansible.builtin.shell: |
-    kwriteconfig5 --file ~/.config/kglobalshortcutsrc --group "{{ item.name }}" --key "_launch" "{{ item.binding }},{{ item.binding }},{{ item.name }}"
+    kwriteconfig5 --file ~/.config/kglobalshortcutsrc --group "{{ item.name }}" \
+      --key "_launch" "{{ item.binding }},{{ item.binding }},{{ item.name }}"
     kwriteconfig5 --file ~/.config/khotkeysrc --group Data --key DataCount "{{ ansible_loop.index }}"
     kwriteconfig5 --file ~/.config/khotkeysrc --group "Data_{{ ansible_loop.index }}" --key Name "{{ item.name }}"
     kwriteconfig5 --file ~/.config/khotkeysrc --group "Data_{{ ansible_loop.index }}" --key Type "SIMPLE_ACTION_DATA"
     kwriteconfig5 --file ~/.config/khotkeysrc --group "Data_{{ ansible_loop.index }}_Actions" --key ActionsCount "1"
-    kwriteconfig5 --file ~/.config/khotkeysrc --group "Data_{{ ansible_loop.index }}_Actions_0" --key CommandURL "{{ item.command }}"
+    kwriteconfig5 --file ~/.config/khotkeysrc \
+      --group "Data_{{ ansible_loop.index }}_Actions_0" \
+      --key CommandURL "{{ item.command }}"
     kwriteconfig5 --file ~/.config/khotkeysrc --group "Data_{{ ansible_loop.index }}_Actions_0" --key Type "COMMAND_URL"
     kwriteconfig5 --file ~/.config/khotkeysrc --group "Data_{{ ansible_loop.index }}_Triggers" --key TriggersCount "1"
-    kwriteconfig5 --file ~/.config/khotkeysrc --group "Data_{{ ansible_loop.index }}_Triggers_0" --key Key "{{ item.binding }}"
+    kwriteconfig5 --file ~/.config/khotkeysrc \
+      --group "Data_{{ ansible_loop.index }}_Triggers_0" \
+      --key Key "{{ item.binding }}"
     kwriteconfig5 --file ~/.config/khotkeysrc --group "Data_{{ ansible_loop.index }}_Triggers_0" --key Type "SHORTCUT"
   become: yes
   become_user: "{{ primary_user }}"
@@ -74,13 +80,19 @@
 # Window Management
 - name: Configure KDE window management
   ansible.builtin.shell: |
-    kwriteconfig5 --file ~/.config/kwinrc --group Windows --key FocusPolicy "{{ de_focus_mode == 'click' | ternary('ClickToFocus', 'FocusFollowsMouse') }}"
-    kwriteconfig5 --file ~/.config/kwinrc --group Windows --key AutoRaise "{{ (de_focus_mode == 'mouse') | bool | lower }}"
+    kwriteconfig5 --file ~/.config/kwinrc --group Windows \
+      --key FocusPolicy "{{ de_focus_mode == 'click' | ternary('ClickToFocus', 'FocusFollowsMouse') }}"
+    kwriteconfig5 --file ~/.config/kwinrc --group Windows \
+      --key AutoRaise "{{ (de_focus_mode == 'mouse') | bool | lower }}"
     kwriteconfig5 --file ~/.config/kwinrc --group Windows --key ClickRaise "{{ de_raise_on_click | bool | lower }}"
-    kwriteconfig5 --file ~/.config/kwinrc --group Windows --key BorderSnapZone "{{ de_window_snapping | ternary('10', '0') }}"
-    kwriteconfig5 --file ~/.config/kwinrc --group Windows --key WindowSnapZone "{{ de_window_snapping | ternary('10', '0') }}"
-    kwriteconfig5 --file ~/.config/kwinrc --group Windows --key CenterSnapZone "{{ de_window_snapping | ternary('10', '0') }}"
-    kwriteconfig5 --file ~/.config/kwinrc --group Windows --key ElectricBorders "{{ de_window_tiling | ternary('1', '0') }}"
+    kwriteconfig5 --file ~/.config/kwinrc --group Windows \
+      --key BorderSnapZone "{{ de_window_snapping | ternary('10', '0') }}"
+    kwriteconfig5 --file ~/.config/kwinrc --group Windows \
+      --key WindowSnapZone "{{ de_window_snapping | ternary('10', '0') }}"
+    kwriteconfig5 --file ~/.config/kwinrc --group Windows \
+      --key CenterSnapZone "{{ de_window_snapping | ternary('10', '0') }}"
+    kwriteconfig5 --file ~/.config/kwinrc --group Windows \
+      --key ElectricBorders "{{ de_window_tiling | ternary('1', '0') }}"
   become: yes
   become_user: "{{ primary_user }}"
   tags: ['desktop-config', 'windows']
@@ -96,8 +108,10 @@
 
 - name: Configure KDE hot corners
   ansible.builtin.shell: |
-    kwriteconfig5 --file ~/.config/kwinrc --group Effect-PresentWindows --key BorderActivate "{{ de_hot_corners.top_left == 'activities' | ternary('9', '') }}"
-    kwriteconfig5 --file ~/.config/kwinrc --group Effect-DesktopGrid --key BorderActivate "{{ de_hot_corners.top_right == 'desktop' | ternary('3', '') }}"
+    kwriteconfig5 --file ~/.config/kwinrc --group Effect-PresentWindows \
+      --key BorderActivate "{{ de_hot_corners.top_left == 'activities' | ternary('9', '') }}"
+    kwriteconfig5 --file ~/.config/kwinrc --group Effect-DesktopGrid \
+      --key BorderActivate "{{ de_hot_corners.top_right == 'desktop' | ternary('3', '') }}"
   become: yes
   become_user: "{{ primary_user }}"
   when: de_hot_corners_enabled
@@ -106,11 +120,16 @@
 # Notification Settings
 - name: Configure KDE notification settings
   ansible.builtin.shell: |
-    kwriteconfig5 --file ~/.config/plasmarc --group Notifications --key PopupPosition "{{ de_notification_position | replace('-', '') | title }}"
-    kwriteconfig5 --file ~/.config/plasmarc --group Notifications --key PopupTimeout "{{ de_notification_duration * 1000 }}"
-    kwriteconfig5 --file ~/.config/plasmanotifyrc --group DoNotDisturb --key Enabled "{{ de_notification_dnd | bool | lower }}"
-    kwriteconfig5 --file ~/.config/plasmanotifyrc --group Notifications --key ShowPopups "{{ de_notification_bubble_enabled | bool | lower }}"
-    kwriteconfig5 --file ~/.config/plasmanotifyrc --group Notifications --key ShowInHistory "{{ de_notification_history_enabled | bool | lower }}"
+    kwriteconfig5 --file ~/.config/plasmarc --group Notifications \
+      --key PopupPosition "{{ de_notification_position | replace('-', '') | title }}"
+    kwriteconfig5 --file ~/.config/plasmarc --group Notifications \
+      --key PopupTimeout "{{ de_notification_duration * 1000 }}"
+    kwriteconfig5 --file ~/.config/plasmanotifyrc --group DoNotDisturb \
+      --key Enabled "{{ de_notification_dnd | bool | lower }}"
+    kwriteconfig5 --file ~/.config/plasmanotifyrc --group Notifications \
+      --key ShowPopups "{{ de_notification_bubble_enabled | bool | lower }}"
+    kwriteconfig5 --file ~/.config/plasmanotifyrc --group Notifications \
+      --key ShowInHistory "{{ de_notification_history_enabled | bool | lower }}"
     kwriteconfig5 --file ~/.config/knotifyrc --group Sounds --key Use "{{ de_notification_sounds | bool | lower }}"
   become: yes
   become_user: "{{ primary_user }}"
@@ -128,7 +147,8 @@
 - name: Configure KDE night color (blue light filter)
   ansible.builtin.shell: |
     kwriteconfig5 --file ~/.config/kwinrc --group NightColor --key Active "{{ de_night_light_enabled | bool | lower }}"
-    kwriteconfig5 --file ~/.config/kwinrc --group NightColor --key Mode "{{ de_night_light_schedule == 'sunset-to-sunrise' | ternary('Automatic', 'Times') }}"
+    kwriteconfig5 --file ~/.config/kwinrc --group NightColor \
+      --key Mode "{{ de_night_light_schedule == 'sunset-to-sunrise' | ternary('Automatic', 'Times') }}"
     kwriteconfig5 --file ~/.config/kwinrc --group NightColor --key NightTemperature "{{ de_night_light_temperature }}"
     kwriteconfig5 --file ~/.config/kwinrc --group NightColor --key EveningBeginFixed "{{ de_night_light_start_hour }}00"
     kwriteconfig5 --file ~/.config/kwinrc --group NightColor --key MorningBeginFixed "{{ de_night_light_end_hour }}00"
@@ -140,12 +160,15 @@
 # Screensaver and Lock Settings
 - name: Configure KDE screensaver and lock settings
   ansible.builtin.shell: |
-    kwriteconfig5 --file ~/.config/kscreenlockerrc --group Daemon --key Autolock "{{ de_screen_lock_enabled | bool | lower }}"
+    kwriteconfig5 --file ~/.config/kscreenlockerrc --group Daemon \
+      --key Autolock "{{ de_screen_lock_enabled | bool | lower }}"
     kwriteconfig5 --file ~/.config/kscreenlockerrc --group Daemon --key Timeout "{{ de_screen_blank_delay // 60 }}"
     kwriteconfig5 --file ~/.config/kscreenlockerrc --group Daemon --key LockGrace "{{ de_screen_lock_delay }}"
-    kwriteconfig5 --file ~/.config/kscreenlockerrc --group Daemon --key LockOnResume "{{ de_lock_on_suspend | bool | lower }}"
+    kwriteconfig5 --file ~/.config/kscreenlockerrc --group Daemon \
+      --key LockOnResume "{{ de_lock_on_suspend | bool | lower }}"
     kwriteconfig5 --file ~/.config/kscreenlockerrc --group Greeter --key ShowClock "true"
-    kwriteconfig5 --file ~/.config/kscreenlockerrc --group Greeter --key Wallpaper "{{ de_lock_screen_wallpaper | default('') }}"
+    kwriteconfig5 --file ~/.config/kscreenlockerrc --group Greeter \
+      --key Wallpaper "{{ de_lock_screen_wallpaper | default('') }}"
   become: yes
   become_user: "{{ primary_user }}"
   tags: ['desktop-config', 'screensaver']
@@ -153,16 +176,23 @@
 # Desktop Effects and Animations
 - name: Configure KDE desktop effects
   ansible.builtin.shell: |
-    kwriteconfig5 --file ~/.config/kwinrc --group Plugins --key kwin4_effect_fadeEnabled "{{ de_animations_enabled | bool | lower }}"
-    kwriteconfig5 --file ~/.config/kwinrc --group Plugins --key kwin4_effect_scaleEnabled "{{ de_animations_enabled | bool | lower }}"
+    kwriteconfig5 --file ~/.config/kwinrc --group Plugins \
+      --key kwin4_effect_fadeEnabled "{{ de_animations_enabled | bool | lower }}"
+    kwriteconfig5 --file ~/.config/kwinrc --group Plugins \
+      --key kwin4_effect_scaleEnabled "{{ de_animations_enabled | bool | lower }}"
     kwriteconfig5 --file ~/.config/kwinrc --group Plugins --key blurEnabled "{{ de_blur_enabled | bool | lower }}"
-    kwriteconfig5 --file ~/.config/kwinrc --group Plugins --key contrastEnabled "{{ de_transparency_enabled | bool | lower }}"
-    kwriteconfig5 --file ~/.config/kwinrc --group Plugins --key kwin4_effect_translucencyEnabled "{{ de_transparency_enabled | bool | lower }}"
-    kwriteconfig5 --file ~/.config/kwinrc --group Plugins --key kwin4_effect_shadowEnabled "{{ de_window_shadows | bool | lower }}"
+    kwriteconfig5 --file ~/.config/kwinrc --group Plugins \
+      --key contrastEnabled "{{ de_transparency_enabled | bool | lower }}"
+    kwriteconfig5 --file ~/.config/kwinrc --group Plugins \
+      --key kwin4_effect_translucencyEnabled "{{ de_transparency_enabled | bool | lower }}"
+    kwriteconfig5 --file ~/.config/kwinrc --group Plugins \
+      --key kwin4_effect_shadowEnabled "{{ de_window_shadows | bool | lower }}"
     kwriteconfig5 --file ~/.config/kwinrc --group Plugins --key cubeEnabled "{{ de_desktop_cube | bool | lower }}"
-    kwriteconfig5 --file ~/.config/kwinrc --group Plugins --key wobblywindowsEnabled "{{ de_wobbly_windows | bool | lower }}"
+    kwriteconfig5 --file ~/.config/kwinrc --group Plugins \
+      --key wobblywindowsEnabled "{{ de_wobbly_windows | bool | lower }}"
     kwriteconfig5 --file ~/.config/kwinrc --group Compositing --key Enabled "{{ de_compositor_enabled | bool | lower }}"
-    kwriteconfig5 --file ~/.config/kwinrc --group Compositing --key AnimationSpeed "{{ 3 - (de_animation_speed * 2) | int }}"
+    kwriteconfig5 --file ~/.config/kwinrc --group Compositing \
+      --key AnimationSpeed "{{ 3 - (de_animation_speed * 2) | int }}"
   become: yes
   become_user: "{{ primary_user }}"
   tags: ['desktop-config', 'effects']
@@ -180,7 +210,9 @@
 
 - name: Configure KDE desktop icons
   ansible.builtin.shell: |
-    kwriteconfig5 --file ~/.config/plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 1 --group General --key showIcons "{{ de_show_desktop_icons | bool | lower }}"
+    kwriteconfig5 --file ~/.config/plasma-org.kde.plasma.desktop-appletsrc \
+      --group Containments --group 1 --group General \
+      --key showIcons "{{ de_show_desktop_icons | bool | lower }}"
     kwriteconfig5 --file ~/.config/dolphinrc --group Desktop --key IconSize "{{ de_desktop_icon_size }}"
   become: yes
   become_user: "{{ primary_user }}"
@@ -194,8 +226,10 @@
     kwriteconfig5 --file ~/.config/kdeglobals --group General --key toolBarFont "{{ de_font_interface }}"
     kwriteconfig5 --file ~/.config/kdeglobals --group General --key menuFont "{{ de_font_interface }}"
     kwriteconfig5 --file ~/.config/kdeglobals --group WM --key activeFont "{{ de_font_window_title }}"
-    kwriteconfig5 --file ~/.config/kcmfonts --group General --key AntiAliasing "{{ de_font_antialiasing != 'none' | bool | lower }}"
-    kwriteconfig5 --file ~/.config/kcmfonts --group General --key SubPixel "{{ de_font_antialiasing == 'rgba' | ternary('rgb', 'none') }}"
+    kwriteconfig5 --file ~/.config/kcmfonts --group General \
+      --key AntiAliasing "{{ de_font_antialiasing != 'none' | bool | lower }}"
+    kwriteconfig5 --file ~/.config/kcmfonts --group General \
+      --key SubPixel "{{ de_font_antialiasing == 'rgba' | ternary('rgb', 'none') }}"
     kwriteconfig5 --file ~/.config/kcmfonts --group General --key Hinting "{{ de_font_hinting }}"
   become: yes
   become_user: "{{ primary_user }}"
@@ -221,19 +255,31 @@
 # Panel/Taskbar Settings
 - name: Configure KDE panel
   ansible.builtin.shell: |
-    kwriteconfig5 --file ~/.config/plasmashellrc --group PlasmaViews --group Panel --key alignment "{{ de_panel_position == 'top' | ternary('132', '128') }}"
-    kwriteconfig5 --file ~/.config/plasmashellrc --group PlasmaViews --group Panel --key panelVisibility "{{ de_panel_autohide | ternary('1', '0') }}"
+    kwriteconfig5 --file ~/.config/plasmashellrc --group PlasmaViews --group Panel \
+      --key alignment "{{ de_panel_position == 'top' | ternary('132', '128') }}"
+    kwriteconfig5 --file ~/.config/plasmashellrc --group PlasmaViews --group Panel \
+      --key panelVisibility "{{ de_panel_autohide | ternary('1', '0') }}"
     kwriteconfig5 --file ~/.config/plasmashellrc --group PlasmaViews --group Panel --key thickness "{{ de_panel_size }}"
-    kwriteconfig5 --file ~/.config/plasmashellrc --group PlasmaViews --group Panel --key panelOpacity "{{ (1.0 - de_panel_transparency) * 100 | int }}"
+    kwriteconfig5 --file ~/.config/plasmashellrc --group PlasmaViews --group Panel \
+      --key panelOpacity "{{ (1.0 - de_panel_transparency) * 100 | int }}"
   become: yes
   become_user: "{{ primary_user }}"
   tags: ['desktop-config', 'panel']
 
 - name: Configure KDE clock format
   ansible.builtin.shell: |
-    kwriteconfig5 --file ~/.config/plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 3 --group Configuration --group General --key use24hFormat "{{ de_clock_format == '24h' | bool | lower }}"
-    kwriteconfig5 --file ~/.config/plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 3 --group Configuration --group General --key showDate "{{ de_clock_show_date | bool | lower }}"
-    kwriteconfig5 --file ~/.config/plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 2 --group Applets --group 3 --group Configuration --group General --key showSeconds "{{ de_clock_show_seconds | bool | lower }}"
+    kwriteconfig5 --file ~/.config/plasma-org.kde.plasma.desktop-appletsrc \
+      --group Containments --group 2 --group Applets --group 3 \
+      --group Configuration --group General \
+      --key use24hFormat "{{ de_clock_format == '24h' | bool | lower }}"
+    kwriteconfig5 --file ~/.config/plasma-org.kde.plasma.desktop-appletsrc \
+      --group Containments --group 2 --group Applets --group 3 \
+      --group Configuration --group General \
+      --key showDate "{{ de_clock_show_date | bool | lower }}"
+    kwriteconfig5 --file ~/.config/plasma-org.kde.plasma.desktop-appletsrc \
+      --group Containments --group 2 --group Applets --group 3 \
+      --group Configuration --group General \
+      --key showSeconds "{{ de_clock_show_seconds | bool | lower }}"
   become: yes
   become_user: "{{ primary_user }}"
   tags: ['desktop-config', 'panel']
@@ -254,10 +300,18 @@
 # Power Settings
 - name: Configure KDE power settings
   ansible.builtin.shell: |
-    kwriteconfig5 --file ~/.config/powermanagementprofilesrc --group AC --group HandleButtonEvents --key lidAction "{{ de_laptop_lid_close_action == 'suspend' | ternary('1', '0') }}"
-    kwriteconfig5 --file ~/.config/powermanagementprofilesrc --group Battery --group HandleButtonEvents --key lidAction "{{ de_laptop_lid_close_action == 'suspend' | ternary('1', '0') }}"
-    kwriteconfig5 --file ~/.config/powermanagementprofilesrc --group AC --group HandleButtonEvents --key powerButtonAction "{{ de_power_button_action == 'interactive' | ternary('16', '0') }}"
-    kwriteconfig5 --file ~/.config/powermanagementprofilesrc --group AC --group DimDisplay --key idleTime "{{ de_idle_delay * 1000 }}"
+    kwriteconfig5 --file ~/.config/powermanagementprofilesrc \
+      --group AC --group HandleButtonEvents \
+      --key lidAction "{{ de_laptop_lid_close_action == 'suspend' | ternary('1', '0') }}"
+    kwriteconfig5 --file ~/.config/powermanagementprofilesrc \
+      --group Battery --group HandleButtonEvents \
+      --key lidAction "{{ de_laptop_lid_close_action == 'suspend' | ternary('1', '0') }}"
+    kwriteconfig5 --file ~/.config/powermanagementprofilesrc \
+      --group AC --group HandleButtonEvents \
+      --key powerButtonAction "{{ de_power_button_action == 'interactive' | ternary('16', '0') }}"
+    kwriteconfig5 --file ~/.config/powermanagementprofilesrc \
+      --group AC --group DimDisplay \
+      --key idleTime "{{ de_idle_delay * 1000 }}"
   become: yes
   become_user: "{{ primary_user }}"
   when: de_configure_power
