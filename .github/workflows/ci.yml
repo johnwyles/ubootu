@@ -61,6 +61,8 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
+          # Ensure Docker driver for Molecule is available
+          pip install molecule-plugins[docker]
 
       - name: Install Ansible dependencies
         run: ansible-galaxy install -r requirements.yml
@@ -93,7 +95,10 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          # No additional dependencies needed for basic tests
+          # Install Rich library for TUI tests
+          pip install rich
+          # Install other basic dependencies that might be needed
+          pip install pyyaml
 
       - name: Run Python tests
         run: |
@@ -107,25 +112,9 @@ jobs:
           python -m py_compile lib/ubootu_splash.py
           python -m py_compile lib/show_profile_templates.py
           python -m py_compile lib/menu_ui.py
-          # Test new modular TUI structure
-          python -m py_compile lib/tui/__init__.py
-          python -m py_compile lib/tui/app.py
-          python -m py_compile lib/tui/colors.py
-          python -m py_compile lib/tui/config.py
-          python -m py_compile lib/tui/core.py
-          python -m py_compile lib/tui/dialogs.py
-          python -m py_compile lib/tui/handlers.py
-          python -m py_compile lib/tui/menu_structure.py
-          python -m py_compile lib/tui/models.py
-          python -m py_compile lib/tui/renderer.py
-          # Test menu modules
-          python -m py_compile lib/tui/menus/__init__.py
-          python -m py_compile lib/tui/menus/base.py
-          python -m py_compile lib/tui/menus/applications.py
-          python -m py_compile lib/tui/menus/desktop.py
-          python -m py_compile lib/tui/menus/development.py
-          python -m py_compile lib/tui/menus/security.py
-          python -m py_compile lib/tui/menus/system.py
+          # Test enhanced menu UI modules
+          python -m py_compile lib/enhanced_menu_ui.py
+          python -m py_compile lib/enhanced_menu_ui_old.py
 
   security-scan:
     runs-on: ubuntu-latest
