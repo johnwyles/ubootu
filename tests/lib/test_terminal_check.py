@@ -11,8 +11,12 @@ from unittest.mock import MagicMock, Mock, call, patch
 
 import pytest
 
-from lib.terminal_check import (can_run_tui, check_terminal_capabilities,
-                                print_compatibility_report, test_curses_basic)
+from lib.terminal_check import (
+    can_run_tui,
+    check_terminal_capabilities,
+    print_compatibility_report,
+    test_curses_basic,
+)
 
 
 class TestCheckTerminalCapabilities:

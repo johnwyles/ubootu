@@ -9,8 +9,7 @@ import sys
 from typing import List, Tuple
 
 from lib.profile_manager import ProfileManager
-from lib.tui_dialogs import (ConfirmDialog, ListDialog, MessageDialog,
-                             TextInputDialog)
+from lib.tui_dialogs import ConfirmDialog, ListDialog, MessageDialog, TextInputDialog
 
 
 class HistoryViewer:

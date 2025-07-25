@@ -9,15 +9,28 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 
 import lib.config_models
-from lib.config_models import (ApplicationsConfig, BackupConfig,
-                               BootstrapConfiguration, DesktopConfig,
-                               DesktopEnvironment, DevelopmentConfig,
-                               DevelopmentLanguage, DotfilesConfig,
-                               FeatureFlags, GlobalTheme,
-                               PackageManagementConfig, SecurityConfig, Shell,
-                               SystemConfig, TaskbarPosition, UpdatesConfig,
-                               UserConfig, create_default_config, load_config,
-                               save_config)
+from lib.config_models import (
+    ApplicationsConfig,
+    BackupConfig,
+    BootstrapConfiguration,
+    DesktopConfig,
+    DesktopEnvironment,
+    DevelopmentConfig,
+    DevelopmentLanguage,
+    DotfilesConfig,
+    FeatureFlags,
+    GlobalTheme,
+    PackageManagementConfig,
+    SecurityConfig,
+    Shell,
+    SystemConfig,
+    TaskbarPosition,
+    UpdatesConfig,
+    UserConfig,
+    create_default_config,
+    load_config,
+    save_config,
+)
 
 
 class TestConfigModels:

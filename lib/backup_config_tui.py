@@ -9,8 +9,12 @@ import sys
 from datetime import datetime
 
 from lib.profile_manager import ProfileManager
-from lib.tui_dialogs import (ConfirmDialog, MessageDialog, ProgressDialog,
-                             TextInputDialog)
+from lib.tui_dialogs import (
+    ConfirmDialog,
+    MessageDialog,
+    ProgressDialog,
+    TextInputDialog,
+)
 
 
 def backup_configuration(stdscr) -> bool:

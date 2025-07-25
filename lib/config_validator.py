@@ -16,11 +16,21 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 # Add lib to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
 
-from lib.config_models import (BootstrapConfiguration, DesktopEnvironment,
-                               DevelopmentLanguage, GlobalTheme, Shell,
-                               TaskbarPosition)
-from lib.error_handling import (BootstrapError, ErrorCode, ValidationError,
-                                get_logger, raise_config_error)
+from lib.config_models import (
+    BootstrapConfiguration,
+    DesktopEnvironment,
+    DevelopmentLanguage,
+    GlobalTheme,
+    Shell,
+    TaskbarPosition,
+)
+from lib.error_handling import (
+    BootstrapError,
+    ErrorCode,
+    ValidationError,
+    get_logger,
+    raise_config_error,
+)
 
 
 @dataclass

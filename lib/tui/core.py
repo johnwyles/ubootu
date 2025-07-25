@@ -9,9 +9,14 @@ from typing import Dict, Optional, Set
 from lib.tui.config import TUIConfigManager
 from lib.tui.dialogs import TUIDialogs
 from lib.tui.handlers import TUIEventHandler
-from lib.tui.menus import (ApplicationsMenuBuilder, DesktopMenuBuilder,
-                           DevelopmentMenuBuilder, MenuRegistry,
-                           SecurityMenuBuilder, SystemMenuBuilder)
+from lib.tui.menus import (
+    ApplicationsMenuBuilder,
+    DesktopMenuBuilder,
+    DevelopmentMenuBuilder,
+    MenuRegistry,
+    SecurityMenuBuilder,
+    SystemMenuBuilder,
+)
 from lib.tui.models import MenuItem
 from lib.tui.renderer import TUIRenderer
 
