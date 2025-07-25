@@ -94,9 +94,9 @@ class UbootuTUI:
                 # No valid sections selected, show all
                 root_children = all_sections
                 root_desc = (
-                "Navigate: ↑↓ arrows, SPACE select, ENTER enter     |     "
-                "▶▶▶ PRESS F1 FOR ACTIONS MENU TO START INSTALLATION ◀◀◀"
-            )
+                    "Navigate: ↑↓ arrows, SPACE select, ENTER enter     |     "
+                    "▶▶▶ PRESS F1 FOR ACTIONS MENU TO START INSTALLATION ◀◀◀"
+                )
         else:
             # Show all sections
             root_children = all_sections
