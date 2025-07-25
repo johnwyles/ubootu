@@ -116,7 +116,7 @@ jobs:
 
       - name: Run integration tests
         run: |
-          pytest tests/ -v -m integration --cov --cov-append
+          pytest tests/ -v -m integration --no-cov
 
       - name: Test TUI compilation
         run: |
