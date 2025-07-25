@@ -10,15 +10,17 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Claude Code](https://img.shields.io/badge/Built%20with-Claude%20Code-purple)](https://claude.ai/code)
 
-[![Lines of Code](https://img.shields.io/badge/Lines%20of%20Code-39K+-brightgreen)](https://github.com/johnwyles/ubootu)
-[![Tools Available](https://img.shields.io/badge/Tools-400+-blue)](https://github.com/johnwyles/ubootu)
+[![Lines of Code](https://img.shields.io/badge/Lines%20of%20Code-41K+-brightgreen)](https://github.com/johnwyles/ubootu)
+[![Tools Available](https://img.shields.io/badge/Tools-500+-blue)](https://github.com/johnwyles/ubootu)
 [![Ansible Roles](https://img.shields.io/badge/Ansible%20Roles-10-red)](https://github.com/johnwyles/ubootu/tree/main/roles)
 [![Languages](https://img.shields.io/github/languages/count/johnwyles/ubootu)](https://github.com/johnwyles/ubootu)
 [![Top Language](https://img.shields.io/github/languages/top/johnwyles/ubootu)](https://github.com/johnwyles/ubootu)
 [![Contributors](https://img.shields.io/github/contributors/johnwyles/ubootu)](https://github.com/johnwyles/ubootu/graphs/contributors)
 [![Last Commit](https://img.shields.io/github/last-commit/johnwyles/ubootu)](https://github.com/johnwyles/ubootu/commits/main)
 
-**Ubootu** is a professional Ubuntu configuration tool created by John Wyles using Claude Code. Born from the frustration of repeatedly setting up new Ubuntu machines, this project provides a comprehensive, menu-driven solution for configuring both desktop workstations and servers with 400+ curated tools and applications.
+**Ubootu** is a professional Ubuntu configuration tool created by John Wyles using Claude Code. Born from the frustration of repeatedly setting up new Ubuntu machines, this project provides a comprehensive, menu-driven solution for configuring both desktop workstations and servers with 500+ curated tools and applications.
+
+📚 **[View Complete Tools Documentation](TOOLS.md)** - Detailed list of all available tools with descriptions and links
 
 ## ✨ Why Ubootu?
 
@@ -33,14 +35,16 @@ Setting up a new Ubuntu machine is a time-consuming process. Whether you're a de
 
 ## 🎯 Key Features
 
-- **🎨 Intuitive TUI Interface**: Beautiful hierarchical menu with visual selection indicators
+- **🎨 Beautiful Rich TUI**: Enhanced interface with emojis, better indicators (◉=all, ◎=partial, ○=none)
 - **💾 Configuration Persistence**: Save your setup as `config.yml` and reuse it forever
-- **🛠️ 400+ Professional Tools**: Curated selection across development, security, productivity
+- **🛠️ 500+ Professional Tools**: Curated selection across development, security, productivity
 - **🚀 Desktop & Server Support**: Configure workstations, servers, or both
-- **📊 Smart Categories**: Visual indicators (●=all, ◐=partial, ○=none) show selection status
-- **⚡ One-Command Setup**: Apply your saved configuration with a single command
+- **📚 Help System**: Press H for detailed help on any item
+- **🔤 Smart Font Configuration**: Dynamic font selection based on installed packages
+- **⚡ Community Defaults**: Pre-selected popular tools based on developer surveys
 - **🔧 Modular Architecture**: Clean Ansible roles, easy to extend and customize
 - **🔒 Security First**: Built-in security hardening options
+- **🎯 Linux-Only Tools**: All tools verified to work on Ubuntu/Linux
 
 ## 📋 System Requirements
 
@@ -114,11 +118,12 @@ This way, you always have your configuration backed up and versioned!
 - Keyboard shortcuts and input methods
 
 ### 👨‍💻 Development Tools
-- **Editors/IDEs**: VS Code, Neovim, Sublime Text, JetBrains suite
-- **Languages**: Python, Node.js, Go, Rust, Java, .NET, Ruby, PHP
-- **Containers**: Docker, Podman, Kubernetes tools
-- **Version Control**: Git with enhanced tools (delta, lazygit, GitKraken)
-- **Modern CLI**: ripgrep, fd, bat, eza, fzf, and 50+ more
+- **Editors/IDEs**: VS Code, PyCharm, IntelliJ IDEA, Neovim, Sublime Text, Zed
+- **Languages**: Python, Node.js, Go, Rust, Java, .NET, Ruby, PHP, C/C++
+- **Containers**: Docker CE, Docker Compose, Kubernetes, Podman, Helm
+- **Version Control**: Git, LazyGit, GitKraken, SmartGit, GitHub Desktop
+- **Modern CLI**: bat, ripgrep, fd, exa, fzf, starship, glances, and 50+ more
+- **Database Tools**: DBeaver, pgAdmin, MySQL Workbench, MongoDB Compass
 
 ### 🌐 Server Configuration
 - **Web Servers**: Nginx, Apache, Caddy, HAProxy, Traefik
@@ -204,8 +209,10 @@ See `config.example.yml` for a complete example with sensible defaults.
 - **Space**: Toggle selection
 - **A**: Select all in category
 - **N**: Deselect all in category
-- **F1-F10**: Actions menu (install, save, reset)
-- **H**: Context-sensitive help
+- **F1**: Actions menu (install, save, reset)
+- **H**: Detailed help for current item (NEW!)
+- **S**: Save configuration
+- **R**: Run installation
 - **Q**: Quit
 
 ## 🏗️ Architecture
@@ -214,18 +221,19 @@ See `config.example.yml` for a complete example with sensible defaults.
 ubootu/
 ├── configure_standard_tui.py  # TUI entry point
 ├── setup.sh                   # Main setup script
-├── config.yml                 # Your configuration (git-ignored by default)
+├── config.yml                 # Your configuration (git-ignored)
 ├── config.example.yml         # Example configuration
-├── lib/tui/                   # Modular TUI implementation
-│   ├── core.py               # Main orchestrator
-│   ├── menus/                # Menu definitions
+├── TOOLS.md                   # Complete tools documentation (NEW!)
+├── lib/
+│   ├── enhanced_menu_ui.py    # Beautiful Rich-based TUI
 │   └── ...
 ├── roles/                     # Ansible roles
 │   ├── applications/
 │   ├── development-tools/
+│   ├── desktop-environment/
 │   ├── security/
 │   └── ...
-└── site.yml                   # Ansible playbook
+└── site.yml                   # Master Ansible playbook
 ```
 
 ## 🤝 Contributing

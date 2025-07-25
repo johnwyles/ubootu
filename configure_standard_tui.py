@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 Ubootu - The Ultimate Ubuntu Experience Engine
-Hierarchical TUI with modular design for professional desktop configuration
+Beautiful hierarchical TUI with Rich formatting for professional desktop configuration
 
-This is now a lightweight wrapper around the refactored TUI modules.
+This is now a lightweight wrapper around the enhanced Rich-based TUI.
 """
 
 import os
@@ -12,7 +12,7 @@ import sys
 # Add the lib directory to the Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "lib"))
 
-from tui import main, run_tui  # noqa: E402
+from enhanced_menu_ui import main, run_tui  # noqa: E402
 
 
 # Maintain backward compatibility with the original interface
