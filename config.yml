@@ -1,165 +1,1038 @@
----
-app_customizations: {}
+ansible_variables:
+  cursor_theme_bibata: true
+  db_elasticsearch: true
+  db_influxdb: true
+  db_mariadb: true
+  db_memcached: true
+  db_mongodb: true
+  db_mysql: true
+  db_postgresql: true
+  db_redis: true
+  db_sqlite3: true
+  desktop_environment_settings:
+    de_animation_speed: 10
+    de_animations_enabled: true
+    de_blur_enabled: true
+    de_clock_format: 24h
+    de_clock_show_date: true
+    de_clock_show_seconds: true
+    de_compositor_enabled: true
+    de_focus_mode: click
+    de_font_antialiasing: rgba
+    de_font_document: Ubuntu 11
+    de_font_hinting: slight
+    de_font_interface: Ubuntu 11
+    de_font_monospace: Fira Code 12
+    de_font_window_title: Ubuntu Bold 11
+    de_hot_corners_enabled: true
+    de_idle_delay: 900
+    de_key_repeat_delay: 250
+    de_key_repeat_interval: 75
+    de_laptop_lid_close_action: suspend
+    de_lock_on_suspend: true
+    de_maximize_animation: scale
+    de_minimize_animation: scale
+    de_mouse_acceleration: true
+    de_mouse_speed: 2
+    de_multi_monitor_mode: extend
+    de_natural_scroll: false
+    de_night_light_enabled: true
+    de_night_light_schedule: sunset-to-sunrise
+    de_night_light_temperature: 4000
+    de_notification_bubble_enabled: true
+    de_notification_dnd: false
+    de_notification_duration: 5
+    de_notification_history_enabled: true
+    de_notification_position: bottom-right
+    de_notification_show_in_lock_screen: false
+    de_notification_sounds: true
+    de_panel_autohide: false
+    de_panel_position: bottom
+    de_panel_size: 48
+    de_panel_transparency: 0
+    de_power_button_action: interactive
+    de_raise_on_click: true
+    de_screen_blank_delay: 300
+    de_screen_lock_delay: 0
+    de_screen_lock_enabled: true
+    de_scroll_speed: 10
+    de_startup_sound: true
+    de_system_tray_enabled: true
+    de_touchpad_disable_while_typing: true
+    de_touchpad_edge_scroll: false
+    de_touchpad_gestures: true
+    de_touchpad_tap_to_click: false
+    de_touchpad_two_finger_scroll: true
+    de_transparency_enabled: true
+    de_urgent_window_hint: true
+    de_window_shadows: true
+    de_window_snapping: true
+    de_window_tiling: false
+    de_workspace_grid: false
+    de_workspaces_enabled: true
+    de_workspaces_number: 4
+  dev_tools_ansible_semaphore: true
+  dev_tools_dbeaver: true
+  dev_tools_fork: true
+  dev_tools_gh_cli: true
+  dev_tools_gitkraken: true
+  dev_tools_gittyup: true
+  dev_tools_helm: true
+  dev_tools_httpie: true
+  dev_tools_insomnia: true
+  dev_tools_k9s: true
+  dev_tools_kubectl: true
+  dev_tools_lazygit: true
+  dev_tools_lens: true
+  dev_tools_mongodb_compass: true
+  dev_tools_pgadmin: true
+  dev_tools_robo3t: true
+  dev_tools_sourcetree: true
+  dev_tools_terraform: true
+  dev_tools_vagrant: true
+  fonts_global_scaling: 100
+  fonts_nerd_font_selection: fira-code
+  fonts_rendering_mode: subpixel
+  icon_theme_papirus: true
+  modern_cli_install_asdf: true
+  modern_cli_install_autojump: true
+  modern_cli_install_bandwhich: true
+  modern_cli_install_bashtop: true
+  modern_cli_install_bat: true
+  modern_cli_install_bottom: true
+  modern_cli_install_broot: true
+  modern_cli_install_btop: true
+  modern_cli_install_curlie: true
+  modern_cli_install_dasel: true
+  modern_cli_install_delta: true
+  modern_cli_install_direnv: true
+  modern_cli_install_dog: true
+  modern_cli_install_duf: true
+  modern_cli_install_dust: true
+  modern_cli_install_exa: true
+  modern_cli_install_fd: true
+  modern_cli_install_fff: true
+  modern_cli_install_forgit: true
+  modern_cli_install_fzf: true
+  modern_cli_install_gh: true
+  modern_cli_install_git_delta: true
+  modern_cli_install_git_extras: true
+  modern_cli_install_gitui: true
+  modern_cli_install_gotop: true
+  modern_cli_install_gping: true
+  modern_cli_install_gron: true
+  modern_cli_install_htop: true
+  modern_cli_install_httpie: true
+  modern_cli_install_jless: true
+  modern_cli_install_jq: true
+  modern_cli_install_lazygit: true
+  modern_cli_install_lf: true
+  modern_cli_install_mc: true
+  modern_cli_install_miller: true
+  modern_cli_install_nnn: true
+  modern_cli_install_procs: true
+  modern_cli_install_ranger: true
+  modern_cli_install_ripgrep: true
+  modern_cli_install_sd: true
+  modern_cli_install_tig: true
+  modern_cli_install_tmux: true
+  modern_cli_install_trippy: true
+  modern_cli_install_vifm: true
+  modern_cli_install_xh: true
+  modern_cli_install_xsv: true
+  modern_cli_install_yq: true
+  modern_cli_install_ytop: true
+  modern_cli_install_z: true
+  modern_cli_install_zenith: true
+  modern_cli_install_zsh: true
+  monitor_glances: true
+  monitor_grafana: true
+  monitor_prometheus: true
+  privacy_1password: true
+  privacy_bitwarden: true
+  privacy_bleachbit: true
+  privacy_cryptomator: true
+  privacy_gnupg: true
+  privacy_kleopatra: true
+  privacy_onionshare: true
+  privacy_seahorse: true
+  privacy_secure_delete: true
+  security_tools_aircrack_ng: true
+  security_tools_beef: true
+  security_tools_bettercap: true
+  security_tools_bloodhound: true
+  security_tools_cobalt_strike: true
+  security_tools_covenant: true
+  security_tools_crackmapexec: true
+  security_tools_dirb: true
+  security_tools_empire: true
+  security_tools_ettercap: true
+  security_tools_ffuf: true
+  security_tools_gobuster: true
+  security_tools_hashcat: true
+  security_tools_hydra: true
+  security_tools_impacket: true
+  security_tools_maltego: true
+  security_tools_masscan: true
+  security_tools_mitmproxy: true
+  security_tools_nikto: true
+  security_tools_recon_ng: true
+  security_tools_responder: true
+  security_tools_shodan: true
+  security_tools_sqlmap: true
+  security_tools_theharvester: true
+  security_tools_wfuzz: true
+  security_tools_zaproxy: true
+  shell_prompt_starship: true
+  system_backup_tools: true
+  system_cron_jobs: true
+  system_ftp_server: true
+  system_rsync_server: true
+  system_ssh_hardening: true
+  system_ssh_keygen: true
+  system_systemd_timers: true
+  system_vpn_server: true
+  terminal_theme_dracula: true
+  themes_system_theme: dracula
+  wallpaper_dynamic_enabled: true
+  webserver_caddy: true
+  webserver_certbot: true
+  webserver_haproxy: true
+  webserver_nginx: true
+  webserver_nginx_modules: true
+  webserver_ssl_tools: true
+  webserver_traefik: true
 categories:
-        app-browsers:
-                - waterfox
-                - brave
-                - vivaldi
-        app-communication:
-                - teams
-                - discord
-                - zoom
-        app-media:
-                - spotify
-                - vlc
-                - gimp
-        app-productivity:
-                - obsidian
-                - notion
-                - thunderbird
-        desktop-env:
-                - gnome
-        desktop-settings:
-                - notifications
-                - display-settings
-                - keyboard-settings
-                - mouse-settings
-        desktop-themes:
-                - papirus-icons
-                - dark-theme
-                - numix-theme
-                - arc-theme
-        dev-containers:
-                - ansible
-                - terraform
-                - docker-desktop
-                - kubernetes
-        dev-ides:
-                - vim
-                - vscode
-        dev-languages:
-                - cpp
-                - go
-                - rust
-                - nodejs
-                - ruby
-                - python
-        dev-tools:
-                - mysql-workbench
-                - docker
-                - git
-                - postman
-                - redis-cli
-                - curl
-        security-basic:
-                - clamav
-                - auto-updates
-                - ufw-firewall
-        security-privacy:
-                - tor
-                - keepassxc
-                - protonvpn
-                - signal
-                - veracrypt
-        security-tools:
-                - burpsuite
-                - wireshark
-                - john
-                - metasploit
-                - nmap
-        system-hardware:
-                - nvidia-drivers
-                - bluetooth
-                - amd-drivers
-                - printers
-        system-perf:
-                - preload
-                - zram
-                - profile-sync
-                - powertop
-        system-services:
-                - ssh-server
-                - cups
-                - samba
-                - nfs
+  app-browsers:
+  - firefox-developer
+  - brave
+  - vivaldi
+  app-communication:
+  - discord
+  - zoom
+  - teams
+  app-media:
+  - gimp
+  - spotify
+  - vlc
+  app-productivity:
+  - notion
+  - obsidian
+  - thunderbird
+  cli-dev-tools:
+  - git-extras
+  - gitui
+  - gh
+  - delta-git
+  - lazygit-cli
+  - forgit
+  - tig
+  cli-file-managers:
+  - fff
+  - mc
+  - lf
+  - broot
+  - vifm
+  - nnn
+  - ranger
+  cli-network-tools:
+  - gping
+  - bandwhich
+  - httpie-cli
+  - xh
+  - curlie
+  - trippy
+  - dog
+  cli-productivity:
+  - tmux
+  - zsh
+  - autojump
+  - fzf
+  - z
+  - asdf
+  - direnv
+  cli-system-monitoring:
+  - ytop
+  - htop
+  - gotop
+  - btop
+  - bashtop
+  - zenith
+  cli-text-processing:
+  - jq
+  - yq
+  - xsv
+  - miller
+  - gron
+  - jless
+  - dasel
+  cli-unix-replacements:
+  - bottom
+  - exa
+  - bat
+  - procs
+  - dust
+  - fd
+  - sd
+  - delta
+  - duf
+  - ripgrep
+  cursor-themes:
+  - cursor-bibata
+  desktop-effects:
+  - blur-effects
+  - compositor
+  - window-shadows
+  - animation-speed
+  - animations-enable
+  - maximize-anim
+  - minimize-anim
+  - transparency
+  desktop-env:
+  - gnome
+  desktop-themes:
+  - global-theme
+  dev-containers:
+  - ansible
+  - docker-desktop
+  - kubernetes
+  - terraform-iac
+  dev-ides:
+  - vim
+  - vscode
+  dev-languages:
+  - ruby
+  - nodejs
+  - rust
+  - cpp
+  - python
+  - go
+  dev-tools:
+  - redis-cli
+  - insomnia
+  - terraform
+  - robo3t
+  - postman
+  - curl
+  - lens-k8s
+  - gittyup
+  - gitkraken
+  - git
+  - gh-cli
+  - httpie
+  - helm
+  - fork
+  - pgadmin
+  - vagrant
+  - k9s
+  - docker
+  - ansible-semaphore
+  - dbeaver
+  - kubectl
+  - lazygit
+  - mongodb-compass
+  - mysql-workbench
+  - sourcetree
+  displays:
+  - multi-monitor
+  - night-light
+  - night-light-temp
+  - night-light-schedule
+  fonts-installation:
+  - font-size-scaling
+  - nerd-fonts-pack
+  - font-rendering
+  fonts-text:
+  - font-hinting
+  - font-antialiasing
+  - font-document
+  - font-monospace
+  - font-title
+  - font-interface
+  icon-themes:
+  - icons-papirus
+  keyboard-input:
+  - key-repeat-rate
+  - key-repeat-delay
+  mouse-touchpad:
+  - scroll-speed
+  - mouse-acceleration
+  - touchpad-gestures
+  - touchpad-disable-typing
+  - mouse-speed
+  - natural-scroll
+  - touchpad-edge-scroll
+  - touchpad-two-finger
+  - touchpad-tap-click
+  notifications:
+  - notif-lockscreen
+  - notif-sounds
+  - notif-position
+  - notif-duration
+  - notif-history
+  - notif-dnd
+  - urgent-hints
+  - notif-bubbles
+  panel-taskbar:
+  - clock-seconds
+  - panel-transparency
+  - clock-date
+  - panel-autohide
+  - clock-format
+  - panel-size
+  - system-tray
+  - panel-position
+  power-management:
+  - idle-delay
+  - lock-on-suspend
+  - lid-close-action
+  - screen-lock
+  - power-button
+  - lock-delay
+  - screen-blank
+  security-basic:
+  - auto-updates
+  - clamav
+  - ufw-firewall
+  security-privacy:
+  - 1password
+  - gnupg
+  - onionshare
+  - kleopatra
+  - tor-browser
+  - keepassxc
+  - signal
+  - seahorse
+  - bleachbit
+  - secure-delete
+  - bitwarden
+  - veracrypt
+  - protonvpn
+  - element
+  - cryptomator
+  security-tools:
+  - masscan
+  - ffuf
+  - crackmapexec
+  - recon-ng
+  - ettercap
+  - burpsuite
+  - nmap
+  - mitmproxy
+  - maltego
+  - gobuster
+  - zaproxy
+  - beef
+  - responder
+  - cobalt-strike
+  - wireshark
+  - impacket
+  - metasploit
+  - bettercap
+  - bloodhound
+  - covenant
+  - sqlmap
+  - john
+  - wfuzz
+  - dirb
+  - aircrack-ng
+  - hashcat
+  - theharvester
+  - nikto
+  - shodan
+  - hydra
+  - empire
+  shell-prompts:
+  - prompt-starship
+  sound-audio:
+  - notification-sounds-global
+  - startup-sound
+  system-databases:
+  - redis
+  - elasticsearch
+  - sqlite3
+  - influxdb
+  - mariadb
+  - mongodb
+  - postgresql
+  - memcached
+  - mysql
+  system-hardware:
+  - amd-drivers
+  - printers
+  - nvidia-drivers
+  - bluetooth
+  system-monitoring:
+  - fail2ban
+  - prometheus
+  - grafana
+  - glances
+  system-perf:
+  - profile-sync
+  - zram
+  - powertop
+  - preload
+  system-services:
+  - ssh-hardening
+  - vpn-server
+  - samba
+  - backup-tools
+  - nfs
+  - ssh-keygen
+  - rsync-server
+  - ssh-server
+  - cups
+  - cron-jobs
+  - ftp-server
+  - systemd-timers
+  system-webservers:
+  - caddy
+  - haproxy
+  - certbot
+  - ssl-certs
+  - traefik
+  - nginx
+  - nginx-modules
+  terminal-themes:
+  - term-dracula
+  wallpaper-collections:
+  - wallpaper-dynamic
+  window-management:
+  - hot-corners
+  - window-tiling
+  - workspace-grid
+  - raise-on-click
+  - focus-mode
+  - workspace-number
+  - workspaces-enable
+  - window-snapping
 configurable_values:
-        display-settings:
-                type: slider
-                unit: '%'
-                value: 100
-        keyboard-settings:
-                type: slider
-                unit: ''
-                value: 10
-        mouse-settings:
-                type: slider
-                unit: ''
-                value: 7
-configuration_date: '2025-07-19T14:20:04.569855'
+  animation-speed:
+    type: slider
+    unit: ''
+    value: 10
+  animations-enable:
+    type: toggle
+    unit: ''
+    value: true
+  blur-effects:
+    type: toggle
+    unit: ''
+    value: true
+  clock-date:
+    type: toggle
+    unit: ''
+    value: true
+  clock-format:
+    type: dropdown
+    unit: ''
+    value: 24h
+  clock-seconds:
+    type: toggle
+    unit: ''
+    value: true
+  compositor:
+    type: toggle
+    unit: ''
+    value: true
+  focus-mode:
+    type: dropdown
+    unit: ''
+    value: click
+  font-antialiasing:
+    type: dropdown
+    unit: ''
+    value: rgba
+  font-document:
+    type: dropdown
+    unit: ''
+    value: Ubuntu 11
+  font-hinting:
+    type: dropdown
+    unit: ''
+    value: slight
+  font-interface:
+    type: dropdown
+    unit: ''
+    value: Ubuntu 11
+  font-monospace:
+    type: dropdown
+    unit: ''
+    value: Fira Code 12
+  font-rendering:
+    type: dropdown
+    unit: ''
+    value: subpixel
+  font-size-scaling:
+    type: slider
+    unit: '%'
+    value: 100
+  font-title:
+    type: dropdown
+    unit: ''
+    value: Ubuntu Bold 11
+  global-theme:
+    type: dropdown
+    unit: ''
+    value: dracula
+  hot-corners:
+    type: toggle
+    unit: ''
+    value: true
+  idle-delay:
+    type: slider
+    unit: s
+    value: 900
+  key-repeat-delay:
+    type: slider
+    unit: ms
+    value: 250
+  key-repeat-rate:
+    type: slider
+    unit: /s
+    value: 75
+  lid-close-action:
+    type: dropdown
+    unit: ''
+    value: suspend
+  lock-delay:
+    type: slider
+    unit: s
+    value: 0
+  lock-on-suspend:
+    type: toggle
+    unit: ''
+    value: true
+  maximize-anim:
+    type: dropdown
+    unit: ''
+    value: scale
+  minimize-anim:
+    type: dropdown
+    unit: ''
+    value: scale
+  mouse-acceleration:
+    type: toggle
+    unit: ''
+    value: true
+  mouse-speed:
+    type: slider
+    unit: ''
+    value: 2
+  multi-monitor:
+    type: dropdown
+    unit: ''
+    value: extend
+  natural-scroll:
+    type: toggle
+    unit: ''
+    value: false
+  nerd-fonts-pack:
+    type: dropdown
+    unit: ''
+    value: fira-code
+  night-light:
+    type: toggle
+    unit: ''
+    value: true
+  night-light-schedule:
+    type: dropdown
+    unit: ''
+    value: sunset-to-sunrise
+  night-light-temp:
+    type: slider
+    unit: K
+    value: 4000
+  notif-bubbles:
+    type: toggle
+    unit: ''
+    value: true
+  notif-dnd:
+    type: toggle
+    unit: ''
+    value: false
+  notif-duration:
+    type: slider
+    unit: s
+    value: 5
+  notif-history:
+    type: toggle
+    unit: ''
+    value: true
+  notif-lockscreen:
+    type: toggle
+    unit: ''
+    value: false
+  notif-position:
+    type: dropdown
+    unit: ''
+    value: bottom-right
+  notif-sounds:
+    type: toggle
+    unit: ''
+    value: true
+  notification-sounds-global:
+    type: toggle
+    unit: ''
+    value: true
+  panel-autohide:
+    type: toggle
+    unit: ''
+    value: false
+  panel-position:
+    type: dropdown
+    unit: ''
+    value: bottom
+  panel-size:
+    type: slider
+    unit: px
+    value: 48
+  panel-transparency:
+    type: slider
+    unit: '%'
+    value: 0
+  power-button:
+    type: dropdown
+    unit: ''
+    value: interactive
+  raise-on-click:
+    type: toggle
+    unit: ''
+    value: true
+  screen-blank:
+    type: slider
+    unit: s
+    value: 300
+  screen-lock:
+    type: toggle
+    unit: ''
+    value: true
+  scroll-speed:
+    type: slider
+    unit: ''
+    value: 10
+  startup-sound:
+    type: toggle
+    unit: ''
+    value: true
+  system-tray:
+    type: toggle
+    unit: ''
+    value: true
+  touchpad-disable-typing:
+    type: toggle
+    unit: ''
+    value: true
+  touchpad-edge-scroll:
+    type: toggle
+    unit: ''
+    value: false
+  touchpad-gestures:
+    type: toggle
+    unit: ''
+    value: true
+  touchpad-tap-click:
+    type: toggle
+    unit: ''
+    value: false
+  touchpad-two-finger:
+    type: toggle
+    unit: ''
+    value: true
+  transparency:
+    type: toggle
+    unit: ''
+    value: true
+  urgent-hints:
+    type: toggle
+    unit: ''
+    value: true
+  window-shadows:
+    type: toggle
+    unit: ''
+    value: true
+  window-snapping:
+    type: toggle
+    unit: ''
+    value: true
+  window-tiling:
+    type: toggle
+    unit: ''
+    value: false
+  workspace-grid:
+    type: toggle
+    unit: ''
+    value: false
+  workspace-number:
+    type: slider
+    unit: ''
+    value: 4
+  workspaces-enable:
+    type: toggle
+    unit: ''
+    value: true
+configuration_date: '2025-07-25T12:02:30.047108'
 generated_by: Ubootu - Professional Ubuntu Desktop Configuration Tool
 selected_items:
-        - teams
-        - ssh-server
-        - notifications
-        - ansible
-        - mysql-workbench
-        - clamav
-        - gnome
-        - nvidia-drivers
-        - papirus-icons
-        - docker
-        - burpsuite
-        - auto-updates
-        - bluetooth
-        - display-settings
-        - dark-theme
-        - tor
-        - spotify
-        - git
-        - obsidian
-        - wireshark
-        - keepassxc
-        - amd-drivers
-        - cups
-        - postman
-        - cpp
-        - terraform
-        - waterfox
-        - preload
-        - go
-        - zram
-        - notion
-        - profile-sync
-        - vlc
-        - redis-cli
-        - docker-desktop
-        - john
-        - thunderbird
-        - brave
-        - kubernetes
-        - vim
-        - rust
-        - metasploit
-        - nodejs
-        - protonvpn
-        - powertop
-        - discord
-        - nmap
-        - samba
-        - gimp
-        - zoom
-        - signal
-        - curl
-        - numix-theme
-        - veracrypt
-        - printers
-        - ufw-firewall
-        - keyboard-settings
-        - mouse-settings
-        - vscode
-        - nfs
-        - arc-theme
-        - vivaldi
-        - ruby
-        - python
+- idle-delay
+- masscan
+- 1password
+- redis-cli
+- profile-sync
+- insomnia
+- ytop
+- hot-corners
+- notif-lockscreen
+- zram
+- terraform
+- blur-effects
+- gnupg
+- auto-updates
+- robo3t
+- notif-sounds
+- ssh-hardening
+- onionshare
+- bottom
+- notification-sounds-global
+- htop
+- postman
+- redis
+- ansible
+- lock-on-suspend
+- cursor-bibata
+- clock-seconds
+- ffuf
+- fail2ban
+- icons-papirus
+- curl
+- key-repeat-rate
+- elasticsearch
+- discord
+- amd-drivers
+- crackmapexec
+- startup-sound
+- lens-k8s
+- gping
+- git-extras
+- printers
+- panel-transparency
+- notif-position
+- powertop
+- clock-date
+- panel-autohide
+- notif-duration
+- tmux
+- bandwhich
+- key-repeat-delay
+- scroll-speed
+- compositor
+- recon-ng
+- kleopatra
+- tor-browser
+- notion
+- vpn-server
+- window-shadows
+- zsh
+- exa
+- bat
+- gitui
+- gotop
+- gittyup
+- mouse-acceleration
+- font-hinting
+- sqlite3
+- keepassxc
+- ettercap
+- procs
+- btop
+- httpie-cli
+- burpsuite
+- gitkraken
+- nmap
+- mitmproxy
+- samba
+- touchpad-gestures
+- animation-speed
+- maltego
+- git
+- gh-cli
+- gnome
+- signal
+- jq
+- ruby
+- gobuster
+- touchpad-disable-typing
+- httpie
+- nodejs
+- dust
+- seahorse
+- fff
+- xh
+- prometheus
+- zaproxy
+- docker-desktop
+- mouse-speed
+- influxdb
+- window-tiling
+- animations-enable
+- zoom
+- maximize-anim
+- curlie
+- beef
+- responder
+- natural-scroll
+- notif-history
+- workspace-grid
+- notif-dnd
+- clock-format
+- multi-monitor
+- gimp
+- obsidian
+- bleachbit
+- caddy
+- fd
+- mc
+- helm
+- raise-on-click
+- cobalt-strike
+- haproxy
+- spotify
+- term-dracula
+- wireshark
+- certbot
+- impacket
+- sd
+- touchpad-edge-scroll
+- night-light
+- font-antialiasing
+- font-size-scaling
+- nvidia-drivers
+- lf
+- metasploit
+- broot
+- bettercap
+- firefox-developer
+- backup-tools
+- fork
+- minimize-anim
+- bloodhound
+- vifm
+- font-document
+- nfs
+- autojump
+- covenant
+- lid-close-action
+- preload
+- font-monospace
+- thunderbird
+- urgent-hints
+- panel-size
+- clamav
+- secure-delete
+- pgadmin
+- rust
+- yq
+- grafana
+- xsv
+- sqlmap
+- gh
+- fzf
+- kubernetes
+- wallpaper-dynamic
+- night-light-temp
+- font-title
+- delta-git
+- ssl-certs
+- vim
+- mariadb
+- vagrant
+- nnn
+- k9s
+- docker
+- john
+- delta
+- nerd-fonts-pack
+- system-tray
+- brave
+- ssh-keygen
+- mongodb
+- rsync-server
+- global-theme
+- z
+- ufw-firewall
+- glances
+- bitwarden
+- ranger
+- lazygit-cli
+- focus-mode
+- transparency
+- ssh-server
+- cups
+- wfuzz
+- notif-bubbles
+- workspace-number
+- dirb
+- forgit
+- ansible-semaphore
+- bashtop
+- cpp
+- dbeaver
+- miller
+- postgresql
+- traefik
+- python
+- asdf
+- gron
+- veracrypt
+- cron-jobs
+- night-light-schedule
+- screen-lock
+- duf
+- ftp-server
+- workspaces-enable
+- aircrack-ng
+- tig
+- hashcat
+- theharvester
+- jless
+- dasel
+- nikto
+- ripgrep
+- zenith
+- trippy
+- protonvpn
+- nginx
+- kubectl
+- shodan
+- touchpad-two-finger
+- power-button
+- vscode
+- element
+- lazygit
+- direnv
+- bluetooth
+- dog
+- mongodb-compass
+- teams
+- vivaldi
+- font-rendering
+- lock-delay
+- memcached
+- terraform-iac
+- font-interface
+- panel-position
+- mysql-workbench
+- nginx-modules
+- systemd-timers
+- screen-blank
+- window-snapping
+- cryptomator
+- touchpad-tap-click
+- sourcetree
+- hydra
+- go
+- empire
+- vlc
+- prompt-starship
+- mysql
 ui_version: 2.0_unbootu
