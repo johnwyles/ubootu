@@ -236,7 +236,14 @@ class TestTestCursesBasic:
     @patch("curses.init_pair")
     @patch("curses.curs_set")
     @patch("curses.wrapper")
-    def test_curses_screen_operations(self, mock_wrapper, mock_curs_set, mock_init_pair, mock_start_color, mock_has_colors):
+    def test_curses_screen_operations(
+        self,
+        mock_wrapper,
+        mock_curs_set,
+        mock_init_pair,
+        mock_start_color,
+        mock_has_colors,
+    ):
         """Test that curses operations are performed correctly."""
         mock_stdscr = MagicMock()
         mock_stdscr.getmaxyx.return_value = (30, 100)
