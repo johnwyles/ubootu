@@ -22,7 +22,7 @@ blessed>=1.20.0  # Terminal formatting library
 mock>=4.0.0  # Additional mocking support
 
 # Code quality
-black==25.1.0
+black==24.8.0
 isort==6.0.1
 flake8>=6.0.0
 mypy>=1.4.0
