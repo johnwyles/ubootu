@@ -1,3 +1,4 @@
+---
 ansible_variables:
   cursor_theme_bibata: true
   db_elasticsearch: true
@@ -204,308 +205,308 @@ ansible_variables:
   webserver_traefik: true
 categories:
   app-browsers:
-  - firefox-developer
-  - brave
-  - vivaldi
+    - firefox-developer
+    - brave
+    - vivaldi
   app-communication:
-  - discord
-  - zoom
-  - teams
+    - discord
+    - zoom
+    - teams
   app-media:
-  - gimp
-  - spotify
-  - vlc
+    - gimp
+    - spotify
+    - vlc
   app-productivity:
-  - notion
-  - obsidian
-  - thunderbird
+    - notion
+    - obsidian
+    - thunderbird
   cli-dev-tools:
-  - git-extras
-  - gitui
-  - gh
-  - delta-git
-  - lazygit-cli
-  - forgit
-  - tig
+    - git-extras
+    - gitui
+    - gh
+    - delta-git
+    - lazygit-cli
+    - forgit
+    - tig
   cli-file-managers:
-  - fff
-  - mc
-  - lf
-  - broot
-  - vifm
-  - nnn
-  - ranger
+    - fff
+    - mc
+    - lf
+    - broot
+    - vifm
+    - nnn
+    - ranger
   cli-network-tools:
-  - gping
-  - bandwhich
-  - httpie-cli
-  - xh
-  - curlie
-  - trippy
-  - dog
+    - gping
+    - bandwhich
+    - httpie-cli
+    - xh
+    - curlie
+    - trippy
+    - dog
   cli-productivity:
-  - tmux
-  - zsh
-  - autojump
-  - fzf
-  - z
-  - asdf
-  - direnv
+    - tmux
+    - zsh
+    - autojump
+    - fzf
+    - z
+    - asdf
+    - direnv
   cli-system-monitoring:
-  - ytop
-  - htop
-  - gotop
-  - btop
-  - bashtop
-  - zenith
+    - ytop
+    - htop
+    - gotop
+    - btop
+    - bashtop
+    - zenith
   cli-text-processing:
-  - jq
-  - yq
-  - xsv
-  - miller
-  - gron
-  - jless
-  - dasel
+    - jq
+    - yq
+    - xsv
+    - miller
+    - gron
+    - jless
+    - dasel
   cli-unix-replacements:
-  - bottom
-  - exa
-  - bat
-  - procs
-  - dust
-  - fd
-  - sd
-  - delta
-  - duf
-  - ripgrep
+    - bottom
+    - exa
+    - bat
+    - procs
+    - dust
+    - fd
+    - sd
+    - delta
+    - duf
+    - ripgrep
   cursor-themes:
-  - cursor-bibata
+    - cursor-bibata
   desktop-effects:
-  - blur-effects
-  - compositor
-  - window-shadows
-  - animation-speed
-  - animations-enable
-  - maximize-anim
-  - minimize-anim
-  - transparency
+    - blur-effects
+    - compositor
+    - window-shadows
+    - animation-speed
+    - animations-enable
+    - maximize-anim
+    - minimize-anim
+    - transparency
   desktop-env:
-  - gnome
+    - gnome
   desktop-themes:
-  - global-theme
+    - global-theme
   dev-containers:
-  - ansible
-  - docker-desktop
-  - kubernetes
-  - terraform-iac
+    - ansible
+    - docker-desktop
+    - kubernetes
+    - terraform-iac
   dev-ides:
-  - vim
-  - vscode
+    - vim
+    - vscode
   dev-languages:
-  - ruby
-  - nodejs
-  - rust
-  - cpp
-  - python
-  - go
+    - ruby
+    - nodejs
+    - rust
+    - cpp
+    - python
+    - go
   dev-tools:
-  - redis-cli
-  - insomnia
-  - terraform
-  - robo3t
-  - postman
-  - curl
-  - lens-k8s
-  - gittyup
-  - gitkraken
-  - git
-  - gh-cli
-  - httpie
-  - helm
-  - fork
-  - pgadmin
-  - vagrant
-  - k9s
-  - docker
-  - ansible-semaphore
-  - dbeaver
-  - kubectl
-  - lazygit
-  - mongodb-compass
-  - mysql-workbench
-  - sourcetree
+    - redis-cli
+    - insomnia
+    - terraform
+    - robo3t
+    - postman
+    - curl
+    - lens-k8s
+    - gittyup
+    - gitkraken
+    - git
+    - gh-cli
+    - httpie
+    - helm
+    - fork
+    - pgadmin
+    - vagrant
+    - k9s
+    - docker
+    - ansible-semaphore
+    - dbeaver
+    - kubectl
+    - lazygit
+    - mongodb-compass
+    - mysql-workbench
+    - sourcetree
   displays:
-  - multi-monitor
-  - night-light
-  - night-light-temp
-  - night-light-schedule
+    - multi-monitor
+    - night-light
+    - night-light-temp
+    - night-light-schedule
   fonts-installation:
-  - font-size-scaling
-  - nerd-fonts-pack
-  - font-rendering
+    - font-size-scaling
+    - nerd-fonts-pack
+    - font-rendering
   fonts-text:
-  - font-hinting
-  - font-antialiasing
-  - font-document
-  - font-monospace
-  - font-title
-  - font-interface
+    - font-hinting
+    - font-antialiasing
+    - font-document
+    - font-monospace
+    - font-title
+    - font-interface
   icon-themes:
-  - icons-papirus
+    - icons-papirus
   keyboard-input:
-  - key-repeat-rate
-  - key-repeat-delay
+    - key-repeat-rate
+    - key-repeat-delay
   mouse-touchpad:
-  - scroll-speed
-  - mouse-acceleration
-  - touchpad-gestures
-  - touchpad-disable-typing
-  - mouse-speed
-  - natural-scroll
-  - touchpad-edge-scroll
-  - touchpad-two-finger
-  - touchpad-tap-click
+    - scroll-speed
+    - mouse-acceleration
+    - touchpad-gestures
+    - touchpad-disable-typing
+    - mouse-speed
+    - natural-scroll
+    - touchpad-edge-scroll
+    - touchpad-two-finger
+    - touchpad-tap-click
   notifications:
-  - notif-lockscreen
-  - notif-sounds
-  - notif-position
-  - notif-duration
-  - notif-history
-  - notif-dnd
-  - urgent-hints
-  - notif-bubbles
+    - notif-lockscreen
+    - notif-sounds
+    - notif-position
+    - notif-duration
+    - notif-history
+    - notif-dnd
+    - urgent-hints
+    - notif-bubbles
   panel-taskbar:
-  - clock-seconds
-  - panel-transparency
-  - clock-date
-  - panel-autohide
-  - clock-format
-  - panel-size
-  - system-tray
-  - panel-position
+    - clock-seconds
+    - panel-transparency
+    - clock-date
+    - panel-autohide
+    - clock-format
+    - panel-size
+    - system-tray
+    - panel-position
   power-management:
-  - idle-delay
-  - lock-on-suspend
-  - lid-close-action
-  - screen-lock
-  - power-button
-  - lock-delay
-  - screen-blank
+    - idle-delay
+    - lock-on-suspend
+    - lid-close-action
+    - screen-lock
+    - power-button
+    - lock-delay
+    - screen-blank
   security-basic:
-  - auto-updates
-  - clamav
-  - ufw-firewall
+    - auto-updates
+    - clamav
+    - ufw-firewall
   security-privacy:
-  - 1password
-  - gnupg
-  - onionshare
-  - kleopatra
-  - tor-browser
-  - keepassxc
-  - signal
-  - seahorse
-  - bleachbit
-  - secure-delete
-  - bitwarden
-  - veracrypt
-  - protonvpn
-  - element
-  - cryptomator
+    - 1password
+    - gnupg
+    - onionshare
+    - kleopatra
+    - tor-browser
+    - keepassxc
+    - signal
+    - seahorse
+    - bleachbit
+    - secure-delete
+    - bitwarden
+    - veracrypt
+    - protonvpn
+    - element
+    - cryptomator
   security-tools:
-  - masscan
-  - ffuf
-  - crackmapexec
-  - recon-ng
-  - ettercap
-  - burpsuite
-  - nmap
-  - mitmproxy
-  - maltego
-  - gobuster
-  - zaproxy
-  - beef
-  - responder
-  - cobalt-strike
-  - wireshark
-  - impacket
-  - metasploit
-  - bettercap
-  - bloodhound
-  - covenant
-  - sqlmap
-  - john
-  - wfuzz
-  - dirb
-  - aircrack-ng
-  - hashcat
-  - theharvester
-  - nikto
-  - shodan
-  - hydra
-  - empire
+    - masscan
+    - ffuf
+    - crackmapexec
+    - recon-ng
+    - ettercap
+    - burpsuite
+    - nmap
+    - mitmproxy
+    - maltego
+    - gobuster
+    - zaproxy
+    - beef
+    - responder
+    - cobalt-strike
+    - wireshark
+    - impacket
+    - metasploit
+    - bettercap
+    - bloodhound
+    - covenant
+    - sqlmap
+    - john
+    - wfuzz
+    - dirb
+    - aircrack-ng
+    - hashcat
+    - theharvester
+    - nikto
+    - shodan
+    - hydra
+    - empire
   shell-prompts:
-  - prompt-starship
+    - prompt-starship
   sound-audio:
-  - notification-sounds-global
-  - startup-sound
+    - notification-sounds-global
+    - startup-sound
   system-databases:
-  - redis
-  - elasticsearch
-  - sqlite3
-  - influxdb
-  - mariadb
-  - mongodb
-  - postgresql
-  - memcached
-  - mysql
+    - redis
+    - elasticsearch
+    - sqlite3
+    - influxdb
+    - mariadb
+    - mongodb
+    - postgresql
+    - memcached
+    - mysql
   system-hardware:
-  - amd-drivers
-  - printers
-  - nvidia-drivers
-  - bluetooth
+    - amd-drivers
+    - printers
+    - nvidia-drivers
+    - bluetooth
   system-monitoring:
-  - fail2ban
-  - prometheus
-  - grafana
-  - glances
+    - fail2ban
+    - prometheus
+    - grafana
+    - glances
   system-perf:
-  - profile-sync
-  - zram
-  - powertop
-  - preload
+    - profile-sync
+    - zram
+    - powertop
+    - preload
   system-services:
-  - ssh-hardening
-  - vpn-server
-  - samba
-  - backup-tools
-  - nfs
-  - ssh-keygen
-  - rsync-server
-  - ssh-server
-  - cups
-  - cron-jobs
-  - ftp-server
-  - systemd-timers
+    - ssh-hardening
+    - vpn-server
+    - samba
+    - backup-tools
+    - nfs
+    - ssh-keygen
+    - rsync-server
+    - ssh-server
+    - cups
+    - cron-jobs
+    - ftp-server
+    - systemd-timers
   system-webservers:
-  - caddy
-  - haproxy
-  - certbot
-  - ssl-certs
-  - traefik
-  - nginx
-  - nginx-modules
+    - caddy
+    - haproxy
+    - certbot
+    - ssl-certs
+    - traefik
+    - nginx
+    - nginx-modules
   terminal-themes:
-  - term-dracula
+    - term-dracula
   wallpaper-collections:
-  - wallpaper-dynamic
+    - wallpaper-dynamic
   window-management:
-  - hot-corners
-  - window-tiling
-  - workspace-grid
-  - raise-on-click
-  - focus-mode
-  - workspace-number
-  - workspaces-enable
-  - window-snapping
+    - hot-corners
+    - window-tiling
+    - workspace-grid
+    - raise-on-click
+    - focus-mode
+    - workspace-number
+    - workspaces-enable
+    - window-snapping
 configurable_values:
   animation-speed:
     type: slider
@@ -774,265 +775,265 @@ configurable_values:
 configuration_date: '2025-07-25T12:02:30.047108'
 generated_by: Ubootu - Professional Ubuntu Desktop Configuration Tool
 selected_items:
-- idle-delay
-- masscan
-- 1password
-- redis-cli
-- profile-sync
-- insomnia
-- ytop
-- hot-corners
-- notif-lockscreen
-- zram
-- terraform
-- blur-effects
-- gnupg
-- auto-updates
-- robo3t
-- notif-sounds
-- ssh-hardening
-- onionshare
-- bottom
-- notification-sounds-global
-- htop
-- postman
-- redis
-- ansible
-- lock-on-suspend
-- cursor-bibata
-- clock-seconds
-- ffuf
-- fail2ban
-- icons-papirus
-- curl
-- key-repeat-rate
-- elasticsearch
-- discord
-- amd-drivers
-- crackmapexec
-- startup-sound
-- lens-k8s
-- gping
-- git-extras
-- printers
-- panel-transparency
-- notif-position
-- powertop
-- clock-date
-- panel-autohide
-- notif-duration
-- tmux
-- bandwhich
-- key-repeat-delay
-- scroll-speed
-- compositor
-- recon-ng
-- kleopatra
-- tor-browser
-- notion
-- vpn-server
-- window-shadows
-- zsh
-- exa
-- bat
-- gitui
-- gotop
-- gittyup
-- mouse-acceleration
-- font-hinting
-- sqlite3
-- keepassxc
-- ettercap
-- procs
-- btop
-- httpie-cli
-- burpsuite
-- gitkraken
-- nmap
-- mitmproxy
-- samba
-- touchpad-gestures
-- animation-speed
-- maltego
-- git
-- gh-cli
-- gnome
-- signal
-- jq
-- ruby
-- gobuster
-- touchpad-disable-typing
-- httpie
-- nodejs
-- dust
-- seahorse
-- fff
-- xh
-- prometheus
-- zaproxy
-- docker-desktop
-- mouse-speed
-- influxdb
-- window-tiling
-- animations-enable
-- zoom
-- maximize-anim
-- curlie
-- beef
-- responder
-- natural-scroll
-- notif-history
-- workspace-grid
-- notif-dnd
-- clock-format
-- multi-monitor
-- gimp
-- obsidian
-- bleachbit
-- caddy
-- fd
-- mc
-- helm
-- raise-on-click
-- cobalt-strike
-- haproxy
-- spotify
-- term-dracula
-- wireshark
-- certbot
-- impacket
-- sd
-- touchpad-edge-scroll
-- night-light
-- font-antialiasing
-- font-size-scaling
-- nvidia-drivers
-- lf
-- metasploit
-- broot
-- bettercap
-- firefox-developer
-- backup-tools
-- fork
-- minimize-anim
-- bloodhound
-- vifm
-- font-document
-- nfs
-- autojump
-- covenant
-- lid-close-action
-- preload
-- font-monospace
-- thunderbird
-- urgent-hints
-- panel-size
-- clamav
-- secure-delete
-- pgadmin
-- rust
-- yq
-- grafana
-- xsv
-- sqlmap
-- gh
-- fzf
-- kubernetes
-- wallpaper-dynamic
-- night-light-temp
-- font-title
-- delta-git
-- ssl-certs
-- vim
-- mariadb
-- vagrant
-- nnn
-- k9s
-- docker
-- john
-- delta
-- nerd-fonts-pack
-- system-tray
-- brave
-- ssh-keygen
-- mongodb
-- rsync-server
-- global-theme
-- z
-- ufw-firewall
-- glances
-- bitwarden
-- ranger
-- lazygit-cli
-- focus-mode
-- transparency
-- ssh-server
-- cups
-- wfuzz
-- notif-bubbles
-- workspace-number
-- dirb
-- forgit
-- ansible-semaphore
-- bashtop
-- cpp
-- dbeaver
-- miller
-- postgresql
-- traefik
-- python
-- asdf
-- gron
-- veracrypt
-- cron-jobs
-- night-light-schedule
-- screen-lock
-- duf
-- ftp-server
-- workspaces-enable
-- aircrack-ng
-- tig
-- hashcat
-- theharvester
-- jless
-- dasel
-- nikto
-- ripgrep
-- zenith
-- trippy
-- protonvpn
-- nginx
-- kubectl
-- shodan
-- touchpad-two-finger
-- power-button
-- vscode
-- element
-- lazygit
-- direnv
-- bluetooth
-- dog
-- mongodb-compass
-- teams
-- vivaldi
-- font-rendering
-- lock-delay
-- memcached
-- terraform-iac
-- font-interface
-- panel-position
-- mysql-workbench
-- nginx-modules
-- systemd-timers
-- screen-blank
-- window-snapping
-- cryptomator
-- touchpad-tap-click
-- sourcetree
-- hydra
-- go
-- empire
-- vlc
-- prompt-starship
-- mysql
+  - idle-delay
+  - masscan
+  - 1password
+  - redis-cli
+  - profile-sync
+  - insomnia
+  - ytop
+  - hot-corners
+  - notif-lockscreen
+  - zram
+  - terraform
+  - blur-effects
+  - gnupg
+  - auto-updates
+  - robo3t
+  - notif-sounds
+  - ssh-hardening
+  - onionshare
+  - bottom
+  - notification-sounds-global
+  - htop
+  - postman
+  - redis
+  - ansible
+  - lock-on-suspend
+  - cursor-bibata
+  - clock-seconds
+  - ffuf
+  - fail2ban
+  - icons-papirus
+  - curl
+  - key-repeat-rate
+  - elasticsearch
+  - discord
+  - amd-drivers
+  - crackmapexec
+  - startup-sound
+  - lens-k8s
+  - gping
+  - git-extras
+  - printers
+  - panel-transparency
+  - notif-position
+  - powertop
+  - clock-date
+  - panel-autohide
+  - notif-duration
+  - tmux
+  - bandwhich
+  - key-repeat-delay
+  - scroll-speed
+  - compositor
+  - recon-ng
+  - kleopatra
+  - tor-browser
+  - notion
+  - vpn-server
+  - window-shadows
+  - zsh
+  - exa
+  - bat
+  - gitui
+  - gotop
+  - gittyup
+  - mouse-acceleration
+  - font-hinting
+  - sqlite3
+  - keepassxc
+  - ettercap
+  - procs
+  - btop
+  - httpie-cli
+  - burpsuite
+  - gitkraken
+  - nmap
+  - mitmproxy
+  - samba
+  - touchpad-gestures
+  - animation-speed
+  - maltego
+  - git
+  - gh-cli
+  - gnome
+  - signal
+  - jq
+  - ruby
+  - gobuster
+  - touchpad-disable-typing
+  - httpie
+  - nodejs
+  - dust
+  - seahorse
+  - fff
+  - xh
+  - prometheus
+  - zaproxy
+  - docker-desktop
+  - mouse-speed
+  - influxdb
+  - window-tiling
+  - animations-enable
+  - zoom
+  - maximize-anim
+  - curlie
+  - beef
+  - responder
+  - natural-scroll
+  - notif-history
+  - workspace-grid
+  - notif-dnd
+  - clock-format
+  - multi-monitor
+  - gimp
+  - obsidian
+  - bleachbit
+  - caddy
+  - fd
+  - mc
+  - helm
+  - raise-on-click
+  - cobalt-strike
+  - haproxy
+  - spotify
+  - term-dracula
+  - wireshark
+  - certbot
+  - impacket
+  - sd
+  - touchpad-edge-scroll
+  - night-light
+  - font-antialiasing
+  - font-size-scaling
+  - nvidia-drivers
+  - lf
+  - metasploit
+  - broot
+  - bettercap
+  - firefox-developer
+  - backup-tools
+  - fork
+  - minimize-anim
+  - bloodhound
+  - vifm
+  - font-document
+  - nfs
+  - autojump
+  - covenant
+  - lid-close-action
+  - preload
+  - font-monospace
+  - thunderbird
+  - urgent-hints
+  - panel-size
+  - clamav
+  - secure-delete
+  - pgadmin
+  - rust
+  - yq
+  - grafana
+  - xsv
+  - sqlmap
+  - gh
+  - fzf
+  - kubernetes
+  - wallpaper-dynamic
+  - night-light-temp
+  - font-title
+  - delta-git
+  - ssl-certs
+  - vim
+  - mariadb
+  - vagrant
+  - nnn
+  - k9s
+  - docker
+  - john
+  - delta
+  - nerd-fonts-pack
+  - system-tray
+  - brave
+  - ssh-keygen
+  - mongodb
+  - rsync-server
+  - global-theme
+  - z
+  - ufw-firewall
+  - glances
+  - bitwarden
+  - ranger
+  - lazygit-cli
+  - focus-mode
+  - transparency
+  - ssh-server
+  - cups
+  - wfuzz
+  - notif-bubbles
+  - workspace-number
+  - dirb
+  - forgit
+  - ansible-semaphore
+  - bashtop
+  - cpp
+  - dbeaver
+  - miller
+  - postgresql
+  - traefik
+  - python
+  - asdf
+  - gron
+  - veracrypt
+  - cron-jobs
+  - night-light-schedule
+  - screen-lock
+  - duf
+  - ftp-server
+  - workspaces-enable
+  - aircrack-ng
+  - tig
+  - hashcat
+  - theharvester
+  - jless
+  - dasel
+  - nikto
+  - ripgrep
+  - zenith
+  - trippy
+  - protonvpn
+  - nginx
+  - kubectl
+  - shodan
+  - touchpad-two-finger
+  - power-button
+  - vscode
+  - element
+  - lazygit
+  - direnv
+  - bluetooth
+  - dog
+  - mongodb-compass
+  - teams
+  - vivaldi
+  - font-rendering
+  - lock-delay
+  - memcached
+  - terraform-iac
+  - font-interface
+  - panel-position
+  - mysql-workbench
+  - nginx-modules
+  - systemd-timers
+  - screen-blank
+  - window-snapping
+  - cryptomator
+  - touchpad-tap-click
+  - sourcetree
+  - hydra
+  - go
+  - empire
+  - vlc
+  - prompt-starship
+  - mysql
 ui_version: 2.0_unbootu
