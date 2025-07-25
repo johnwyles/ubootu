@@ -9,9 +9,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 
 # Add parent directories to path
-sys.path.insert(
-    0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from lib.tui.models import MenuItem
 
@@ -93,8 +91,7 @@ class MenuBuilder(ABC):
             parent=parent,
             is_configurable=True,
             config_type=config_type,
-            config_value=config_value
-            or (config_range[0] if config_type == "slider" else ""),
+            config_value=config_value or (config_range[0] if config_type == "slider" else ""),
             config_range=config_range,
             config_unit=config_unit,
             config_options=config_options,

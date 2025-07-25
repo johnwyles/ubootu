@@ -6,7 +6,6 @@ Terminal compatibility checker for TUI
 import curses
 import locale
 import os
-import subprocess
 import sys
 
 

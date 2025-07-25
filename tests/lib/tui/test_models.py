@@ -14,9 +14,7 @@ class TestMenuItem:
 
     def test_minimal_initialization(self):
         """Test MenuItem with minimal required fields."""
-        item = MenuItem(
-            id="test-item", label="Test Item", description="Test description"
-        )
+        item = MenuItem(id="test-item", label="Test Item", description="Test description")
 
         assert item.id == "test-item"
         assert item.label == "Test Item"

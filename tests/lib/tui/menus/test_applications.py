@@ -48,15 +48,11 @@ class TestApplicationsMenuBuilder:
 
         for item in items.values():
             if item.parent and item.parent != "root":
-                assert (
-                    item.parent in items
-                ), f"Parent {item.parent} not found for {item.id}"
+                assert item.parent in items, f"Parent {item.parent} not found for {item.id}"
 
             if item.children:
                 for child_id in item.children:
-                    assert (
-                        child_id in items
-                    ), f"Child {child_id} not found for {item.id}"
+                    assert child_id in items, f"Child {child_id} not found for {item.id}"
                     assert items[child_id].parent == item.id
 
     def test_no_circular_references(self, menu_builder):

@@ -43,9 +43,7 @@ class TestProfileSelector:
                     if not any(p.default == p.empty for p in sig.parameters.values()):
                         try:
                             result = func()
-                            assert (
-                                result is not None or result is None
-                            )  # Just check it runs
+                            assert result is not None or result is None  # Just check it runs
                         except Exception:
                             pass
 

@@ -48,9 +48,7 @@ class DesktopMenuBuilder(MenuBuilder):
         )
 
         # Desktop environment items
-        self.add_selectable(
-            "gnome", "GNOME", "Default Ubuntu desktop", parent="desktop-env"
-        )
+        self.add_selectable("gnome", "GNOME", "Default Ubuntu desktop", parent="desktop-env")
 
         self.add_selectable(
             "kde",
@@ -59,17 +57,11 @@ class DesktopMenuBuilder(MenuBuilder):
             parent="desktop-env",
         )
 
-        self.add_selectable(
-            "xfce", "XFCE", "Lightweight desktop environment", parent="desktop-env"
-        )
+        self.add_selectable("xfce", "XFCE", "Lightweight desktop environment", parent="desktop-env")
 
-        self.add_selectable(
-            "mate", "MATE", "Traditional desktop environment", parent="desktop-env"
-        )
+        self.add_selectable("mate", "MATE", "Traditional desktop environment", parent="desktop-env")
 
-        self.add_selectable(
-            "cinnamon", "Cinnamon", "Modern desktop environment", parent="desktop-env"
-        )
+        self.add_selectable("cinnamon", "Cinnamon", "Modern desktop environment", parent="desktop-env")
 
     def _build_window_managers(self):
         """Build window managers menu"""

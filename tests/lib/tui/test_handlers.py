@@ -30,9 +30,7 @@ class TestTUIEventHandler:
     def sample_menu_items(self):
         """Create sample menu items."""
         return {
-            "root": MenuItem(
-                "root", "Root", "Root menu", is_category=True, children=["dev", "apps"]
-            ),
+            "root": MenuItem("root", "Root", "Root menu", is_category=True, children=["dev", "apps"]),
             "dev": MenuItem(
                 "dev",
                 "Development",
@@ -65,18 +63,10 @@ class TestTUIEventHandler:
                     "action-exit",
                 ],
             ),
-            "action-install": MenuItem(
-                "action-install", "Install", "Start installation", parent="actions"
-            ),
-            "action-save": MenuItem(
-                "action-save", "Save", "Save config", parent="actions"
-            ),
-            "action-reset": MenuItem(
-                "action-reset", "Reset", "Reset config", parent="actions"
-            ),
-            "action-exit": MenuItem(
-                "action-exit", "Exit", "Exit without saving", parent="actions"
-            ),
+            "action-install": MenuItem("action-install", "Install", "Start installation", parent="actions"),
+            "action-save": MenuItem("action-save", "Save", "Save config", parent="actions"),
+            "action-reset": MenuItem("action-reset", "Reset", "Reset config", parent="actions"),
+            "action-exit": MenuItem("action-exit", "Exit", "Exit without saving", parent="actions"),
             "configurable": MenuItem(
                 "configurable",
                 "Config Item",
@@ -249,9 +239,7 @@ class TestTUIEventHandler:
         menu_getter.return_value = menu_items
         handler.current_item = 0
 
-        with patch.object(
-            handler, "_handle_install", return_value=False
-        ) as mock_install:
+        with patch.object(handler, "_handle_install", return_value=False) as mock_install:
             result = handler.handle_key(ord("\n"), menu_getter, help_callback)
             assert result is False
             mock_install.assert_called_once()
@@ -279,9 +267,7 @@ class TestTUIEventHandler:
         result = handler.handle_key(ord("\n"), menu_getter, help_callback)
 
         assert result is True
-        mock_dialog.show_configuration_dialog.assert_called_once_with(
-            handler.menu_items["configurable"]
-        )
+        mock_dialog.show_configuration_dialog.assert_called_once_with(handler.menu_items["configurable"])
 
     @patch("builtins.open", new_callable=mock_open)
     def test_handle_key_right_arrow(self, mock_file, handler):
@@ -349,9 +335,7 @@ class TestTUIEventHandler:
     def test_handle_key_select_all(self, mock_file, handler, sample_menu_items):
         """Test select all keys."""
         # Return some menu items to prevent early return
-        menu_getter = Mock(
-            return_value=[sample_menu_items["python"], sample_menu_items["nodejs"]]
-        )
+        menu_getter = Mock(return_value=[sample_menu_items["python"], sample_menu_items["nodejs"]])
         help_callback = Mock()
 
         with patch.object(handler, "_select_all_in_category") as mock_select:
@@ -370,9 +354,7 @@ class TestTUIEventHandler:
         menu_getter = Mock(return_value=[sample_menu_items["python"]])
         help_callback = Mock()
 
-        with patch.object(
-            handler, "_show_actions_popup", return_value=True
-        ) as mock_popup:
+        with patch.object(handler, "_show_actions_popup", return_value=True) as mock_popup:
             # Test F1
             result = handler.handle_key(curses.KEY_F1, menu_getter, help_callback)
             assert result is True
@@ -629,9 +611,7 @@ class TestTUIEventHandler:
         # Mock selecting install action
         handler.stdscr.getch.side_effect = [ord("\n")]  # Enter on first option
 
-        with patch.object(
-            handler, "_handle_install", return_value=False
-        ) as mock_install:
+        with patch.object(handler, "_handle_install", return_value=False) as mock_install:
             result = handler._show_actions_popup()
 
             assert result is False

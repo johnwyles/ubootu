@@ -45,9 +45,7 @@ class TestAptFixer:
                             # Don't call main as it exits
                             if name != "main":
                                 result = func()
-                                assert (
-                                    result is not None or result is None
-                                )  # Just check it runs
+                                assert result is not None or result is None  # Just check it runs
                         except Exception:
                             pass
 

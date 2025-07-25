@@ -28,19 +28,13 @@ class TUIConfigManager:
             return []
         current = self.menu_items[self.current_menu]
         if current.children:
-            return [
-                self.menu_items[child_id]
-                for child_id in current.children
-                if child_id in self.menu_items
-            ]
+            return [self.menu_items[child_id] for child_id in current.children if child_id in self.menu_items]
         return []
 
     def navigate_to_menu(self, menu_id: str, save_breadcrumb: bool = True):
         """Navigate to a specific menu"""
         if save_breadcrumb:
-            self.breadcrumb_stack.append(
-                (self.current_menu, self.current_item, self.scroll_offset)
-            )
+            self.breadcrumb_stack.append((self.current_menu, self.current_item, self.scroll_offset))
         self.current_menu = menu_id
         self.current_item = 0
         self.scroll_offset = 0
@@ -48,9 +42,7 @@ class TUIConfigManager:
     def navigate_back(self) -> bool:
         """Navigate back to previous menu"""
         if self.breadcrumb_stack:
-            self.current_menu, self.current_item, self.scroll_offset = (
-                self.breadcrumb_stack.pop()
-            )
+            self.current_menu, self.current_item, self.scroll_offset = self.breadcrumb_stack.pop()
             return True
         return False
 
@@ -92,9 +84,7 @@ class TUIConfigManager:
         if not selectable_items:
             return "empty"
 
-        selected_count = sum(
-            1 for item_id in selectable_items if item_id in self.selected_items
-        )
+        selected_count = sum(1 for item_id in selectable_items if item_id in self.selected_items)
 
         if selected_count == 0:
             return "empty"
@@ -176,9 +166,7 @@ class TUIConfigManager:
     def get_selection_counts(self) -> tuple[int, int]:
         """Get total selected items and total selectable items"""
         total_selectable = sum(
-            1
-            for item in self.menu_items.values()
-            if not item.is_category and item.parent != "actions"
+            1 for item in self.menu_items.values() if not item.is_category and item.parent != "actions"
         )
         selected_count = len(self.selected_items)
         return selected_count, total_selectable
@@ -186,9 +174,7 @@ class TUIConfigManager:
     def get_category_selection_counts(self, category_id: str) -> tuple[int, int]:
         """Get selection counts for a specific category"""
         category_items = self.get_all_selectable_items(category_id)
-        selected_count = sum(
-            1 for item_id in category_items if item_id in self.selected_items
-        )
+        selected_count = sum(1 for item_id in category_items if item_id in self.selected_items)
         return selected_count, len(category_items)
 
     def has_selections(self) -> bool:

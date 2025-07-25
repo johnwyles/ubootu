@@ -27,7 +27,7 @@ def clean_apt_sources() -> List[str]:
             try:
                 os.remove(file)
                 issues_fixed.append(f"Removed backup file: {os.path.basename(file)}")
-            except:
+            except Exception:
                 pass
 
     # 2. Check for duplicate repositories (.list and .sources for same repo)
@@ -38,9 +38,7 @@ def clean_apt_sources() -> List[str]:
 
         # Create base name sets
         list_bases = {os.path.basename(f)[:-5] for f in list_files}  # Remove .list
-        sources_bases = {
-            os.path.basename(f)[:-8] for f in sources_files
-        }  # Remove .sources
+        sources_bases = {os.path.basename(f)[:-8] for f in sources_files}  # Remove .sources
 
         # Find duplicates
         duplicates = list_bases & sources_bases
@@ -53,11 +51,9 @@ def clean_apt_sources() -> List[str]:
                 with open(list_file, "r") as f:
                     if "contrib" in f.read():
                         os.remove(list_file)
-                        issues_fixed.append(
-                            f"Removed {dup}.list (contained invalid contrib)"
-                        )
+                        issues_fixed.append(f"Removed {dup}.list (contained invalid contrib)")
                         continue
-            except:
+            except Exception:
                 pass
 
             # Otherwise prefer .sources format (newer)
@@ -65,7 +61,7 @@ def clean_apt_sources() -> List[str]:
                 try:
                     os.remove(list_file)
                     issues_fixed.append(f"Removed duplicate {dup}.list (kept .sources)")
-                except:
+                except Exception:
                     pass
 
     # 3. Remove any contrib components (Debian-specific, invalid for Ubuntu)
@@ -80,7 +76,7 @@ def clean_apt_sources() -> List[str]:
                 with open(sources_list, "w") as f:
                     f.write(new_content)
                 issues_fixed.append("Removed contrib from /etc/apt/sources.list")
-    except:
+    except Exception:
         pass
 
     # Check sources.list.d files
@@ -96,19 +92,13 @@ def clean_apt_sources() -> List[str]:
                     # Special handling for archive_ubuntu files
                     if "archive_ubuntu" in file and file.endswith(".list"):
                         os.remove(file)
-                        issues_fixed.append(
-                            f"Removed {os.path.basename(file)} (invalid contrib)"
-                        )
+                        issues_fixed.append(f"Removed {os.path.basename(file)} (invalid contrib)")
                     else:
-                        new_content = content.replace(" contrib", "").replace(
-                            "contrib ", ""
-                        )
+                        new_content = content.replace(" contrib", "").replace("contrib ", "")
                         with open(file, "w") as f:
                             f.write(new_content)
-                        issues_fixed.append(
-                            f"Removed contrib from {os.path.basename(file)}"
-                        )
-            except:
+                        issues_fixed.append(f"Removed contrib from {os.path.basename(file)}")
+            except Exception:
                 pass
 
     return issues_fixed
@@ -126,9 +116,7 @@ def check_apt_basic() -> Tuple[bool, str]:
             print()
 
         # Simple check: can we run apt list?
-        result = subprocess.run(
-            ["apt", "list", "--upgradable"], capture_output=True, text=True, timeout=15
-        )
+        result = subprocess.run(["apt", "list", "--upgradable"], capture_output=True, text=True, timeout=15)
 
         if result.returncode == 0:
             return True, "APT is working correctly"

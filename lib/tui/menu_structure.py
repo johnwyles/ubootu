@@ -327,25 +327,15 @@ def build_menu_structure() -> Dict[str, MenuItem]:
         default=True,
     )
 
-    items["pycharm"] = MenuItem(
-        "pycharm", "PyCharm", "JetBrains Python IDE", parent="dev-ides", default=True
-    )
+    items["pycharm"] = MenuItem("pycharm", "PyCharm", "JetBrains Python IDE", parent="dev-ides", default=True)
 
-    items["webstorm"] = MenuItem(
-        "webstorm", "WebStorm", "JetBrains JavaScript IDE", parent="dev-ides"
-    )
+    items["webstorm"] = MenuItem("webstorm", "WebStorm", "JetBrains JavaScript IDE", parent="dev-ides")
 
-    items["sublime"] = MenuItem(
-        "sublime", "Sublime Text", "Sophisticated text editor", parent="dev-ides"
-    )
+    items["sublime"] = MenuItem("sublime", "Sublime Text", "Sophisticated text editor", parent="dev-ides")
 
-    items["vim"] = MenuItem(
-        "vim", "Vim/NeoVim", "Terminal-based text editor", parent="dev-ides"
-    )
+    items["vim"] = MenuItem("vim", "Vim/NeoVim", "Terminal-based text editor", parent="dev-ides")
 
-    items["emacs"] = MenuItem(
-        "emacs", "Emacs", "Extensible text editor", parent="dev-ides"
-    )
+    items["emacs"] = MenuItem("emacs", "Emacs", "Extensible text editor", parent="dev-ides")
 
     # Languages
     items["python"] = MenuItem(
@@ -356,42 +346,26 @@ def build_menu_structure() -> Dict[str, MenuItem]:
         default=True,
     )
 
-    items["nodejs"] = MenuItem(
-        "nodejs", "Node.js", "JavaScript runtime", parent="dev-languages", default=True
-    )
+    items["nodejs"] = MenuItem("nodejs", "Node.js", "JavaScript runtime", parent="dev-languages", default=True)
 
-    items["java"] = MenuItem(
-        "java", "Java", "Java Development Kit", parent="dev-languages", default=True
-    )
+    items["java"] = MenuItem("java", "Java", "Java Development Kit", parent="dev-languages", default=True)
 
-    items["go"] = MenuItem(
-        "go", "Go", "Go programming language", parent="dev-languages"
-    )
+    items["go"] = MenuItem("go", "Go", "Go programming language", parent="dev-languages")
 
-    items["rust"] = MenuItem(
-        "rust", "Rust", "Rust programming language", parent="dev-languages"
-    )
+    items["rust"] = MenuItem("rust", "Rust", "Rust programming language", parent="dev-languages")
 
-    items["cpp"] = MenuItem(
-        "cpp", "C/C++", "GCC compiler and build tools", parent="dev-languages"
-    )
+    items["cpp"] = MenuItem("cpp", "C/C++", "GCC compiler and build tools", parent="dev-languages")
 
     items["php"] = MenuItem("php", "PHP", "PHP interpreter", parent="dev-languages")
 
     items["ruby"] = MenuItem("ruby", "Ruby", "Ruby interpreter", parent="dev-languages")
 
     # Tools
-    items["git"] = MenuItem(
-        "git", "Git", "Version control system", parent="dev-tools", default=True
-    )
+    items["git"] = MenuItem("git", "Git", "Version control system", parent="dev-tools", default=True)
 
-    items["docker"] = MenuItem(
-        "docker", "Docker", "Container platform", parent="dev-tools", default=True
-    )
+    items["docker"] = MenuItem("docker", "Docker", "Container platform", parent="dev-tools", default=True)
 
-    items["postman"] = MenuItem(
-        "postman", "Postman", "API development tool", parent="dev-tools"
-    )
+    items["postman"] = MenuItem("postman", "Postman", "API development tool", parent="dev-tools")
 
     items["mysql-workbench"] = MenuItem(
         "mysql-workbench",
@@ -400,13 +374,9 @@ def build_menu_structure() -> Dict[str, MenuItem]:
         parent="dev-tools",
     )
 
-    items["redis-cli"] = MenuItem(
-        "redis-cli", "Redis CLI", "Redis command line interface", parent="dev-tools"
-    )
+    items["redis-cli"] = MenuItem("redis-cli", "Redis CLI", "Redis command line interface", parent="dev-tools")
 
-    items["curl"] = MenuItem(
-        "curl", "curl", "HTTP client tool", parent="dev-tools", default=True
-    )
+    items["curl"] = MenuItem("curl", "curl", "HTTP client tool", parent="dev-tools", default=True)
 
     # Container & DevOps items
     items["docker-desktop"] = MenuItem(
@@ -424,9 +394,7 @@ def build_menu_structure() -> Dict[str, MenuItem]:
         parent="dev-containers",
     )
 
-    items["terraform"] = MenuItem(
-        "terraform", "Terraform", "Infrastructure as code tool", parent="dev-containers"
-    )
+    items["terraform"] = MenuItem("terraform", "Terraform", "Infrastructure as code tool", parent="dev-containers")
 
     items["ansible"] = MenuItem(
         "ansible",
@@ -444,9 +412,7 @@ def build_menu_structure() -> Dict[str, MenuItem]:
         default=True,
     )
 
-    items["clamav"] = MenuItem(
-        "clamav", "ClamAV", "Open source antivirus", parent="security-basic"
-    )
+    items["clamav"] = MenuItem("clamav", "ClamAV", "Open source antivirus", parent="security-basic")
 
     items["auto-updates"] = MenuItem(
         "auto-updates",
@@ -456,9 +422,7 @@ def build_menu_structure() -> Dict[str, MenuItem]:
         default=True,
     )
 
-    items["fail2ban"] = MenuItem(
-        "fail2ban", "Fail2Ban", "Intrusion prevention system", parent="security-basic"
-    )
+    items["fail2ban"] = MenuItem("fail2ban", "Fail2Ban", "Intrusion prevention system", parent="security-basic")
 
     # Security Tools items
     items["nmap"] = MenuItem(
@@ -468,9 +432,7 @@ def build_menu_structure() -> Dict[str, MenuItem]:
         parent="security-tools",
     )
 
-    items["wireshark"] = MenuItem(
-        "wireshark", "Wireshark", "Network protocol analyzer", parent="security-tools"
-    )
+    items["wireshark"] = MenuItem("wireshark", "Wireshark", "Network protocol analyzer", parent="security-tools")
 
     items["metasploit"] = MenuItem(
         "metasploit",
@@ -486,18 +448,12 @@ def build_menu_structure() -> Dict[str, MenuItem]:
         parent="security-tools",
     )
 
-    items["john"] = MenuItem(
-        "john", "John the Ripper", "Password cracking tool", parent="security-tools"
-    )
+    items["john"] = MenuItem("john", "John the Ripper", "Password cracking tool", parent="security-tools")
 
     # Security Privacy items
-    items["tor"] = MenuItem(
-        "tor", "Tor Browser", "Anonymous web browsing", parent="security-privacy"
-    )
+    items["tor"] = MenuItem("tor", "Tor Browser", "Anonymous web browsing", parent="security-privacy")
 
-    items["veracrypt"] = MenuItem(
-        "veracrypt", "VeraCrypt", "Disk encryption software", parent="security-privacy"
-    )
+    items["veracrypt"] = MenuItem("veracrypt", "VeraCrypt", "Disk encryption software", parent="security-privacy")
 
     items["keepassxc"] = MenuItem(
         "keepassxc",
@@ -507,13 +463,9 @@ def build_menu_structure() -> Dict[str, MenuItem]:
         default=True,
     )
 
-    items["protonvpn"] = MenuItem(
-        "protonvpn", "ProtonVPN", "Secure VPN service", parent="security-privacy"
-    )
+    items["protonvpn"] = MenuItem("protonvpn", "ProtonVPN", "Secure VPN service", parent="security-privacy")
 
-    items["signal"] = MenuItem(
-        "signal", "Signal", "Secure messaging app", parent="security-privacy"
-    )
+    items["signal"] = MenuItem("signal", "Signal", "Secure messaging app", parent="security-privacy")
 
     # Desktop Theme items
     items["dark-theme"] = MenuItem(
@@ -524,13 +476,9 @@ def build_menu_structure() -> Dict[str, MenuItem]:
         default=True,
     )
 
-    items["papirus-icons"] = MenuItem(
-        "papirus-icons", "Papirus Icons", "Modern icon theme", parent="desktop-themes"
-    )
+    items["papirus-icons"] = MenuItem("papirus-icons", "Papirus Icons", "Modern icon theme", parent="desktop-themes")
 
-    items["numix-theme"] = MenuItem(
-        "numix-theme", "Numix Theme", "Flat design theme", parent="desktop-themes"
-    )
+    items["numix-theme"] = MenuItem("numix-theme", "Numix Theme", "Flat design theme", parent="desktop-themes")
 
     items["arc-theme"] = MenuItem(
         "arc-theme",
@@ -595,25 +543,15 @@ def build_menu_structure() -> Dict[str, MenuItem]:
         default=True,
     )
 
-    items["chrome"] = MenuItem(
-        "chrome", "Google Chrome", "Google Chrome web browser", parent="app-browsers"
-    )
+    items["chrome"] = MenuItem("chrome", "Google Chrome", "Google Chrome web browser", parent="app-browsers")
 
-    items["chromium"] = MenuItem(
-        "chromium", "Chromium", "Open source browser", parent="app-browsers"
-    )
+    items["chromium"] = MenuItem("chromium", "Chromium", "Open source browser", parent="app-browsers")
 
-    items["brave"] = MenuItem(
-        "brave", "Brave Browser", "Privacy-focused browser", parent="app-browsers"
-    )
+    items["brave"] = MenuItem("brave", "Brave Browser", "Privacy-focused browser", parent="app-browsers")
 
-    items["opera"] = MenuItem(
-        "opera", "Opera", "Feature-rich web browser", parent="app-browsers"
-    )
+    items["opera"] = MenuItem("opera", "Opera", "Feature-rich web browser", parent="app-browsers")
 
-    items["vivaldi"] = MenuItem(
-        "vivaldi", "Vivaldi", "Customizable web browser", parent="app-browsers"
-    )
+    items["vivaldi"] = MenuItem("vivaldi", "Vivaldi", "Customizable web browser", parent="app-browsers")
 
     items["edge"] = MenuItem(
         "edge",
@@ -622,9 +560,7 @@ def build_menu_structure() -> Dict[str, MenuItem]:
         parent="app-browsers",
     )
 
-    items["waterfox"] = MenuItem(
-        "waterfox", "Waterfox", "Privacy-focused Firefox fork", parent="app-browsers"
-    )
+    items["waterfox"] = MenuItem("waterfox", "Waterfox", "Privacy-focused Firefox fork", parent="app-browsers")
 
     # Application Media items
     items["vlc"] = MenuItem(
@@ -635,21 +571,13 @@ def build_menu_structure() -> Dict[str, MenuItem]:
         default=True,
     )
 
-    items["spotify"] = MenuItem(
-        "spotify", "Spotify", "Music streaming service", parent="app-media"
-    )
+    items["spotify"] = MenuItem("spotify", "Spotify", "Music streaming service", parent="app-media")
 
-    items["gimp"] = MenuItem(
-        "gimp", "GIMP", "GNU Image Manipulation Program", parent="app-media"
-    )
+    items["gimp"] = MenuItem("gimp", "GIMP", "GNU Image Manipulation Program", parent="app-media")
 
-    items["audacity"] = MenuItem(
-        "audacity", "Audacity", "Audio editing software", parent="app-media"
-    )
+    items["audacity"] = MenuItem("audacity", "Audacity", "Audio editing software", parent="app-media")
 
-    items["blender"] = MenuItem(
-        "blender", "Blender", "3D creation suite", parent="app-media"
-    )
+    items["blender"] = MenuItem("blender", "Blender", "3D creation suite", parent="app-media")
 
     # Application Productivity items
     items["libreoffice"] = MenuItem(
@@ -660,26 +588,16 @@ def build_menu_structure() -> Dict[str, MenuItem]:
         default=True,
     )
 
-    items["thunderbird"] = MenuItem(
-        "thunderbird", "Thunderbird", "Email client", parent="app-productivity"
-    )
+    items["thunderbird"] = MenuItem("thunderbird", "Thunderbird", "Email client", parent="app-productivity")
 
-    items["notion"] = MenuItem(
-        "notion", "Notion", "Note-taking and collaboration", parent="app-productivity"
-    )
+    items["notion"] = MenuItem("notion", "Notion", "Note-taking and collaboration", parent="app-productivity")
 
-    items["obsidian"] = MenuItem(
-        "obsidian", "Obsidian", "Knowledge management tool", parent="app-productivity"
-    )
+    items["obsidian"] = MenuItem("obsidian", "Obsidian", "Knowledge management tool", parent="app-productivity")
 
-    items["slack"] = MenuItem(
-        "slack", "Slack", "Team communication", parent="app-productivity"
-    )
+    items["slack"] = MenuItem("slack", "Slack", "Team communication", parent="app-productivity")
 
     # Application Communication items
-    items["discord"] = MenuItem(
-        "discord", "Discord", "Voice and text chat", parent="app-communication"
-    )
+    items["discord"] = MenuItem("discord", "Discord", "Voice and text chat", parent="app-communication")
 
     items["teams"] = MenuItem(
         "teams",
@@ -688,17 +606,11 @@ def build_menu_structure() -> Dict[str, MenuItem]:
         parent="app-communication",
     )
 
-    items["zoom"] = MenuItem(
-        "zoom", "Zoom", "Video conferencing", parent="app-communication"
-    )
+    items["zoom"] = MenuItem("zoom", "Zoom", "Video conferencing", parent="app-communication")
 
-    items["telegram"] = MenuItem(
-        "telegram", "Telegram", "Secure messaging", parent="app-communication"
-    )
+    items["telegram"] = MenuItem("telegram", "Telegram", "Secure messaging", parent="app-communication")
 
-    items["whatsapp"] = MenuItem(
-        "whatsapp", "WhatsApp", "Messaging app", parent="app-communication"
-    )
+    items["whatsapp"] = MenuItem("whatsapp", "WhatsApp", "Messaging app", parent="app-communication")
 
     # System Performance items
     items["preload"] = MenuItem(
@@ -709,9 +621,7 @@ def build_menu_structure() -> Dict[str, MenuItem]:
         default=True,
     )
 
-    items["zram"] = MenuItem(
-        "zram", "ZRAM", "Compressed RAM for better memory usage", parent="system-perf"
-    )
+    items["zram"] = MenuItem("zram", "ZRAM", "Compressed RAM for better memory usage", parent="system-perf")
 
     items["profile-sync"] = MenuItem(
         "profile-sync",
@@ -720,9 +630,7 @@ def build_menu_structure() -> Dict[str, MenuItem]:
         parent="system-perf",
     )
 
-    items["powertop"] = MenuItem(
-        "powertop", "PowerTOP", "Power consumption optimization", parent="system-perf"
-    )
+    items["powertop"] = MenuItem("powertop", "PowerTOP", "Power consumption optimization", parent="system-perf")
 
     items["cpu-governor"] = MenuItem(
         "cpu-governor",
@@ -749,21 +657,13 @@ def build_menu_structure() -> Dict[str, MenuItem]:
     )
 
     # System Services items
-    items["ssh-server"] = MenuItem(
-        "ssh-server", "SSH Server", "Secure Shell server", parent="system-services"
-    )
+    items["ssh-server"] = MenuItem("ssh-server", "SSH Server", "Secure Shell server", parent="system-services")
 
-    items["samba"] = MenuItem(
-        "samba", "Samba", "Windows file sharing", parent="system-services"
-    )
+    items["samba"] = MenuItem("samba", "Samba", "Windows file sharing", parent="system-services")
 
-    items["nfs"] = MenuItem(
-        "nfs", "NFS", "Network File System", parent="system-services"
-    )
+    items["nfs"] = MenuItem("nfs", "NFS", "Network File System", parent="system-services")
 
-    items["cups"] = MenuItem(
-        "cups", "CUPS", "Print server", parent="system-services", default=True
-    )
+    items["cups"] = MenuItem("cups", "CUPS", "Print server", parent="system-services", default=True)
 
     # System Hardware items
     items["nvidia-drivers"] = MenuItem(
@@ -773,9 +673,7 @@ def build_menu_structure() -> Dict[str, MenuItem]:
         parent="system-hardware",
     )
 
-    items["amd-drivers"] = MenuItem(
-        "amd-drivers", "AMD Drivers", "AMD graphics drivers", parent="system-hardware"
-    )
+    items["amd-drivers"] = MenuItem("amd-drivers", "AMD Drivers", "AMD graphics drivers", parent="system-hardware")
 
     items["bluetooth"] = MenuItem(
         "bluetooth",
@@ -793,24 +691,14 @@ def build_menu_structure() -> Dict[str, MenuItem]:
     )
 
     # Desktop environments
-    items["gnome"] = MenuItem(
-        "gnome", "GNOME", "Default Ubuntu desktop", parent="desktop-env", default=True
-    )
+    items["gnome"] = MenuItem("gnome", "GNOME", "Default Ubuntu desktop", parent="desktop-env", default=True)
 
-    items["kde"] = MenuItem(
-        "kde", "KDE Plasma", "Feature-rich desktop environment", parent="desktop-env"
-    )
+    items["kde"] = MenuItem("kde", "KDE Plasma", "Feature-rich desktop environment", parent="desktop-env")
 
-    items["xfce"] = MenuItem(
-        "xfce", "XFCE", "Lightweight desktop environment", parent="desktop-env"
-    )
+    items["xfce"] = MenuItem("xfce", "XFCE", "Lightweight desktop environment", parent="desktop-env")
 
-    items["mate"] = MenuItem(
-        "mate", "MATE", "Traditional desktop environment", parent="desktop-env"
-    )
+    items["mate"] = MenuItem("mate", "MATE", "Traditional desktop environment", parent="desktop-env")
 
-    items["cinnamon"] = MenuItem(
-        "cinnamon", "Cinnamon", "Modern desktop environment", parent="desktop-env"
-    )
+    items["cinnamon"] = MenuItem("cinnamon", "Cinnamon", "Modern desktop environment", parent="desktop-env")
 
     return items

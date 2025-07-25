@@ -74,9 +74,7 @@ class UbootuTUI:
         if not selectable_items:
             return "empty"
 
-        selected_count = sum(
-            1 for item_id in selectable_items if item_id in self.selected_items
-        )
+        selected_count = sum(1 for item_id in selectable_items if item_id in self.selected_items)
 
         if selected_count == 0:
             return "empty"

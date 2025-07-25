@@ -34,9 +34,7 @@ def show_profile_templates():
             style="white",
         )
 
-        panel = Panel(
-            Align.center(title_text), border_style="bright_magenta", padding=(1, 2)
-        )
+        panel = Panel(Align.center(title_text), border_style="bright_magenta", padding=(1, 2))
 
         console.print(panel)
         console.print()

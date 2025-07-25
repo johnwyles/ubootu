@@ -9,9 +9,14 @@ from typing import Dict, Optional, Set
 from lib.tui.config import TUIConfigManager
 from lib.tui.dialogs import TUIDialogs
 from lib.tui.handlers import TUIEventHandler
-from lib.tui.menus import (ApplicationsMenuBuilder, DesktopMenuBuilder,
-                           DevelopmentMenuBuilder, MenuRegistry,
-                           SecurityMenuBuilder, SystemMenuBuilder)
+from lib.tui.menus import (
+    ApplicationsMenuBuilder,
+    DesktopMenuBuilder,
+    DevelopmentMenuBuilder,
+    MenuRegistry,
+    SecurityMenuBuilder,
+    SystemMenuBuilder,
+)
 from lib.tui.models import MenuItem
 from lib.tui.renderer import TUIRenderer
 
@@ -32,9 +37,7 @@ class UbootuTUI:
         self.config_manager = TUIConfigManager(self.menu_items, self.selected_items)
         self.renderer = TUIRenderer(stdscr, self.menu_items, self.selected_items)
         self.dialogs = TUIDialogs(stdscr, self.selected_items)
-        self.event_handler = TUIEventHandler(
-            stdscr, self.menu_items, self.selected_items
-        )
+        self.event_handler = TUIEventHandler(stdscr, self.menu_items, self.selected_items)
 
         # Connect components
         self.event_handler.set_dialog_handler(self.dialogs)
@@ -90,11 +93,17 @@ class UbootuTUI:
             else:
                 # No valid sections selected, show all
                 root_children = all_sections
-                root_desc = "Navigate: ↑↓ arrows, SPACE select, ENTER enter     |     ▶▶▶ PRESS F1 FOR ACTIONS MENU TO START INSTALLATION ◀◀◀"
+                root_desc = (
+                "Navigate: ↑↓ arrows, SPACE select, ENTER enter     |     "
+                "▶▶▶ PRESS F1 FOR ACTIONS MENU TO START INSTALLATION ◀◀◀"
+            )
         else:
             # Show all sections
             root_children = all_sections
-            root_desc = "Navigate: ↑↓ arrows, SPACE select, ENTER enter     |     ▶▶▶ PRESS F1 FOR ACTIONS MENU TO START INSTALLATION ◀◀◀"
+            root_desc = (
+                "Navigate: ↑↓ arrows, SPACE select, ENTER enter     |     "
+                "▶▶▶ PRESS F1 FOR ACTIONS MENU TO START INSTALLATION ◀◀◀"
+            )
 
         items["root"] = MenuItem(
             "root",
@@ -217,9 +226,7 @@ class UbootuTUI:
 
         except KeyboardInterrupt:
             with open("/tmp/debug_tui.log", "a") as f:
-                f.write(
-                    f"TUI LOOP: KeyboardInterrupt caught - setting cancelled=True\n"
-                )
+                f.write(f"TUI LOOP: KeyboardInterrupt caught - setting cancelled=True\n")
             self.cancelled = True
         except Exception as e:
             # Handle any other errors gracefully
@@ -229,9 +236,7 @@ class UbootuTUI:
 
         # Return exit status
         with open("/tmp/debug_tui.log", "a") as f:
-            f.write(
-                f"TUI LOOP ENDED: cancelled={self.cancelled}, returning {0 if not self.cancelled else 1}\n"
-            )
+            f.write(f"TUI LOOP ENDED: cancelled={self.cancelled}, returning {0 if not self.cancelled else 1}\n")
         return 0 if not self.cancelled else 1
 
     def _draw_interface(self):
@@ -272,22 +277,14 @@ def main():
         print("  system      - System configuration")
         print("\nExamples:")
         print("  configure_standard_tui.py              # Configure all sections")
-        print(
-            "  configure_standard_tui.py development  # Configure only development tools"
-        )
-        print(
-            "  configure_standard_tui.py desktop apps # Configure desktop and applications"
-        )
+        print("  configure_standard_tui.py development  # Configure only development tools")
+        print("  configure_standard_tui.py desktop apps # Configure desktop and applications")
         sys.exit(0)
 
     # Check if we're in a terminal
     if not sys.stdout.isatty() and not os.environ.get("FORCE_TUI"):
-        print(
-            "Error: Not running in a terminal. The TUI requires an interactive terminal."
-        )
-        print(
-            "If you're sure you want to run this (e.g., in a script), set FORCE_TUI=1"
-        )
+        print("Error: Not running in a terminal. The TUI requires an interactive terminal.")
+        print("If you're sure you want to run this (e.g., in a script), set FORCE_TUI=1")
         sys.exit(1)
 
     # Check terminal compatibility

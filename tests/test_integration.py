@@ -24,9 +24,7 @@ class TestIntegration:
         from lib.config_validator import ConfigurationValidator
 
         # Test user config
-        user_config = UserConfig(
-            primary_user="testuser", primary_user_shell="/bin/bash"
-        )
+        user_config = UserConfig(primary_user="testuser", primary_user_shell="/bin/bash")
         assert user_config.primary_user == "testuser"
 
         # Test bootstrap config
@@ -286,8 +284,7 @@ class TestIntegration:
     @patch("builtins.open", mock_open(read_data="test: data"))
     def test_config_validator(self, mock_yaml):
         """Test config validator"""
-        from lib.config_validator import (ValidationResult,
-                                          validate_configuration_file)
+        from lib.config_validator import ValidationResult, validate_configuration_file
 
         mock_yaml.return_value = {"test": "data"}
 

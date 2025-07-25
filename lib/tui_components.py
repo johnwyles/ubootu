@@ -271,9 +271,7 @@ class ErrorDetailsDialog:
             # Draw key hints
             hints = "[↑↓] Scroll  [ESC/Q] Close"
             hint_x = (dialog_width - len(hints)) // 2
-            dialog_win.addstr(
-                dialog_height - 1, hint_x, hints, curses.A_DIM | curses.A_REVERSE
-            )
+            dialog_win.addstr(dialog_height - 1, hint_x, hints, curses.A_DIM | curses.A_REVERSE)
 
             dialog_win.refresh()
 

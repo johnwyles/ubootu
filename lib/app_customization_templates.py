@@ -108,9 +108,7 @@ class AppCustomizationTemplates:
                         current_value="jetbrains",
                         allow_custom=True,
                     ),
-                    "font_size": SliderConfig(
-                        min_value=8, max_value=24, current_value=12, step=1, unit="pt"
-                    ),
+                    "font_size": SliderConfig(min_value=8, max_value=24, current_value=12, step=1, unit="pt"),
                     "transparency": SliderConfig(
                         min_value=0,
                         max_value=100,
@@ -121,9 +119,7 @@ class AppCustomizationTemplates:
                     ),
                     "blur": {
                         "enabled": False,
-                        "strength": SliderConfig(
-                            min_value=0, max_value=20, current_value=5, step=1
-                        ),
+                        "strength": SliderConfig(min_value=0, max_value=20, current_value=5, step=1),
                     },
                     "cursor_style": DropdownConfig(
                         options=[
@@ -290,12 +286,8 @@ class AppCustomizationTemplates:
                         current_value="JetBrains Mono",
                         allow_custom=True,
                     ),
-                    "font_size": SliderConfig(
-                        min_value=10, max_value=20, current_value=14, step=1, unit="px"
-                    ),
-                    "line_height": SliderConfig(
-                        min_value=1.0, max_value=3.0, current_value=1.5, step=0.1
-                    ),
+                    "font_size": SliderConfig(min_value=10, max_value=20, current_value=14, step=1, unit="px"),
+                    "line_height": SliderConfig(min_value=1.0, max_value=3.0, current_value=1.5, step=0.1),
                     "enable_ligatures": True,
                     "cursor_style": DropdownConfig(
                         options=[
@@ -707,13 +699,18 @@ class AppCustomizationTemplates:
                             ("df", "diff", True),
                             (
                                 "lg",
-                                "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'",
+                                "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset "
+                                "%s %Cgreen(%cr) %C(bold blue)<%an>%Creset'",
                                 True,
                             ),
                             ("last", "log -1 HEAD", True),
                             ("unstage", "reset HEAD --", True),
                             ("amend", "commit --amend", True),
-                            ("aliases", "config --get-regexp alias", True),
+                            (
+                                "aliases",
+                                "config --get-regexp alias",
+                                True,
+                            ),
                         ],
                         max_selections=None,
                         min_selections=0,
@@ -849,9 +846,7 @@ class AppCustomizationTemplates:
                         current_value="JetBrainsMono Nerd Font",
                         allow_custom=True,
                     ),
-                    "font_size": SliderConfig(
-                        min_value=10, max_value=20, current_value=13, step=1, unit="pt"
-                    ),
+                    "font_size": SliderConfig(min_value=10, max_value=20, current_value=13, step=1, unit="pt"),
                     "line_numbers": DropdownConfig(
                         options=[
                             ("number", "Absolute"),
@@ -1115,12 +1110,8 @@ class AppCustomizationTemplates:
             categories=["mouse", "keyboard", "display", "power", "sound"],
             settings={
                 "mouse": {
-                    "speed": SliderConfig(
-                        min_value=-1.0, max_value=1.0, current_value=0.0, step=0.1
-                    ),
-                    "acceleration": SliderConfig(
-                        min_value=1.0, max_value=10.0, current_value=2.0, step=0.5
-                    ),
+                    "speed": SliderConfig(min_value=-1.0, max_value=1.0, current_value=0.0, step=0.1),
+                    "acceleration": SliderConfig(min_value=1.0, max_value=10.0, current_value=2.0, step=0.5),
                     "natural_scrolling": True,
                     "tap_to_click": True,
                     "two_finger_scrolling": True,
@@ -1561,9 +1552,7 @@ class AppCustomizationTemplates:
                         allow_custom=False,
                     ),
                     "enable_animations": True,
-                    "animation_speed": SliderConfig(
-                        min_value=0.1, max_value=2.0, current_value=1.0, step=0.1
-                    ),
+                    "animation_speed": SliderConfig(min_value=0.1, max_value=2.0, current_value=1.0, step=0.1),
                 },
                 "behavior": {
                     "click_action": DropdownConfig(
@@ -1623,9 +1612,7 @@ class AppCustomizationTemplates:
                         current_value="left",
                         allow_custom=False,
                     ),
-                    "icon_size": SliderConfig(
-                        min_value=16, max_value=128, current_value=48, step=8, unit="px"
-                    ),
+                    "icon_size": SliderConfig(min_value=16, max_value=128, current_value=48, step=8, unit="px"),
                     "autohide": True,
                     "autohide_delay": SliderConfig(
                         min_value=0.0,
@@ -1892,10 +1879,7 @@ class AppCustomizationTemplates:
 
     def list_templates(self) -> List[Tuple[str, str, str]]:
         """List all available templates"""
-        return [
-            (name, template.display_name, template.icon)
-            for name, template in self.templates.items()
-        ]
+        return [(name, template.display_name, template.icon) for name, template in self.templates.items()]
 
     def apply_preset(self, template_name: str, preset_name: str) -> Dict[str, Any]:
         """Apply a preset to get settings"""

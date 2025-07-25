@@ -58,13 +58,9 @@ class SystemMenuBuilder(MenuBuilder):
             ],
         )
 
-        self.add_selectable(
-            "preload", "Preload", "Application prefetching daemon", parent="system-perf"
-        )
+        self.add_selectable("preload", "Preload", "Application prefetching daemon", parent="system-perf")
 
-        self.add_selectable(
-            "zram", "ZRAM", "Compressed RAM block device", parent="system-perf"
-        )
+        self.add_selectable("zram", "ZRAM", "Compressed RAM block device", parent="system-perf")
 
         self.add_selectable(
             "profile-sync",
@@ -73,9 +69,7 @@ class SystemMenuBuilder(MenuBuilder):
             parent="system-perf",
         )
 
-        self.add_selectable(
-            "powertop", "PowerTOP", "Power consumption analyzer", parent="system-perf"
-        )
+        self.add_selectable("powertop", "PowerTOP", "Power consumption analyzer", parent="system-perf")
 
         self.add_configurable(
             "cpu-governor",
@@ -164,13 +158,9 @@ class SystemMenuBuilder(MenuBuilder):
         )
 
         # File sharing
-        self.add_selectable(
-            "samba", "Samba", "Windows file sharing", parent="system-services"
-        )
+        self.add_selectable("samba", "Samba", "Windows file sharing", parent="system-services")
 
-        self.add_selectable(
-            "nfs", "NFS Server", "Network File System server", parent="system-services"
-        )
+        self.add_selectable("nfs", "NFS Server", "Network File System server", parent="system-services")
 
         self.add_selectable(
             "ftp-server",
@@ -181,9 +171,7 @@ class SystemMenuBuilder(MenuBuilder):
         )
 
         # System services
-        self.add_selectable(
-            "cups", "CUPS", "Common Unix Printing System", parent="system-services"
-        )
+        self.add_selectable("cups", "CUPS", "Common Unix Printing System", parent="system-services")
 
         self.add_selectable(
             "cron-jobs",

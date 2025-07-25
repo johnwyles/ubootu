@@ -6,11 +6,9 @@ Browse and manage configuration history
 
 import curses
 import sys
-from typing import List, Tuple
 
 from lib.profile_manager import ProfileManager
-from lib.tui_dialogs import (ConfirmDialog, ListDialog, MessageDialog,
-                             TextInputDialog)
+from lib.tui_dialogs import ConfirmDialog, ListDialog, MessageDialog, TextInputDialog
 
 
 class HistoryViewer:
@@ -61,9 +59,7 @@ class HistoryViewer:
         selectable_items = [(id, name) for id, name in items if id != "__spacer__"]
 
         dialog = ListDialog(self.stdscr)
-        selected = dialog.show(
-            title="Configuration History", items=selectable_items, multi_select=False
-        )
+        selected = dialog.show(title="Configuration History", items=selectable_items, multi_select=False)
 
         if selected:
             return selected[0]
@@ -96,9 +92,7 @@ class HistoryViewer:
         try:
             if self.profile_mgr.restore_from_commit(commit_hash):
                 msg_dialog = MessageDialog(self.stdscr)
-                msg_dialog.show(
-                    "Success", f"Configuration restored from {commit_hash}", "info"
-                )
+                msg_dialog.show("Success", f"Configuration restored from {commit_hash}", "info")
             else:
                 msg_dialog = MessageDialog(self.stdscr)
                 msg_dialog.show("Error", "Failed to restore configuration", "error")
@@ -122,18 +116,14 @@ class HistoryViewer:
             return
 
         # Get second commit
-        commit2 = input_dialog.show(
-            title="View Diff", prompt="Enter second commit hash:", default=""
-        )
+        commit2 = input_dialog.show(title="View Diff", prompt="Enter second commit hash:", default="")
 
         if not commit2:
             return
 
         # Get diff
         try:
-            diff = self.profile_mgr.diff_profiles(
-                commit1 if commit1 != "current" else None, commit2
-            )
+            diff = self.profile_mgr.diff_profiles(commit1 if commit1 != "current" else None, commit2)
 
             # Show diff in a scrollable dialog
             # For now, just show a message with truncated diff

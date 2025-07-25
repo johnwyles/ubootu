@@ -5,9 +5,8 @@ Allows users to select and apply saved profiles
 """
 
 import curses
-import os
 import sys
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import yaml
 
@@ -48,9 +47,7 @@ def show_profile_selector(stdscr) -> Optional[str]:
         selectable_items = [(id, name) for id, name in items if not id.startswith("__")]
 
         dialog = ListDialog(stdscr)
-        selected = dialog.show(
-            title="Select Profile to Apply", items=selectable_items, multi_select=False
-        )
+        selected = dialog.show(title="Select Profile to Apply", items=selectable_items, multi_select=False)
 
         if selected:
             return selected[0]
@@ -82,9 +79,7 @@ def apply_profile(stdscr, profile_id: str) -> bool:
             yaml.dump(config, f, default_flow_style=False)
 
         msg_dialog = MessageDialog(stdscr)
-        msg_dialog.show(
-            "Success", f"Profile '{profile_name}' loaded successfully", "info"
-        )
+        msg_dialog.show("Success", f"Profile '{profile_name}' loaded successfully", "info")
         return True
 
     except Exception as e:

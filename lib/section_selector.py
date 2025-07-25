@@ -53,9 +53,7 @@ def show_section_selector(stdscr) -> List[str]:
         for section_id in selected:
             for sid, name in sections:
                 if sid == section_id:
-                    selected_names.append(
-                        name.split(" - ")[0]
-                    )  # Get just the emoji and name
+                    selected_names.append(name.split(" - ")[0])  # Get just the emoji and name
                     break
 
         confirm_msg = f"You have selected {len(selected)} section(s) to configure:\n\n"
@@ -67,16 +65,12 @@ def show_section_selector(stdscr) -> List[str]:
         if not confirm_dialog.show("Confirm Selection", confirm_msg, default=True):
             # User cancelled, show message and return empty
             msg_dialog = MessageOverlay(stdscr)
-            msg_dialog.show(
-                "Cancelled", "Configuration cancelled. Returning to main menu.", "info"
-            )
+            msg_dialog.show("Cancelled", "Configuration cancelled. Returning to main menu.", "info")
             return []
     else:
         # No sections selected
         msg_dialog = MessageOverlay(stdscr)
-        msg_dialog.show(
-            "No Selection", "No sections were selected. Returning to main menu.", "info"
-        )
+        msg_dialog.show("No Selection", "No sections were selected. Returning to main menu.", "info")
 
     return selected
 
@@ -92,7 +86,7 @@ def main():
 
         return 0
 
-    except Exception as e:
+    except Exception:
         # On error, write empty selection
         with open("/tmp/selected_sections.txt", "w") as f:
             f.write("")

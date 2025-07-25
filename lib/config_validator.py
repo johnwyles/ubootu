@@ -11,16 +11,19 @@ import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 # Add lib to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
 
-from lib.config_models import (BootstrapConfiguration, DesktopEnvironment,
-                               DevelopmentLanguage, GlobalTheme, Shell,
-                               TaskbarPosition)
-from lib.error_handling import (BootstrapError, ErrorCode, ValidationError,
-                                get_logger, raise_config_error)
+from lib.config_models import (  # noqa: E402
+    BootstrapConfiguration,
+    DesktopEnvironment,
+    DevelopmentLanguage,
+    GlobalTheme,
+    Shell,
+)
+from lib.error_handling import get_logger  # noqa: E402
 
 
 @dataclass
@@ -107,31 +110,22 @@ class ConfigurationValidator:
             result.add_error(f"Validation system error: {e}")
             return result
 
-    def _validate_basic_fields(
-        self, config: BootstrapConfiguration, result: ValidationResult
-    ) -> None:
+    def _validate_basic_fields(self, config: BootstrapConfiguration, result: ValidationResult) -> None:
         """Validate basic field constraints"""
 
         # System validation
         if config.system.swappiness_value < 0 or config.system.swappiness_value > 100:
             result.add_error("Swappiness value must be between 0 and 100")
 
-        if config.system.timezone and not self._is_valid_timezone(
-            config.system.timezone
-        ):
+        if config.system.timezone and not self._is_valid_timezone(config.system.timezone):
             result.add_warning(f"Timezone '{config.system.timezone}' may not be valid")
 
         # Desktop validation
-        if (
-            config.desktop.desktop_icon_size < 16
-            or config.desktop.desktop_icon_size > 256
-        ):
+        if config.desktop.desktop_icon_size < 16 or config.desktop.desktop_icon_size > 256:
             result.add_error("Desktop icon size must be between 16 and 256 pixels")
 
         # User validation
-        if config.user.primary_user and not self._is_valid_username(
-            config.user.primary_user
-        ):
+        if config.user.primary_user and not self._is_valid_username(config.user.primary_user):
             result.add_error(f"Invalid username format: {config.user.primary_user}")
 
         # Development validation
@@ -143,37 +137,27 @@ class ConfigurationValidator:
         # Dotfiles validation
         if config.dotfiles.configure_dotfiles and config.dotfiles.dotfiles_repo:
             if not self._is_valid_git_url(config.dotfiles.dotfiles_repo):
-                result.add_error(
-                    f"Invalid Git repository URL: {config.dotfiles.dotfiles_repo}"
-                )
+                result.add_error(f"Invalid Git repository URL: {config.dotfiles.dotfiles_repo}")
 
         # Updates validation
         if config.updates.automatic_reboot_time:
             if not self._is_valid_time_format(config.updates.automatic_reboot_time):
-                result.add_error(
-                    f"Invalid time format: {config.updates.automatic_reboot_time}"
-                )
+                result.add_error(f"Invalid time format: {config.updates.automatic_reboot_time}")
 
-    def _validate_business_logic(
-        self, config: BootstrapConfiguration, result: ValidationResult
-    ) -> None:
+    def _validate_business_logic(self, config: BootstrapConfiguration, result: ValidationResult) -> None:
         """Validate business logic and application-specific rules"""
 
         # If development tools are disabled, warn about related settings
         if not config.development.enable_development_tools:
             if config.development.install_vscode:
-                result.add_warning(
-                    "VS Code selected but development tools are disabled"
-                )
+                result.add_warning("VS Code selected but development tools are disabled")
             if config.development.install_docker:
                 result.add_warning("Docker selected but development tools are disabled")
 
         # Desktop environment specific validation
         if config.desktop.desktop_environment == DesktopEnvironment.KDE:
             if config.desktop.global_theme == GlobalTheme.NONE:
-                result.add_info(
-                    "Consider selecting a global theme for better KDE experience"
-                )
+                result.add_info("Consider selecting a global theme for better KDE experience")
 
         # Security validation
         if config.security.enable_security:
@@ -196,27 +180,18 @@ class ConfigurationValidator:
             if not config.backup.backup_destination:
                 result.add_error("Backup enabled but no destination specified")
 
-    def _validate_dependencies(
-        self, config: BootstrapConfiguration, result: ValidationResult
-    ) -> None:
+    def _validate_dependencies(self, config: BootstrapConfiguration, result: ValidationResult) -> None:
         """Validate dependencies between configuration options"""
 
         # Docker requires docker group
         if config.development.install_docker:
             if "docker" not in config.user.create_user_groups:
-                result.add_error(
-                    "Docker installation requires 'docker' group in user groups"
-                )
+                result.add_error("Docker installation requires 'docker' group in user groups")
 
         # SSH security settings dependencies
-        if (
-            not config.security.ssh_password_authentication
-            and not config.security.ssh_permit_root_login
-        ):
+        if not config.security.ssh_password_authentication and not config.security.ssh_permit_root_login:
             # This is actually good security practice
-            result.add_info(
-                "SSH configured with key-based authentication only - ensure SSH keys are set up"
-            )
+            result.add_info("SSH configured with key-based authentication only - ensure SSH keys are set up")
 
         # Desktop environment and applications
         if config.desktop.desktop_environment == DesktopEnvironment.GNOME:
@@ -228,57 +203,35 @@ class ConfigurationValidator:
 
         # Development language dependencies
         if DevelopmentLanguage.TYPESCRIPT in config.development.development_languages:
-            if (
-                DevelopmentLanguage.NODEJS
-                not in config.development.development_languages
-            ):
-                result.add_warning(
-                    "TypeScript selected but Node.js is not - consider adding Node.js"
-                )
+            if DevelopmentLanguage.NODEJS not in config.development.development_languages:
+                result.add_warning("TypeScript selected but Node.js is not - consider adding Node.js")
 
         # Package management validation
-        if (
-            not config.package_management.enable_flatpak
-            and not config.package_management.enable_snap
-        ):
-            result.add_warning(
-                "Both Flatpak and Snap are disabled - some applications may not be available"
-            )
+        if not config.package_management.enable_flatpak and not config.package_management.enable_snap:
+            result.add_warning("Both Flatpak and Snap are disabled - some applications may not be available")
 
-    def _validate_security_settings(
-        self, config: BootstrapConfiguration, result: ValidationResult
-    ) -> None:
+    def _validate_security_settings(self, config: BootstrapConfiguration, result: ValidationResult) -> None:
         """Validate security-related settings"""
 
         # Check for secure configurations
         if config.security.ssh_permit_root_login:
-            result.add_warning(
-                "SSH root login is enabled - consider disabling for security"
-            )
+            result.add_warning("SSH root login is enabled - consider disabling for security")
 
         if config.security.ssh_password_authentication:
-            result.add_warning(
-                "SSH password authentication enabled - consider using key-based auth only"
-            )
+            result.add_warning("SSH password authentication enabled - consider using key-based auth only")
 
         if not config.security.enable_firewall:
             result.add_warning("Firewall is disabled - consider enabling for security")
 
         # Automatic updates security
         if config.updates.enable_automatic_updates and config.updates.automatic_reboot:
-            result.add_info(
-                "Automatic updates with reboot enabled - ensure this won't disrupt workflows"
-            )
+            result.add_info("Automatic updates with reboot enabled - ensure this won't disrupt workflows")
 
         # Development tools security
         if config.development.install_docker and config.security.enable_security:
-            result.add_info(
-                "Docker with security hardening - review Docker daemon security settings"
-            )
+            result.add_info("Docker with security hardening - review Docker daemon security settings")
 
-    def _validate_compatibility(
-        self, config: BootstrapConfiguration, result: ValidationResult
-    ) -> None:
+    def _validate_compatibility(self, config: BootstrapConfiguration, result: ValidationResult) -> None:
         """Validate compatibility between different settings"""
 
         # Desktop environment compatibility
@@ -304,30 +257,23 @@ class ConfigurationValidator:
                 config.desktop.global_theme not in de_compat[de]["themes"]
                 and config.desktop.global_theme != GlobalTheme.NONE
             ):
-                result.add_warning(
-                    f"Theme {config.desktop.global_theme.value} may not be optimal with {de.value}"
-                )
+                result.add_warning(f"Theme {config.desktop.global_theme.value} may not be optimal with {de.value}")
 
         # Performance settings compatibility
         if config.system.enable_performance_tweaks:
             if config.system.swappiness_value > 20:
-                result.add_info(
-                    "Performance tweaks enabled but swappiness is high - consider lowering to 1-10"
-                )
+                result.add_info("Performance tweaks enabled but swappiness is high - consider lowering to 1-10")
 
         # Resource usage validation
         heavy_apps = ["blender", "gimp", "libreoffice", "jetbrains"]
         selected_heavy = [
             app
-            for app in config.applications.multimedia_apps
-            + config.applications.productivity_apps
+            for app in config.applications.multimedia_apps + config.applications.productivity_apps
             if any(heavy in app.lower() for heavy in heavy_apps)
         ]
 
         if len(selected_heavy) > 3:
-            result.add_info(
-                "Many resource-intensive applications selected - ensure adequate system resources"
-            )
+            result.add_info("Many resource-intensive applications selected - ensure adequate system resources")
 
     def _build_validation_rules(self) -> List[ValidationRule]:
         """Build list of validation rules"""
@@ -443,9 +389,9 @@ class SchemaValidator:
 
         # Check required fields
         required = schema.get("required", [])
-        for field in required:
-            if field not in data:
-                result.add_error(f"Required field missing: {path}.{field}")
+        for required_field in required:
+            if required_field not in data:
+                result.add_error(f"Required field missing: {path}.{required_field}")
 
         # Check field types and values
         properties = schema.get("properties", {})
@@ -478,9 +424,7 @@ class SchemaValidator:
 
         # Enum validation
         if "enum" in schema and value not in schema["enum"]:
-            result.add_error(
-                f"Field {path} must be one of: {', '.join(map(str, schema['enum']))}"
-            )
+            result.add_error(f"Field {path} must be one of: {', '.join(map(str, schema['enum']))}")
 
         # Range validation
         if field_type in ["integer", "number"]:
@@ -492,13 +436,9 @@ class SchemaValidator:
         # String validation
         if field_type == "string":
             if "minLength" in schema and len(value) < schema["minLength"]:
-                result.add_error(
-                    f"Field {path} must be at least {schema['minLength']} characters"
-                )
+                result.add_error(f"Field {path} must be at least {schema['minLength']} characters")
             if "maxLength" in schema and len(value) > schema["maxLength"]:
-                result.add_error(
-                    f"Field {path} must be no more than {schema['maxLength']} characters"
-                )
+                result.add_error(f"Field {path} must be no more than {schema['maxLength']} characters")
             if "pattern" in schema and not re.match(schema["pattern"], value):
                 result.add_error(f"Field {path} format is invalid")
 
@@ -603,13 +543,9 @@ def main():
     """CLI entry point for configuration validation"""
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Validate Ubuntu Bootstrap configuration"
-    )
+    parser = argparse.ArgumentParser(description="Validate Ubuntu Bootstrap configuration")
     parser.add_argument("config_file", help="Configuration file to validate")
-    parser.add_argument(
-        "--strict", action="store_true", help="Treat warnings as errors"
-    )
+    parser.add_argument("--strict", action="store_true", help="Treat warnings as errors")
 
     args = parser.parse_args()
 

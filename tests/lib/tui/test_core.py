@@ -175,9 +175,7 @@ class TestUbootuTUI:
         tui = UbootuTUI(mock_stdscr)
 
         # Mock menu items
-        tui.config_manager.get_current_menu_items.return_value = [
-            MenuItem("item1", "Item 1", "Description")
-        ]
+        tui.config_manager.get_current_menu_items.return_value = [MenuItem("item1", "Item 1", "Description")]
 
         tui._draw_interface()
 
@@ -291,9 +289,7 @@ class TestMain:
     @patch("sys.stdout.isatty", return_value=True)
     @patch("lib.terminal_check.can_run_tui", side_effect=Exception("Check failed"))
     @patch("lib.tui.core.run_tui", return_value=0)
-    def test_terminal_check_exception(
-        self, mock_run_tui, mock_can_run, mock_isatty, capsys
-    ):
+    def test_terminal_check_exception(self, mock_run_tui, mock_can_run, mock_isatty, capsys):
         """Test when terminal check raises exception."""
         with pytest.raises(SystemExit) as exc_info:
             main()

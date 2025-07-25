@@ -148,9 +148,7 @@ class ListDialog(TUIDialog):
             if scroll_offset > 0:
                 self.stdscr.addstr(list_start_y - 1, dialog_x + dialog_width - 3, "↑")
             if scroll_offset + list_height < len(items):
-                self.stdscr.addstr(
-                    list_start_y + list_height, dialog_x + dialog_width - 3, "↓"
-                )
+                self.stdscr.addstr(list_start_y + list_height, dialog_x + dialog_width - 3, "↓")
 
             self.stdscr.refresh()
 
@@ -447,9 +445,7 @@ class MessageDialog(TUIDialog):
             self.stdscr.addstr(dialog_y + 2 + i, dialog_x + 3, line)
 
         # Draw instruction
-        self.center_text(
-            dialog_y + dialog_height - 2, "Press any key to continue", curses.A_DIM
-        )
+        self.center_text(dialog_y + dialog_height - 2, "Press any key to continue", curses.A_DIM)
 
         self.stdscr.refresh()
         self.stdscr.getch()

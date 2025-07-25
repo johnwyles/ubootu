@@ -8,8 +8,7 @@ from unittest.mock import MagicMock, Mock, call, patch
 import pytest
 
 import lib.menu_ui
-from lib.menu_ui import (DropdownConfig, MenuOption, MenuUI, MultiSelectConfig,
-                         SliderConfig, create_menu_ui)
+from lib.menu_ui import DropdownConfig, MenuOption, MenuUI, MultiSelectConfig, SliderConfig, create_menu_ui
 
 
 class TestMenuUi:
@@ -29,9 +28,7 @@ class TestMenuUi:
 
     def test_menu_option_class(self):
         """Test MenuOption class"""
-        option = MenuOption(
-            key="t", icon="🔧", title="Test Option", description="Test description"
-        )
+        option = MenuOption(key="t", icon="🔧", title="Test Option", description="Test description")
         assert option.title == "Test Option"
         assert option.key == "t"
         assert option.description == "Test description"
@@ -47,17 +44,13 @@ class TestMenuUi:
     def test_config_classes(self):
         """Test configuration dataclasses"""
         # Test SliderConfig
-        slider = SliderConfig(
-            min_value=0, max_value=100, current_value=50, step=5, unit="%"
-        )
+        slider = SliderConfig(min_value=0, max_value=100, current_value=50, step=5, unit="%")
         assert slider.min_value == 0
         assert slider.max_value == 100
         assert slider.current_value == 50
 
         # Test DropdownConfig
-        dropdown = DropdownConfig(
-            options=[("opt1", "Option 1"), ("opt2", "Option 2")], current_value="opt1"
-        )
+        dropdown = DropdownConfig(options=[("opt1", "Option 1"), ("opt2", "Option 2")], current_value="opt1")
         assert len(dropdown.options) == 2
         assert dropdown.current_value == "opt1"
 

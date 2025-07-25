@@ -55,9 +55,7 @@ def test_main_script_imports():
         # Test importing from the main script's perspective
         from lib.tui import main, run_tui
 
-        print(
-            "✓ Main TUI functions imported successfully from configure_standard_tui.py perspective"
-        )
+        print("✓ Main TUI functions imported successfully from configure_standard_tui.py perspective")
     except ImportError as e:
         raise AssertionError(f"Failed to import main TUI functions: {e}")
 

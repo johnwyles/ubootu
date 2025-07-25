@@ -105,15 +105,11 @@ class TUISplash:
 
             # Draw title and tagline
             self.draw_centered_text(logo_start + 8, "🚀 UBOOTU 🚀", 0, True)
-            self.draw_centered_text(
-                logo_start + 9, "Ubuntu Desktop Configuration Tool", 0
-            )
+            self.draw_centered_text(logo_start + 9, "Ubuntu Desktop Configuration Tool", 0)
             self.draw_centered_text(logo_start + 10, "Version 2.0", 0)
 
             # Draw loading
-            self.draw_centered_text(
-                logo_start + 12, f"Loading Ubootu... {progress}%", 0
-            )
+            self.draw_centered_text(logo_start + 12, f"Loading Ubootu... {progress}%", 0)
             self.draw_progress_bar(logo_start + 13, progress)
 
             self.stdscr.refresh()

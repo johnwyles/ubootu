@@ -9,13 +9,11 @@ import os
 import subprocess
 import sys
 import time
-from typing import List, Tuple
+from typing import Tuple
 
 from lib.menu_dialog import MenuDialog
-from lib.tui_components import (CommandResult, ErrorDetailsDialog, HelpOverlay,
-                                KeyHintBar)
-from lib.tui_dialogs import (ConfirmDialog, ListDialog, MessageDialog,
-                             ProgressDialog)
+from lib.tui_components import CommandResult, ErrorDetailsDialog, HelpOverlay, KeyHintBar
+from lib.tui_dialogs import ConfirmDialog, MessageDialog, ProgressDialog
 
 
 class QuickActions:
@@ -134,14 +132,10 @@ class QuickActions:
                 timeout=300,  # 5 minute timeout
             )
             duration = time.time() - start_time
-            return CommandResult(
-                command, result.returncode, result.stdout, result.stderr, duration
-            )
+            return CommandResult(command, result.returncode, result.stdout, result.stderr, duration)
         except subprocess.TimeoutExpired:
             duration = time.time() - start_time
-            return CommandResult(
-                command, -1, "", "Command timed out after 5 minutes", duration
-            )
+            return CommandResult(command, -1, "", "Command timed out after 5 minutes", duration)
         except Exception as e:
             duration = time.time() - start_time
             return CommandResult(command, -1, "", str(e), duration)
@@ -157,9 +151,7 @@ class QuickActions:
         ):
             return
 
-        progress = ProgressDialog(
-            self.stdscr, "Fixing Packages", "Running package repairs..."
-        )
+        progress = ProgressDialog(self.stdscr, "Fixing Packages", "Running package repairs...")
         results = []
 
         # Step 1: Configure dpkg
@@ -169,9 +161,7 @@ class QuickActions:
 
         # Step 2: Fix broken install
         progress.update(50, "Fixing broken dependencies...")
-        result2 = self.run_command(
-            "sudo apt --fix-broken install -y", "Fix broken packages"
-        )
+        result2 = self.run_command("sudo apt --fix-broken install -y", "Fix broken packages")
         results.append(result2)
 
         # Step 3: Update package lists
@@ -202,9 +192,7 @@ class QuickActions:
         ):
             return
 
-        progress = ProgressDialog(
-            self.stdscr, "Updating Packages", "Checking for updates..."
-        )
+        progress = ProgressDialog(self.stdscr, "Updating Packages", "Checking for updates...")
         results = []
 
         # Step 1: Update package lists
@@ -231,7 +219,7 @@ class QuickActions:
                     # Extract number from "X upgraded, Y newly installed..."
                     parts = upgrade_output.split("upgraded,")[0].split()
                     packages_upgraded = int(parts[-1])
-                except:
+                except Exception:
                     pass
 
             msg = MessageDialog(self.stdscr)
@@ -262,9 +250,7 @@ class QuickActions:
 
         # Check what will be removed first
         progress.update(10, "Checking removable packages...")
-        check_result = self.run_command(
-            "apt-get --dry-run autoremove", "Check removable packages"
-        )
+        check_result = self.run_command("apt-get --dry-run autoremove", "Check removable packages")
 
         # Parse how much space will be freed
         space_freed = "unknown amount of"
@@ -272,19 +258,13 @@ class QuickActions:
             try:
                 for line in check_result.stdout.split("\n"):
                     if "freed" in line:
-                        space_freed = (
-                            line.split("freed")[0].split()[-2]
-                            + " "
-                            + line.split("freed")[0].split()[-1]
-                        )
+                        space_freed = line.split("freed")[0].split()[-2] + " " + line.split("freed")[0].split()[-1]
                         break
-            except:
+            except Exception:
                 pass
 
         # Step 1: Autoremove
-        progress.update(
-            33, f"Removing unused packages (will free {space_freed} space)..."
-        )
+        progress.update(33, f"Removing unused packages (will free {space_freed} space)...")
         result1 = self.run_command("sudo apt autoremove -y", "Remove unused packages")
         results.append(result1)
 
@@ -311,29 +291,21 @@ class QuickActions:
     def check_system_health(self):
         """Check system health with detailed report"""
 
-        progress = ProgressDialog(
-            self.stdscr, "System Health Check", "Gathering system information..."
-        )
+        progress = ProgressDialog(self.stdscr, "System Health Check", "Gathering system information...")
 
         health_info = []
         issues_found = 0
 
         # Check failed services
         progress.update(20, "Checking system services...")
-        result = self.run_command(
-            "systemctl list-units --state=failed --no-pager", "Check failed services"
-        )
+        result = self.run_command("systemctl list-units --state=failed --no-pager", "Check failed services")
         if result.success:
-            failed_lines = [
-                l for l in result.stdout.strip().split("\n") if l and "●" in l
-            ]
+            failed_lines = [line for line in result.stdout.strip().split("\n") if line and "●" in line]
             if failed_lines:
                 issues_found += len(failed_lines)
                 health_info.append(f"⚠️  {len(failed_lines)} failed system services:")
                 for line in failed_lines[:3]:  # Show first 3
-                    service_name = (
-                        line.split()[1] if len(line.split()) > 1 else "unknown"
-                    )
+                    service_name = line.split()[1] if len(line.split()) > 1 else "unknown"
                     health_info.append(f"   - {service_name}")
                 if len(failed_lines) > 3:
                     health_info.append(f"   ... and {len(failed_lines) - 3} more")
@@ -355,20 +327,14 @@ class QuickActions:
                         total = parts[1]
 
                         if usage > 90:
-                            health_info.append(
-                                f"❌ Critical: Disk usage at {usage}% ({used}/{total})"
-                            )
+                            health_info.append(f"❌ Critical: Disk usage at {usage}% ({used}/{total})")
                             issues_found += 1
                         elif usage > 80:
-                            health_info.append(
-                                f"⚠️  Warning: Disk usage at {usage}% ({used}/{total})"
-                            )
+                            health_info.append(f"⚠️  Warning: Disk usage at {usage}% ({used}/{total})")
                             issues_found += 1
                         else:
-                            health_info.append(
-                                f"✅ Disk usage: {usage}% ({used}/{total})"
-                            )
-            except:
+                            health_info.append(f"✅ Disk usage: {usage}% ({used}/{total})")
+            except Exception:
                 health_info.append("❓ Could not determine disk usage")
 
         # Check memory
@@ -383,11 +349,9 @@ class QuickActions:
                         total = parts[1]
                         used = parts[2]
                         available = parts[6] if len(parts) > 6 else parts[3]
-                        health_info.append(
-                            f"💾 Memory: {used}/{total} used, {available} available"
-                        )
+                        health_info.append(f"💾 Memory: {used}/{total} used, {available} available")
                         break
-            except:
+            except Exception:
                 health_info.append("❓ Could not determine memory usage")
 
         # Check load average
@@ -403,14 +367,10 @@ class QuickActions:
                     health_info.append(f"❌ High load: {load_part} (CPUs: {cpu_count})")
                     issues_found += 1
                 elif loads[0] > cpu_count:
-                    health_info.append(
-                        f"⚠️  Moderate load: {load_part} (CPUs: {cpu_count})"
-                    )
+                    health_info.append(f"⚠️  Moderate load: {load_part} (CPUs: {cpu_count})")
                 else:
-                    health_info.append(
-                        f"✅ Load average: {load_part} (CPUs: {cpu_count})"
-                    )
-            except:
+                    health_info.append(f"✅ Load average: {load_part} (CPUs: {cpu_count})")
+            except Exception:
                 health_info.append("❓ Could not determine system load")
 
         # Check for security updates
@@ -423,13 +383,11 @@ class QuickActions:
             try:
                 security_updates = int(result.stdout.strip())
                 if security_updates > 0:
-                    health_info.append(
-                        f"🔒 {security_updates} security updates available"
-                    )
+                    health_info.append(f"🔒 {security_updates} security updates available")
                     issues_found += 1
                 else:
                     health_info.append("✅ No security updates pending")
-            except:
+            except Exception:
                 pass
 
         progress.update(100, "Complete!")
@@ -441,16 +399,12 @@ class QuickActions:
             title = "System Health Report - System Healthy"
 
         msg = MessageDialog(self.stdscr)
-        msg.show(
-            title, "\n".join(health_info), "info" if issues_found == 0 else "warning"
-        )
+        msg.show(title, "\n".join(health_info), "info" if issues_found == 0 else "warning")
 
     def security_audit(self):
         """Run comprehensive security audit"""
 
-        progress = ProgressDialog(
-            self.stdscr, "Security Audit", "Running security checks..."
-        )
+        progress = ProgressDialog(self.stdscr, "Security Audit", "Running security checks...")
         security_info = []
         security_score = 100
 
@@ -484,17 +438,13 @@ class QuickActions:
             try:
                 failed_attempts = int(result.stdout.strip())
                 if failed_attempts > 100:
-                    security_info.append(
-                        f"⚠️  {failed_attempts} failed login attempts in past week"
-                    )
+                    security_info.append(f"⚠️  {failed_attempts} failed login attempts in past week")
                     security_score -= 15
                 elif failed_attempts > 0:
-                    security_info.append(
-                        f"🔍 {failed_attempts} failed login attempts in past week"
-                    )
+                    security_info.append(f"🔍 {failed_attempts} failed login attempts in past week")
                 else:
                     security_info.append("✅ No failed login attempts")
-            except:
+            except Exception:
                 pass
 
         # Check password policies
@@ -524,9 +474,7 @@ class QuickActions:
         else:
             grade = "F"
 
-        security_info.insert(
-            0, f"Security Score: {security_score}/100 (Grade: {grade})"
-        )
+        security_info.insert(0, f"Security Score: {security_score}/100 (Grade: {grade})")
         security_info.insert(1, "")
 
         msg = MessageDialog(self.stdscr)
@@ -547,9 +495,7 @@ class QuickActions:
         ):
             return
 
-        progress = ProgressDialog(
-            self.stdscr, "Resetting Defaults", "Running Ansible playbook..."
-        )
+        progress = ProgressDialog(self.stdscr, "Resetting Defaults", "Running Ansible playbook...")
 
         progress.update(50, "Applying default configurations...")
         result = self.run_command(
@@ -574,9 +520,7 @@ class QuickActions:
             menu_items.append((action["id"], action["name"], action["desc"]))
 
         # Add back option
-        menu_items.append(
-            ("__back__", "← Back to Main Menu", "Return to the main Ubootu menu")
-        )
+        menu_items.append(("__back__", "← Back to Main Menu", "Return to the main Ubootu menu"))
 
         # Create menu dialog
         menu = MenuDialog(self.stdscr)
@@ -607,10 +551,7 @@ class QuickActions:
                 if action:
                     # Show action-specific help and confirm
                     confirm = ConfirmDialog(self.stdscr)
-                    help_msg = (
-                        "\n".join(action["help"])
-                        + "\n\nDo you want to run this action?"
-                    )
+                    help_msg = "\n".join(action["help"]) + "\n\nDo you want to run this action?"
                     if confirm.show(action["name"], help_msg, default=True):
                         return selected_id
                     # Otherwise, continue showing menu

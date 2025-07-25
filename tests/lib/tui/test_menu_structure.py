@@ -226,12 +226,8 @@ class TestBuildMenuStructure:
         for item_id, item in items.items():
             if item.children:
                 for child_id in item.children:
-                    assert (
-                        child_id in items
-                    ), f"Child {child_id} of {item_id} does not exist"
-                    assert (
-                        items[child_id].parent == item_id
-                    ), f"Child {child_id} parent mismatch"
+                    assert child_id in items, f"Child {child_id} of {item_id} does not exist"
+                    assert items[child_id].parent == item_id, f"Child {child_id} parent mismatch"
 
     def test_no_circular_references(self):
         """Test that there are no circular parent-child references."""
@@ -253,9 +249,7 @@ class TestBuildMenuStructure:
             return False
 
         for item_id in items:
-            assert not check_circular(
-                item_id
-            ), f"Circular reference detected for {item_id}"
+            assert not check_circular(item_id), f"Circular reference detected for {item_id}"
 
     def test_menu_item_ids_are_unique(self):
         """Test that all menu item IDs are unique."""
@@ -270,9 +264,7 @@ class TestBuildMenuStructure:
         for item_id, item in items.items():
             if item.is_category and item_id != "actions":
                 assert item.children, f"Category {item_id} has no children"
-                assert (
-                    len(item.children) > 0
-                ), f"Category {item_id} has empty children list"
+                assert len(item.children) > 0, f"Category {item_id} has empty children list"
 
     def test_non_categories_have_no_children(self):
         """Test that non-category items don't have children."""
@@ -307,9 +299,7 @@ class TestBuildMenuStructure:
 
         for item_id, item in items.items():
             assert item.description, f"Item {item_id} has no description"
-            assert (
-                len(item.description) > 5
-            ), f"Item {item_id} has too short description"
+            assert len(item.description) > 5, f"Item {item_id} has too short description"
 
     def test_specific_menu_items_exist(self):
         """Test that specific expected menu items exist."""

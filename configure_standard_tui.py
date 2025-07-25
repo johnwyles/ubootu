@@ -12,8 +12,7 @@ import sys
 # Add the lib directory to the Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "lib"))
 
-# Import the new modular TUI
-from tui import main, run_tui
+from tui import main, run_tui  # noqa: E402
 
 
 # Maintain backward compatibility with the original interface

@@ -244,9 +244,7 @@ def test_color_constant_values(color_name, expected_value):
     assert getattr(colors, color_name) == expected_value
 
 
-@pytest.mark.parametrize(
-    "status", ["full", "partial", "empty", "selected", "unknown", "", None]
-)
+@pytest.mark.parametrize("status", ["full", "partial", "empty", "selected", "unknown", "", None])
 def test_get_category_color_parametrized(status):
     """Parametrized test for get_category_color"""
     result = colors.get_category_color(str(status) if status is not None else "None")

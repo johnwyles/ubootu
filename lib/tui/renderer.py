@@ -31,16 +31,12 @@ class TUIRenderer:
 
             # Count total selectable items
             total_items = sum(
-                1
-                for item in self.menu_items.values()
-                if not item.is_category and item.parent != "actions"
+                1 for item in self.menu_items.values() if not item.is_category and item.parent != "actions"
             )
             selected_count = len(self.selected_items)
 
             # Title with selection count
-            title = (
-                f"✨ UBOOTU - Ubuntu System Setup [{selected_count}/{total_items}] ✨"
-            )
+            title = f"✨ UBOOTU - Ubuntu System Setup [{selected_count}/{total_items}] ✨"
             safe_title = title.encode("ascii", "ignore").decode("ascii")
             if not safe_title.strip():
                 safe_title = f"=== UBOOTU - Ubuntu System Setup [{selected_count}/{total_items}] ==="
@@ -57,18 +53,14 @@ class TUIRenderer:
 
                 breadcrumb_path = self.get_breadcrumb()
                 if breadcrumb_path:
-                    breadcrumb = (
-                        f"📍 {breadcrumb_path} | Press BACKSPACE/ESC/LEFT/B to go back"
-                    )
+                    breadcrumb = f"📍 {breadcrumb_path} | Press BACKSPACE/ESC/LEFT/B to go back"
                 else:
                     breadcrumb = f"📍 Main Menu | Press Q to quit"
 
                 safe_breadcrumb = breadcrumb.encode("ascii", "ignore").decode("ascii")
                 if not safe_breadcrumb.strip():
                     if breadcrumb_path:
-                        safe_breadcrumb = (
-                            f"-> {breadcrumb_path} | BACKSPACE/ESC/LEFT/B=Back"
-                        )
+                        safe_breadcrumb = f"-> {breadcrumb_path} | BACKSPACE/ESC/LEFT/B=Back"
                     else:
                         safe_breadcrumb = f"-> Main Menu | Q=Quit"
 
@@ -142,9 +134,7 @@ class TUIRenderer:
                 self.scroll_offset = self.current_item - display_height + 1
 
             # Draw menu items
-            for i, item in enumerate(
-                menu_items[self.scroll_offset : self.scroll_offset + display_height]
-            ):
+            for i, item in enumerate(menu_items[self.scroll_offset : self.scroll_offset + display_height]):
                 item_index = i + self.scroll_offset
                 y = start_y + i
 
@@ -218,9 +208,7 @@ class TUIRenderer:
         if not selectable_items:
             return "empty"
 
-        selected_count = sum(
-            1 for item_id in selectable_items if item_id in self.selected_items
-        )
+        selected_count = sum(1 for item_id in selectable_items if item_id in self.selected_items)
 
         if selected_count == 0:
             return "empty"
@@ -328,9 +316,7 @@ class TUIRenderer:
 
             current_category = self.menu_items[self.current_menu]
             category_items = self.get_all_selectable_items(self.current_menu)
-            category_selected = sum(
-                1 for item_id in category_items if item_id in self.selected_items
-            )
+            category_selected = sum(1 for item_id in category_items if item_id in self.selected_items)
 
             if category_items:
                 stats = f"Category: {category_selected}/{len(category_items)} | Total: {selected_count}"

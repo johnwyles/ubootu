@@ -97,21 +97,13 @@ class DevelopmentMenuBuilder(MenuBuilder):
             default=True,
         )
 
-        self.add_selectable(
-            "webstorm", "WebStorm", "JetBrains JavaScript IDE", parent="dev-ides"
-        )
+        self.add_selectable("webstorm", "WebStorm", "JetBrains JavaScript IDE", parent="dev-ides")
 
-        self.add_selectable(
-            "sublime", "Sublime Text", "Sophisticated text editor", parent="dev-ides"
-        )
+        self.add_selectable("sublime", "Sublime Text", "Sophisticated text editor", parent="dev-ides")
 
-        self.add_selectable(
-            "vim", "Vim/NeoVim", "Terminal-based text editor", parent="dev-ides"
-        )
+        self.add_selectable("vim", "Vim/NeoVim", "Terminal-based text editor", parent="dev-ides")
 
-        self.add_selectable(
-            "emacs", "Emacs", "Extensible text editor", parent="dev-ides"
-        )
+        self.add_selectable("emacs", "Emacs", "Extensible text editor", parent="dev-ides")
 
         self.add_selectable(
             "clion",
@@ -252,21 +244,13 @@ class DevelopmentMenuBuilder(MenuBuilder):
             default=True,
         )
 
-        self.add_selectable(
-            "java", "Java", "Java Development Kit", parent="dev-languages", default=True
-        )
+        self.add_selectable("java", "Java", "Java Development Kit", parent="dev-languages", default=True)
 
-        self.add_selectable(
-            "go", "Go", "Go programming language", parent="dev-languages"
-        )
+        self.add_selectable("go", "Go", "Go programming language", parent="dev-languages")
 
-        self.add_selectable(
-            "rust", "Rust", "Rust programming language", parent="dev-languages"
-        )
+        self.add_selectable("rust", "Rust", "Rust programming language", parent="dev-languages")
 
-        self.add_selectable(
-            "cpp", "C/C++", "GCC compiler and build tools", parent="dev-languages"
-        )
+        self.add_selectable("cpp", "C/C++", "GCC compiler and build tools", parent="dev-languages")
 
         self.add_selectable("php", "PHP", "PHP interpreter", parent="dev-languages")
 
@@ -309,17 +293,11 @@ class DevelopmentMenuBuilder(MenuBuilder):
         )
 
         # Tool items
-        self.add_selectable(
-            "git", "Git", "Version control system", parent="dev-tools", default=True
-        )
+        self.add_selectable("git", "Git", "Version control system", parent="dev-tools", default=True)
 
-        self.add_selectable(
-            "docker", "Docker", "Container platform", parent="dev-tools", default=True
-        )
+        self.add_selectable("docker", "Docker", "Container platform", parent="dev-tools", default=True)
 
-        self.add_selectable(
-            "postman", "Postman", "API development tool", parent="dev-tools"
-        )
+        self.add_selectable("postman", "Postman", "API development tool", parent="dev-tools")
 
         self.add_selectable(
             "mysql-workbench",
@@ -328,13 +306,9 @@ class DevelopmentMenuBuilder(MenuBuilder):
             parent="dev-tools",
         )
 
-        self.add_selectable(
-            "redis-cli", "Redis CLI", "Redis command line interface", parent="dev-tools"
-        )
+        self.add_selectable("redis-cli", "Redis CLI", "Redis command line interface", parent="dev-tools")
 
-        self.add_selectable(
-            "curl", "curl", "HTTP client tool", parent="dev-tools", default=True
-        )
+        self.add_selectable("curl", "curl", "HTTP client tool", parent="dev-tools", default=True)
 
         self.add_selectable(
             "insomnia",
