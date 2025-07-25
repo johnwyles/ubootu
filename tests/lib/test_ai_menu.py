@@ -6,12 +6,13 @@ Comprehensive tests for AI/ML menu in enhanced_menu_ui
 import os
 import sys
 from unittest.mock import MagicMock, patch
+
 import pytest
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-from lib.enhanced_menu_ui import MenuItem, EnhancedMenuUI, HELP_DESCRIPTIONS
+from lib.enhanced_menu_ui import HELP_DESCRIPTIONS, EnhancedMenuUI, MenuItem
 
 
 class TestAIMLMenu:
