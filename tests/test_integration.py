@@ -45,7 +45,7 @@ class TestIntegration:
 
         # Create UI instance
         ui = EnhancedMenuUI()
-        
+
         # Verify we have many items
         assert len(ui.menu_items) > 100
 
