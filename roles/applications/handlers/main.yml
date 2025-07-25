@@ -2,11 +2,11 @@
 # Handlers for applications role
 
 - name: update desktop database
-  ansible.builtin.shell: update-desktop-database
+  ansible.builtin.command: update-desktop-database
   become: yes
   changed_when: true
 
 - name: update mime database
-  ansible.builtin.shell: update-mime-database /usr/share/mime
+  ansible.builtin.command: update-mime-database /usr/share/mime
   become: yes
   changed_when: true

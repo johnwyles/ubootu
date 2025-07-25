@@ -2,7 +2,7 @@
 # Configure default applications
 
 - name: Get current default browser
-  ansible.builtin.shell: xdg-settings get default-web-browser
+  ansible.builtin.command: xdg-settings get default-web-browser
   register: current_browser
   changed_when: false
   failed_when: false
@@ -21,8 +21,9 @@
           {%- else -%}firefox.desktop{%- endif -%}
 
     - name: Set default browser via xdg-settings
-      ansible.builtin.shell: xdg-settings set default-web-browser {{ browser_desktop_file }}
+      ansible.builtin.command: xdg-settings set default-web-browser {{ browser_desktop_file }}
       when: current_browser.stdout != browser_desktop_file
+      changed_when: true
 
     - name: Update alternatives for x-www-browser
       alternatives:
