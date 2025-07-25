@@ -589,6 +589,222 @@ ansible_variables:
 5. **Ansible Version**: Updated to 2.19 (was 2.15)
 6. **YAML Compliance**: Fixed indentation to meet strict yamllint requirements
 
+## 🎯 TUI Unification Plan (July 2025)
+
+### Problem Statement
+
+The Ubootu project currently has **three different menu systems** causing user confusion:
+
+1. **Curses-based menus** (single-line boxes: ┌──────────┐)
+   - Located in: `lib/tui_splash.py`, `lib/section_selector.py`
+   - Used for: Initial splash, section selection
+
+2. **Rich-based menus** (double-line boxes: ╔══════════╗)
+   - Located in: `lib/menu_ui.py`
+   - Used for: Some dialogs
+
+3. **Enhanced Rich menu** (modern UI with emojis)
+   - Located in: `lib/enhanced_menu_ui.py`
+   - Used for: Main configuration interface
+
+### Solution: Unified Curses-Based TUI
+
+**Goal**: One consistent menu system throughout the entire application using curses.
+
+### Test-Driven Development Plan
+
+#### Phase 1: Write Tests First (Week 1)
+
+```python
+# tests/lib/tui/test_unified_menu.py
+class TestUnifiedMenu:
+    def test_menu_rendering_consistency(self):
+        """All menus use same box drawing characters"""
+    
+    def test_navigation_keys(self):
+        """Arrow keys, space, enter work consistently"""
+    
+    def test_selection_persistence(self):
+        """Selections maintained across menu transitions"""
+    
+    def test_help_system(self):
+        """F1 shows help for current item"""
+    
+    def test_no_console_drops(self):
+        """Never drops to console except sudo"""
+
+# tests/lib/tui/test_sudo_dialog.py
+class TestSudoDialog:
+    def test_password_masking(self):
+        """Password input is masked with asterisks"""
+    
+    def test_sudo_dialog_rendering(self):
+        """Dialog appears as curses overlay"""
+    
+    def test_sudo_caching(self):
+        """Can cache sudo for session"""
+
+# tests/integration/test_full_flow.py
+class TestFullUserJourney:
+    def test_complete_flow_no_drops(self):
+        """Start to finish without console drops"""
+    
+    def test_all_menu_transitions(self):
+        """Every menu transition stays in TUI"""
+```
+
+#### Phase 2: Core Implementation (Week 2)
+
+**File Structure**:
+```
+lib/tui/
+├── __init__.py
+├── unified_menu.py      # Single menu system
+├── menu_items.py        # All menu definitions
+├── dialogs.py          # All dialog types
+├── sudo_dialog.py      # Sudo password handling
+├── constants.py        # Visual constants
+└── utils.py           # Helper functions
+```
+
+**Key Classes**:
+```python
+# lib/tui/unified_menu.py
+class UnifiedMenu:
+    """Single menu system for entire application"""
+    
+    def __init__(self, stdscr):
+        self.stdscr = stdscr
+        self.current_menu = "root"
+        self.selections = {}
+        
+    def render(self):
+        """Consistent rendering for all menus"""
+        
+    def navigate(self, key):
+        """Unified navigation handling"""
+
+# lib/tui/sudo_dialog.py
+class SudoDialog:
+    """Curses-based sudo password dialog"""
+    
+    def get_password(self, message="Enter sudo password:"):
+        """Show password dialog, return password"""
+        # Uses curses.textpad for masked input
+        # Never drops to console
+```
+
+#### Phase 3: Visual Design Specification
+
+**Consistent Box Drawing**:
+```
+┌─────────────────────────────────────────────┐
+│          🚀 Ubootu Configuration           │
+├─────────────────────────────────────────────┤
+│                                             │
+│  ○ Development Tools                        │
+│     Programming languages, IDEs, tools      │
+│                                             │
+│  ● AI & Machine Learning                    │
+│     AI tools, ML frameworks, LLMs           │
+│                                             │
+│  ◐ Desktop Environment                      │
+│     Desktop environments and themes         │
+│                                             │
+├─────────────────────────────────────────────┤
+│ ↑↓ Navigate  Space Select  → Enter         │
+│ ← Back      H Help        Q Quit           │
+└─────────────────────────────────────────────┘
+```
+
+**Selection Indicators**:
+- `○` = No items selected
+- `◐` = Some items selected  
+- `●` = All items selected
+- `[X]` = Individual item selected
+- `[ ]` = Individual item not selected
+
+#### Phase 4: Migration Plan (Week 3)
+
+1. **Update entry points**:
+   ```python
+   # configure_standard_tui.py
+   from lib.tui.unified_menu import UnifiedMenu
+   
+   def main():
+       curses.wrapper(run_unified_tui)
+   ```
+
+2. **Update setup.sh**:
+   - Remove all Rich imports
+   - Use only unified TUI
+   - Remove menu choice logic
+
+3. **Delete old files**:
+   - `lib/enhanced_menu_ui.py`
+   - `lib/enhanced_menu_ui_old.py`
+   - `lib/menu_ui.py`
+   - All Rich-based menu code
+
+#### Phase 5: Testing Strategy
+
+**Local Testing Before Every Commit**:
+```bash
+# 1. Run unit tests
+pytest tests/lib/tui/ -v
+
+# 2. Run integration tests  
+pytest tests/integration/ -v
+
+# 3. Run exactly what GitHub Actions runs
+python3 tests/run_tests.py
+pytest tests/ -v --cov=lib --cov-report=term-missing
+
+# 4. Test multiple Python versions
+python3.8 -m pytest tests/
+python3.11 -m pytest tests/
+python3.13 -m pytest tests/
+
+# 5. Run ansible-lint
+ansible-lint
+
+# 6. Only commit after ALL pass
+```
+
+### Implementation Commands
+
+```bash
+# Create test structure
+mkdir -p tests/lib/tui
+mkdir -p lib/tui
+
+# Run tests in watch mode during development
+pytest-watch tests/lib/tui/ -v
+
+# Always verify GitHub Actions locally
+act -j "Run Tests"  # Uses act to run GH Actions locally
+```
+
+### Key Benefits
+
+1. **Consistency**: One menu system, one look
+2. **No Console Drops**: Pure TUI experience
+3. **Test Coverage**: 95%+ coverage requirement
+4. **Maintainability**: Single codebase
+5. **Compatibility**: Works in all terminals
+
+### Success Criteria
+
+- [ ] All menus use identical visual style
+- [ ] No drops to console (except sudo if needed)
+- [ ] All tests pass locally before commits
+- [ ] GitHub Actions pass on first try
+- [ ] User never sees multiple menu styles
+- [ ] Help available on every screen
+- [ ] Sudo password in curses dialog
+
+This plan ensures professional, consistent TUI throughout Ubootu.
+
 ---
 
 **Last Updated**: July 2025
