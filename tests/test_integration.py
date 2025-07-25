@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 class TestIntegration:
     """Integration tests for broader coverage"""
 
+    @pytest.mark.integration
     @patch("builtins.open", mock_open(read_data="test config data"))
     @patch("os.path.exists", return_value=True)
     def test_config_loading(self, mock_exists):
@@ -36,6 +37,7 @@ class TestIntegration:
         validator = ConfigurationValidator()
         assert validator is not None
 
+    @pytest.mark.integration
     def test_menu_builders_integration(self):
         """Test all menu builders together"""
         from lib.tui.menus.applications import ApplicationsMenuBuilder
@@ -68,6 +70,7 @@ class TestIntegration:
         assert "security" in all_items
         assert "system" in all_items
 
+    @pytest.mark.integration
     @patch("curses.initscr")
     @patch("curses.curs_set")
     def test_terminal_utilities(self, mock_curs_set, mock_initscr):
@@ -88,6 +91,7 @@ class TestIntegration:
         tc = TerminalCustomization()
         assert tc is not None
 
+    @pytest.mark.integration
     def test_error_handling_module(self):
         """Test error handling functionality"""
         from lib.error_handling import ErrorCode, ValidationError, get_logger
@@ -105,6 +109,7 @@ class TestIntegration:
         except ValidationError as e:
             assert "Test error" in str(e)
 
+    @pytest.mark.integration
     def test_app_defaults(self):
         """Test app defaults loading"""
         from lib.app_defaults import AppDefaults, get_app_defaults
@@ -117,6 +122,7 @@ class TestIntegration:
         defaults = get_app_defaults()
         assert isinstance(defaults, AppDefaults)
 
+    @pytest.mark.integration
     def test_profile_management(self):
         """Test profile manager functionality"""
         from lib.profile_manager import ProfileManager
@@ -131,6 +137,7 @@ class TestIntegration:
             # Method exists but we don't know its signature
             assert callable(pm.save_profile)
 
+    @pytest.mark.integration
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", mock_open())
     def test_backup_config(self, mock_exists):
@@ -141,6 +148,7 @@ class TestIntegration:
         # Just test that module is importable
         assert lib.backup_config_tui is not None
 
+    @pytest.mark.integration
     def test_menu_dialog(self):
         """Test menu dialog functionality"""
         # Module might require specific initialization
@@ -149,6 +157,7 @@ class TestIntegration:
         # Just test that module is importable
         assert lib.menu_dialog is not None
 
+    @pytest.mark.integration
     @patch("curses.initscr")
     def test_tui_components(self, mock_initscr):
         """Test TUI components"""
@@ -161,6 +170,7 @@ class TestIntegration:
         # Just test that module is importable
         assert lib.tui_components is not None
 
+    @pytest.mark.integration
     @patch("curses.initscr")
     def test_tui_dialogs(self, mock_initscr):
         """Test TUI dialog functionality"""
@@ -174,6 +184,7 @@ class TestIntegration:
         # Just test that module is importable
         assert lib.tui_dialogs is not None
 
+    @pytest.mark.integration
     def test_section_selector(self):
         """Test section selector"""
         # Module might not export SectionSelector class
@@ -182,6 +193,7 @@ class TestIntegration:
         # Just test that module is importable
         assert lib.section_selector is not None
 
+    @pytest.mark.integration
     def test_quick_actions(self):
         """Test quick actions functionality"""
         # Module might not export these specific classes
@@ -190,6 +202,7 @@ class TestIntegration:
         # Just test that module is importable
         assert lib.quick_actions_tui is not None
 
+    @pytest.mark.integration
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", mock_open(read_data="template content"))
     def test_profile_selector(self, mock_exists):
@@ -200,6 +213,7 @@ class TestIntegration:
         # Just test that module is importable
         assert lib.profile_selector is not None
 
+    @pytest.mark.integration
     @patch("os.path.exists", return_value=True)
     def test_show_profile_templates(self, mock_exists):
         """Test profile templates"""
@@ -209,6 +223,7 @@ class TestIntegration:
         # Just test that module is importable
         assert lib.show_profile_templates is not None
 
+    @pytest.mark.integration
     def test_help_viewer(self):
         """Test help viewer"""
         # Module might not export these specific classes
@@ -217,6 +232,7 @@ class TestIntegration:
         # Just test that module is importable
         assert lib.help_viewer is not None
 
+    @pytest.mark.integration
     def test_history_viewer(self):
         """Test history viewer"""
         # Module might not export these specific classes
@@ -225,6 +241,7 @@ class TestIntegration:
         # Just test that module is importable
         assert lib.history_viewer is not None
 
+    @pytest.mark.integration
     @patch("curses.initscr")
     def test_overlay_dialog(self, mock_initscr):
         """Test overlay dialog"""
@@ -238,6 +255,7 @@ class TestIntegration:
         # Just test that module is importable
         assert lib.overlay_dialog is not None
 
+    @pytest.mark.integration
     @patch("curses.wrapper")
     def test_tui_splash(self, mock_wrapper):
         """Test TUI splash screen"""
@@ -250,6 +268,7 @@ class TestIntegration:
         # Just test that module is importable
         assert lib.tui_splash is not None
 
+    @pytest.mark.integration
     @patch("time.sleep")
     @patch("os.system")
     def test_ubootu_splash(self, mock_system, mock_sleep):
@@ -260,6 +279,7 @@ class TestIntegration:
         # Just test that module is importable
         assert lib.ubootu_splash is not None
 
+    @pytest.mark.integration
     def test_app_customization_templates(self):
         """Test app customization templates"""
         # Module might not export these specific functions
@@ -268,6 +288,7 @@ class TestIntegration:
         # Just test that module is importable
         assert lib.app_customization_templates is not None
 
+    @pytest.mark.integration
     @patch("subprocess.run")
     def test_apt_fixer(self, mock_run):
         """Test APT fixer functionality"""
@@ -280,6 +301,7 @@ class TestIntegration:
         # Just test that module is importable
         assert lib.apt_fixer is not None
 
+    @pytest.mark.integration
     @patch("yaml.safe_load")
     @patch("builtins.open", mock_open(read_data="test: data"))
     def test_config_validator(self, mock_yaml):
@@ -291,6 +313,7 @@ class TestIntegration:
         # Test that we can import the validation function
         assert callable(validate_configuration_file)
 
+    @pytest.mark.integration
     def test_menu_ui_imports(self):
         """Test menu UI module imports"""
         try:
