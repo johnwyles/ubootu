@@ -15,7 +15,7 @@ This document provides everything needed for Claude Code to work effectively wit
 - **Menu Categories**: 15+ major categories
 - **Test Coverage**: Target 90% (Currently ~38% with 251 passing tests)
 - **Supported Ubuntu**: 20.04, 22.04, 24.04 LTS
-- **Python Support**: 3.8, 3.9, 3.10, 3.11, 3.12
+- **Python Support**: 3.8, 3.9, 3.10, 3.11, 3.12, 3.13
 - **CI/CD**: GitHub Actions with comprehensive test matrix
 
 ### Project Genesis
@@ -253,7 +253,7 @@ python3 -c "import yaml; yaml.safe_load(open('config.yml'))"
 - **Integration Tests**: Test complete workflows  
 - **Coverage Target**: 90% (currently ~38%)
 - **Test Status**: 288 tests collected, 251 passing, 28 failing, 9 errors
-- **CI/CD**: GitHub Actions running on Python 3.8-3.12
+- **CI/CD**: GitHub Actions running on Python 3.8-3.13
 
 ### Running Tests
 ```bash
@@ -585,7 +585,7 @@ ansible_variables:
 1. **Python 3.8 Compatibility**: Added `from __future__ import annotations` imports
 2. **Test Infrastructure**: Fixed 260+ test import issues, achieving 251 passing tests
 3. **CI/CD Updates**: Upgraded all GitHub Actions to latest versions
-4. **Python Version**: Default CI now uses Python 3.12 (was 3.11)
+4. **Python Version**: Default CI now uses Python 3.13 (was 3.12)
 5. **Ansible Version**: Updated to 2.19 (was 2.15)
 6. **YAML Compliance**: Fixed indentation to meet strict yamllint requirements
 
