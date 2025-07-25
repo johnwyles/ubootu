@@ -11,7 +11,10 @@
 
 - name: Download and extract Gitleaks
   ansible.builtin.unarchive:
-    src: "{{ gitleaks_release.json.assets | selectattr('name', 'match', '.*linux_x64\\.tar\\.gz$') | map(attribute='browser_download_url') | first }}"
+    src: >-
+      {{ gitleaks_release.json.assets |
+         selectattr('name', 'match', '.*linux_x64\\.tar\\.gz$') |
+         map(attribute='browser_download_url') | first }}
     dest: /usr/local/bin
     remote_src: yes
     mode: '0755'
@@ -32,7 +35,10 @@
 
 - name: Download and extract TruffleHog
   ansible.builtin.unarchive:
-    src: "{{ trufflehog_release.json.assets | selectattr('name', 'match', '.*linux_amd64\\.tar\\.gz$') | map(attribute='browser_download_url') | first }}"
+    src: >-
+      {{ trufflehog_release.json.assets |
+         selectattr('name', 'match', '.*linux_amd64\\.tar\\.gz$') |
+         map(attribute='browser_download_url') | first }}
     dest: /usr/local/bin
     remote_src: yes
     mode: '0755'
@@ -180,7 +186,8 @@
 
     - name: Install PHP Security Checker
       ansible.builtin.shell: |
-        curl -OL https://github.com/fabpot/local-php-security-checker/releases/download/v2.0.6/local-php-security-checker_2.0.6_linux_amd64
+        curl -OL \
+          https://github.com/fabpot/local-php-security-checker/releases/download/v2.0.6/local-php-security-checker_2.0.6_linux_amd64
         chmod +x local-php-security-checker_2.0.6_linux_amd64
         mv local-php-security-checker_2.0.6_linux_amd64 /usr/local/bin/local-php-security-checker
       become: yes

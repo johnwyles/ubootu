@@ -7,10 +7,10 @@ exclude_paths:
 
 # Skip non-critical rules
 skip_list:
-  - yaml[comments]  
-  - name[play]      
-  - name[prefix]    
-  - fqcn[action]    
+  - yaml[comments]
+  - name[play]
+  - name[prefix]
+  - fqcn[action]
   - fqcn[action-core]
   - var-naming[no-role-prefix]
   - name[casing]

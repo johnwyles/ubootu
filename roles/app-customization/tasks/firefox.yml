@@ -3,6 +3,7 @@
 
 - name: Find Firefox profile directory
   ansible.builtin.shell: |
+    set -o pipefail
     find /home/{{ primary_user }}/.mozilla/firefox -name "*.default-release" -type d | head -1
   register: firefox_profile_dir
   become: yes
@@ -21,7 +22,9 @@
 
 - name: Set Firefox profile directory
   ansible.builtin.set_fact:
-    firefox_profile_path: "{{ firefox_profile_dir.stdout if firefox_profile_dir.stdout != '' else '/home/' + primary_user + '/.mozilla/firefox/' + primary_user + '.default-release' }}"
+    firefox_profile_path: >-
+      {{ firefox_profile_dir.stdout if firefox_profile_dir.stdout != ''
+         else '/home/' + primary_user + '/.mozilla/firefox/' + primary_user + '.default-release' }}
 
 - name: Configure Firefox user.js preferences
   ansible.builtin.template:

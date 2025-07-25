@@ -2,7 +2,7 @@
 # Git customizations
 
 - name: Configure Git global settings
-  ansible.builtin.git_config:
+  community.general.git_config:
     name: "{{ item.name }}"
     value: "{{ item.value }}"
     scope: global
@@ -12,7 +12,7 @@
   when: git_global_config is defined
 
 - name: Configure Git aliases
-  ansible.builtin.git_config:
+  community.general.git_config:
     name: "alias.{{ item.name }}"
     value: "{{ item.value }}"
     scope: global
@@ -22,7 +22,7 @@
   when: git_aliases is defined
 
 - name: Setup Git user information
-  ansible.builtin.git_config:
+  community.general.git_config:
     name: "{{ item.name }}"
     value: "{{ item.value }}"
     scope: global
@@ -36,7 +36,7 @@
   when: git_user_name is defined or git_user_email is defined
 
 - name: Configure Git commit signing
-  ansible.builtin.git_config:
+  community.general.git_config:
     name: "{{ item.name }}"
     value: "{{ item.value }}"
     scope: global
@@ -59,7 +59,7 @@
   become: yes
 
 - name: Configure global Git ignore
-  ansible.builtin.git_config:
+  community.general.git_config:
     name: core.excludesfile
     value: "/home/{{ primary_user }}/.gitignore_global"
     scope: global
@@ -67,7 +67,7 @@
   become_user: "{{ primary_user }}"
 
 - name: Configure Git credential helper
-  ansible.builtin.git_config:
+  community.general.git_config:
     name: credential.helper
     value: "cache --timeout=3600"
     scope: global
