@@ -5,14 +5,15 @@ Comprehensive unit tests for enhanced_menu_ui module
 
 import os
 import sys
-from unittest.mock import MagicMock, Mock, patch, call, mock_open
+from unittest.mock import MagicMock, Mock, call, mock_open, patch
+
 import pytest
 import yaml
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-from lib.enhanced_menu_ui import MenuItem, EnhancedMenuUI, HELP_DESCRIPTIONS, run_tui, main
+from lib.enhanced_menu_ui import HELP_DESCRIPTIONS, EnhancedMenuUI, MenuItem, main, run_tui
 
 
 class TestMenuItem:
