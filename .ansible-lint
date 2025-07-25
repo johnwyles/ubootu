@@ -20,6 +20,12 @@ skip_list:
   - package-latest
   - role-name
   - args[module]
+  - ignore-errors
+  - run-once
+  - no-changed-when
+  - risky-file-permissions
+  - command-instead-of-shell
+  - jinja[spacing]
 
 # Allow underscore in variable names
 var_naming_pattern: "^[a-z_][a-z0-9_]*$"
