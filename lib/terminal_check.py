@@ -79,7 +79,11 @@ def test_curses_basic(interactive=True):
 
         def test_screen(stdscr):
             # Basic setup
-            curses.curs_set(0)
+            try:
+                curses.curs_set(0)
+            except curses.error:
+                # Some terminals don't support cursor visibility changes
+                pass
             stdscr.keypad(True)
 
             # Test colors

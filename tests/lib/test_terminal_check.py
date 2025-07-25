@@ -231,18 +231,23 @@ class TestTestCursesBasic:
         assert success is False
         assert error == "Curses error"
 
+    @patch("curses.has_colors", return_value=True)
+    @patch("curses.start_color")
+    @patch("curses.init_pair")
+    @patch("curses.curs_set")
     @patch("curses.wrapper")
-    def test_curses_screen_operations(self, mock_wrapper):
+    def test_curses_screen_operations(self, mock_wrapper, mock_curs_set, mock_init_pair, mock_start_color, mock_has_colors):
         """Test that curses operations are performed correctly."""
         mock_stdscr = MagicMock()
         mock_stdscr.getmaxyx.return_value = (30, 100)
 
-        # Capture the function passed to wrapper
-        def capture_func(func):
-            func(mock_stdscr)
-            return None
+        # Mock wrapper to call the function and simulate success
+        def mock_wrapper_func(func):
+            result = func(mock_stdscr)
+            # Return None to simulate successful completion
+            return result
 
-        mock_wrapper.side_effect = capture_func
+        mock_wrapper.side_effect = mock_wrapper_func
 
         success, error = test_curses_basic(interactive=False)
 
