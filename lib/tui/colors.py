@@ -5,7 +5,6 @@ Defines and initializes the vibrant color scheme
 
 import curses
 
-
 # NO COLORS - All color pairs return 0 (no color)
 COLOR_HEADER = 0
 COLOR_SELECTED = 0
