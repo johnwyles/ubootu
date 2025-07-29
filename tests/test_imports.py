@@ -11,10 +11,15 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 def test_tui_imports():
     """Test that all TUI modules can be imported without errors."""
-    # List of modules to import (now using enhanced_menu_ui)
+    # List of modules to import (now using unified TUI system)
     modules_to_import = [
-        "lib.enhanced_menu_ui",
-        "lib.enhanced_menu_ui_old",
+        "lib.tui.unified_menu",
+        "lib.tui.main_menu",
+        "lib.tui.section_selector",
+        "lib.tui.sudo_dialog",
+        "lib.tui.dialogs",
+        "lib.tui.utils",
+        "lib.tui.constants",
     ]
 
     errors = []
@@ -31,14 +36,16 @@ def test_tui_imports():
 
     # Assert no import errors
     assert not errors, f"Import errors found:\n" + "\n".join(errors)
-    print(f"\nAll {len(modules_to_import)} TUI modules imported successfully!")
+    print(f"\nAll {len(modules_to_import)} unified TUI modules imported successfully!")
 
 
 def test_main_script_imports():
     """Test that the main configure script can import TUI modules."""
     try:
         # Test importing from the main script's perspective
-        from lib.enhanced_menu_ui import main, run_tui
+        from lib.tui.unified_menu import UnifiedMenu
+        from lib.tui.main_menu import MainMenu
+        from lib.tui.section_selector import SectionSelector
 
         print("✓ Main TUI functions imported successfully from configure_standard_tui.py perspective")
     except ImportError as e:
@@ -50,7 +57,7 @@ def test_splash_and_ui_imports():
     ui_modules = [
         "lib.ubootu_splash",
         "lib.show_profile_templates",
-        "lib.menu_ui",
+        # menu_ui has been removed in favor of unified TUI system
     ]
 
     errors = []
