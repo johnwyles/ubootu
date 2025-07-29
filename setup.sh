@@ -2,10 +2,19 @@
 # Ubootu - The Ultimate Ubuntu Experience Engine
 # Professional menu-driven system for Ubuntu desktop configuration
 
+# Debug mode
+if [[ "${SETUP_DEBUG}" == "1" ]]; then
+    set -x  # Enable command tracing
+    echo "[DEBUG] Debug mode enabled"
+fi
+
 set -e
 
 # Add lib directory to Python path
 export PYTHONPATH="${PYTHONPATH}:$(pwd)/lib"
+
+# Set TUI mode by default
+export TUI_MODE="1"
 
 # Colors for output
 RED='\033[0;31m'
@@ -36,17 +45,32 @@ print_warning() {
 
 # Check if running on Ubuntu
 check_ubuntu() {
+    echo "[DEBUG] Inside check_ubuntu()"
+    
     if ! command -v lsb_release &> /dev/null; then
+        echo "[DEBUG] lsb_release not found"
         print_error "This script requires Ubuntu. lsb_release command not found."
         exit 1
     fi
     
-    if [[ ! "$(lsb_release -is)" == "Ubuntu" ]]; then
-        print_error "This script is designed for Ubuntu. Detected: $(lsb_release -is)"
+    echo "[DEBUG] lsb_release found, checking distro..."
+    local distro=$(lsb_release -is)
+    echo "[DEBUG] Detected distro: $distro"
+    
+    if [[ ! "$distro" == "Ubuntu" ]]; then
+        print_error "This script is designed for Ubuntu. Detected: $distro"
         exit 1
     fi
     
-    print_success "✅ Ubuntu $(lsb_release -rs) detected - Ready for Ubootu configuration!"
+    echo "[DEBUG] Ubuntu detected successfully"
+    echo "[DEBUG] TUI_MODE=$TUI_MODE"
+    if [[ "$TUI_MODE" != "1" ]]; then
+        echo "[DEBUG] Printing success message"
+        print_success "✅ Ubuntu $(lsb_release -rs) detected - Ready for Ubootu configuration!"
+    else
+        echo "[DEBUG] Skipping success message (TUI_MODE=1)"
+    fi
+    echo "[DEBUG] Exiting check_ubuntu()"
 }
 
 # Check if we have a configuration
@@ -56,6 +80,16 @@ has_configuration() {
 
 # Install prerequisites
 install_prerequisites() {
+    # Check if already installed via TUI
+    if [[ -f ".prerequisites_installed" ]] || [[ -n "$PREREQUISITES_INSTALLED" ]]; then
+        return 0
+    fi
+    
+    # If running in TUI mode, prerequisites are handled there
+    if [[ "$TUI_MODE" == "1" ]]; then
+        return 0
+    fi
+    
     print_info "Checking prerequisites..."
     
     # Check APT health and clean up common issues
@@ -164,8 +198,23 @@ install_ansible_requirements() {
 
 # Show Ubootu TUI splash screen
 show_ubootu_splash() {
-    print_info "Loading Ubootu..."
-    python3 lib/tui_splash.py
+    [[ "$TUI_MODE" != "1" ]] && print_info "Loading Ubootu..."
+    
+    # Run the configure_standard_tui.py script which will show the main menu
+    python3 configure_standard_tui.py
+    exit_code=$?
+    
+    # Map exit codes to menu choices
+    if [[ $exit_code -eq 0 ]]; then
+        # User completed configuration
+        echo "1" > /tmp/welcome_choice.txt
+    elif [[ $exit_code -eq 1 ]]; then
+        # User cancelled/exited
+        echo "8" > /tmp/welcome_choice.txt
+    else
+        # Error occurred
+        echo "8" > /tmp/welcome_choice.txt
+    fi
 }
 
 # Welcome menu (no sudo required) - now integrated into splash
@@ -293,24 +342,11 @@ EOF
 EOF_COMMENTED
 }
 
-# Explain why sudo is needed
+# Explain why sudo is needed (now handled in TUI)
 explain_sudo_requirement() {
-    echo
-    echo -e "${BOLD}${CYAN}Why do we need administrator (sudo) access?${NC}"
-    echo -e "${CYAN}================================================${NC}"
-    echo
-    echo -e "${YELLOW}Ubootu needs administrator privileges to:${NC}"
-    echo -e "  • Install software packages and updates"
-    echo -e "  • Configure system settings and preferences"
-    echo -e "  • Set up development tools and environments"
-    echo -e "  • Apply security configurations"
-    echo -e "  • Manage system services and permissions"
-    echo
-    echo -e "${GREEN}Your password is only used for these system-level changes.${NC}"
-    echo -e "${GREEN}We never store or transmit your password anywhere.${NC}"
-    echo
-    echo -e "${BOLD}Press Enter to continue or Ctrl+C to exit...${NC}"
-    read -r
+    # This is now handled within the TUI interface
+    # The PrerequisiteInstaller shows this in a dialog
+    return 0
 }
 
 # Main menu handler
@@ -382,6 +418,12 @@ fresh_install() {
     print_info "Starting comprehensive configuration wizard..."
     run_configuration_wizard
     
+    # Check if user cancelled
+    if [[ $? -ne 0 ]]; then
+        print_info "Configuration cancelled by user"
+        return 1
+    fi
+    
     # Run Ansible playbooks
     run_playbooks
     
@@ -391,105 +433,26 @@ fresh_install() {
 
 # Run configuration wizard
 run_configuration_wizard() {
-    # Check for force TUI mode
-    if [[ "$FORCE_TUI" == "1" ]] || [[ "$BOOTSTRAP_FORCE_TUI" == "1" ]]; then
-        print_info "Force TUI mode enabled, skipping compatibility check..."
-        print_info "Starting configuration interface..."
-        python3 configure_standard_tui.py
-        return $?
-    fi
+    print_info "Starting unified configuration interface..."
     
-    print_info "Choose configuration interface:"
-    echo "  1. Professional TUI (Rich interface with full features) - Recommended"
-    echo "  2. Alternative interface (same features, different style)"
-    echo "  3. Force TUI (bypass compatibility check)"
-    echo
-    read -p "Your choice [1-3] (default: 1): " wizard_choice
+    # Run the unified TUI interface
+    python3 configure_standard_tui.py
+    exit_code=$?
     
-    case "${wizard_choice:-1}" in
-        1)
-            print_info "Checking terminal compatibility..."
-            
-            # Quick compatibility check
-            python3 - << 'EOF'
-import sys
-sys.path.insert(0, 'lib')
-from terminal_check import can_run_tui
-
-can_run, issues, warnings = can_run_tui()
-
-# Show any warnings
-if warnings:
-    print("⚠️  Terminal warnings:")
-    for warning in warnings:
-        print(f"   - {warning}")
-
-# Show critical issues  
-if issues:
-    print("❌ Critical issues:")
-    for issue in issues:
-        print(f"   - {issue}")
-    print("Will attempt TUI anyway - press Ctrl+C if it fails")
-
-# Always try TUI first now
-exit(0)
-EOF
-
-            print_info "Starting configuration interface..."
-            
-            # Run the standard TUI interface
-            python3 configure_standard_tui.py
-            exit_code=$?
-            if [[ $exit_code -eq 0 ]]; then
-                return 0
-            elif [[ $exit_code -eq 1 ]]; then
-                # User cancelled (pressed escape, quit, or exit action)
-                print_info "Configuration cancelled by user"
-                return 1
-            elif [[ $exit_code -eq 130 ]]; then
-                # User pressed Ctrl+C
-                print_info "Configuration cancelled by user"
-                return 1
-            else
-                print_error "Configuration interface failed with exit code $exit_code"
-                return 1
-            fi
-            ;;
-        2)
-            print_info "Starting configuration interface..."
-            python3 configure_standard_tui.py
-            exit_code=$?
-            if [[ $exit_code -ne 0 ]]; then
-                print_info "Configuration cancelled by user"
-                return 1
-            fi
-            ;;
-        3)
-            print_info "Force mode: Starting configuration interface..."
-            python3 configure_standard_tui.py
-            exit_code=$?
-            if [[ $exit_code -ne 0 ]]; then
-                print_info "Configuration cancelled by user"
-                return 1
-            fi
-            ;;
-        *)
-            print_info "Invalid choice, starting configuration interface..."
-            python3 configure_standard_tui.py
-            exit_code=$?
-            if [[ $exit_code -ne 0 ]]; then
-                print_info "Configuration cancelled by user"
-                return 1
-            fi
-            ;;
-    esac
-    
-    if [[ ! -f "config.yml" ]]; then
-        print_warning "Configuration was cancelled"
+    if [[ $exit_code -eq 0 ]]; then
+        return 0
+    elif [[ $exit_code -eq 1 ]]; then
+        # User cancelled (pressed escape, quit, or exit action)
+        print_info "Configuration cancelled by user"
+        return 1
+    elif [[ $exit_code -eq 130 ]]; then
+        # User pressed Ctrl+C
+        print_info "Configuration cancelled by user"
+        return 1
+    else
+        print_error "Configuration interface failed with exit code $exit_code"
         return 1
     fi
-    
-    return 0
 }
 
 # Load template profile
@@ -530,8 +493,25 @@ EOF
 modify_setup() {
     print_info "Modifying existing configuration..."
     
-    # Use the new TUI section selector
-    python3 lib/section_selector.py
+    # Use the unified TUI section selector
+    python3 -c "
+import curses
+import sys
+sys.path.insert(0, 'lib')
+from tui.section_selector import show_section_selector
+
+try:
+    selected = curses.wrapper(show_section_selector)
+    if selected:
+        with open('/tmp/selected_sections.txt', 'w') as f:
+            f.write(','.join(selected))
+        sys.exit(0)
+    else:
+        sys.exit(1)
+except Exception as e:
+    print(f'Error: {e}')
+    sys.exit(1)
+"
     exit_code=$?
     
     if [[ $exit_code -ne 0 ]]; then
@@ -652,6 +632,13 @@ run_playbooks() {
 show_app_customizations() {
     print_info "Reviewing application customizations..."
     
+    # TODO: Implement app customization in unified TUI
+    # For now, skip this step
+    print_info "App customization will be available in a future update"
+    return 0
+    
+# Original implementation commented out for reference
+: << 'EOF_APP_CUSTOMIZATION'
     python3 - << 'EOF'
 import sys
 import yaml
@@ -702,10 +689,44 @@ config['app_customizations'] = customizations
 with open('config.yml', 'w') as f:
     yaml.dump(config, f, default_flow_style=False)
 EOF
+EOF_APP_CUSTOMIZATION
 }
 
 # Show success screen
 show_success_screen() {
+    print_success "🎉 Ubootu configuration complete!"
+    echo
+    print_info "Your Ubuntu system has been successfully configured."
+    print_info "All selected packages and configurations have been applied."
+    echo
+    print_warning "Remember to reboot when convenient to apply all changes!"
+    echo
+    print_info "What would you like to do next?"
+    echo "  1. Reboot now"
+    echo "  2. View installation log"
+    echo "  3. Continue using the system"
+    echo
+    read -p "Your choice [1-3] (default: 3): " choice
+    
+    case "${choice:-3}" in
+        1)
+            print_info "Rebooting..."
+            sudo reboot
+            ;;
+        2)
+            if [[ -f ansible.log ]]; then
+                less ansible.log
+            else
+                print_warning "No log file found"
+            fi
+            ;;
+        *)
+            print_info "Remember to reboot when convenient to apply all changes!"
+            ;;
+    esac
+    
+# Original implementation commented out for reference
+: << 'EOF_SUCCESS_SCREEN'
     python3 - << 'EOF'
 import sys
 import yaml
@@ -773,6 +794,7 @@ EOF
             print_info "Remember to reboot when convenient to apply all changes!"
             ;;
     esac
+EOF_SUCCESS_SCREEN
 }
 
 # Quick actions menu
@@ -789,6 +811,10 @@ show_help() {
 
 # Main execution
 main() {
+    echo "[DEBUG] Entering main() function"
+    echo "[DEBUG] Number of arguments: $#"
+    echo "[DEBUG] First argument: ${1:-<none>}"
+    
     # Debug mode
     if [[ "$BOOTSTRAP_DEBUG" == "1" ]]; then
         set -x  # Enable command tracing
@@ -796,6 +822,7 @@ main() {
     fi
     
     # Handle command line arguments
+    echo "[DEBUG] Checking command line arguments..."
     case "${1:-}" in
         --help|-h)
             show_help
@@ -851,122 +878,63 @@ main() {
     esac
     
     # Interactive mode
-    clear
+    echo "[DEBUG] Starting interactive mode"
+    echo "[DEBUG] Is stdout a TTY: $(if [[ -t 1 ]]; then echo "YES"; else echo "NO"; fi)"
+    echo "[DEBUG] Is stdin a TTY: $(if [[ -t 0 ]]; then echo "YES"; else echo "NO"; fi)"
+    echo "[DEBUG] TERM=$TERM"
+    echo "[DEBUG] Working directory: $(pwd)"
     
-    # Check Ubuntu
-    check_ubuntu
-    
-    # Show welcome menu first (no sudo required)
-    show_welcome_menu
-    
-    # Read the choice from the temp file
-    if [[ -f /tmp/welcome_choice.txt ]]; then
-        welcome_choice=$(cat /tmp/welcome_choice.txt)
-        rm -f /tmp/welcome_choice.txt
+    # Don't clear if not in TTY
+    if [[ -t 1 ]]; then
+        echo "[DEBUG] Clearing screen"
+        clear
     else
-        welcome_choice="8"
+        echo "[DEBUG] Not clearing screen - not in TTY"
     fi
     
-    print_info "User selected option: $welcome_choice"
+    # Check Ubuntu
+    echo "[DEBUG] Checking Ubuntu..."
+    check_ubuntu
+    echo "[DEBUG] Ubuntu check completed"
     
-    # Main menu loop
-    while true; do
-        # If this is the first iteration, we already have the choice
-        if [[ -n "$welcome_choice" ]]; then
-            choice="$welcome_choice"
-            welcome_choice=""  # Clear it so we show menu next time
-        else
-            # Show the menu again
-            show_welcome_menu
-            
-            # Read the choice from the temp file
-            if [[ -f /tmp/welcome_choice.txt ]]; then
-                choice=$(cat /tmp/welcome_choice.txt)
-                rm -f /tmp/welcome_choice.txt
-            else
-                choice="8"
-            fi
-        fi
-        
-        print_info "User selected option: $choice"
-        
-        # Handle exit
-        if [[ "$choice" == "8" ]]; then
-            print_info "Thanks for using Ubootu! 🚀"
-            exit 0
-        fi
-        
-        # Install prerequisites if not already done
-        if [[ -z "$PREREQUISITES_INSTALLED" ]]; then
-            explain_sudo_requirement
-            install_prerequisites
-            PREREQUISITES_INSTALLED=1
-        fi
-        
-        # Handle menu choices
-        case "$choice" in
-            1)  # Fresh Install
-                fresh_install
-                echo
-                print_success "Fresh installation completed!"
-                echo -e "${CYAN}Press Enter to return to the main menu...${NC}"
-                read -r
-                ;;
-            2)  # Modify Setup
-                if has_configuration; then
-                    modify_setup
-                else
-                    print_warning "No existing configuration found"
-                    echo -e "${YELLOW}Would you like to run Fresh Install instead? (y/N)${NC}"
-                    read -r response
-                    if [[ "$response" =~ ^[Yy]$ ]]; then
-                        fresh_install
-                    fi
-                fi
-                echo
-                echo -e "${CYAN}Press Enter to return to the main menu...${NC}"
-                read -r
-                ;;
-            3)  # Apply Profile
-                apply_profile
-                echo
-                echo -e "${CYAN}Press Enter to return to the main menu...${NC}"
-                read -r
-                ;;
-            4)  # Backup Config
-                backup_config
-                echo
-                echo -e "${CYAN}Press Enter to return to the main menu...${NC}"
-                read -r
-                ;;
-            5)  # View History
-                view_history
-                echo
-                echo -e "${CYAN}Press Enter to return to the main menu...${NC}"
-                read -r
-                ;;
-            6)  # Quick Actions
-                quick_actions
-                echo
-                echo -e "${CYAN}Press Enter to return to the main menu...${NC}"
-                read -r
-                ;;
-            7)  # Help
-                show_help
-                echo
-                echo -e "${CYAN}Press Enter to return to the main menu...${NC}"
-                read -r
-                ;;
-            *)
-                print_error "Invalid choice: $choice"
-                sleep 2
-                ;;
-        esac
-        
-        # Clear screen before showing menu again
-        clear
-    done
+    # Debug output
+    [[ "$TUI_MODE" != "1" ]] && print_info "Starting TUI interface..."
+    
+    # Check if Python script exists
+    if [[ -f "configure_standard_tui.py" ]]; then
+        echo "[DEBUG] configure_standard_tui.py found"
+    else
+        echo "[DEBUG] ERROR: configure_standard_tui.py not found!"
+        echo "[DEBUG] Current directory contents:"
+        ls -la | head -10
+    fi
+    
+    # Run the TUI which handles everything
+    echo "[DEBUG] About to run: python3 configure_standard_tui.py"
+    echo "[DEBUG] Python3 location: $(which python3)"
+    
+    set +e  # Temporarily disable exit on error
+    python3 configure_standard_tui.py
+    exit_code=$?
+    set -e  # Re-enable exit on error
+    
+    echo "[DEBUG] Python script exit code: $exit_code"
+    
+    if [[ $exit_code -eq 0 ]]; then
+        # User completed configuration, run ansible
+        print_info "Configuration saved. Running Ansible playbooks..."
+        install_prerequisites
+        run_playbooks
+        show_success_screen
+    else
+        # User cancelled or error occurred
+        print_info "Thanks for using Ubootu! 🚀"
+    fi
 }
 
 # Run main function
+echo "[DEBUG] Script starting at $(date)"
+echo "[DEBUG] Script location: $0"
+echo "[DEBUG] All arguments: $@"
 main "$@"
+echo "[DEBUG] main() returned, script ending"
