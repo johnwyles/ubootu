@@ -161,6 +161,24 @@ debug_tui.log         # TUI debug log
 /tmp/debug_tui.log    # Debug TUI log
 config.yaml           # Alternative config format
 
+# Test artifacts
+/tmp/test*.py         # Temporary test scripts
+/tmp/test*.yml        # Temporary test playbooks
+/tmp/*.yml            # Other temporary YAML files
+/tmp/simple*.yml      # Simple test playbooks
+/tmp/debug*.py        # Debug scripts
+
+# Development artifacts
+*.pyc.*.py            # Python compilation test files
+test_output.log       # Test output logs
+ansible_test_*        # Ansible test files
+.venv/                # Python virtual environment (already covered above)
+
+# Temporary configuration files
+/tmp/*.cfg            # Temporary config files
+/tmp/*.ini            # Temporary ini files
+temp_inventory*       # Temporary inventory files
+
 # Additional Python patterns
 .ruff_cache/          # Ruff linter cache
 .pdm.toml            # PDM config
