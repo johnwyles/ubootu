@@ -99,32 +99,50 @@ class UnifiedMenu:
             with open(self.config_file, 'r') as f:
                 config = yaml.safe_load(f) or {}
                 
+            # Validate config structure
+            if not self.validate_config(config):
+                self.show_corruption_message()
+                return
+                
             # Clear all selections (including defaults) before loading saved config
             self.selections = {}
+            self.configurable_values = {}
             
             # Load selected items
             selected = config.get('selected_items', [])
-            for item_id in selected:
-                # Check if it's a category
-                if item_id in self.category_items:
-                    # Load category selections
-                    self.selections[item_id] = set()
-                    for child in self.category_items[item_id]:
-                        if child in selected:
-                            self.selections[item_id].add(child)
-                else:
-                    self.selections[item_id] = True
+            if isinstance(selected, list):
+                for item_id in selected:
+                    # Check if it's a category
+                    if item_id in self.category_items:
+                        # Load category selections
+                        self.selections[item_id] = set()
+                        for child in self.category_items[item_id]:
+                            if child in selected:
+                                self.selections[item_id].add(child)
+                    else:
+                        self.selections[item_id] = True
                     
             # Load configurable values
             configurable = config.get('configurable_items', {})
-            for item_id, item_config in configurable.items():
-                self.configurable_values[item_id] = item_config.get('value')
-                
-        except Exception:
-            pass
+            if isinstance(configurable, dict):
+                for item_id, item_config in configurable.items():
+                    if isinstance(item_config, dict) and 'value' in item_config:
+                        self.configurable_values[item_id] = item_config.get('value')
+                        
+        except yaml.YAMLError as e:
+            self.show_corruption_message(f"Invalid YAML format: {str(e)}")
+        except Exception as e:
+            self.show_corruption_message(f"Error loading config: {str(e)}")
             
-    def save_configuration(self) -> None:
-        """Save current configuration to file"""
+    def save_configuration(self, silent: bool = False) -> bool:
+        """Save current configuration to file
+        
+        Args:
+            silent: If True, don't show error messages
+            
+        Returns:
+            True if save was successful, False otherwise
+        """
         config = {
             'metadata': {
                 'version': '1.0',
@@ -150,9 +168,17 @@ class UnifiedMenu:
                 'value': value
             }
             
-        # Write to file
-        with open(self.config_file, 'w') as f:
-            yaml.dump(config, f, default_flow_style=False)
+        try:
+            # Write to file
+            with open(self.config_file, 'w') as f:
+                yaml.dump(config, f, default_flow_style=False)
+            return True
+        except Exception as e:
+            if not silent:
+                from .dialogs import MessageDialog
+                dialog = MessageDialog(self.stdscr)
+                dialog.show("Save Error", f"Could not save configuration:\n{str(e)}", "error")
+            return False
             
     def get_current_items(self) -> List[Dict]:
         """Get items for current menu level"""
@@ -339,6 +365,39 @@ class UnifiedMenu:
     def navigate(self, key: int) -> Optional[str]:
         """Handle navigation keys and return action"""
         items = self.get_current_items()
+        
+        # Handle navigation keys that should work even in empty menus
+        # Go back
+        if key_matches(key, KEY_BINDINGS['back']):
+            if self.current_menu != 'root':
+                self.go_back()
+                return 'back'
+            else:
+                # At root level, go back to main menu
+                return 'main_menu'
+                
+        # Go to main menu (M key)
+        elif key_matches(key, KEY_BINDINGS['main_menu']):
+            return 'main_menu'
+            
+        # Quit
+        elif key_matches(key, KEY_BINDINGS['quit']):
+            return 'quit'
+            
+        # Help
+        elif key_matches(key, KEY_BINDINGS['help']):
+            return 'help'
+            
+        # Save
+        elif key_matches(key, KEY_BINDINGS['save']):
+            self.save_configuration()
+            return 'save'
+            
+        # Apply
+        elif key_matches(key, KEY_BINDINGS['apply']):
+            return 'apply'
+        
+        # If no items, we can't do item-specific navigation
         if not items:
             return None
             
@@ -371,36 +430,6 @@ class UnifiedMenu:
                 self.enter_submenu(current_item['id'])
                 return 'enter'
             return None
-                
-        # Go back
-        elif key_matches(key, KEY_BINDINGS['back']):
-            if self.current_menu != 'root':
-                self.go_back()
-                return 'back'
-            else:
-                # At root level, go back to main menu
-                return 'main_menu'
-                
-        # Go to main menu (M key)
-        elif key_matches(key, KEY_BINDINGS['main_menu']):
-            return 'main_menu'
-                
-        # Quit
-        elif key_matches(key, KEY_BINDINGS['quit']):
-            return 'quit'
-            
-        # Help
-        elif key_matches(key, KEY_BINDINGS['help']):
-            return 'help'
-            
-        # Save
-        elif key_matches(key, KEY_BINDINGS['save']):
-            self.save_configuration()
-            return 'save'
-            
-        # Apply
-        elif key_matches(key, KEY_BINDINGS['apply']):
-            return 'apply'
             
         # Select all (in submenu)
         elif key_matches(key, KEY_BINDINGS['select_all']) and self.current_menu != 'root':
@@ -449,6 +478,9 @@ class UnifiedMenu:
                 del self.selections[item_id]
             else:
                 self.selections[item_id] = True
+                
+        # Auto-save after selection change
+        self.save_configuration(silent=True)
                 
     def show_config_dialog(self, item: Dict) -> None:
         """Show configuration dialog for configurable item"""
@@ -505,6 +537,8 @@ class UnifiedMenu:
         # Update value if changed
         if new_value is not None:
             self.configurable_values[item_id] = new_value
+            # Auto-save after configuration change
+            self.save_configuration(silent=True)
                 
     def select_all(self) -> None:
         """Select all items in current category"""
@@ -512,11 +546,15 @@ class UnifiedMenu:
             return
             
         self.selections[self.current_menu] = set(self.category_items[self.current_menu])
+        # Auto-save after bulk selection
+        self.save_configuration(silent=True)
         
     def deselect_all(self) -> None:
         """Deselect all items in current category"""
         if self.current_menu in self.selections:
             self.selections[self.current_menu] = set()
+            # Auto-save after bulk deselection
+            self.save_configuration(silent=True)
             
     def enter_submenu(self, menu_id: str) -> None:
         """Enter a submenu"""
@@ -560,6 +598,10 @@ class UnifiedMenu:
             "• Requires administrator (sudo) access\n"
             "• May take several minutes depending on selections\n"
             "• Internet connection required for downloads\n\n"
+            "The installer will show:\n"
+            "• Current task being performed\n"
+            "• Number of completed tasks\n"
+            "• Detailed output for troubleshooting\n\n"
             "Continue with installation?"
         ):
             return False
@@ -573,13 +615,80 @@ class UnifiedMenu:
             )
             return False
             
-        # Run ansible-playbook with progress dialog
-        result = progress_dialog.run_command(
-            ['ansible-playbook', 'site.yml', '-i', 'inventories/local/hosts'],
-            "Applying Configuration",
-            show_output=True,
-            sudo_dialog=sudo_dialog
+        # Show detailed information about what will happen
+        info_dialog = MessageDialog(self.stdscr)
+        info_dialog.show(
+            "System Configuration Required",
+            "This will install and configure selected software on your system.\n\n"
+            "What happens next:\n"
+            "• You'll be asked for your sudo password\n"
+            "• Ansible will install selected packages\n"
+            "• System configuration will be applied\n"
+            "• Process takes 5-20 minutes depending on selections\n\n"
+            "Your sudo password is needed for:\n"
+            "• Installing packages (apt install)\n"
+            "• Creating system directories\n"
+            "• Configuring system services\n"
+            "• Writing system configuration files",
+            "info"
         )
+            
+        # Get sudo password using our secure dialog
+        sudo_password = sudo_dialog.get_password(
+            "Enter your sudo password to install selected software:"
+        )
+        
+        if not sudo_password:
+            MessageDialog(self.stdscr).show(
+                "Installation Cancelled",
+                "Sudo password is required to install software and configure your system.\n\n"
+                "No changes have been made to your system.",
+                "info"
+            )
+            return False
+        
+        # Create a temporary file for sudo password (more reliable than env var)
+        import tempfile
+        import os
+        
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write(sudo_password)
+            password_file = f.name
+        
+        # Create a temporary inventory to avoid vault template issues
+        import tempfile
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.ini', delete=False) as inv_file:
+            inv_file.write("""[local]
+localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3
+""")
+            temp_inventory = inv_file.name
+
+        try:
+            # Run ansible-playbook with progress dialog
+            # Use clean temporary inventory and environment overrides
+            result = progress_dialog.run_command(
+                ['ansible-playbook', 'site.yml', 
+                 '-i', temp_inventory,  # Use clean inventory without vault templates
+                 '--diff', '-v', 
+                 '--become-password-file', password_file,
+                 '--connection', 'local',  # Force local connection
+                 '--become-method', 'sudo',  # Explicit sudo method
+                 '--timeout', '30'  # Connection timeout
+                ],
+                "Applying Configuration - Installing Selected Software",
+                show_output=True,
+                sudo_dialog=sudo_dialog
+            )
+        finally:
+            # Always remove temporary files
+            try:
+                os.unlink(password_file)
+            except:
+                pass
+            try:
+                os.unlink(temp_inventory)
+            except:
+                pass
         
         if result == 0:
             MessageDialog(self.stdscr).show(
@@ -600,8 +709,16 @@ class UnifiedMenu:
     def run(self) -> int:
         """Main menu loop - returns 0 for success, 1 for cancelled"""
         self.load_menu_structure()
-        self.load_defaults()  # Load defaults first
-        self.load_configuration()  # Then override with saved config if it exists
+        
+        # Load configuration if it exists, otherwise load defaults
+        if Path(self.config_file).exists():
+            # First load defaults to get default configurable values
+            self.load_defaults()
+            # Then load saved configuration which will override
+            self.load_configuration()
+        else:
+            # No config file, just load defaults
+            self.load_defaults()
         
         exit_code = 1  # Default to cancelled
         
@@ -637,10 +754,18 @@ class UnifiedMenu:
                     dialog.show(help_text)
                     
             elif action == 'save':
-                self.save_configuration()
-                dialog = MessageDialog(self.stdscr)
-                dialog.show("Configuration Saved", "Your selections have been saved to config.yml")
-                exit_code = 0  # Saved successfully
+                if self.save_configuration():
+                    dialog = MessageDialog(self.stdscr)
+                    dialog.show(
+                        "Configuration Saved",
+                        "Your selections have been saved to config.yml\n\n" +
+                        "• Configuration is automatically saved after each change\n" +
+                        "• You can version control this file with Git\n" +
+                        "• Run './setup.sh --restore config.yml' to restore later\n" +
+                        "• Press 'P' to apply configuration and install software",
+                        "success"
+                    )
+                    exit_code = 0  # Saved successfully
                 
             elif action == 'apply':
                 # Save first if needed
@@ -669,3 +794,38 @@ class UnifiedMenu:
                 self.height, self.width = self.stdscr.getmaxyx()
                 
         return exit_code
+        
+    def validate_config(self, config: Dict) -> bool:
+        """Validate configuration structure"""
+        if not isinstance(config, dict):
+            return False
+            
+        # Check for required or expected keys
+        if 'selected_items' in config and not isinstance(config['selected_items'], list):
+            return False
+            
+        if 'configurable_items' in config and not isinstance(config['configurable_items'], dict):
+            return False
+            
+        return True
+        
+    def show_corruption_message(self, details: str = "") -> None:
+        """Show message about corrupted config"""
+        from .dialogs import ConfirmDialog, MessageDialog
+        
+        dialog = ConfirmDialog(self.stdscr)
+        message = "Configuration file appears to be corrupted.\n\n"
+        if details:
+            message += f"Error: {details}\n\n"
+        message += "Would you like to reset to defaults?"
+        
+        if dialog.show("Configuration Error", message):
+            # Reset to defaults
+            self.selections = {}
+            self.configurable_values = {}
+            self.load_defaults()
+            # Save clean config
+            self.save_configuration()
+            
+            msg_dialog = MessageDialog(self.stdscr)
+            msg_dialog.show("Reset Complete", "Configuration has been reset to defaults.")

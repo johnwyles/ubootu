@@ -42,8 +42,8 @@ def load_menu_structure() -> List[Dict]:
         },
         {
             'id': 'applications',
-            'label': 'Applications',
-            'description': 'Browsers, productivity, multimedia',
+            'label': 'General Applications',
+            'description': 'Miscellaneous applications',
             'icon': '📦',
             'is_category': True,
             'parent': None,
@@ -130,7 +130,103 @@ def load_menu_structure() -> List[Dict]:
             'parent': None,
             'children': []
         },
+        {
+            'id': 'security-testing',
+            'label': 'Security Testing',
+            'description': 'Penetration testing and security analysis tools',
+            'icon': '🔐',
+            'is_category': True,
+            'parent': None,
+            'children': []
+        },
     ]
+    
+    # Add new application-specific categories
+    app_categories = [
+        {
+            'id': 'graphics-media',
+            'label': 'Graphics & Media',
+            'description': 'Image editing, 3D graphics, and media manipulation',
+            'icon': '🖼️',
+            'is_category': True,
+            'parent': None,
+            'children': []
+        },
+        {
+            'id': 'productivity-office',
+            'label': 'Productivity & Office',
+            'description': 'Office suites, email clients, and productivity tools',
+            'icon': '💼',
+            'is_category': True,
+            'parent': None,
+            'children': []
+        },
+        {
+            'id': 'communication',
+            'label': 'Communication',
+            'description': 'Chat, video conferencing, and messaging apps',
+            'icon': '💬',
+            'is_category': True,
+            'parent': None,
+            'children': []
+        },
+        {
+            'id': 'audio-music',
+            'label': 'Audio & Music',
+            'description': 'Audio players, editors, and music production',
+            'icon': '🎵',
+            'is_category': True,
+            'parent': None,
+            'children': []
+        },
+        {
+            'id': 'video-streaming',
+            'label': 'Video & Streaming',
+            'description': 'Video players, editors, and streaming tools',
+            'icon': '🎥',
+            'is_category': True,
+            'parent': None,
+            'children': []
+        },
+        {
+            'id': 'text-editors-ides',
+            'label': 'Text Editors & IDEs',
+            'description': 'Code editors and integrated development environments',
+            'icon': '📝',
+            'is_category': True,
+            'parent': None,
+            'children': []
+        },
+        {
+            'id': 'web-browsers',
+            'label': 'Web Browsers',
+            'description': 'Internet browsers and web tools',
+            'icon': '🌐',
+            'is_category': True,
+            'parent': None,
+            'children': []
+        },
+        {
+            'id': 'file-management',
+            'label': 'File Management',
+            'description': 'File managers and organization tools',
+            'icon': '📁',
+            'is_category': True,
+            'parent': None,
+            'children': []
+        },
+        {
+            'id': 'system-tools',
+            'label': 'System Tools',
+            'description': 'System utilities and maintenance tools',
+            'icon': '🔧',
+            'is_category': True,
+            'parent': None,
+            'children': []
+        },
+    ]
+    
+    categories.extend(app_categories)
     
     # Add root categories first
     items.extend(categories)
@@ -509,7 +605,7 @@ def load_menu_structure() -> List[Dict]:
             'help': 'Python 3 runtime with pip package manager. The most popular language for scripting, web development, data science, and automation.'
         },
         {
-            'id': 'pycharm',
+            'id': 'pycharm-community',
             'label': 'PyCharm Community',
             'description': 'Python IDE by JetBrains',
             'parent': 'dev-python',
@@ -676,7 +772,7 @@ def load_menu_structure() -> List[Dict]:
             'help': 'Kotlin is a modern programming language that makes developers happier.'
         },
         {
-            'id': 'intellij-idea',
+            'id': 'intellij-idea-community',
             'label': 'IntelliJ IDEA Community',
             'description': 'Java/Kotlin IDE',
             'parent': 'dev-java',
@@ -1420,6 +1516,26 @@ Common use cases:
             'help': 'GNU Binutils is a collection of binary tools including assembler, linker, and others.'
         },
         {
+            'id': 'wine',
+            'label': 'Wine',
+            'description': 'Windows compatibility layer',
+            'parent': 'dev-utilities',
+            'help': '''Wine allows you to run Windows applications on Linux.
+Installs:
+- Wine stable (latest version)
+- Wine32 and Wine64 libraries
+- Winetricks for easy configuration
+- Common Windows fonts
+- Mono and Gecko for .NET/IE compatibility'''
+        },
+        {
+            'id': 'ansible-cloud',
+            'label': 'Ansible',
+            'description': 'Automation platform',
+            'parent': 'dev-utilities',
+            'help': 'Ansible automates cloud provisioning, configuration management, and application deployment.'
+        },
+        {
             'id': 'gdb',
             'label': 'GDB',
             'description': 'GNU debugger',
@@ -1729,6 +1845,7 @@ Common use cases:
     items.extend(dotnet_items)
     items.extend(other_lang_items)
     items.extend(jetbrains_items)
+    # Code editors moved to text-editors-ides category
     items.extend(code_editor_items)
     items.extend(text_editor_items)
     items.extend(vcs_items)
@@ -1853,34 +1970,408 @@ Common use cases:
     desktop_cat['children'] = [item['id'] for item in desktop_items]
     
     # Applications items (simplified for now)
-    app_items = [
+    # Web Browsers
+    web_browser_items = [
         {
             'id': 'firefox',
             'label': 'Firefox',
-            'description': 'Web browser',
-            'parent': 'applications',
+            'description': 'Open-source web browser',
+            'parent': 'web-browsers',
             'default': True,
             'help': 'Mozilla Firefox is a free and open-source web browser.'
         },
         {
             'id': 'chrome',
             'label': 'Google Chrome',
-            'description': 'Web browser',
-            'parent': 'applications',
+            'description': 'Fast web browser by Google',
+            'parent': 'web-browsers',
             'help': 'Google Chrome is a fast, secure, and free web browser.'
+        },
+        {
+            'id': 'brave',
+            'label': 'Brave',
+            'description': 'Privacy-focused browser',
+            'parent': 'web-browsers',
+            'help': 'Brave is a privacy-focused browser that blocks ads and trackers.'
+        },
+        {
+            'id': 'vivaldi',
+            'label': 'Vivaldi',
+            'description': 'Customizable browser',
+            'parent': 'web-browsers',
+            'help': 'Vivaldi is a freeware, cross-platform web browser with extensive customization.'
+        },
+        {
+            'id': 'opera',
+            'label': 'Opera',
+            'description': 'Feature-rich browser',
+            'parent': 'web-browsers',
+            'help': 'Opera is a multi-platform web browser with built-in VPN and ad blocker.'
+        },
+    ]
+    
+    # Communication
+    communication_items = [
+        {
+            'id': 'slack',
+            'label': 'Slack',
+            'description': 'Team messaging',
+            'parent': 'communication',
+            'help': 'Slack is a messaging app for business that connects people to the information they need.'
+        },
+        {
+            'id': 'discord',
+            'label': 'Discord',
+            'description': 'Voice and text chat',
+            'parent': 'communication',
+            'help': 'Discord is a VoIP and instant messaging platform for communities.'
+        },
+        {
+            'id': 'teams',
+            'label': 'Microsoft Teams',
+            'description': 'Business communication',
+            'parent': 'communication',
+            'help': 'Microsoft Teams is a proprietary business communication platform.'
+        },
+        {
+            'id': 'zoom',
+            'label': 'Zoom',
+            'description': 'Video conferencing',
+            'parent': 'communication',
+            'help': 'Zoom is a proprietary videotelephony software program.'
+        },
+        {
+            'id': 'telegram',
+            'label': 'Telegram',
+            'description': 'Secure messaging',
+            'parent': 'communication',
+            'help': 'Telegram is a cloud-based instant messaging service.'
+        },
+        {
+            'id': 'signal',
+            'label': 'Signal',
+            'description': 'Private messaging',
+            'parent': 'communication',
+            'help': 'Signal is a cross-platform encrypted messaging service.'
+        },
+        {
+            'id': 'element',
+            'label': 'Element',
+            'description': 'Matrix client',
+            'parent': 'communication',
+            'help': 'Element is a free and open-source software instant messaging client.'
+        },
+    ]
+    
+    # Graphics & Media
+    graphics_items = [
+        {
+            'id': 'gimp',
+            'label': 'GIMP',
+            'description': 'Image editor',
+            'parent': 'graphics-media',
+            'help': 'GIMP is a free and open-source raster graphics editor.'
+        },
+        {
+            'id': 'inkscape',
+            'label': 'Inkscape',
+            'description': 'Vector graphics editor',
+            'parent': 'graphics-media',
+            'help': 'Inkscape is a free and open-source vector graphics editor.'
+        },
+        {
+            'id': 'blender',
+            'label': 'Blender',
+            'description': '3D creation suite',
+            'parent': 'graphics-media',
+            'help': 'Blender is a free and open-source 3D computer graphics software.'
+        },
+        {
+            'id': 'krita',
+            'label': 'Krita',
+            'description': 'Digital painting',
+            'parent': 'graphics-media',
+            'help': 'Krita is a free and open-source raster graphics editor designed for digital painting.'
+        },
+        {
+            'id': 'darktable',
+            'label': 'Darktable',
+            'description': 'RAW photo editor',
+            'parent': 'graphics-media',
+            'help': 'Darktable is a free and open-source photography application and raw developer.'
+        },
+    ]
+    
+    # Text Editors & IDEs
+    editor_items = [
+        {
+            'id': 'vscode',
+            'label': 'Visual Studio Code',
+            'description': 'Code editor by Microsoft',
+            'parent': 'text-editors-ides',
+            'default': True,
+            'help': 'Visual Studio Code is a free source-code editor made by Microsoft.'
+        },
+        {
+            'id': 'sublime-text',
+            'label': 'Sublime Text',
+            'description': 'Sophisticated text editor',
+            'parent': 'text-editors-ides',
+            'help': 'Sublime Text is a shareware cross-platform source code editor.'
+        },
+        {
+            'id': 'atom',
+            'label': 'Atom',
+            'description': 'Hackable text editor',
+            'parent': 'text-editors-ides',
+            'help': 'Atom is a free and open-source text and source code editor.'
+        },
+        {
+            'id': 'intellij-idea',
+            'label': 'IntelliJ IDEA',
+            'description': 'Java IDE',
+            'parent': 'text-editors-ides',
+            'help': 'IntelliJ IDEA is an integrated development environment for Java.'
+        },
+        {
+            'id': 'pycharm',
+            'label': 'PyCharm',
+            'description': 'Python IDE',
+            'parent': 'text-editors-ides',
+            'help': 'PyCharm is an integrated development environment for Python.'
+        },
+    ]
+    
+    # Audio & Music
+    audio_items = [
+        {
+            'id': 'spotify',
+            'label': 'Spotify',
+            'description': 'Music streaming',
+            'parent': 'audio-music',
+            'help': 'Spotify is a proprietary Swedish audio streaming and media services provider.'
+        },
+        {
+            'id': 'audacity',
+            'label': 'Audacity',
+            'description': 'Audio editor',
+            'parent': 'audio-music',
+            'help': 'Audacity is a free and open-source digital audio editor and recording application.'
+        },
+        {
+            'id': 'ardour',
+            'label': 'Ardour',
+            'description': 'Digital audio workstation',
+            'parent': 'audio-music',
+            'help': 'Ardour is a hard disk recorder and digital audio workstation application.'
+        },
+        {
+            'id': 'lmms',
+            'label': 'LMMS',
+            'description': 'Music production',
+            'parent': 'audio-music',
+            'help': 'LMMS is a digital audio workstation application program.'
+        },
+        {
+            'id': 'rhythmbox',
+            'label': 'Rhythmbox',
+            'description': 'Music player',
+            'parent': 'audio-music',
+            'help': 'Rhythmbox is a music playing application for GNOME.'
+        },
+    ]
+    
+    # Video & Streaming
+    video_items = [
+        {
+            'id': 'vlc',
+            'label': 'VLC Media Player',
+            'description': 'Multimedia player',
+            'parent': 'video-streaming',
+            'default': True,
+            'help': 'VLC is a free and open-source, portable, cross-platform media player.'
+        },
+        {
+            'id': 'obs-studio',
+            'label': 'OBS Studio',
+            'description': 'Broadcasting software',
+            'parent': 'video-streaming',
+            'help': 'OBS Studio is a free and open-source software for video recording and live streaming.'
+        },
+        {
+            'id': 'kdenlive',
+            'label': 'Kdenlive',
+            'description': 'Video editor',
+            'parent': 'video-streaming',
+            'help': 'Kdenlive is a free and open-source video editing software.'
+        },
+        {
+            'id': 'mpv',
+            'label': 'MPV',
+            'description': 'Minimal media player',
+            'parent': 'video-streaming',
+            'help': 'MPV is a free and open-source media player software.'
+        },
+        {
+            'id': 'handbrake',
+            'label': 'HandBrake',
+            'description': 'Video transcoder',
+            'parent': 'video-streaming',
+            'help': 'HandBrake is a free and open-source transcoder for digital video files.'
+        },
+    ]
+    
+    # Productivity & Office
+    productivity_items = [
+        {
+            'id': 'libreoffice',
+            'label': 'LibreOffice',
+            'description': 'Office suite',
+            'parent': 'productivity-office',
+            'default': True,
+            'help': 'LibreOffice is a free and open-source office productivity software suite.'
+        },
+        {
+            'id': 'thunderbird',
+            'label': 'Thunderbird',
+            'description': 'Email client',
+            'parent': 'productivity-office',
+            'help': 'Mozilla Thunderbird is a free and open-source email client.'
+        },
+        {
+            'id': 'evolution',
+            'label': 'Evolution',
+            'description': 'Groupware suite',
+            'parent': 'productivity-office',
+            'help': 'Evolution is the official personal information manager for GNOME.'
+        },
+        {
+            'id': 'onlyoffice',
+            'label': 'OnlyOffice',
+            'description': 'Office suite',
+            'parent': 'productivity-office',
+            'help': 'OnlyOffice is a free software office suite developed by Ascensio System SIA.'
         },
         {
             'id': 'slack',
             'label': 'Slack',
-            'description': 'Team communication',
-            'parent': 'applications',
+            'description': 'Team collaboration',
+            'parent': 'productivity-office',
             'help': 'Slack is a messaging app for business that connects people to the information they need.'
+        },
+        {
+            'id': 'teams',
+            'label': 'Microsoft Teams',
+            'description': 'Team collaboration',
+            'parent': 'productivity-office',
+            'help': 'Microsoft Teams is a unified communication and collaboration platform.'
         },
     ]
     
+    # System Tools
+    system_tools_items = [
+        {
+            'id': 'gparted',
+            'label': 'GParted',
+            'description': 'Partition editor',
+            'parent': 'system-tools',
+            'help': 'GParted is a free partition editor for graphically managing disk partitions.'
+        },
+        {
+            'id': 'timeshift',
+            'label': 'Timeshift',
+            'description': 'System restore utility',
+            'parent': 'system-tools',
+            'help': 'Timeshift is a system restore tool for Linux.'
+        },
+        {
+            'id': 'bleachbit',
+            'label': 'BleachBit',
+            'description': 'System cleaner',
+            'parent': 'system-tools',
+            'help': 'BleachBit is a free and open-source disk space cleaner, privacy manager, and computer system optimizer.'
+        },
+        {
+            'id': 'stacer',
+            'label': 'Stacer',
+            'description': 'System optimizer',
+            'parent': 'system-tools',
+            'help': 'Stacer is an open source system optimizer and application monitor.'
+        },
+        {
+            'id': 'synaptic',
+            'label': 'Synaptic',
+            'description': 'Package manager GUI',
+            'parent': 'system-tools',
+            'help': 'Synaptic is a graphical package management tool based on APT.'
+        },
+    ]
+    
+    # File Management
+    file_mgmt_items = [
+        {
+            'id': 'double-commander',
+            'label': 'Double Commander',
+            'description': 'Dual-pane file manager',
+            'parent': 'file-management',
+            'help': 'Double Commander is a free cross-platform open source file manager with two panels.'
+        },
+        {
+            'id': 'midnight-commander',
+            'label': 'Midnight Commander',
+            'description': 'Terminal file manager',
+            'parent': 'file-management',
+            'help': 'GNU Midnight Commander is a free cross-platform orthodox file manager.'
+        },
+        {
+            'id': 'nemo',
+            'label': 'Nemo',
+            'description': 'File manager',
+            'parent': 'file-management',
+            'help': 'Nemo is a file manager for the Cinnamon desktop environment.'
+        },
+        {
+            'id': 'thunar',
+            'label': 'Thunar',
+            'description': 'File manager',
+            'parent': 'file-management',
+            'help': 'Thunar is a file manager for Linux and other Unix-like systems.'
+        },
+    ]
+    
+    # Combine all application items
+    app_items = []
+    app_items.extend(web_browser_items)
+    app_items.extend(communication_items)
+    app_items.extend(graphics_items)
+    app_items.extend(editor_items)
+    app_items.extend(audio_items)
+    app_items.extend(video_items)
+    app_items.extend(productivity_items)
+    app_items.extend(system_tools_items)
+    app_items.extend(file_mgmt_items)
+    
     items.extend(app_items)
+    
+    # Update application category children references
+    for cat_id, item_list in [
+        ('web-browsers', web_browser_items),
+        ('communication', communication_items),
+        ('graphics-media', graphics_items),
+        ('text-editors-ides', editor_items),
+        ('audio-music', audio_items),
+        ('video-streaming', video_items),
+        ('productivity-office', productivity_items),
+        ('system-tools', system_tools_items),
+        ('file-management', file_mgmt_items),
+    ]:
+        cat = next((c for c in categories if c['id'] == cat_id), None)
+        if cat:
+            cat['children'] = [item['id'] for item in item_list]
+    
+    # Keep general applications empty for now
     app_cat = next(cat for cat in categories if cat['id'] == 'applications')
-    app_cat['children'] = [item['id'] for item in app_items]
+    app_cat['children'] = []
     
     # Security items (simplified for now)
     security_items = [
@@ -1904,6 +2395,451 @@ Common use cases:
     items.extend(security_items)
     security_cat = next(cat for cat in categories if cat['id'] == 'security')
     security_cat['children'] = [item['id'] for item in security_items]
+    
+    # Security Testing subcategories
+    security_testing_subcategories = [
+        {
+            'id': 'network-security',
+            'label': 'Network Security',
+            'description': 'Network scanning and analysis tools',
+            'icon': '🌐',
+            'is_category': True,
+            'parent': 'security-testing',
+            'children': []
+        },
+        {
+            'id': 'web-security',
+            'label': 'Web Security',
+            'description': 'Web application security testing',
+            'icon': '🕸️',
+            'is_category': True,
+            'parent': 'security-testing',
+            'children': []
+        },
+        {
+            'id': 'password-tools',
+            'label': 'Password Tools',
+            'description': 'Password cracking and analysis',
+            'icon': '🔑',
+            'is_category': True,
+            'parent': 'security-testing',
+            'children': []
+        },
+        {
+            'id': 'wireless-security',
+            'label': 'Wireless Security',
+            'description': 'WiFi and wireless testing tools',
+            'icon': '📡',
+            'is_category': True,
+            'parent': 'security-testing',
+            'children': []
+        },
+        {
+            'id': 'forensics',
+            'label': 'Digital Forensics',
+            'description': 'Forensic analysis and recovery tools',
+            'icon': '🔍',
+            'is_category': True,
+            'parent': 'security-testing',
+            'children': []
+        },
+        {
+            'id': 'vulnerability-scanners',
+            'label': 'Vulnerability Scanners',
+            'description': 'System vulnerability assessment',
+            'icon': '🛡️',
+            'is_category': True,
+            'parent': 'security-testing',
+            'children': []
+        },
+        {
+            'id': 'privacy-tools',
+            'label': 'Privacy Tools',
+            'description': 'Privacy testing and anonymity tools',
+            'icon': '🕵️',
+            'is_category': True,
+            'parent': 'security-testing',
+            'children': []
+        },
+    ]
+    
+    items.extend(security_testing_subcategories)
+    
+    # Network Security Tools
+    network_security_items = [
+        {
+            'id': 'nmap',
+            'label': 'Nmap',
+            'description': 'Network scanner',
+            'parent': 'network-security',
+            'help': '''WARNING: Only use on networks you own or have explicit written permission to test.
+
+Nmap ("Network Mapper") is a powerful network discovery and security auditing tool. It can determine what hosts are available on the network, what services those hosts are offering, what operating systems they are running, and dozens of other characteristics.
+
+This will install:
+- nmap - Command-line network scanner
+- zenmap - GUI frontend for nmap
+- ncat - Modern reimplementation of netcat
+- ndiff - Utility for comparing nmap scan results
+
+Common legal uses:
+- Network inventory and asset management
+- Security auditing of your own systems
+- Monitoring service uptime
+- Detecting unauthorized devices on your network'''
+        },
+        {
+            'id': 'wireshark',
+            'label': 'Wireshark',
+            'description': 'Packet analyzer',
+            'parent': 'network-security',
+            'help': '''WARNING: Only capture traffic on networks you own or have explicit permission to monitor.
+
+Wireshark is the world's most popular network protocol analyzer. It lets you capture and interactively browse traffic running on a computer network.
+
+This will install:
+- wireshark - GUI packet analyzer
+- tshark - Command-line packet analyzer
+- wireshark-qt - Qt-based GUI (default)
+- dumpcap - Network traffic capture tool
+
+Configuration:
+- Adds user to wireshark group for non-root packet capture
+- Sets up proper permissions for network interfaces
+- Configures default capture filters
+
+Legal uses:
+- Troubleshooting network problems
+- Examining security problems on your own network
+- Debugging protocol implementations
+- Learning network protocol internals'''
+        },
+        {
+            'id': 'tcpdump',
+            'label': 'tcpdump',
+            'description': 'Command-line packet analyzer',
+            'parent': 'network-security',
+            'help': 'WARNING: Only use on networks you own or have permission to monitor. tcpdump is a powerful command-line packet analyzer.'
+        },
+        {
+            'id': 'netcat',
+            'label': 'Netcat',
+            'description': 'Network utility',
+            'parent': 'network-security',
+            'help': 'Netcat is a versatile networking utility for reading/writing network connections. Use only on authorized systems.'
+        },
+        {
+            'id': 'masscan',
+            'label': 'Masscan',
+            'description': 'Fast port scanner',
+            'parent': 'network-security',
+            'help': 'WARNING: Only scan networks you own or have permission to test. Masscan is an extremely fast port scanner.'
+        },
+    ]
+    
+    # Web Security Tools
+    web_security_items = [
+        {
+            'id': 'burp-suite',
+            'label': 'Burp Suite Community',
+            'description': 'Web vulnerability scanner',
+            'parent': 'web-security',
+            'help': '''WARNING: Only test web applications you own or have written permission to test.
+
+Burp Suite is an integrated platform for performing security testing of web applications. The Community Edition provides essential manual tools for web security testing.
+
+This will install:
+- Burp Suite Community Edition
+- Java runtime (required dependency)
+- Desktop launcher and menu entry
+
+Features included:
+- Proxy for intercepting HTTP/S traffic
+- Repeater for manipulating and resending requests
+- Sequencer for testing token randomness
+- Decoder for encoding/decoding data
+- Comparer for comparing responses
+
+Legal uses:
+- Testing your own web applications
+- Security assessments with client permission
+- Web development debugging
+- Learning web security concepts'''
+        },
+        {
+            'id': 'owasp-zap',
+            'label': 'OWASP ZAP',
+            'description': 'Web app security scanner',
+            'parent': 'web-security',
+            'help': 'WARNING: Only test applications you own or have permission to test. OWASP ZAP is a free web application security scanner.'
+        },
+        {
+            'id': 'sqlmap',
+            'label': 'SQLMap',
+            'description': 'SQL injection tool',
+            'parent': 'web-security',
+            'help': 'WARNING: Only use on applications you own or have explicit permission to test. SQLMap automates SQL injection detection and exploitation.'
+        },
+        {
+            'id': 'nikto',
+            'label': 'Nikto',
+            'description': 'Web server scanner',
+            'parent': 'web-security',
+            'help': 'WARNING: Only scan servers you own or have permission to test. Nikto is a web server vulnerability scanner.'
+        },
+        {
+            'id': 'dirbuster',
+            'label': 'DirBuster',
+            'description': 'Directory/file brute forcer',
+            'parent': 'web-security',
+            'help': 'WARNING: Only use on web servers you own or have permission to test. DirBuster brute forces directories and files on web servers.'
+        },
+    ]
+    
+    # Password Tools
+    password_tools_items = [
+        {
+            'id': 'john',
+            'label': 'John the Ripper',
+            'description': 'Password cracker',
+            'parent': 'password-tools',
+            'help': '''WARNING: Only use on password hashes you own or have explicit authorization to test.
+
+John the Ripper is a fast password cracker designed to detect weak Unix passwords. It supports hundreds of hash and cipher types.
+
+This will install:
+- john - Main password cracking tool
+- john-data - Password lists and rules
+- unique - Remove duplicates from wordlists
+- unshadow - Combine passwd and shadow files
+
+Legal uses:
+- Testing password strength in your organization
+- Recovering your own forgotten passwords
+- Security audits with proper authorization
+- Password policy compliance testing'''
+        },
+        {
+            'id': 'hashcat',
+            'label': 'Hashcat',
+            'description': 'Advanced password recovery',
+            'parent': 'password-tools',
+            'help': 'WARNING: Only use on hashes you own or have authorization to crack. Hashcat is an advanced CPU/GPU-based password recovery utility.'
+        },
+        {
+            'id': 'hydra',
+            'label': 'Hydra',
+            'description': 'Network login cracker',
+            'parent': 'password-tools',
+            'help': 'WARNING: Only use on systems you own or have explicit permission to test. Hydra is a parallelized network login cracker.'
+        },
+        {
+            'id': 'crackmap-exec',
+            'label': 'CrackMapExec',
+            'description': 'Network authentication testing',
+            'parent': 'password-tools',
+            'help': 'WARNING: Only use on networks you own or have permission to test. CrackMapExec is a post-exploitation tool for testing network authentication.'
+        },
+    ]
+    
+    # Wireless Security Tools
+    wireless_security_items = [
+        {
+            'id': 'aircrack-ng',
+            'label': 'Aircrack-ng',
+            'description': 'WiFi security auditing',
+            'parent': 'wireless-security',
+            'help': 'WARNING: Only test networks you own or have explicit permission to audit. Aircrack-ng is a WiFi security auditing tool suite.'
+        },
+        {
+            'id': 'kismet',
+            'label': 'Kismet',
+            'description': 'Wireless network detector',
+            'parent': 'wireless-security',
+            'help': 'WARNING: Check local laws before using. Kismet is a wireless network and device detector, sniffer, and intrusion detection system.'
+        },
+        {
+            'id': 'reaver',
+            'label': 'Reaver',
+            'description': 'WPS attack tool',
+            'parent': 'wireless-security',
+            'help': 'WARNING: Only use on your own networks. Reaver performs brute force attacks against WiFi Protected Setup (WPS).'
+        },
+        {
+            'id': 'wifite',
+            'label': 'Wifite',
+            'description': 'Automated wireless auditor',
+            'parent': 'wireless-security',
+            'help': 'WARNING: Only audit networks you own. Wifite is an automated wireless attack tool.'
+        },
+    ]
+    
+    # Forensics Tools
+    forensics_items = [
+        {
+            'id': 'autopsy',
+            'label': 'Autopsy',
+            'description': 'Digital forensics platform',
+            'parent': 'forensics',
+            'help': 'Autopsy is a graphical interface to The Sleuth Kit and other digital forensics tools. Use only on systems you have legal authority to examine.'
+        },
+        {
+            'id': 'volatility',
+            'label': 'Volatility',
+            'description': 'Memory forensics framework',
+            'parent': 'forensics',
+            'help': 'Volatility is an advanced memory forensics framework. Use only on memory dumps you have authorization to analyze.'
+        },
+        {
+            'id': 'foremost',
+            'label': 'Foremost',
+            'description': 'File recovery tool',
+            'parent': 'forensics',
+            'help': 'Foremost is a forensic tool for recovering files based on headers and footers. Use only on drives you own or have permission to analyze.'
+        },
+        {
+            'id': 'binwalk',
+            'label': 'Binwalk',
+            'description': 'Firmware analysis tool',
+            'parent': 'forensics',
+            'help': 'Binwalk is a tool for analyzing and extracting firmware images. Use only on firmware you have rights to examine.'
+        },
+    ]
+    
+    # Vulnerability Scanners
+    vuln_scanner_items = [
+        {
+            'id': 'openvas',
+            'label': 'OpenVAS',
+            'description': 'Vulnerability assessment',
+            'parent': 'vulnerability-scanners',
+            'help': 'WARNING: Only scan systems you own or have permission to test. OpenVAS is a full-featured vulnerability assessment tool.'
+        },
+        {
+            'id': 'lynis',
+            'label': 'Lynis',
+            'description': 'Security auditing tool',
+            'parent': 'vulnerability-scanners',
+            'help': 'Lynis is a security auditing tool for Unix-based systems. Use on your own systems or with proper authorization.'
+        },
+        {
+            'id': 'chkrootkit',
+            'label': 'chkrootkit',
+            'description': 'Rootkit scanner',
+            'parent': 'vulnerability-scanners',
+            'help': 'chkrootkit is a tool to locally check for signs of a rootkit. Run on your own systems for security monitoring.'
+        },
+        {
+            'id': 'rkhunter',
+            'label': 'rkhunter',
+            'description': 'Rootkit hunter',
+            'parent': 'vulnerability-scanners',
+            'help': 'Rootkit Hunter scans for rootkits, backdoors and possible local exploits. Use for security monitoring of your own systems.'
+        },
+    ]
+    
+    # Combine all security testing items
+    security_testing_items = []
+    security_testing_items.extend(network_security_items)
+    security_testing_items.extend(web_security_items)
+    security_testing_items.extend(password_tools_items)
+    security_testing_items.extend(wireless_security_items)
+    security_testing_items.extend(forensics_items)
+    security_testing_items.extend(vuln_scanner_items)
+    
+    # Privacy Tools items
+    privacy_tools_items = [
+        {
+            'id': 'tor-browser',
+            'label': 'Tor Browser',
+            'description': 'Anonymous web browsing',
+            'parent': 'privacy-tools',
+            'help': '''Tor Browser provides anonymous web browsing.
+Features:
+- Routes traffic through Tor network
+- Blocks trackers
+- Resists fingerprinting
+- Multi-layered encryption
+Note: For maximum anonymity, use Tails OS.'''
+        },
+        {
+            'id': 'tails-installer',
+            'label': 'Tails Installer',
+            'description': 'Create Tails live USB',
+            'parent': 'privacy-tools',
+            'help': 'Tails (The Amnesic Incognito Live System) installer for creating anonymous live USB systems.'
+        },
+        {
+            'id': 'onionshare',
+            'label': 'OnionShare',
+            'description': 'Anonymous file sharing',
+            'parent': 'privacy-tools',
+            'help': 'OnionShare lets you securely and anonymously share files using Tor.'
+        },
+        {
+            'id': 'mat2',
+            'label': 'MAT2',
+            'description': 'Metadata removal tool',
+            'parent': 'privacy-tools',
+            'help': '''Metadata Anonymisation Toolkit 2 removes metadata from files.
+Supports:
+- Images (JPEG, PNG, etc.)
+- Office documents
+- PDFs
+- Audio/Video files
+- Archives'''
+        },
+        {
+            'id': 'bleachbit',
+            'label': 'BleachBit',
+            'description': 'System cleaner',
+            'parent': 'privacy-tools',
+            'help': 'BleachBit cleans files to free disk space and maintain privacy.'
+        },
+        {
+            'id': 'proxychains',
+            'label': 'ProxyChains',
+            'description': 'Force apps through proxy',
+            'parent': 'privacy-tools',
+            'help': 'ProxyChains forces any TCP connection through SOCKS4, SOCKS5 or HTTP proxies.'
+        },
+        {
+            'id': 'anonsurf',
+            'label': 'AnonSurf',
+            'description': 'System-wide anonymization',
+            'parent': 'privacy-tools',
+            'help': 'AnonSurf routes all system traffic through Tor network.'
+        },
+        {
+            'id': 'kloak',
+            'label': 'kloak',
+            'description': 'Keystroke anonymization',
+            'parent': 'privacy-tools',
+            'help': 'kloak obfuscates typing patterns to prevent keystroke fingerprinting.'
+        }
+    ]
+    
+    security_testing_items.extend(privacy_tools_items)
+    
+    items.extend(security_testing_items)
+    
+    # Update security testing category children
+    security_testing_cat = next(cat for cat in categories if cat['id'] == 'security-testing')
+    security_testing_cat['children'] = [item['id'] for item in security_testing_subcategories]
+    
+    # Update subcategory children
+    for subcat_id, item_list in [
+        ('network-security', network_security_items),
+        ('web-security', web_security_items),
+        ('password-tools', password_tools_items),
+        ('wireless-security', wireless_security_items),
+        ('forensics', forensics_items),
+        ('vulnerability-scanners', vuln_scanner_items),
+        ('privacy-tools', privacy_tools_items),
+    ]:
+        subcat = next((c for c in security_testing_subcategories if c['id'] == subcat_id), None)
+        if subcat:
+            subcat['children'] = [item['id'] for item in item_list]
     
     # Themes & Appearance
     theme_subcategories = [
@@ -2186,6 +3122,621 @@ Common use cases:
     items.extend(system_items)
     system_cat = next(cat for cat in categories if cat['id'] == 'system')
     system_cat['children'] = [item['id'] for item in system_items]
+    
+    # Gaming items
+    gaming_items = [
+        {
+            'id': 'steam',
+            'label': 'Steam',
+            'description': 'Digital distribution platform for games',
+            'parent': 'gaming',
+            'help': '''Steam is Valve's digital distribution platform for PC gaming.
+This will install:
+- Steam client (latest version)
+- 32-bit libraries required for Steam
+- Steam runtime dependencies
+- Vulkan drivers for better game performance
+Features:
+- Access to thousands of games
+- Cloud saves
+- Steam Workshop for mods
+- Steam Play/Proton for Windows game compatibility
+- In-home streaming
+- Big Picture mode for TV gaming
+System integration:
+- Desktop shortcut created
+- Steam protocol handler registered
+- Automatic updates enabled
+Note: First launch will download additional Steam runtime components.'''
+        },
+        {
+            'id': 'lutris',
+            'label': 'Lutris',
+            'description': 'Open gaming platform for Linux',
+            'parent': 'gaming',
+            'help': '''Lutris is an open-source gaming platform that makes gaming on Linux easier.
+Installs:
+- Lutris client
+- Wine dependencies
+- Common game runtime libraries
+Features:
+- Install games from GOG, Steam, Battle.net, Origin, Uplay
+- Automated installer scripts for games
+- Wine/Proton management
+- Emulator support
+- Game library management'''
+        },
+        {
+            'id': 'wine',
+            'label': 'Wine',
+            'description': 'Windows compatibility layer',
+            'parent': 'gaming',
+            'help': '''Wine allows you to run Windows applications on Linux.
+Installs:
+- Wine stable (latest version)
+- Wine32 and Wine64 libraries
+- Winetricks for easy configuration
+- Common Windows fonts
+- Mono and Gecko for .NET/IE compatibility'''
+        },
+        {
+            'id': 'playonlinux',
+            'label': 'PlayOnLinux',
+            'description': 'Graphical frontend for Wine',
+            'parent': 'gaming',
+            'help': 'PlayOnLinux simplifies Wine configuration for games and applications with automated scripts.'
+        },
+        {
+            'id': 'gamemode',
+            'label': 'GameMode',
+            'description': 'Optimize system performance for gaming',
+            'parent': 'gaming',
+            'default': True,
+            'help': '''GameMode automatically optimizes your system for gaming performance.
+Features:
+- CPU governor set to performance mode
+- I/O priority adjustments
+- GPU performance mode
+- Screensaver inhibition
+- Custom game-specific optimizations
+Automatically activated by supported games.'''
+        },
+        {
+            'id': 'mangohud',
+            'label': 'MangoHud',
+            'description': 'Vulkan/OpenGL overlay for monitoring',
+            'parent': 'gaming',
+            'help': 'MangoHud provides an overlay showing FPS, temperatures, CPU/GPU load while gaming.'
+        },
+        {
+            'id': 'discord',
+            'label': 'Discord',
+            'description': 'Voice and text chat for gamers',
+            'parent': 'gaming',
+            'help': 'Discord is a popular communication platform for gaming communities.'
+        },
+        {
+            'id': 'obs-studio',
+            'label': 'OBS Studio',
+            'description': 'Streaming and recording software',
+            'parent': 'gaming',
+            'help': '''OBS Studio for game streaming and recording.
+Features:
+- High performance real-time video/audio capturing
+- Scene composition
+- Twitch/YouTube streaming support
+- GPU encoding support'''
+        }
+    ]
+    
+    items.extend(gaming_items)
+    gaming_cat = next(cat for cat in categories if cat['id'] == 'gaming')
+    gaming_cat['children'] = [item['id'] for item in gaming_items]
+    
+    # Multimedia Production items
+    multimedia_items = [
+        {
+            'id': 'blender',
+            'label': 'Blender',
+            'description': '3D creation suite',
+            'parent': 'multimedia',
+            'help': '''Blender is a professional, free and open-source 3D creation suite.
+Features:
+- 3D modeling, sculpting, and texturing
+- Animation and rigging
+- Video editing and compositing
+- Game engine
+- Python scripting
+- GPU rendering support (CUDA/OpenCL)'''
+        },
+        {
+            'id': 'kdenlive',
+            'label': 'Kdenlive',
+            'description': 'Video editor',
+            'parent': 'multimedia',
+            'help': '''Kdenlive is a powerful non-linear video editor.
+Features:
+- Multi-track editing
+- Wide format support
+- Effects and transitions
+- Proxy editing for 4K
+- Hardware acceleration'''
+        },
+        {
+            'id': 'davinci-resolve',
+            'label': 'DaVinci Resolve',
+            'description': 'Professional video editor and color grading',
+            'parent': 'multimedia',
+            'help': '''DaVinci Resolve is a professional video editing and color grading application.
+Note: This installs the free version. Requires manual download acceptance.
+Features:
+- Professional editing tools
+- Industry-leading color correction
+- Fusion visual effects
+- Fairlight audio post-production'''
+        },
+        {
+            'id': 'obs-studio-multimedia',
+            'label': 'OBS Studio',
+            'description': 'Broadcasting and recording',
+            'parent': 'multimedia',
+            'help': 'Open Broadcaster Software for live streaming and recording.'
+        },
+        {
+            'id': 'openshot',
+            'label': 'OpenShot',
+            'description': 'Simple video editor',
+            'parent': 'multimedia',
+            'help': 'OpenShot is an easy-to-use, quick to learn, and powerful video editor.'
+        },
+        {
+            'id': 'natron',
+            'label': 'Natron',
+            'description': 'Compositing software',
+            'parent': 'multimedia',
+            'help': 'Natron is an open-source compositing software for visual effects and motion graphics.'
+        },
+        {
+            'id': 'olive',
+            'label': 'Olive',
+            'description': 'Non-linear video editor',
+            'parent': 'multimedia',
+            'help': 'Olive is a free non-linear video editor aiming for professional features.'
+        },
+        {
+            'id': 'pitivi',
+            'label': 'Pitivi',
+            'description': 'Video editor for Linux',
+            'parent': 'multimedia',
+            'help': 'Pitivi is a video editor designed to be intuitive and integrate well with GNOME.'
+        }
+    ]
+    
+    items.extend(multimedia_items)
+    multimedia_cat = next(cat for cat in categories if cat['id'] == 'multimedia')
+    multimedia_cat['children'] = [item['id'] for item in multimedia_items]
+    
+    # Networking items
+    networking_items = [
+        {
+            'id': 'wireshark',
+            'label': 'Wireshark',
+            'description': 'Network protocol analyzer',
+            'parent': 'networking',
+            'help': '''Wireshark is the world's foremost network protocol analyzer.
+Features:
+- Deep inspection of hundreds of protocols
+- Live capture and offline analysis
+- Rich VoIP analysis
+- Decryption support for many protocols
+Note: Adds user to wireshark group for capture permissions.'''
+        },
+        {
+            'id': 'nmap',
+            'label': 'Nmap',
+            'description': 'Network discovery and security auditing',
+            'parent': 'networking',
+            'help': 'Network exploration tool and security/port scanner.'
+        },
+        {
+            'id': 'netcat',
+            'label': 'Netcat',
+            'description': 'TCP/IP swiss army knife',
+            'parent': 'networking',
+            'help': 'Netcat - networking utility for reading/writing network connections.'
+        },
+        {
+            'id': 'iftop',
+            'label': 'iftop',
+            'description': 'Display bandwidth usage',
+            'parent': 'networking',
+            'help': 'iftop displays bandwidth usage on an interface by host.'
+        },
+        {
+            'id': 'vnstat',
+            'label': 'vnStat',
+            'description': 'Network traffic monitor',
+            'parent': 'networking',
+            'help': 'vnStat is a network traffic monitor that keeps a log of network traffic.'
+        },
+        {
+            'id': 'nethogs',
+            'label': 'NetHogs',
+            'description': 'Per-process bandwidth monitor',
+            'parent': 'networking',
+            'help': 'NetHogs groups bandwidth by process instead of by IP or interface.'
+        },
+        {
+            'id': 'mtr',
+            'label': 'MTR',
+            'description': 'Network diagnostic tool',
+            'parent': 'networking',
+            'help': 'MTR combines ping and traceroute functionality in a single tool.'
+        },
+        {
+            'id': 'tcpdump',
+            'label': 'tcpdump',
+            'description': 'Command-line packet analyzer',
+            'parent': 'networking',
+            'help': 'tcpdump is a powerful command-line packet analyzer.'
+        },
+        {
+            'id': 'ethtool',
+            'label': 'ethtool',
+            'description': 'Ethernet device settings',
+            'parent': 'networking',
+            'help': 'ethtool is used to query and control network device driver settings.'
+        },
+        {
+            'id': 'iperf3',
+            'label': 'iPerf3',
+            'description': 'Network bandwidth testing',
+            'parent': 'networking',
+            'help': 'iPerf3 is a tool for active measurements of network bandwidth.'
+        }
+    ]
+    
+    items.extend(networking_items)
+    networking_cat = next(cat for cat in categories if cat['id'] == 'networking')
+    networking_cat['children'] = [item['id'] for item in networking_items]
+    
+    # Virtualization items
+    virtualization_items = [
+        {
+            'id': 'virtualbox',
+            'label': 'VirtualBox',
+            'description': 'Full virtualization solution',
+            'parent': 'virtualization',
+            'help': '''Oracle VM VirtualBox is a powerful virtualization product.
+Installs:
+- VirtualBox application
+- VirtualBox kernel modules
+- VirtualBox Extension Pack
+- Guest additions ISO
+Features:
+- Run multiple operating systems
+- Snapshots and cloning
+- Shared folders and clipboard
+- USB device support
+- Network configuration options'''
+        },
+        {
+            'id': 'virt-manager',
+            'label': 'Virt-Manager',
+            'description': 'QEMU/KVM virtualization manager',
+            'parent': 'virtualization',
+            'help': '''Virtual Machine Manager for QEMU/KVM.
+Installs:
+- virt-manager GUI
+- libvirt daemon
+- QEMU/KVM
+- Virtual network configuration
+Features:
+- Native virtualization performance
+- Live migration
+- Storage pools
+- Network management'''
+        },
+        {
+            'id': 'gnome-boxes',
+            'label': 'GNOME Boxes',
+            'description': 'Simple virtualization for GNOME',
+            'parent': 'virtualization',
+            'help': 'GNOME Boxes provides a simple interface for virtualization.'
+        },
+        {
+            'id': 'vagrant',
+            'label': 'Vagrant',
+            'description': 'Development environment automation',
+            'parent': 'virtualization',
+            'help': '''Vagrant automates development environment setup.
+Features:
+- Reproducible environments
+- Provider abstraction (VirtualBox, VMware, etc.)
+- Provisioning integration
+- Multi-machine environments'''
+        },
+        {
+            'id': 'lxd',
+            'label': 'LXD',
+            'description': 'System container manager',
+            'parent': 'virtualization',
+            'help': '''LXD is a next generation system container manager.
+Features:
+- Fast, lightweight containers
+- Image-based workflow
+- Live migration
+- REST API
+- Storage and network management'''
+        },
+        {
+            'id': 'multipass',
+            'label': 'Multipass',
+            'description': 'Ubuntu VM manager',
+            'parent': 'virtualization',
+            'help': 'Multipass provides instant Ubuntu VMs with a single command.'
+        },
+        {
+            'id': 'vmware-workstation',
+            'label': 'VMware Workstation',
+            'description': 'Professional virtualization (requires license)',
+            'parent': 'virtualization',
+            'help': 'VMware Workstation Pro is a commercial virtualization solution. Requires separate license purchase.'
+        }
+    ]
+    
+    items.extend(virtualization_items)
+    virtualization_cat = next(cat for cat in categories if cat['id'] == 'virtualization')
+    virtualization_cat['children'] = [item['id'] for item in virtualization_items]
+    
+    # Cloud Tools items
+    cloud_tools_items = [
+        {
+            'id': 'aws-cli',
+            'label': 'AWS CLI',
+            'description': 'Amazon Web Services command-line interface',
+            'parent': 'cloud-tools',
+            'help': '''AWS Command Line Interface for managing Amazon Web Services.
+Features:
+- Manage EC2, S3, Lambda, and all AWS services
+- Multiple profile support
+- Output formatting options
+- Shell command completion'''
+        },
+        {
+            'id': 'azure-cli',
+            'label': 'Azure CLI',
+            'description': 'Microsoft Azure command-line interface',
+            'parent': 'cloud-tools',
+            'help': '''Azure CLI for managing Microsoft Azure resources.
+Features:
+- Cross-platform command-line experience
+- Interactive mode with auto-completion
+- JMESPath query support
+- Multiple output formats'''
+        },
+        {
+            'id': 'gcloud',
+            'label': 'Google Cloud SDK',
+            'description': 'Google Cloud Platform CLI tools',
+            'parent': 'cloud-tools',
+            'help': '''Google Cloud SDK including gcloud, gsutil, and bq.
+Components:
+- gcloud - manage Google Cloud resources
+- gsutil - Google Storage utilities
+- bq - BigQuery command-line tool
+- kubectl - Kubernetes control'''
+        },
+        {
+            'id': 'kubectl',
+            'label': 'kubectl',
+            'description': 'Kubernetes command-line tool',
+            'parent': 'cloud-tools',
+            'help': 'kubectl is the Kubernetes command-line tool for deploying and managing applications on Kubernetes.'
+        },
+        {
+            'id': 'helm',
+            'label': 'Helm',
+            'description': 'Kubernetes package manager',
+            'parent': 'cloud-tools',
+            'help': 'Helm is the package manager for Kubernetes, simplifying deployment of applications.'
+        },
+        {
+            'id': 'terraform',
+            'label': 'Terraform',
+            'description': 'Infrastructure as Code tool',
+            'parent': 'cloud-tools',
+            'help': '''Terraform enables infrastructure as code for any cloud.
+Features:
+- Declarative infrastructure
+- Multi-cloud support
+- State management
+- Module ecosystem'''
+        },
+        {
+            'id': 'ansible-cloud',
+            'label': 'Ansible',
+            'description': 'Automation platform',
+            'parent': 'cloud-tools',
+            'help': 'Ansible automates cloud provisioning, configuration management, and application deployment.'
+        },
+        {
+            'id': 'doctl',
+            'label': 'doctl',
+            'description': 'DigitalOcean command-line tool',
+            'parent': 'cloud-tools',
+            'help': 'doctl is the official DigitalOcean command-line client.'
+        },
+        {
+            'id': 'linode-cli',
+            'label': 'Linode CLI',
+            'description': 'Linode command-line interface',
+            'parent': 'cloud-tools',
+            'help': 'Linode CLI for managing Linode cloud resources.'
+        }
+    ]
+    
+    items.extend(cloud_tools_items)
+    cloud_tools_cat = next(cat for cat in categories if cat['id'] == 'cloud-tools')
+    cloud_tools_cat['children'] = [item['id'] for item in cloud_tools_items]
+    
+    # Application Customization items
+    customization_items = [
+        {
+            'id': 'gnome-tweaks',
+            'label': 'GNOME Tweaks',
+            'description': 'Advanced GNOME settings',
+            'parent': 'customization',
+            'help': 'GNOME Tweaks provides additional configuration options for the GNOME desktop.'
+        },
+        {
+            'id': 'dconf-editor',
+            'label': 'dconf Editor',
+            'description': 'Low-level GNOME configuration',
+            'parent': 'customization',
+            'help': 'dconf Editor provides direct access to GNOME configuration database.'
+        },
+        {
+            'id': 'dotfiles-manager',
+            'label': 'GNU Stow',
+            'description': 'Dotfiles symlink manager',
+            'parent': 'customization',
+            'help': '''GNU Stow manages dotfiles through symlinks.
+Features:
+- Organize dotfiles in packages
+- Easy installation/removal
+- Version control friendly
+- No configuration needed'''
+        },
+        {
+            'id': 'yadm',
+            'label': 'YADM',
+            'description': 'Yet Another Dotfiles Manager',
+            'parent': 'customization',
+            'help': 'YADM is a dotfile manager that leverages Git with additional features for dotfile management.'
+        },
+        {
+            'id': 'chezmoi',
+            'label': 'chezmoi',
+            'description': 'Manage dotfiles across machines',
+            'parent': 'customization',
+            'help': '''chezmoi manages your dotfiles securely across multiple machines.
+Features:
+- Template support
+- Password manager integration
+- Machine-specific configuration
+- Encryption support'''
+        },
+        {
+            'id': 'conky',
+            'label': 'Conky',
+            'description': 'System monitor for desktop',
+            'parent': 'customization',
+            'help': 'Conky is a highly configurable system monitor that displays information on your desktop.'
+        },
+        {
+            'id': 'plank',
+            'label': 'Plank',
+            'description': 'Simple dock',
+            'parent': 'customization',
+            'help': 'Plank is a simple, clean dock for Linux desktops.'
+        },
+        {
+            'id': 'ulauncher',
+            'label': 'Ulauncher',
+            'description': 'Application launcher',
+            'parent': 'customization',
+            'help': 'Ulauncher is a fast application launcher with extension support.'
+        },
+        {
+            'id': 'albert',
+            'label': 'Albert',
+            'description': 'Desktop agnostic launcher',
+            'parent': 'customization',
+            'help': 'Albert is a desktop agnostic launcher inspired by Alfred.'
+        }
+    ]
+    
+    items.extend(customization_items)
+    customization_cat = next(cat for cat in categories if cat['id'] == 'customization')
+    customization_cat['children'] = [item['id'] for item in customization_items]
+    
+    # General Applications items (miscellaneous)
+    general_app_items = [
+        {
+            'id': 'caffeine',
+            'label': 'Caffeine',
+            'description': 'Prevent screen sleep',
+            'parent': 'applications',
+            'help': 'Caffeine prevents your screen from going to sleep.'
+        },
+        {
+            'id': 'redshift',
+            'label': 'Redshift',
+            'description': 'Blue light filter',
+            'parent': 'applications',
+            'help': 'Redshift adjusts screen color temperature based on time of day to reduce eye strain.'
+        },
+        {
+            'id': 'copyq',
+            'label': 'CopyQ',
+            'description': 'Clipboard manager',
+            'parent': 'applications',
+            'help': 'CopyQ is an advanced clipboard manager with searchable history.'
+        },
+        {
+            'id': 'flameshot',
+            'label': 'Flameshot',
+            'description': 'Screenshot tool',
+            'parent': 'applications',
+            'help': 'Powerful screenshot software with annotation features.'
+        },
+        {
+            'id': 'peek',
+            'label': 'Peek',
+            'description': 'GIF recorder',
+            'parent': 'applications',
+            'help': 'Simple animated GIF screen recorder.'
+        },
+        {
+            'id': 'etcher',
+            'label': 'balenaEtcher',
+            'description': 'USB/SD card writer',
+            'parent': 'applications',
+            'help': 'Flash OS images to SD cards and USB drives safely and easily.'
+        },
+        {
+            'id': 'ventoy',
+            'label': 'Ventoy',
+            'description': 'Bootable USB creator',
+            'parent': 'applications',
+            'help': 'Create bootable USB drive for multiple ISO files.'
+        },
+        {
+            'id': 'gparted',
+            'label': 'GParted',
+            'description': 'Partition editor',
+            'parent': 'applications',
+            'help': 'GNOME Partition Editor for managing disk partitions.'
+        },
+        {
+            'id': 'timeshift',
+            'label': 'Timeshift',
+            'description': 'System backup tool',
+            'parent': 'applications',
+            'default': True,
+            'help': '''Timeshift creates filesystem snapshots for system restore.
+Features:
+- BTRFS/RSYNC snapshot support
+- Scheduled snapshots
+- Boot from snapshot
+- Easy restoration'''
+        }
+    ]
+    
+    items.extend(general_app_items)
+    applications_cat = next(cat for cat in categories if cat['id'] == 'applications')
+    applications_cat['children'] = [item['id'] for item in general_app_items]
     
     # Fill in empty categories
     for cat in categories:
