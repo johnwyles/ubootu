@@ -77,6 +77,15 @@ def load_menu_structure() -> List[Dict]:
             'children': []
         },
         {
+            'id': 'themes',
+            'label': 'Themes & Appearance',
+            'description': 'Universal color schemes and themes',
+            'icon': '🌈',
+            'is_category': True,
+            'parent': None,
+            'children': []
+        },
+        {
             'id': 'gaming',
             'label': 'Gaming',
             'description': 'Gaming platforms and tools',
@@ -1501,20 +1510,54 @@ Common use cases:
             'help': 'Enable programming ligatures if using a font that supports them (like Fira Code).'
         },
         {
-            'id': 'vscode-font-size',
-            'label': 'VS Code Font Size',
-            'description': 'Editor font size (10-24)',
+            'id': 'editor-font-family',
+            'label': 'Editor Font',
+            'description': 'Choose editor font',
             'parent': 'dev-editor-settings',
             'is_configurable': True,
+            'config_type': 'select',
+            'options': [
+                'JetBrains Mono', 'Fira Code', 'Source Code Pro', 'Cascadia Code',
+                'Monaco', 'Consolas', 'Menlo', 'Ubuntu Mono', 'Hack', 
+                'Inconsolata', 'Roboto Mono', 'SF Mono', 'IBM Plex Mono',
+                'Iosevka', 'Victor Mono', 'Input Mono'
+            ],
+            'default_value': 'JetBrains Mono',
+            'help': 'Choose the font family for code editors. JetBrains Mono and Fira Code include programming ligatures.'
+        },
+        {
+            'id': 'vscode-font-size',
+            'label': 'VS Code Font Size',
+            'description': 'Editor font size',
+            'parent': 'dev-editor-settings',
+            'is_configurable': True,
+            'config_type': 'spinner',
+            'values': [10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24],
             'default_value': 14,
+            'unit': 'px',
             'help': 'Set the font size for the VS Code editor (pixels).'
+        },
+        {
+            'id': 'editor-line-height',
+            'label': 'Line Height',
+            'description': 'Space between lines',
+            'parent': 'dev-editor-settings',
+            'is_configurable': True,
+            'config_type': 'slider',
+            'min_value': 1.0,
+            'max_value': 3.0,
+            'step': 0.1,
+            'default_value': 1.5,
+            'help': 'Set the line height multiplier for better readability.'
         },
         {
             'id': 'vscode-tab-size',
             'label': 'VS Code Tab Size',
-            'description': 'Spaces per tab (2-8)',
+            'description': 'Spaces per tab',
             'parent': 'dev-editor-settings',
             'is_configurable': True,
+            'config_type': 'spinner',
+            'values': [2, 4, 8],
             'default_value': 4,
             'help': 'Number of spaces to use for each tab in VS Code.'
         },
@@ -1568,13 +1611,20 @@ Common use cases:
     # Terminal Settings
     terminal_setting_items = [
         {
-            'id': 'terminal-transparency',
-            'label': 'Terminal Transparency',
-            'description': 'Background transparency (0-100%)',
+            'id': 'terminal-font-family',
+            'label': 'Terminal Font',
+            'description': 'Choose terminal font',
             'parent': 'dev-terminal-settings',
             'is_configurable': True,
-            'default_value': 85,
-            'help': 'Set the transparency level of your terminal background. 0% is opaque, 100% is fully transparent.'
+            'config_type': 'select',
+            'options': [
+                'JetBrains Mono', 'Fira Code', 'Source Code Pro', 'Cascadia Code',
+                'Ubuntu Mono', 'Hack', 'Inconsolata', 'Roboto Mono', 'SF Mono',
+                'IBM Plex Mono', 'Iosevka', 'Victor Mono', 'Anonymous Pro',
+                'Cousine', 'DejaVu Sans Mono', 'Droid Sans Mono', 'Liberation Mono'
+            ],
+            'default_value': 'JetBrains Mono',
+            'help': 'Choose the font family for your terminal. JetBrains Mono and Fira Code include programming ligatures.'
         },
         {
             'id': 'terminal-font-size',
@@ -1582,8 +1632,48 @@ Common use cases:
             'description': 'Font size in points',
             'parent': 'dev-terminal-settings',
             'is_configurable': True,
+            'config_type': 'spinner',
+            'values': [8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24],
             'default_value': 12,
+            'unit': 'pt',
             'help': 'Set the font size for your terminal in points.'
+        },
+        {
+            'id': 'terminal-transparency',
+            'label': 'Terminal Transparency',
+            'description': 'Background transparency',
+            'parent': 'dev-terminal-settings',
+            'is_configurable': True,
+            'config_type': 'slider',
+            'min_value': 0,
+            'max_value': 100,
+            'default_value': 85,
+            'unit': '%',
+            'help': 'Set the transparency level of your terminal background. 0% is opaque, 100% is fully transparent.'
+        },
+        {
+            'id': 'terminal-blur',
+            'label': 'Background Blur',
+            'description': 'Blur behind terminal',
+            'parent': 'dev-terminal-settings',
+            'is_configurable': True,
+            'config_type': 'slider',
+            'min_value': 0,
+            'max_value': 20,
+            'default_value': 5,
+            'unit': 'px',
+            'help': 'Apply blur effect to content behind transparent terminal windows.'
+        },
+        {
+            'id': 'terminal-cursor-style',
+            'label': 'Terminal Cursor Style',
+            'description': 'Terminal cursor shape',
+            'parent': 'dev-terminal-settings',
+            'is_configurable': True,
+            'config_type': 'select',
+            'options': ['Block', 'Underline', 'Bar'],
+            'default_value': 'Block',
+            'help': 'Choose the cursor style for your terminal.'
         },
         {
             'id': 'terminal-cursor-blink',
@@ -1592,6 +1682,40 @@ Common use cases:
             'parent': 'dev-terminal-settings',
             'default': True,
             'help': 'Enable or disable cursor blinking in the terminal.'
+        },
+        {
+            'id': 'terminal-scrollback',
+            'label': 'Scrollback Lines',
+            'description': 'Number of history lines',
+            'parent': 'dev-terminal-settings',
+            'is_configurable': True,
+            'config_type': 'spinner',
+            'values': [1000, 2000, 5000, 10000, 20000, 50000, 100000],
+            'default_value': 10000,
+            'help': 'Number of lines to keep in terminal scrollback history.'
+        },
+        {
+            'id': 'terminal-bell',
+            'label': 'Terminal Bell',
+            'description': 'Audible or visual bell',
+            'parent': 'dev-terminal-settings',
+            'is_configurable': True,
+            'config_type': 'select',
+            'options': ['None', 'Audible', 'Visual', 'Both'],
+            'default_value': 'Visual',
+            'help': 'Configure terminal bell behavior for alerts.'
+        },
+        {
+            'id': 'terminal-padding',
+            'label': 'Terminal Padding',
+            'description': 'Padding around text',
+            'parent': 'dev-terminal-settings',
+            'is_configurable': True,
+            'config_type': 'spinner',
+            'values': [0, 2, 4, 6, 8, 10, 12, 16, 20],
+            'default_value': 8,
+            'unit': 'px',
+            'help': 'Set padding around terminal text for better readability.'
         },
     ]
     
@@ -1780,6 +1904,263 @@ Common use cases:
     items.extend(security_items)
     security_cat = next(cat for cat in categories if cat['id'] == 'security')
     security_cat['children'] = [item['id'] for item in security_items]
+    
+    # Themes & Appearance
+    theme_subcategories = [
+        {
+            'id': 'theme-universal',
+            'label': 'Universal Themes',
+            'description': 'Themes that work across multiple applications',
+            'icon': '🎨',
+            'is_category': True,
+            'parent': 'themes',
+            'children': []
+        },
+        {
+            'id': 'theme-settings',
+            'label': 'Theme Settings',
+            'description': 'Configure theme behavior and preferences',
+            'icon': '⚙️',
+            'is_category': True,
+            'parent': 'themes',
+            'children': []
+        },
+        {
+            'id': 'theme-custom',
+            'label': 'Custom Colors',
+            'description': 'Create your own color scheme',
+            'icon': '🎯',
+            'is_category': True,
+            'parent': 'themes',
+            'children': []
+        },
+    ]
+    
+    items.extend(theme_subcategories)
+    
+    # Universal theme items
+    universal_theme_items = [
+        {
+            'id': 'theme-dracula',
+            'label': 'Dracula',
+            'description': 'Dark theme with vibrant colors',
+            'parent': 'theme-universal',
+            'help': 'A dark theme with bold contrast and vibrant colors that reduces eye strain. Available for 300+ apps including terminals, VS Code, Firefox, Chrome, and more.'
+        },
+        {
+            'id': 'theme-catppuccin-mocha',
+            'label': 'Catppuccin Mocha',
+            'description': 'Soothing pastel dark theme',
+            'parent': 'theme-universal',
+            'help': 'A warm, dark theme with soothing pastel colors. Part of the Catppuccin family with consistent colors across all applications.'
+        },
+        {
+            'id': 'theme-catppuccin-macchiato',
+            'label': 'Catppuccin Macchiato',
+            'description': 'Mid-tone pastel theme',
+            'parent': 'theme-universal',
+            'help': 'A medium-dark theme with gentle pastel colors. Slightly lighter than Mocha but still easy on the eyes.'
+        },
+        {
+            'id': 'theme-catppuccin-frappe',
+            'label': 'Catppuccin Frappé',
+            'description': 'Cool-toned pastel dark theme',
+            'parent': 'theme-universal',
+            'help': 'A cool, muted dark theme with soft pastel colors. Perfect for long coding sessions.'
+        },
+        {
+            'id': 'theme-catppuccin-latte',
+            'label': 'Catppuccin Latte',
+            'description': 'Light pastel theme',
+            'parent': 'theme-universal',
+            'help': 'A light theme with warm pastel colors. The only light variant in the Catppuccin family.'
+        },
+        {
+            'id': 'theme-tokyo-night',
+            'label': 'Tokyo Night',
+            'description': 'Tokyo at night inspired theme',
+            'parent': 'theme-universal',
+            'help': 'A clean, dark theme celebrating the lights of Downtown Tokyo at night. Features deep blues and purples with excellent contrast.'
+        },
+        {
+            'id': 'theme-tokyo-night-storm',
+            'label': 'Tokyo Night Storm',
+            'description': 'Darker variant of Tokyo Night',
+            'parent': 'theme-universal',
+            'help': 'A darker, more muted variant of Tokyo Night with stormy blue-gray tones.'
+        },
+        {
+            'id': 'theme-tokyo-night-light',
+            'label': 'Tokyo Night Light',
+            'description': 'Light variant of Tokyo Night',
+            'parent': 'theme-universal',
+            'help': 'A light theme variant of Tokyo Night with soft pastels and excellent readability.'
+        },
+        {
+            'id': 'theme-nord',
+            'label': 'Nord',
+            'description': 'Arctic, north-bluish theme',
+            'parent': 'theme-universal',
+            'help': 'An arctic, north-bluish clean and elegant theme. Features a carefully selected color palette inspired by the Arctic.'
+        },
+        {
+            'id': 'theme-gruvbox-dark',
+            'label': 'Gruvbox Dark',
+            'description': 'Retro groove dark theme',
+            'parent': 'theme-universal',
+            'help': 'A retro groove color scheme with warm colors and vintage feel. Designed to be easy on the eyes.'
+        },
+        {
+            'id': 'theme-gruvbox-light',
+            'label': 'Gruvbox Light',
+            'description': 'Retro groove light theme',
+            'parent': 'theme-universal',
+            'help': 'The light variant of Gruvbox with the same retro feel but optimized for bright environments.'
+        },
+        {
+            'id': 'theme-one-dark',
+            'label': 'One Dark',
+            'description': 'Atom-inspired dark theme',
+            'parent': 'theme-universal',
+            'help': 'A dark theme inspired by Atom One Dark. Features vibrant colors with excellent syntax highlighting.'
+        },
+        {
+            'id': 'theme-solarized-dark',
+            'label': 'Solarized Dark',
+            'description': 'Precision dark color scheme',
+            'parent': 'theme-universal',
+            'help': 'A precision color scheme for accurate color reproduction. Developed with both RGB and LAB color models.'
+        },
+        {
+            'id': 'theme-solarized-light',
+            'label': 'Solarized Light',
+            'description': 'Precision light color scheme',
+            'parent': 'theme-universal',
+            'help': 'The light variant of Solarized with the same precise color values optimized for light backgrounds.'
+        },
+        {
+            'id': 'theme-monokai',
+            'label': 'Monokai',
+            'description': 'Vibrant, high-contrast theme',
+            'parent': 'theme-universal',
+            'help': 'A vibrant, high-contrast theme originally created for TextMate. Popular for its colorful syntax highlighting.'
+        },
+        {
+            'id': 'theme-material',
+            'label': 'Material',
+            'description': 'Google Material Design theme',
+            'parent': 'theme-universal',
+            'help': 'Based on Google Material Design principles with rich colors and smooth gradients.'
+        },
+        {
+            'id': 'theme-ayu-dark',
+            'label': 'Ayu Dark',
+            'description': 'Simple theme with bright colors',
+            'parent': 'theme-universal',
+            'help': 'A simple theme with bright colors and comes in three versions: dark, mirage, and light.'
+        },
+        {
+            'id': 'theme-everforest',
+            'label': 'Everforest',
+            'description': 'Green-based comfortable theme',
+            'parent': 'theme-universal',
+            'help': 'A green based color scheme designed to be warm and soft, inspired by the evergreen forest.'
+        },
+    ]
+    
+    # Theme settings
+    theme_setting_items = [
+        {
+            'id': 'theme-auto-switch',
+            'label': 'Auto Theme Switch',
+            'description': 'Switch theme based on time',
+            'parent': 'theme-settings',
+            'help': 'Automatically switch between light and dark themes based on time of day or system settings.'
+        },
+        {
+            'id': 'theme-sync-apps',
+            'label': 'Sync Across Apps',
+            'description': 'Apply theme to all supported apps',
+            'parent': 'theme-settings',
+            'default': True,
+            'help': 'When changing theme, automatically apply it to all supported applications.'
+        },
+        {
+            'id': 'theme-terminal-opacity',
+            'label': 'Terminal Background Opacity',
+            'description': 'Terminal transparency level',
+            'parent': 'theme-settings',
+            'is_configurable': True,
+            'config_type': 'slider',
+            'min_value': 0,
+            'max_value': 100,
+            'default_value': 90,
+            'unit': '%',
+            'help': 'Set the opacity of terminal backgrounds. 100% is fully opaque, 0% is fully transparent.'
+        },
+        {
+            'id': 'theme-ui-scale',
+            'label': 'UI Scale Factor',
+            'description': 'Scale UI elements',
+            'parent': 'theme-settings',
+            'is_configurable': True,
+            'config_type': 'select',
+            'options': ['0.75', '0.90', '1.00', '1.10', '1.25', '1.50', '2.00'],
+            'default_value': '1.00',
+            'help': 'Scale all UI elements for better visibility on high-DPI displays.'
+        },
+    ]
+    
+    # Custom color settings
+    custom_color_items = [
+        {
+            'id': 'custom-background',
+            'label': 'Background Color',
+            'description': 'Main background color',
+            'parent': 'theme-custom',
+            'is_configurable': True,
+            'config_type': 'color',
+            'default_value': '#1e1e2e',
+            'help': 'Set the main background color for your custom theme.'
+        },
+        {
+            'id': 'custom-foreground',
+            'label': 'Foreground Color',
+            'description': 'Main text color',
+            'parent': 'theme-custom',
+            'is_configurable': True,
+            'config_type': 'color',
+            'default_value': '#cdd6f4',
+            'help': 'Set the main text/foreground color for your custom theme.'
+        },
+        {
+            'id': 'custom-accent',
+            'label': 'Accent Color',
+            'description': 'Highlight/accent color',
+            'parent': 'theme-custom',
+            'is_configurable': True,
+            'config_type': 'color',
+            'default_value': '#89b4fa',
+            'help': 'Set the accent color used for highlights and important UI elements.'
+        },
+    ]
+    
+    items.extend(universal_theme_items)
+    items.extend(theme_setting_items)
+    items.extend(custom_color_items)
+    
+    # Update themes category children
+    themes_cat = next(cat for cat in categories if cat['id'] == 'themes')
+    themes_cat['children'] = ['theme-universal', 'theme-settings', 'theme-custom']
+    
+    # Update subcategory children
+    for subcat in theme_subcategories:
+        if subcat['id'] == 'theme-universal':
+            subcat['children'] = [item['id'] for item in universal_theme_items]
+        elif subcat['id'] == 'theme-settings':
+            subcat['children'] = [item['id'] for item in theme_setting_items]
+        elif subcat['id'] == 'theme-custom':
+            subcat['children'] = [item['id'] for item in custom_color_items]
     
     # System items (simplified for now)
     system_items = [

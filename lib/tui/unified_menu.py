@@ -12,7 +12,7 @@ from pathlib import Path
 from .constants import *
 from .utils import *
 from .menu_items import load_menu_structure
-from .dialogs import HelpDialog, MessageDialog, ConfirmDialog
+from .dialogs import HelpDialog, MessageDialog, ConfirmDialog, SliderDialog, SpinnerDialog, SelectDialog
 from .sudo_dialog import SudoDialog
 from .progress_dialog import ProgressDialog
 
@@ -71,8 +71,10 @@ class UnifiedMenu:
     def load_defaults(self) -> None:
         """Load default selections from menu items"""
         for item in self.items:
+            item_id = item['id']
+            
+            # Load default selections
             if item.get('default', False) and not item.get('is_category'):
-                item_id = item['id']
                 parent = item.get('parent')
                 
                 if parent and parent in self.category_items:
@@ -83,6 +85,10 @@ class UnifiedMenu:
                 else:
                     # Top-level item
                     self.selections[item_id] = True
+                    
+            # Load default configurable values
+            if item.get('is_configurable') and 'default_value' in item:
+                self.configurable_values[item_id] = item['default_value']
     
     def load_configuration(self) -> None:
         """Load existing configuration from file"""
@@ -279,18 +285,33 @@ class UnifiedMenu:
             icon = item.get('icon', '')
             text = f"{indicator} {icon} {item['label']}"
         else:
-            # Regular item with checkbox
-            is_selected = (
-                item['id'] in self.selections or
-                (item.get('parent') and 
-                 item['id'] in self.selections.get(item['parent'], set()))
-            )
-            checkbox = CHECKBOX_SELECTED if is_selected else CHECKBOX_UNSELECTED
-            text = f"  {checkbox} {item['label']}"
+            # Check if it's a configurable item
+            if item.get('is_configurable'):
+                # Show current value
+                current_value = self.configurable_values.get(
+                    item['id'], 
+                    item.get('default_value', '')
+                )
+                unit = item.get('unit', '')
+                if unit:
+                    value_text = f"[{current_value}{unit}]"
+                else:
+                    value_text = f"[{current_value}]"
+                text = f"    {item['label']} {value_text}"
+            else:
+                # Regular item with checkbox
+                is_selected = (
+                    item['id'] in self.selections or
+                    (item.get('parent') and 
+                     item['id'] in self.selections.get(item['parent'], set()))
+                )
+                checkbox = CHECKBOX_SELECTED if is_selected else CHECKBOX_UNSELECTED
+                text = f"  {checkbox} {item['label']}"
             
         # Add description on same line if space allows
-        if item.get('description') and len(text) + len(item['description']) + 3 < max_width:
-            text += f" - {item['description']}"
+        description = item.get('description', '')
+        if description and len(text) + len(description) + 3 < max_width:
+            text += f" - {description}"
             
         # Truncate if needed
         text = truncate_text(text, max_width)
@@ -406,6 +427,11 @@ class UnifiedMenu:
             # Can't directly select categories
             return
             
+        # Handle configurable items
+        if item.get('is_configurable'):
+            self.show_config_dialog(item)
+            return
+            
         # Handle selection based on parent
         parent = item.get('parent')
         if parent and parent in self.category_items:
@@ -423,6 +449,62 @@ class UnifiedMenu:
                 del self.selections[item_id]
             else:
                 self.selections[item_id] = True
+                
+    def show_config_dialog(self, item: Dict) -> None:
+        """Show configuration dialog for configurable item"""
+        item_id = item['id']
+        config_type = item.get('config_type', 'text')
+        current_value = self.configurable_values.get(item_id, item.get('default_value'))
+        
+        new_value = None
+        
+        if config_type == 'slider':
+            dialog = SliderDialog(self.stdscr)
+            # Convert to int if necessary
+            if isinstance(current_value, float) and item.get('step', 1) >= 1:
+                current_val = int(current_value)
+            else:
+                current_val = current_value
+            new_value = dialog.show(
+                item['label'],
+                current_val,
+                item.get('min_value', 0),
+                item.get('max_value', 100),
+                item.get('step', 1),
+                item.get('unit', '')
+            )
+        elif config_type == 'spinner':
+            dialog = SpinnerDialog(self.stdscr)
+            values = item.get('values', [])
+            if values:
+                new_value = dialog.show(
+                    item['label'],
+                    current_value,
+                    values,
+                    item.get('unit', '')
+                )
+        elif config_type == 'select':
+            dialog = SelectDialog(self.stdscr)
+            options = item.get('options', [])
+            if options:
+                new_value = dialog.show(
+                    item['label'],
+                    options,
+                    str(current_value)
+                )
+        else:
+            # Default to text input
+            from .dialogs import InputDialog
+            dialog = InputDialog(self.stdscr)
+            new_value = dialog.show(
+                item['label'],
+                item.get('description', 'Enter value:'),
+                str(current_value)
+            )
+        
+        # Update value if changed
+        if new_value is not None:
+            self.configurable_values[item_id] = new_value
                 
     def select_all(self) -> None:
         """Select all items in current category"""
