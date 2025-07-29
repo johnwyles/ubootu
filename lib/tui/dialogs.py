@@ -5,7 +5,7 @@ Dialog components for the unified TUI
 
 import curses
 import textwrap
-from typing import Optional, List
+from typing import Optional, List, Any
 
 from .constants import DIALOG_WIDTH, DIALOG_HEIGHT
 from .utils import draw_box, draw_centered_text, get_dialog_position, truncate_text
@@ -268,3 +268,266 @@ class InputDialog(BaseDialog):
             elif 32 <= key <= 126:  # Printable characters
                 text = text[:cursor_pos] + chr(key) + text[cursor_pos:]
                 cursor_pos += 1
+
+
+class SliderDialog(BaseDialog):
+    """Dialog for adjusting numeric values with a slider"""
+    
+    def show(self, title: str, current_value: int, min_value: int = 0, 
+             max_value: int = 100, step: int = 1, unit: str = "") -> Optional[int]:
+        """Show slider dialog and return selected value"""
+        # Clear and redraw
+        self.stdscr.clear()
+        self.stdscr.refresh()
+        
+        # Dialog dimensions
+        dialog_width = min(60, self.width - 4)
+        dialog_height = 10
+        
+        # Draw dialog
+        y, x, h, w = self.draw_dialog_box(dialog_height, dialog_width, title)
+        
+        # Initialize value
+        value = current_value
+        
+        while True:
+            # Clear content area
+            for i in range(h):
+                self.stdscr.addstr(y + i, x, " " * w)
+            
+            # Draw current value
+            value_text = f"Value: {value}{unit}"
+            self.stdscr.addstr(y, x + (w - len(value_text)) // 2, value_text)
+            
+            # Draw slider
+            slider_y = y + 2
+            slider_width = w - 10
+            slider_x = x + 5
+            
+            # Calculate slider position
+            range_size = max_value - min_value
+            normalized_value = (value - min_value) / range_size if range_size > 0 else 0
+            slider_pos = int(normalized_value * (slider_width - 1))
+            
+            # Draw slider track
+            self.stdscr.addstr(slider_y, slider_x - 1, "[")
+            for i in range(slider_width):
+                if i == slider_pos:
+                    self.stdscr.attron(curses.A_REVERSE)
+                    self.stdscr.addstr(slider_y, slider_x + i, "●")
+                    self.stdscr.attroff(curses.A_REVERSE)
+                else:
+                    self.stdscr.addstr(slider_y, slider_x + i, "─")
+            self.stdscr.addstr(slider_y, slider_x + slider_width, "]")
+            
+            # Draw min/max values
+            min_text = str(min_value)
+            max_text = str(max_value)
+            self.stdscr.addstr(slider_y + 1, slider_x, min_text)
+            self.stdscr.addstr(slider_y + 1, slider_x + slider_width - len(max_text), max_text)
+            
+            # Draw instructions
+            instructions = "← → or -/+ to adjust, Enter to confirm, ESC to cancel"
+            self.stdscr.addstr(y + h - 2, x, truncate_text(instructions, w))
+            
+            # Draw quick jump hints
+            quick_hints = "Home: Min, End: Max, PgUp/PgDn: ±10"
+            self.stdscr.addstr(y + h - 1, x, truncate_text(quick_hints, w))
+            
+            self.stdscr.refresh()
+            
+            # Handle input
+            key = self.stdscr.getch()
+            
+            if key == ord('\n'):
+                return value
+            elif key == 27:  # ESC
+                return None
+            elif key in [curses.KEY_LEFT, ord('-'), ord('_')]:
+                value = max(min_value, value - step)
+            elif key in [curses.KEY_RIGHT, ord('+'), ord('=')]:
+                value = min(max_value, value + step)
+            elif key == curses.KEY_HOME:
+                value = min_value
+            elif key == curses.KEY_END:
+                value = max_value
+            elif key == curses.KEY_PPAGE:  # Page Up
+                value = min(max_value, value + 10 * step)
+            elif key == curses.KEY_NPAGE:  # Page Down
+                value = max(min_value, value - 10 * step)
+            elif ord('0') <= key <= ord('9'):
+                # Direct numeric input
+                digit = key - ord('0')
+                new_value = digit
+                # Collect more digits
+                self.stdscr.nodelay(True)
+                try:
+                    while True:
+                        next_key = self.stdscr.getch()
+                        if ord('0') <= next_key <= ord('9'):
+                            new_value = new_value * 10 + (next_key - ord('0'))
+                        else:
+                            if next_key != -1:  # Put back non-digit key
+                                curses.ungetch(next_key)
+                            break
+                finally:
+                    self.stdscr.nodelay(False)
+                
+                # Clamp to valid range
+                value = max(min_value, min(max_value, new_value))
+
+
+class SpinnerDialog(BaseDialog):
+    """Dialog for selecting discrete numeric values with up/down arrows"""
+    
+    def show(self, title: str, current_value: int, values: List[int], 
+             unit: str = "") -> Optional[int]:
+        """Show spinner dialog and return selected value"""
+        # Clear and redraw
+        self.stdscr.clear()
+        self.stdscr.refresh()
+        
+        # Dialog dimensions
+        dialog_width = min(40, self.width - 4)
+        dialog_height = 8
+        
+        # Draw dialog
+        y, x, h, w = self.draw_dialog_box(dialog_height, dialog_width, title)
+        
+        # Find current index
+        try:
+            current_index = values.index(current_value)
+        except ValueError:
+            current_index = 0
+            
+        while True:
+            # Clear content area
+            for i in range(h):
+                self.stdscr.addstr(y + i, x, " " * w)
+            
+            # Draw spinner
+            spinner_y = y + 2
+            value = values[current_index]
+            
+            # Draw up arrow (if not at top)
+            if current_index > 0:
+                self.stdscr.addstr(spinner_y - 1, x + w // 2, "▲")
+            
+            # Draw current value in a box
+            value_text = f" {value}{unit} "
+            value_x = x + (w - len(value_text)) // 2
+            self.stdscr.attron(curses.A_REVERSE)
+            self.stdscr.addstr(spinner_y, value_x, value_text)
+            self.stdscr.attroff(curses.A_REVERSE)
+            
+            # Draw down arrow (if not at bottom)
+            if current_index < len(values) - 1:
+                self.stdscr.addstr(spinner_y + 1, x + w // 2, "▼")
+            
+            # Draw instructions
+            instructions = "↑↓ to change, Enter to confirm, ESC to cancel"
+            self.stdscr.addstr(y + h - 1, x, truncate_text(instructions, w))
+            
+            self.stdscr.refresh()
+            
+            # Handle input
+            key = self.stdscr.getch()
+            
+            if key == ord('\n'):
+                return values[current_index]
+            elif key == 27:  # ESC
+                return None
+            elif key in [curses.KEY_UP, ord('k')]:
+                current_index = max(0, current_index - 1)
+            elif key in [curses.KEY_DOWN, ord('j')]:
+                current_index = min(len(values) - 1, current_index + 1)
+            elif key == curses.KEY_HOME:
+                current_index = 0
+            elif key == curses.KEY_END:
+                current_index = len(values) - 1
+
+
+class SelectDialog(BaseDialog):
+    """Dialog for selecting from a list of options"""
+    
+    def show(self, title: str, options: List[str], current_value: str = None) -> Optional[str]:
+        """Show selection dialog and return selected option"""
+        # Clear and redraw
+        self.stdscr.clear()
+        self.stdscr.refresh()
+        
+        # Dialog dimensions
+        max_option_len = max(len(opt) for opt in options) if options else 20
+        dialog_width = min(max(40, max_option_len + 10), self.width - 4)
+        dialog_height = min(len(options) + 6, self.height - 4, 20)
+        
+        # Draw dialog
+        y, x, h, w = self.draw_dialog_box(dialog_height, dialog_width, title)
+        
+        # Find current selection
+        current_index = 0
+        if current_value and current_value in options:
+            current_index = options.index(current_value)
+        
+        # Scrolling state
+        visible_items = h - 3
+        scroll_offset = 0
+        
+        while True:
+            # Clear content area
+            for i in range(h):
+                self.stdscr.addstr(y + i, x, " " * w)
+            
+            # Calculate visible range
+            if current_index < scroll_offset:
+                scroll_offset = current_index
+            elif current_index >= scroll_offset + visible_items:
+                scroll_offset = current_index - visible_items + 1
+            
+            # Draw visible options
+            for i in range(visible_items):
+                option_index = scroll_offset + i
+                if option_index >= len(options):
+                    break
+                    
+                option = options[option_index]
+                display_y = y + i + 1
+                
+                if option_index == current_index:
+                    self.stdscr.attron(curses.A_REVERSE)
+                    self.stdscr.addstr(display_y, x + 2, f"> {option}".ljust(w - 4))
+                    self.stdscr.attroff(curses.A_REVERSE)
+                else:
+                    self.stdscr.addstr(display_y, x + 2, f"  {option}")
+            
+            # Draw scroll indicators
+            if scroll_offset > 0:
+                self.stdscr.addstr(y, x + w - 3, "▲")
+            if scroll_offset + visible_items < len(options):
+                self.stdscr.addstr(y + h - 2, x + w - 3, "▼")
+            
+            # Draw instructions
+            instructions = "↑↓ to select, Enter to confirm, ESC to cancel"
+            self.stdscr.addstr(y + h - 1, x, truncate_text(instructions, w))
+            
+            self.stdscr.refresh()
+            
+            # Handle input
+            key = self.stdscr.getch()
+            
+            if key == ord('\n'):
+                return options[current_index]
+            elif key == 27:  # ESC
+                return None
+            elif key in [curses.KEY_UP, ord('k')]:
+                current_index = max(0, current_index - 1)
+            elif key in [curses.KEY_DOWN, ord('j')]:
+                current_index = min(len(options) - 1, current_index + 1)
+            elif key == curses.KEY_HOME:
+                current_index = 0
+            elif key == curses.KEY_END:
+                current_index = len(options) - 1
+            elif key == curses.KEY_PPAGE:  # Page Up
+                current_index = max(0, current_index - visible_items)
+            elif key == curses.KEY_NPAGE:  # Page Down
+                current_index = min(len(options) - 1, current_index + visible_items)
