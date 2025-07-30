@@ -588,6 +588,19 @@ ansible_variables:
 4. **Python Version**: Default CI now uses Python 3.13 (was 3.12)
 5. **Ansible Version**: Updated to 2.19 (was 2.15)
 6. **YAML Compliance**: Fixed indentation to meet strict yamllint requirements
+7. **Ansible Progress Hanging Fix**: Resolved critical issue where Apply process would freeze
+   - Root cause: Sudo authentication hanging with `become: yes` tasks
+   - Solution: Clean temporary inventory, environment overrides, proper timeout handling
+   - User experience: Clear sudo requirements popup, real-time progress, 3-minute timeout
+8. **Git Tracking Updates**: 
+   - Removed config.yml from tracking (now git-ignored)
+   - Added config.example.yml with recommended defaults
+   - Updated .gitignore for test artifacts and development files
+9. **Test Coverage**: Added 4 comprehensive test files (928 lines total)
+   - Application categorization tests
+   - Config persistence and auto-save tests
+   - Configurable dialogs tests
+   - Security tools organization tests
 
 ## 🎯 TUI Unification Plan (July 2025)
 
@@ -805,9 +818,61 @@ act -j "Run Tests"  # Uses act to run GH Actions locally
 
 This plan ensures professional, consistent TUI throughout Ubootu.
 
+## 🛠️ Recent Technical Fixes (July 30, 2025)
+
+### Critical Ansible Progress Hanging Issue - RESOLVED
+
+**Problem**: The TUI Apply process would freeze indefinitely on "Gathering Facts ***********" with no progress indication.
+
+**Root Cause Analysis**:
+1. PTY (pseudo-terminal) method was not capturing Ansible output properly
+2. Sudo authentication was hanging when `become: yes` used in tasks
+3. Vault template in inventory caused parsing issues
+4. No timeout protection for hung processes
+
+**Comprehensive Fix Implemented**:
+1. **Progress Dialog (`lib/tui/progress_dialog.py`)**:
+   - Switched from PTY to `subprocess.Popen` with line buffering
+   - Added environment variable overrides to prevent hanging
+   - Implemented 3-minute timeout with 1-minute warnings
+   - Real-time task tracking and progress display
+
+2. **Unified Menu (`lib/tui/unified_menu.py`)**:
+   - Created clean temporary inventory (no vault templates)
+   - Added clear user messaging about sudo requirements
+   - Improved Apply workflow with informative dialogs
+
+3. **Environment Overrides**:
+   ```python
+   env['ANSIBLE_FORCE_COLOR'] = '0'
+   env['ANSIBLE_STDOUT_CALLBACK'] = 'default'
+   env['ANSIBLE_BECOME'] = 'False'
+   env['ANSIBLE_TIMEOUT'] = '30'
+   ```
+
+4. **Command Structure**:
+   ```bash
+   ansible-playbook site.yml \
+     -i [clean-temp-inventory] \
+     --diff -v \
+     --become-password-file [temp-file] \
+     --connection local \
+     --become-method sudo \
+     --timeout 30
+   ```
+
+**User Experience Improvements**:
+- Clear popup explaining sudo password requirements
+- Real-time progress display during installation
+- No more infinite hanging (3-minute max timeout)
+- Helpful error messages if authentication fails
+- Progress shows current task and completion count
+
+**Test Results**: Confirmed working with 15+ lines of output captured in testing.
+
 ---
 
-**Last Updated**: July 2025
+**Last Updated**: July 30, 2025
 **Primary Maintainer**: John Wyles
 **AI Assistant**: Claude (Anthropic)
 **Built with**: Claude Code
