@@ -52,6 +52,12 @@ enable_network_hardening: true
 disable_unused_filesystems: true
 enable_apparmor: true
 
+# AppArmor profiles to exclude from enforcement (set to complain mode instead)
+apparmor_exclude_profiles:
+  - desktop-icons-ng  # GNOME desktop icons extension - too restrictive when enforced
+  - snap.*            # Snap profiles often have issues when enforced
+  - lxc-*             # LXC container profiles
+
 # Audit settings
 enable_auditd: true
 audit_rules:

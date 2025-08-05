@@ -4,6 +4,9 @@ de_environment: >
   {{ desktop_environment | default('gnome')
      if not (de_hyprland_enabled | default(false)) else 'hyprland' }}
 
+# Boot optimization settings
+de_optimize_boot: true  # Optimize service startup order for faster boot
+
 # Desktop environment packages
 de_packages:
   gnome:

@@ -1,0 +1,81 @@
+---
+# Configure GRUB for better boot visibility and diagnostics
+
+- name: Set GRUB timeout
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    regexp: '^GRUB_TIMEOUT='
+    line: 'GRUB_TIMEOUT={{ grub_timeout }}'
+  become: yes
+  notify: update grub
+
+- name: Configure GRUB boot visibility
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
+    line: 'GRUB_CMDLINE_LINUX_DEFAULT="{{ "quiet splash" if grub_quiet_boot else "" }}"'
+  become: yes
+  notify: update grub
+
+- name: Show GRUB menu
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    regexp: '^GRUB_TIMEOUT_STYLE='
+    line: 'GRUB_TIMEOUT_STYLE={{ "hidden" if grub_quiet_boot else "menu" }}'
+  become: yes
+  notify: update grub
+
+- name: Enable recovery mode in GRUB
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    regexp: '^GRUB_DISABLE_RECOVERY='
+    line: 'GRUB_DISABLE_RECOVERY={{ "false" if grub_show_recovery else "true" }}'
+  become: yes
+  notify: update grub
+
+- name: Add boot diagnostic kernel parameters
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    regexp: '^GRUB_CMDLINE_LINUX='
+    line: 'GRUB_CMDLINE_LINUX="systemd.show_status=1"'
+  become: yes
+  when: boot_show_messages
+  notify: update grub
+
+- name: Enable GRUB terminal output
+  ansible.builtin.blockinfile:
+    path: /etc/default/grub
+    block: |
+      # Enable both console and graphical terminal
+      GRUB_TERMINAL="console"
+      # Show detailed boot messages
+      GRUB_GFXPAYLOAD_LINUX="text"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - Boot Diagnostics"
+  become: yes
+  when: boot_show_messages
+  notify: update grub
+
+- name: Create custom GRUB menu entry for diagnostic boot
+  ansible.builtin.copy:
+    content: |
+      #!/bin/sh
+      exec tail -n +3 $0
+      # Custom menu entry for diagnostic boot
+      
+      menuentry "Ubuntu (Diagnostic Mode)" {
+          recordfail
+          load_video
+          gfxmode text
+          insmod gzio
+          if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
+          insmod part_gpt
+          insmod ext2
+          search --no-floppy --fs-uuid --set=root {{ ansible_cmdline.root | regex_replace('UUID=', '') }}
+          linux /boot/vmlinuz-$(uname -r) root={{ ansible_cmdline.root }} ro systemd.show_status=1 nosplash verbose debug
+          initrd /boot/initrd.img-$(uname -r)
+      }
+    dest: /etc/grub.d/40_custom_diagnostics
+    mode: '0755'
+  become: yes
+  when: create_boot_report
+  notify: update grub

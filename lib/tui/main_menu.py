@@ -14,6 +14,7 @@ from .constants import *
 from .utils import *
 from .dialogs import HelpDialog
 from .prerequisite_installer import PrerequisiteInstaller
+from .splash_screen import show_splash
 
 
 class MainMenu:
@@ -97,54 +98,7 @@ class MainMenu:
         
     def show_splash_with_loading(self):
         """Show splash screen with loading animation"""
-        for i in range(26):
-            progress = i * 4  # 0, 4, 8, ..., 100
-            self.stdscr.clear()
-            
-            # Calculate positions
-            logo_lines = self.get_logo_lines()
-            logo_height = len(logo_lines)
-            start_y = max(0, (self.height - logo_height - 10) // 2)
-            
-            # Draw logo
-            for idx, line in enumerate(logo_lines):
-                if start_y + idx < self.height:
-                    draw_centered_text(self.stdscr, start_y + idx, line, bold=True)
-                    
-            # Draw title
-            title_y = start_y + logo_height + 2
-            draw_centered_text(self.stdscr, title_y, "🚀 UBOOTU 🚀", bold=True)
-            draw_centered_text(self.stdscr, title_y + 1, "Ubuntu Desktop Configuration Tool")
-            
-            # Draw progress bar
-            self.draw_progress_bar(title_y + 3, progress)
-            
-            # Loading messages
-            messages = [
-                "Initializing Ubuntu magic...",
-                "Preparing configuration wizardry...",
-                "Loading customization options...",
-                "Getting everything ready..."
-            ]
-            
-            msg_idx = min(i // 7, len(messages) - 1)
-            draw_centered_text(self.stdscr, title_y + 5, messages[msg_idx])
-            
-            self.stdscr.refresh()
-            time.sleep(0.05)  # Fast loading
-            
-        # Final pause
-        time.sleep(0.5)
-        
-    def draw_progress_bar(self, y, progress, width=40):
-        """Draw a progress bar"""
-        try:
-            filled = int(progress * width / 100)
-            bar = "█" * filled + "░" * (width - filled)
-            progress_text = f"[{bar}] {progress}%"
-            draw_centered_text(self.stdscr, y, progress_text)
-        except:
-            pass
+        show_splash(self.stdscr, animated=True)
             
     def render(self) -> None:
         """Render the main menu"""

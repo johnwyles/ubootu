@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-import lib.help_viewer
+from lib.tui import help_viewer
 
 
 class TestHelpViewer:
@@ -20,11 +20,11 @@ class TestHelpViewer:
 
     def test_import(self):
         """Test that module can be imported"""
-        assert lib.help_viewer is not None
+        assert help_viewer is not None
 
     def test_module_attributes(self):
         """Test module has expected attributes"""
-        module = lib.help_viewer
+        module = help_viewer
 
         # Check module has some content
         attrs = [a for a in dir(module) if not a.startswith("_")]
@@ -49,7 +49,7 @@ class TestHelpViewer:
 
     def test_classes(self):
         """Test classes in module"""
-        module = lib.help_viewer
+        module = help_viewer
 
         # Find all classes
         classes = inspect.getmembers(module, inspect.isclass)

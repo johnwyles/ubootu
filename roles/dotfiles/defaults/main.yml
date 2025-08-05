@@ -99,3 +99,7 @@ custom_env_vars:
   - { name: 'EDITOR', value: 'vim' }
   - { name: 'VISUAL', value: 'vim' }
   - { name: 'PAGER', value: 'less' }
+
+# Missing variables that were undefined
+prompt_decorator: 'default'  # Options: default, powerline, starship
+code_editors: ['vim']        # List of preferred code editors

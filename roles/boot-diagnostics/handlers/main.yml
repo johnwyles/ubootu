@@ -1,0 +1,17 @@
+---
+# Handlers for boot-diagnostics role
+
+- name: update grub
+  ansible.builtin.command: update-grub
+  become: yes
+
+- name: reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: yes
+  become: yes
+
+- name: restart journald
+  ansible.builtin.systemd:
+    name: systemd-journald
+    state: restarted
+  become: yes

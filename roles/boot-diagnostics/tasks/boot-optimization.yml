@@ -1,0 +1,136 @@
+---
+# Boot optimization tasks
+
+- name: Analyze current boot time
+  ansible.builtin.command: systemd-analyze
+  register: boot_time_analysis
+  changed_when: false
+  become: yes
+
+- name: Show boot time analysis
+  ansible.builtin.debug:
+    msg: "{{ boot_time_analysis.stdout_lines }}"
+
+- name: Get list of slowest services
+  ansible.builtin.shell: systemd-analyze blame | head -20
+  register: slowest_services
+  changed_when: false
+  become: yes
+
+- name: Show slowest services
+  ansible.builtin.debug:
+    msg: "{{ slowest_services.stdout_lines }}"
+
+- name: Disable slow non-critical services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: no
+    state: stopped
+  become: yes
+  loop: "{{ disable_slow_services }}"
+  when: disable_slow_services | length > 0
+
+- name: Optimize snap services if snap is installed
+  block:
+    - name: Check if snapd is installed
+      ansible.builtin.stat:
+        path: /usr/bin/snap
+      register: snap_installed
+
+    - name: Reduce snap refresh frequency
+      ansible.builtin.command: snap set system refresh.timer=fri,23:00
+      become: yes
+      when: snap_installed.stat.exists
+      ignore_errors: yes
+
+    - name: Disable automatic snap refreshes during boot
+      ansible.builtin.systemd:
+        name: snapd.refresh.timer
+        enabled: no
+      become: yes
+      when: snap_installed.stat.exists
+      ignore_errors: yes
+
+- name: Configure systemd for faster boot
+  ansible.builtin.copy:
+    content: |
+      # Reduce timeout for system services
+      DefaultTimeoutStartSec=15s
+      DefaultTimeoutStopSec=15s
+    dest: /etc/systemd/system.conf.d/10-faster-boot.conf
+    mode: '0644'
+  become: yes
+  notify: reload systemd
+
+- name: Disable NetworkManager wait online service
+  ansible.builtin.systemd:
+    name: NetworkManager-wait-online.service
+    enabled: no
+  become: yes
+  ignore_errors: yes
+
+- name: Create boot time tracking script
+  ansible.builtin.copy:
+    content: |
+      #!/bin/bash
+      # Track boot times over time
+      
+      LOGFILE="/var/log/boot-times.log"
+      
+      # Get current boot time
+      BOOT_TIME=$(systemd-analyze | grep "Startup finished" | grep -o "[0-9.]*s" | head -1)
+      
+      # Log with timestamp
+      echo "$(date '+%Y-%m-%d %H:%M:%S') - Boot time: $BOOT_TIME" >> "$LOGFILE"
+      
+      # Keep only last 100 entries
+      tail -100 "$LOGFILE" > "$LOGFILE.tmp" && mv "$LOGFILE.tmp" "$LOGFILE"
+      
+      # Show average boot time
+      echo "Recent boot times:"
+      tail -10 "$LOGFILE"
+    dest: /usr/local/bin/track-boot-time
+    mode: '0755'
+  become: yes
+
+- name: Create systemd service to track boot time
+  ansible.builtin.copy:
+    content: |
+      [Unit]
+      Description=Track Boot Time
+      After=graphical.target
+      
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/bin/track-boot-time
+      RemainAfterExit=yes
+      
+      [Install]
+      WantedBy=graphical.target
+    dest: /etc/systemd/system/track-boot-time.service
+    mode: '0644'
+  become: yes
+  when: analyze_boot_time
+
+- name: Enable boot time tracking
+  ansible.builtin.systemd:
+    name: track-boot-time
+    enabled: yes
+    daemon_reload: yes
+  become: yes
+  when: analyze_boot_time
+
+- name: Optimize journal size for faster boot
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/journald.conf
+    regexp: '^#?SystemMaxUse='
+    line: 'SystemMaxUse=100M'
+  become: yes
+  notify: restart journald
+
+- name: Create boot optimization report
+  ansible.builtin.template:
+    src: boot-optimization-report.sh.j2
+    dest: /usr/local/bin/boot-optimization-report
+    mode: '0755'
+  become: yes

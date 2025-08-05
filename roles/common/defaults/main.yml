@@ -18,6 +18,10 @@ common_base_packages:
   - build-essential
   - python3-pip
   - python3-venv
+  - python3-psutil      # Required for Ansible psutil module
+  - python3-apt         # Required for Ansible apt module
+  - python3-gpg         # Required for GPG operations
+  - flatpak             # Required for flatpak operations
   - unzip
   - zip
   - tree

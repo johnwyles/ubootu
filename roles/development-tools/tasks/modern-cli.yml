@@ -123,6 +123,15 @@
       environment:
         MCFLY_INSTALL_DIR: "/home/{{ primary_user }}/.local/bin"
 
+- name: Create config directory
+  ansible.builtin.file:
+    path: "/home/{{ primary_user }}/.config"
+    state: directory
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0755'
+  become: yes
+
 - name: Create shell aliases for modern tools
   ansible.builtin.template:
     src: modern-cli-aliases.sh.j2

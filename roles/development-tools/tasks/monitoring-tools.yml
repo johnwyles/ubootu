@@ -1,7 +1,7 @@
 ---
 # Install system monitoring tools
 
-- name: Install btop++ (modern system monitor)
+- name: Install btop++ modern system monitor (if 'btop' selected in Development > System Monitoring)
   block:
     - name: Get latest btop release
       ansible.builtin.uri:
@@ -13,10 +13,11 @@
         url: >
           {{ btop_release.json.assets |
              selectattr('name', 'match', 'btop-.*-linux-x86_64\\.tbz$') |
-             map(attribute='browser_download_url') | first }}
+             map(attribute='browser_download_url') | first | default('') }}
         dest: /tmp/btop.tbz
         mode: '0644'
       become: yes
+      when: btop_release.json.assets | selectattr('name', 'match', 'btop-.*-linux-x86_64\\.tbz$') | list | length > 0
 
     - name: Extract btop
       ansible.builtin.shell: |
@@ -27,7 +28,7 @@
         creates: /usr/local/bin/btop
   when: "'btop' in devtools_monitoring_tools"
 
-- name: Install Mission Center (System Monitor GUI)
+- name: Install Mission Center System Monitor GUI (if 'mission-center' selected and Flatpak enabled)
   flatpak:
     name: io.missioncenter.MissionCenter
     state: present
@@ -36,14 +37,12 @@
     - "'mission-center' in devtools_monitoring_tools"
     - enable_flatpak | default(true)
 
-- name: Install Glances (with web interface)
+- name: Install Glances system monitor with web interface (if 'glances' selected in Development > System Monitoring)
   block:
-    - name: Install Glances via pip
-      ansible.builtin.pip:
-        name:
-          - glances[all]
-        state: latest
-        executable: pip3
+    - name: Install Glances via apt
+      ansible.builtin.apt:
+        name: glances
+        state: present
       become: yes
 
     - name: Create Glances service
@@ -63,7 +62,7 @@
       when: devtools_enable_glances_web | default(false)
   when: "'glances' in devtools_monitoring_tools"
 
-- name: Install Resources (GNOME system monitor)
+- name: Install Resources GNOME system monitor (if 'resources' selected and using GNOME desktop)
   flatpak:
     name: net.nokyan.Resources
     state: present
@@ -73,7 +72,7 @@
     - desktop_environment == 'gnome'
     - enable_flatpak | default(true)
 
-- name: Install Stacer (System optimizer and monitor)
+- name: Install Stacer system optimizer and monitor (if 'stacer' selected in Development > System Monitoring)
   block:
     - name: Get latest Stacer release
       ansible.builtin.uri:
@@ -85,10 +84,11 @@
         url: >
           {{ stacer_release.json.assets |
              selectattr('name', 'match', 'stacer.*\\.deb$') |
-             map(attribute='browser_download_url') | first }}
+             map(attribute='browser_download_url') | first | default('') }}
         dest: /tmp/stacer.deb
         mode: '0644'
       become: yes
+      when: stacer_release.json.assets | selectattr('name', 'match', 'stacer.*\\.deb$') | list | length > 0
 
     - name: Install Stacer
       ansible.builtin.apt:
@@ -113,7 +113,7 @@
     - dstat
   when: devtools_install_extra_monitors | default(true)
 
-- name: Install Netdata (Real-time performance monitoring)
+- name: Install Netdata real-time performance monitoring (if 'netdata' selected in Development > System Monitoring)
   block:
     - name: Download Netdata installer
       ansible.builtin.get_url:
@@ -137,7 +137,7 @@
       when: enable_firewall | default(true)
   when: "'netdata' in devtools_monitoring_tools"
 
-- name: Install Prometheus Node Exporter
+- name: Install Prometheus Node Exporter for metrics collection (if 'prometheus-node-exporter' selected)
   block:
     - name: Get latest node_exporter release
       ansible.builtin.uri:

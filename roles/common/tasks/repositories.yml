@@ -37,6 +37,15 @@
   become: yes
   notify: update apt cache
 
+# Ensure correct permissions (in case umask or security hardening changed them)
+- name: Ensure sources.list has correct permissions
+  ansible.builtin.file:
+    path: /etc/apt/sources.list
+    owner: root
+    group: root
+    mode: '0644'
+  become: yes
+
 # Remove duplicate multiverse entry
 - name: Remove duplicate multiverse repository file
   ansible.builtin.file:
@@ -49,7 +58,12 @@
   when: use_third_party_repos | default(true)
   tags: ['third-party-repos']
 
-- name: Configure development repositories
+- name: Check if development tools are enabled
+  ansible.builtin.debug:
+    msg: "Development repositories: {{ 'ENABLED' if enable_development_tools | default(false) else 'SKIPPED - Development tools not selected in menu' }}"
+  tags: ['dev-repos']
+
+- name: Configure development repositories (if development tools enabled)
   ansible.builtin.include_tasks: development-repos.yml
   when: enable_development_tools | default(false)
   tags: ['dev-repos']

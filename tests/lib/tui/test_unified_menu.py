@@ -91,9 +91,9 @@ class TestUnifiedMenu(unittest.TestCase):
         menu.navigate(ord(' '))
         self.assertIn('item1', menu.selections)
         
-        # Test enter for entering submenu
+        # Test enter for selection
         result = menu.navigate(ord('\n'))
-        self.assertEqual(result, 'enter')
+        self.assertEqual(result, 'select')
         
     def test_selection_persistence(self):
         """Selections maintained across menu transitions"""
@@ -159,13 +159,22 @@ class TestUnifiedMenu(unittest.TestCase):
         
         menu = UnifiedMenu(self.stdscr)
         
+        # Set up menu items structure
+        menu.items = [
+            {'id': 'category1', 'is_category': True, 'parent': None, 'children': ['item1', 'item2', 'item3', 'item4']},
+            {'id': 'item1', 'parent': 'category1'},
+            {'id': 'item2', 'parent': 'category1'},
+            {'id': 'item3', 'parent': 'category1'},
+            {'id': 'item4', 'parent': 'category1'}
+        ]
+        menu.category_items['category1'] = {'item1', 'item2', 'item3', 'item4'}
+        
         # Test no selection indicator
         indicator = menu.get_selection_indicator('category1', set())
         self.assertEqual(indicator, '○')
         
         # Test partial selection indicator
         menu.selections['category1'] = {'item1', 'item2'}
-        menu.category_items['category1'] = {'item1', 'item2', 'item3', 'item4'}
         indicator = menu.get_selection_indicator('category1', menu.selections.get('category1', set()))
         self.assertEqual(indicator, '◐')
         
@@ -259,9 +268,9 @@ class TestKeyboardHandling(unittest.TestCase):
         menu = UnifiedMenu(self.stdscr)
         menu.items = [{'id': 'test', 'label': 'Test'}]  # Add at least one item
         
-        # ESC should go back/quit
+        # ESC at root should go to main menu
         result = menu.navigate(27)  # ESC key
-        self.assertEqual(result, 'back')
+        self.assertEqual(result, 'main_menu')
         
     def test_quit_keys(self):
         """Test quit key handling"""

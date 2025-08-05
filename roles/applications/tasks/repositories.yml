@@ -350,15 +350,15 @@
 # Kubernetes Repository
 - name: Add Kubernetes GPG key
   get_url:
-    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    dest: /usr/share/keyrings/kubernetes.gpg
+    url: https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key
+    dest: /usr/share/keyrings/kubernetes-apt-keyring.asc
     mode: '0644'
   when: "'kubectl' in selected_items or 'kubernetes' in selected_items"
   become: yes
 
 - name: Add Kubernetes repository
   apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/kubernetes.gpg] https://apt.kubernetes.io/ kubernetes-xenial main"
+    repo: "deb [signed-by=/usr/share/keyrings/kubernetes-apt-keyring.asc] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /"
     state: present
     filename: kubernetes
   when: "'kubectl' in selected_items or 'kubernetes' in selected_items"

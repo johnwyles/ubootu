@@ -1,0 +1,27 @@
+---
+# Main tasks for boot diagnostics role
+
+- name: Configure Plymouth boot splash
+  ansible.builtin.include_tasks: plymouth.yml
+  when: boot_show_messages or boot_disable_plymouth
+  tags: ['plymouth', 'boot-splash']
+
+- name: Configure GRUB for boot visibility
+  ansible.builtin.include_tasks: grub.yml
+  when: not grub_quiet_boot or grub_timeout != 5
+  tags: ['grub', 'bootloader']
+
+- name: Set up system health checks
+  ansible.builtin.include_tasks: health-checks.yml
+  when: enable_boot_health_checks
+  tags: ['health-checks', 'monitoring']
+
+- name: Configure boot optimization
+  ansible.builtin.include_tasks: boot-optimization.yml
+  when: enable_boot_optimization or analyze_boot_time
+  tags: ['boot-optimization', 'performance']
+
+- name: Create boot error reporting tools
+  ansible.builtin.include_tasks: error-reporting.yml
+  when: create_boot_report
+  tags: ['error-reporting', 'diagnostics']

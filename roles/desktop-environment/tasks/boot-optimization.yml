@@ -1,0 +1,125 @@
+---
+# Optimize boot time for desktop environments by fixing service dependencies
+
+- name: Configure services to not delay boot
+  block:
+    # These services don't need to block boot completion
+    - name: Configure non-critical services to start after graphical target
+      ansible.builtin.copy:
+        dest: "/etc/systemd/system/{{ item }}.service.d/boot-optimization.conf"
+        content: |
+          [Unit]
+          After=graphical.target
+          
+          [Service]
+          Type=idle
+        owner: root
+        group: root
+        mode: '0644'
+      become: yes
+      loop:
+        - apache2
+        - cups
+        - cups-browsed
+        - redsocks
+        - stunnel4
+      failed_when: false
+      when: de_optimize_boot | default(true)
+
+    - name: Create service override directories
+      ansible.builtin.file:
+        path: "/etc/systemd/system/{{ item }}.service.d"
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+      become: yes
+      loop:
+        - apache2
+        - cups
+        - cups-browsed
+        - redsocks
+        - stunnel4
+        - openvpn
+      failed_when: false
+      when: de_optimize_boot | default(true)
+
+    # OpenVPN should not start automatically unless configured
+    - name: Disable OpenVPN automatic start
+      ansible.builtin.systemd:
+        name: openvpn.service
+        enabled: no
+      become: yes
+      failed_when: false
+      when: de_optimize_boot | default(true)
+
+    # Reduce journal flush time
+    - name: Configure journal for faster flush
+      ansible.builtin.lineinfile:
+        path: /etc/systemd/journald.conf
+        regexp: "^#?{{ item.key }}="
+        line: "{{ item.key }}={{ item.value }}"
+        backup: yes
+      become: yes
+      loop:
+        - { key: "SystemMaxUse", value: "500M" }
+        - { key: "RuntimeMaxUse", value: "100M" }
+        - { key: "SyncIntervalSec", value: "30s" }
+      when: de_optimize_boot | default(true)
+      notify: restart journald
+
+    # Reduce systemd timeout for services that might hang
+    - name: Reduce systemd default timeout
+      ansible.builtin.lineinfile:
+        path: /etc/systemd/system.conf
+        regexp: "^#?DefaultTimeoutStopSec="
+        line: "DefaultTimeoutStopSec=30s"
+        backup: yes
+      become: yes
+      when: de_optimize_boot | default(true)
+
+    # Disable services that aren't essential at boot
+    - name: Disable non-essential services at boot
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: no
+      become: yes
+      loop:
+        - ModemManager.service      # Only needed for mobile broadband
+        - switcheroo-control.service # Only for hybrid graphics
+        - speech-dispatcher.service  # Only for accessibility
+      failed_when: false
+      ignore_errors: yes
+      when: de_optimize_boot | default(true)
+
+    # Enable systemd-networkd-wait-online timeout
+    - name: Configure network-wait-online to timeout quickly
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/systemd-networkd-wait-online.service.d/timeout.conf
+        content: |
+          [Service]
+          ExecStart=
+          ExecStart=/usr/lib/systemd/systemd-networkd-wait-online --timeout=30
+        owner: root
+        group: root
+        mode: '0644'
+      become: yes
+      when: de_optimize_boot | default(true)
+
+    - name: Create network wait override directory
+      ansible.builtin.file:
+        path: /etc/systemd/system/systemd-networkd-wait-online.service.d
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+      become: yes
+      when: de_optimize_boot | default(true)
+
+  when: de_optimize_boot | default(true)
+
+- name: Reload systemd daemon after changes
+  ansible.builtin.systemd:
+    daemon_reload: yes
+  become: yes
+  when: de_optimize_boot | default(true)

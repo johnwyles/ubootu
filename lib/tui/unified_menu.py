@@ -6,6 +6,7 @@ Single consistent curses-based menu implementation
 
 import curses
 import yaml
+import time
 from typing import Dict, List, Optional, Set, Union, Any
 from pathlib import Path
 
@@ -46,6 +47,12 @@ class UnifiedMenu:
         
         # Configuration
         self.config_file = 'config.yml'
+        
+        # Track application state
+        self.config_applied = False  # Track if current config was applied
+        self.applied_config_hash = None  # Hash of last applied config
+        self.saved_config_hash = None  # Hash of last saved config
+        self.changes_since_apply = False  # Track if any changes made since last apply
         
         # Initialize curses
         try:
@@ -111,16 +118,34 @@ class UnifiedMenu:
             # Load selected items
             selected = config.get('selected_items', [])
             if isinstance(selected, list):
+                # First pass: identify all categories and their descendants
+                category_descendants = {}
+                for item_id in selected:
+                    if item_id in self.category_items:
+                        # Get all descendants for this category
+                        descendants = self.get_all_descendant_items(item_id)
+                        category_descendants[item_id] = descendants
+                
+                # Second pass: build selection structure
                 for item_id in selected:
                     # Check if it's a category
                     if item_id in self.category_items:
-                        # Load category selections
+                        # Find all its descendants that are in the selected list
                         self.selections[item_id] = set()
-                        for child in self.category_items[item_id]:
-                            if child in selected:
-                                self.selections[item_id].add(child)
+                        descendants = category_descendants.get(item_id, set())
+                        for desc in descendants:
+                            if desc in selected:
+                                self.selections[item_id].add(desc)
                     else:
-                        self.selections[item_id] = True
+                        # For non-category items, only add as direct selection if not part of any category
+                        is_in_category = False
+                        for cat_id, desc_set in category_descendants.items():
+                            if item_id in desc_set and cat_id in selected:
+                                is_in_category = True
+                                break
+                        
+                        if not is_in_category:
+                            self.selections[item_id] = True
                     
             # Load configurable values
             configurable = config.get('configurable_items', {})
@@ -128,6 +153,9 @@ class UnifiedMenu:
                 for item_id, item_config in configurable.items():
                     if isinstance(item_config, dict) and 'value' in item_config:
                         self.configurable_values[item_id] = item_config.get('value')
+            
+            # Update saved config hash
+            self.saved_config_hash = self._get_saved_config_hash()
                         
         except yaml.YAMLError as e:
             self.show_corruption_message(f"Invalid YAML format: {str(e)}")
@@ -172,6 +200,10 @@ class UnifiedMenu:
             # Write to file
             with open(self.config_file, 'w') as f:
                 yaml.dump(config, f, default_flow_style=False)
+            
+            # Update saved config hash
+            self.saved_config_hash = self._get_config_hash()
+            
             return True
         except Exception as e:
             if not silent:
@@ -206,6 +238,19 @@ class UnifiedMenu:
                     descendants.add(child_id)
                     
         return descendants
+    
+    def is_item_selected(self, item_id: str) -> bool:
+        """Check if an item is selected through any parent in the hierarchy"""
+        # Direct selection (top-level items)
+        if item_id in self.selections and self.selections[item_id] is True:
+            return True
+        
+        # Check if item is in any category's selection set
+        for cat_id, selections in self.selections.items():
+            if isinstance(selections, set) and item_id in selections:
+                return True
+        
+        return False
             
     def get_selection_indicator(self, item_id: str, selections: Set[str]) -> str:
         """Get selection indicator for a category"""
@@ -326,11 +371,7 @@ class UnifiedMenu:
                 text = f"    {item['label']} {value_text}"
             else:
                 # Regular item with checkbox
-                is_selected = (
-                    item['id'] in self.selections or
-                    (item.get('parent') and 
-                     item['id'] in self.selections.get(item['parent'], set()))
-                )
+                is_selected = self.is_item_selected(item['id'])
                 checkbox = CHECKBOX_SELECTED if is_selected else CHECKBOX_UNSELECTED
                 text = f"  {checkbox} {item['label']}"
             
@@ -413,31 +454,28 @@ class UnifiedMenu:
             self.current_index = (self.current_index + 1) % len(items)
             return 'navigate'
             
-        # Space and Enter behavior
+        # Space toggles selection on any item (including categories)
         elif key_matches(key, KEY_BINDINGS['select']):
+            self.toggle_selection()
+            return 'select'
+            
+        # Enter key - enters submenu for categories
+        elif key_matches(key, KEY_BINDINGS['enter']):
             if is_category:
-                # For categories, enter submenu
                 self.enter_submenu(current_item['id'])
                 return 'enter'
             else:
-                # For items, toggle selection
+                # For non-categories, Enter also toggles selection
                 self.toggle_selection()
                 return 'select'
             
-        # Right arrow - only enters submenu for categories
-        elif key == curses.KEY_RIGHT or (key < 256 and chr(key) in ['l']):
-            if is_category:
-                self.enter_submenu(current_item['id'])
-                return 'enter'
-            return None
-            
-        # Select all (in submenu)
-        elif key_matches(key, KEY_BINDINGS['select_all']) and self.current_menu != 'root':
+        # Select all
+        elif key_matches(key, KEY_BINDINGS['select_all']):
             self.select_all()
             return 'select_all'
             
-        # Deselect all (in submenu)
-        elif key_matches(key, KEY_BINDINGS['deselect_all']) and self.current_menu != 'root':
+        # Deselect all
+        elif key_matches(key, KEY_BINDINGS['deselect_all']):
             self.deselect_all()
             return 'deselect_all'
             
@@ -453,7 +491,35 @@ class UnifiedMenu:
         item_id = item['id']
         
         if item.get('is_category'):
-            # Can't directly select categories
+            # Toggle all items in this category
+            descendants = self.get_all_descendant_items(item_id)
+            if descendants:
+                # Check if ANY descendants are currently selected anywhere
+                any_selected = any(
+                    self.is_item_selected(desc_id) for desc_id in descendants
+                )
+                
+                if any_selected:
+                    # Deselect all descendants from wherever they are stored
+                    for cat_id, selections in list(self.selections.items()):
+                        if isinstance(selections, set):
+                            # Remove descendants from this category's selections
+                            selections.difference_update(descendants)
+                            # If category is now empty, remove it
+                            if not selections:
+                                del self.selections[cat_id]
+                    
+                    # Also remove this category itself if it's a key
+                    if item_id in self.selections:
+                        del self.selections[item_id]
+                else:
+                    # Select all descendants under this category
+                    self.selections[item_id] = descendants.copy()
+                
+                # Mark that changes have been made
+                self.changes_since_apply = True
+                # Auto-save after selection change
+                self.save_configuration(silent=True)
             return
             
         # Handle configurable items
@@ -461,24 +527,31 @@ class UnifiedMenu:
             self.show_config_dialog(item)
             return
             
-        # Handle selection based on parent
-        parent = item.get('parent')
-        if parent and parent in self.category_items:
-            # Item is part of a category
-            if parent not in self.selections:
-                self.selections[parent] = set()
-                
-            if item_id in self.selections[parent]:
-                self.selections[parent].remove(item_id)
-            else:
-                self.selections[parent].add(item_id)
+        # Handle regular item selection/deselection
+        is_currently_selected = self.is_item_selected(item_id)
+        
+        if is_currently_selected:
+            # Remove from ALL categories that contain it
+            for cat_id, selections in list(self.selections.items()):
+                if isinstance(selections, set) and item_id in selections:
+                    selections.remove(item_id)
+                    # If category is now empty, remove it
+                    if not selections:
+                        del self.selections[cat_id]
         else:
-            # Top-level item
-            if item_id in self.selections:
-                del self.selections[item_id]
+            # Add to immediate parent
+            parent = item.get('parent')
+            if parent and parent in self.category_items:
+                # Item is part of a category
+                if parent not in self.selections:
+                    self.selections[parent] = set()
+                self.selections[parent].add(item_id)
             else:
+                # Top-level item
                 self.selections[item_id] = True
                 
+        # Mark that changes have been made
+        self.changes_since_apply = True
         # Auto-save after selection change
         self.save_configuration(silent=True)
                 
@@ -537,24 +610,88 @@ class UnifiedMenu:
         # Update value if changed
         if new_value is not None:
             self.configurable_values[item_id] = new_value
+            # Mark that changes have been made
+            self.changes_since_apply = True
             # Auto-save after configuration change
             self.save_configuration(silent=True)
                 
     def select_all(self) -> None:
-        """Select all items in current category"""
-        if self.current_menu not in self.category_items:
-            return
-            
-        self.selections[self.current_menu] = set(self.category_items[self.current_menu])
+        """Select all items in current category and all subcategories"""
+        if self.current_menu == 'root':
+            # At root level, select all non-category items recursively
+            for item in self.items:
+                if item.get('is_category') and item.get('parent') is None:
+                    # Get all descendant items for each root category
+                    descendants = self.get_all_descendant_items(item['id'])
+                    if descendants:
+                        self.selections[item['id']] = descendants
+                elif not item.get('is_category') and item.get('parent') is None:
+                    # Direct root-level items
+                    self.selections[item['id']] = True
+        else:
+            # In a category, select all descendant items
+            descendants = self.get_all_descendant_items(self.current_menu)
+            if descendants:
+                # First, remove these items from any other categories
+                # This ensures they're only stored in one place
+                for cat_id, selections in list(self.selections.items()):
+                    if isinstance(selections, set) and cat_id != self.current_menu:
+                        selections.difference_update(descendants)
+                        if not selections:
+                            del self.selections[cat_id]
+                
+                # Now add them to the current category
+                self.selections[self.current_menu] = descendants
+        
+        # Mark that changes have been made
+        self.changes_since_apply = True
         # Auto-save after bulk selection
         self.save_configuration(silent=True)
         
     def deselect_all(self) -> None:
-        """Deselect all items in current category"""
-        if self.current_menu in self.selections:
-            self.selections[self.current_menu] = set()
-            # Auto-save after bulk deselection
-            self.save_configuration(silent=True)
+        """Deselect all items in current category and all subcategories"""
+        if self.current_menu == 'root':
+            # At root level, clear all selections
+            self.selections.clear()
+        else:
+            # Get all items that should be deselected (all descendants of current menu)
+            items_to_deselect = self.get_all_descendant_items(self.current_menu)
+            
+            if items_to_deselect:
+                # Remove these items from ALL categories that contain them
+                for cat_id, selections in list(self.selections.items()):
+                    if isinstance(selections, set):
+                        # Remove any items that are descendants of current menu
+                        selections.difference_update(items_to_deselect)
+                        # If category is now empty, remove it
+                        if not selections:
+                            del self.selections[cat_id]
+            
+            # Also remove the current category itself if it exists as a key
+            if self.current_menu in self.selections:
+                del self.selections[self.current_menu]
+            
+            # Clear any direct subcategory selections
+            for item in self.items:
+                if item.get('is_category') and item.get('parent') == self.current_menu:
+                    if item['id'] in self.selections:
+                        del self.selections[item['id']]
+        
+        # Mark that changes have been made
+        self.changes_since_apply = True
+        # Auto-save after bulk deselection
+        self.save_configuration(silent=True)
+    
+    def _clear_category_selections(self, category_id: str) -> None:
+        """Recursively clear selections for a category and its subcategories"""
+        # Clear this category's selections
+        if category_id in self.selections:
+            del self.selections[category_id]
+        
+        # Clear subcategory selections
+        for item in self.items:
+            if item.get('is_category') and item.get('parent') == category_id:
+                self._clear_category_selections(item['id'])
             
     def enter_submenu(self, menu_id: str) -> None:
         """Enter a submenu"""
@@ -586,6 +723,11 @@ class UnifiedMenu:
         
     def apply_configuration(self) -> bool:
         """Apply the configuration using Ansible with sudo dialog"""
+        # DEBUG: Start of apply_configuration
+        import sys
+        sys.stderr.write(f"\n[DEBUG] apply_configuration called at {time.strftime('%H:%M:%S')}\n")
+        sys.stderr.flush()
+        
         # Create sudo dialog
         sudo_dialog = SudoDialog(self.stdscr)
         progress_dialog = ProgressDialog(self.stdscr)
@@ -647,13 +789,23 @@ class UnifiedMenu:
             )
             return False
         
-        # Create a temporary file for sudo password (more reliable than env var)
+        # Create a temporary file for sudo password with proper permissions
         import tempfile
         import os
+        import stat
         
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-            f.write(sudo_password)
-            password_file = f.name
+        # Create password file with secure permissions
+        fd, password_file = tempfile.mkstemp(text=True)
+        try:
+            # Write password and ensure proper permissions
+            with os.fdopen(fd, 'w') as f:
+                f.write(sudo_password)
+                f.write('\n')  # Ensure newline at end
+            # Set permissions to 0600 (read/write for owner only)
+            os.chmod(password_file, stat.S_IRUSR | stat.S_IWUSR)
+        except:
+            os.close(fd)
+            raise
         
         # Create a temporary inventory to avoid vault template issues
         import tempfile
@@ -664,21 +816,34 @@ localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3
             temp_inventory = inv_file.name
 
         try:
+            # Set up environment for Ansible
+            env = {
+                'ANSIBLE_BECOME_PASS': sudo_password,      # Primary method
+                'ANSIBLE_BECOME_PASSWORD': sudo_password,  # Alternate name
+                'ANSIBLE_ASK_PASS': 'False',              # Don't prompt
+                'ANSIBLE_ASK_BECOME_PASS': 'False',       # Don't prompt for sudo
+            }
+            
             # Run ansible-playbook with progress dialog
-            # Use clean temporary inventory and environment overrides
+            # Simplified command with fewer parameters
+            sys.stderr.write(f"[DEBUG] About to call progress_dialog.run_command\n")
+            sys.stderr.write(f"[DEBUG] Password file: {password_file}\n")
+            sys.stderr.write(f"[DEBUG] Inventory: {temp_inventory}\n")
+            sys.stderr.flush()
+            
+            # Build complete ansible command with all variables
+            ansible_cmd = self._build_ansible_command(temp_inventory, password_file)
+            
             result = progress_dialog.run_command(
-                ['ansible-playbook', 'site.yml', 
-                 '-i', temp_inventory,  # Use clean inventory without vault templates
-                 '--diff', '-v', 
-                 '--become-password-file', password_file,
-                 '--connection', 'local',  # Force local connection
-                 '--become-method', 'sudo',  # Explicit sudo method
-                 '--timeout', '30'  # Connection timeout
-                ],
+                ansible_cmd,
                 "Applying Configuration - Installing Selected Software",
                 show_output=True,
-                sudo_dialog=sudo_dialog
+                sudo_dialog=sudo_dialog,
+                env=env
             )
+            
+            sys.stderr.write(f"[DEBUG] progress_dialog.run_command returned: {result}\n")
+            sys.stderr.flush()
         finally:
             # Always remove temporary files
             try:
@@ -690,18 +855,64 @@ localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3
             except:
                 pass
         
+        sys.stderr.write(f"[DEBUG] Checking result: {result}\n")
+        sys.stderr.flush()
+        
         if result == 0:
+            # Update applied config tracking
+            self.applied_config_hash = self._get_config_hash()
+            self.config_applied = True
+            self.changes_since_apply = False  # Reset change tracking after successful apply
+            
+            # Build detailed summary
+            summary = self._build_execution_summary(progress_dialog)
+            
             MessageDialog(self.stdscr).show(
                 "Configuration Applied",
-                "Your system has been successfully configured!",
+                summary,
                 "success"
             )
             return True
         else:
+            # Check if debug log exists
+            debug_info = ""
+            emergency_log = "/tmp/ubootu_emergency.log"
+            
+            sys.stderr.write(f"[DEBUG] Configuration failed with result: {result}\n")
+            
+            # List all debug logs
+            import glob
+            debug_logs = glob.glob('/tmp/ubootu_debug_*.log')
+            if debug_logs:
+                debug_info = "\n\nDebug logs found:\n"
+                for log in debug_logs[-3:]:  # Show last 3
+                    debug_info += f"  {log}\n"
+            
+            if os.path.exists(emergency_log):
+                debug_info += f"\nEmergency log: {emergency_log}"
+                # Read last few lines
+                try:
+                    with open(emergency_log, 'r') as f:
+                        lines = f.readlines()
+                        if lines:
+                            debug_info += "\n\nLast lines from emergency log:"
+                            for line in lines[-5:]:
+                                debug_info += f"\n  {line.strip()}"
+                except:
+                    pass
+            
+            if os.path.exists('/tmp/ubootu_ansible.log'):
+                debug_info += "\nAnsible log saved to: /tmp/ubootu_ansible.log"
+                
+            sys.stderr.write(f"[DEBUG] Showing error dialog\n")
+            sys.stderr.flush()
+                
+            # Build failure summary
+            failure_summary = self._build_failure_summary(progress_dialog, result)
+            
             MessageDialog(self.stdscr).show(
                 "Configuration Failed",
-                "There was an error applying the configuration.\n"
-                "Please check the output for details.",
+                failure_summary + debug_info,
                 "error"
             )
             return False
@@ -735,17 +946,48 @@ localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3
             action = self.navigate(key)
             
             if action == 'quit':
-                # User wants to quit
-                if self.selections:
+                # User wants to quit - check state
+                current_hash = self._get_config_hash()
+                saved_hash = self._get_saved_config_hash()
+                
+                # First check if there are actual changes since last apply
+                if not self.changes_since_apply:
+                    # No changes since apply, just confirm quit
                     dialog = ConfirmDialog(self.stdscr)
-                    if dialog.show("Save changes?", "You have unsaved selections. Save before exit?"):
+                    if dialog.show("Quit?", "Exit Ubootu?"):
+                        exit_code = 0
+                        break
+                elif current_hash != saved_hash:
+                    # Unsaved changes
+                    dialog = ConfirmDialog(self.stdscr)
+                    if dialog.show("Save changes?", "You have unsaved changes. Save before exit?"):
                         self.save_configuration()
-                        exit_code = 0  # Saved successfully
+                        exit_code = 0
                     else:
-                        exit_code = 1  # Cancelled without saving
+                        exit_code = 1
+                    break
+                elif self.changes_since_apply:
+                    # Saved but unapplied changes
+                    dialog = SelectDialog(self.stdscr)
+                    response = dialog.show(
+                        "Unapplied Changes", 
+                        "Configuration saved but not applied. What would you like to do?",
+                        ["Apply Now", "Quit Without Applying", "Cancel"]
+                    )
+                    if response == 0:  # Apply Now
+                        if self.apply_configuration():
+                            exit_code = 0
+                            break
+                    elif response == 1:  # Quit without applying
+                        exit_code = 0
+                        break
+                    # else Cancel - continue loop
                 else:
-                    exit_code = 1  # No selections, just cancelled
-                break
+                    # No changes at all, just quit
+                    dialog = ConfirmDialog(self.stdscr)
+                    if dialog.show("Quit?", "Exit Ubootu?"):
+                        exit_code = 0
+                        break
                 
             elif action == 'help':
                 help_text = self.get_current_help()
@@ -829,3 +1071,272 @@ localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3
             
             msg_dialog = MessageDialog(self.stdscr)
             msg_dialog.show("Reset Complete", "Configuration has been reset to defaults.")
+    
+    def _get_config_data(self) -> Dict[str, Any]:
+        """Get current configuration as a dictionary"""
+        # Build selected items list
+        selected_items = []
+        for item_id, value in self.selections.items():
+            if isinstance(value, bool) and value:
+                selected_items.append(item_id)
+            elif isinstance(value, set):
+                selected_items.append(item_id)
+                selected_items.extend(list(value))
+        
+        # Build configurable items
+        configurable_items = {}
+        for item_id, value in self.configurable_values.items():
+            configurable_items[item_id] = {
+                'id': item_id,
+                'value': value
+            }
+        
+        return {
+            'selected_items': sorted(selected_items),
+            'configurable_items': configurable_items
+        }
+    
+    def _get_config_hash(self) -> str:
+        """Generate hash of current configuration"""
+        import hashlib
+        import json
+        
+        config_data = self._get_config_data()
+        # Sort keys for consistent hashing
+        config_str = json.dumps(config_data, sort_keys=True)
+        return hashlib.sha256(config_str.encode()).hexdigest()
+    
+    def _get_saved_config_hash(self) -> Optional[str]:
+        """Get hash of saved configuration from file"""
+        if not Path(self.config_file).exists():
+            return None
+            
+        try:
+            with open(self.config_file, 'r') as f:
+                config = yaml.safe_load(f) or {}
+            
+            # Extract relevant parts
+            config_data = {
+                'selected_items': sorted(config.get('selected_items', [])),
+                'configurable_items': config.get('configurable_items', {})
+            }
+            
+            import hashlib
+            import json
+            config_str = json.dumps(config_data, sort_keys=True)
+            return hashlib.sha256(config_str.encode()).hexdigest()
+        except:
+            return None
+    
+    def _prepare_ansible_variables(self) -> Dict[str, Any]:
+        """Prepare all variables to pass to Ansible"""
+        extra_vars = {}
+        
+        # Add selected items as a simple list
+        selected_items = []
+        for item_id, value in self.selections.items():
+            if isinstance(value, bool) and value:
+                selected_items.append(item_id)
+            elif isinstance(value, set):
+                selected_items.extend(list(value))
+        
+        extra_vars['selected_items'] = selected_items
+        
+        # Add configurable items with proper ansible variable names
+        for item_id, value in self.configurable_values.items():
+            ansible_var_name = self._get_ansible_var_name(item_id)
+            extra_vars[ansible_var_name] = value
+        
+        # Add desktop environment display manager mapping
+        extra_vars['de_display_manager'] = {
+            'gnome': 'gdm3',
+            'kde': 'sddm',
+            'xfce': 'lightdm',
+            'mate': 'lightdm',
+            'cinnamon': 'lightdm',
+            'hyprland': 'greetd'
+        }
+        
+        # Add Ubuntu version handling for repository compatibility
+        extra_vars['ubuntu_version'] = '25.04'
+        extra_vars['ubuntu_codename'] = 'plucky'
+        extra_vars['fallback_codename'] = 'noble'  # Fallback to 24.04 LTS
+        
+        # Add default ansible variables
+        import os
+        extra_vars.update({
+            'primary_user': os.environ.get('USER', 'ubuntu'),
+            'desktop_environment': 'gnome',  # Default
+            'de_environment': 'gnome',       # For display manager tasks
+            'de_autologin': False,
+            'enable_firewall': True,
+            'enable_fail2ban': True
+        })
+        
+        # Load config.yml if it exists and merge ansible_variables
+        if Path(self.config_file).exists():
+            try:
+                with open(self.config_file, 'r') as f:
+                    config = yaml.safe_load(f)
+                    if config and 'ansible_variables' in config:
+                        extra_vars.update(config['ansible_variables'])
+            except:
+                pass  # Continue with defaults if config can't be loaded
+        
+        return extra_vars
+    
+    def _get_ansible_var_name(self, config_name: str) -> str:
+        """Convert config item name to ansible variable name"""
+        # Mapping of config names to ansible variable names
+        mappings = {
+            'swappiness': 'system_swappiness',
+            'terminal-font-size': 'terminal_font_size',
+            'terminal-font-family': 'terminal_font_family',
+            'terminal-transparency': 'terminal_transparency',
+            'terminal-padding': 'terminal_padding',
+            'terminal-scrollback': 'terminal_scrollback',
+            'terminal-cursor-style': 'terminal_cursor_style',
+            'terminal-bell': 'terminal_bell',
+            'terminal-blur': 'terminal_blur',
+            'custom-accent': 'theme_custom_accent',
+            'custom-background': 'theme_custom_background',
+            'custom-foreground': 'theme_custom_foreground',
+            'theme-terminal-opacity': 'theme_terminal_opacity',
+            'theme-ui-scale': 'theme_ui_scale',
+            'editor-font-family': 'editor_font_family',
+            'editor-line-height': 'editor_line_height',
+            'vscode-font-size': 'vscode_font_size'
+        }
+        
+        return mappings.get(config_name, config_name.replace('-', '_'))
+    
+    def _create_extra_vars_file(self, temp_dir: Path = None) -> Path:
+        """Create temporary extra vars file for ansible"""
+        import tempfile
+        
+        if temp_dir is None:
+            temp_dir = Path(tempfile.gettempdir())
+        
+        extra_vars = self._prepare_ansible_variables()
+        
+        vars_file = temp_dir / f"ubootu_extra_vars_{int(time.time())}.yml"
+        with open(vars_file, 'w') as f:
+            yaml.dump(extra_vars, f, default_flow_style=False)
+        
+        return vars_file
+    
+    def _build_ansible_command(self, temp_inventory: str = None, password_file: str = None) -> List[str]:
+        """Build the complete ansible-playbook command with all options"""
+        # Create extra vars file
+        vars_file = self._create_extra_vars_file()
+        
+        cmd = [
+            'ansible-playbook',
+            'site.yml',
+            '-i', temp_inventory or 'localhost,',
+            '--diff',
+            '-v',  # Moderate verbosity - actionable callback controls output format
+            '--extra-vars', f'@{vars_file}',
+            '--connection', 'local',
+            '--forks', '1',
+            '--become-method', 'sudo'
+        ]
+        
+        if password_file:
+            cmd.extend(['--become-password-file', password_file])
+        
+        return cmd
+    
+    def _build_execution_summary(self, progress_dialog) -> str:
+        """Build a detailed summary of what happened during execution"""
+        lines = ["Your system has been successfully configured!", ""]
+        
+        # Overall stats
+        completed = getattr(progress_dialog, 'completed_tasks', 0)
+        skipped = getattr(progress_dialog, 'skipped_tasks', 0)
+        failed = getattr(progress_dialog, 'failed_tasks', 0)
+        total = completed + skipped + failed
+        lines.append(f"Total tasks processed: {total}")
+        lines.append(f"✓ Completed: {completed}")
+        lines.append(f"⚪ Skipped: {skipped}")
+        if failed > 0:
+            lines.append(f"✗ Failed: {failed}")
+        lines.append("")
+        
+        # Success details (limit to show most important)
+        success_details = getattr(progress_dialog, 'success_details', {})
+        if success_details:
+            lines.append("Successfully installed/configured:")
+            for category, actions in list(success_details.items())[:5]:
+                if actions:
+                    lines.append(f"  {category}: {len(actions)} items")
+        
+        # Skip reasons summary
+        skip_reasons = getattr(progress_dialog, 'skip_reasons', {})
+        if skip_reasons:
+            lines.append("")
+            lines.append("Items skipped because:")
+            for reason, count in skip_reasons.items():
+                lines.append(f"  • {reason}: {count}")
+        
+        # Failure summary (if any)
+        failure_details = getattr(progress_dialog, 'failure_details', {})
+        if failure_details:
+            lines.append("")
+            lines.append("⚠️ Failed items:")
+            for category, actions in failure_details.items():
+                if actions:
+                    lines.append(f"  {category}: {', '.join(actions[:3])}")
+                    if len(actions) > 3:
+                        lines.append(f"    ... and {len(actions) - 3} more")
+        
+        return "\n".join(lines)
+    
+    def _build_failure_summary(self, progress_dialog, exit_code: int) -> str:
+        """Build a detailed summary of what failed during execution"""
+        lines = [f"Configuration process failed with exit code {exit_code}", ""]
+        
+        # Overall stats
+        completed = getattr(progress_dialog, 'completed_tasks', 0)
+        skipped = getattr(progress_dialog, 'skipped_tasks', 0)
+        failed = getattr(progress_dialog, 'failed_tasks', 0)
+        total = completed + skipped + failed
+        lines.append(f"Tasks processed before failure: {total}")
+        if completed > 0:
+            lines.append(f"✓ Succeeded: {completed}")
+        if skipped > 0:
+            lines.append(f"⚪ Skipped: {skipped}")
+        if failed > 0:
+            lines.append(f"✗ Failed: {failed}")
+        lines.append("")
+        
+        # What succeeded before failure
+        success_details = getattr(progress_dialog, 'success_details', {})
+        if success_details:
+            lines.append("Completed before failure:")
+            count = 0
+            for category, actions in success_details.items():
+                if actions and count < 3:
+                    lines.append(f"  • {category}: {len(actions)} items")
+                    count += 1
+            lines.append("")
+        
+        # What failed
+        failure_details = getattr(progress_dialog, 'failure_details', {})
+        if failure_details:
+            lines.append("Failed tasks:")
+            for category, actions in failure_details.items():
+                if actions:
+                    for action in actions[:3]:  # Show first 3
+                        lines.append(f"  ✗ {action}")
+                    if len(actions) > 3:
+                        lines.append(f"    ... and {len(actions) - 3} more in {category}")
+            lines.append("")
+        
+        lines.append("Common causes:")
+        lines.append("• Network connectivity issues")
+        lines.append("• Repository unavailability")
+        lines.append("• Package conflicts")
+        lines.append("• Missing dependencies")
+        
+        return "\n".join(lines)

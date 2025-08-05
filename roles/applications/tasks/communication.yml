@@ -61,15 +61,30 @@
 
 - name: Install Signal Desktop
   block:
-    - name: Add Signal GPG key
-      apt_key:
-        url: https://updates.signal.org/desktop/apt/keys.asc
-        state: present
+    - name: Create keyring directory
+      ansible.builtin.file:
+        path: /usr/share/keyrings
+        state: directory
+        mode: '0755'
       become: yes
 
-    - name: Add Signal repository
+    - name: Download Signal GPG key
+      ansible.builtin.get_url:
+        url: https://updates.signal.org/desktop/apt/keys.asc
+        dest: /tmp/signal.asc
+      become: yes
+
+    - name: Convert and install Signal GPG key
+      ansible.builtin.shell: |
+        gpg --dearmor < /tmp/signal.asc > /usr/share/keyrings/signal.gpg
+        chmod 644 /usr/share/keyrings/signal.gpg
+      args:
+        creates: /usr/share/keyrings/signal.gpg
+      become: yes
+
+    - name: Add Signal repository with signed-by
       apt_repository:
-        repo: "deb [arch=amd64] https://updates.signal.org/desktop/apt xenial main"
+        repo: "deb [signed-by=/usr/share/keyrings/signal.gpg arch=amd64] https://updates.signal.org/desktop/apt xenial main"
         state: present
         filename: signal-xenial
       become: yes

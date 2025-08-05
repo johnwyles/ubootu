@@ -535,10 +535,35 @@
         state: present
       become: yes
 
-    - name: Enable all AppArmor profiles
-      ansible.builtin.shell: |
-        aa-enforce /etc/apparmor.d/*
+    - name: Get list of AppArmor profiles for super hardening
+      ansible.builtin.find:
+        paths: /etc/apparmor.d
+        patterns: '*'
+        file_type: file
+        excludes: 
+          - "*.dpkg-*"
+          - "README*"
+          - "tunables"
+          - "abstractions"
+          - "local"
+      register: super_apparmor_profiles
       become: yes
+
+    - name: Enable AppArmor profiles (excluding problematic ones)
+      ansible.builtin.shell: |
+        profile_name=$(basename "{{ item.path }}")
+        # Check if profile should be excluded
+        {% for exclude in apparmor_exclude_profiles %}
+        if [[ "$profile_name" == "{{ exclude }}" ]]; then
+          echo "Skipping {{ exclude }} - setting to complain mode"
+          aa-complain "{{ item.path }}"
+          exit 0
+        fi
+        {% endfor %}
+        # Enforce the profile
+        aa-enforce "{{ item.path }}"
+      become: yes
+      loop: "{{ super_apparmor_profiles.files }}"
       register: apparmor_result
       failed_when: false
       changed_when: "'Setting' in apparmor_result.stdout"

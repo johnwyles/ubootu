@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-import lib.section_selector
+from lib.tui import section_selector
 
 
 class TestSectionSelector:
@@ -20,11 +20,11 @@ class TestSectionSelector:
 
     def test_import(self):
         """Test that module can be imported"""
-        assert lib.section_selector is not None
+        assert section_selector is not None
 
     def test_module_attributes(self):
         """Test module has expected attributes"""
-        module = lib.section_selector
+        module = section_selector
 
         # Check module has some content
         attrs = [a for a in dir(module) if not a.startswith("_")]
@@ -49,7 +49,7 @@ class TestSectionSelector:
 
     def test_classes(self):
         """Test classes in module"""
-        module = lib.section_selector
+        module = section_selector
 
         # Find all classes
         classes = inspect.getmembers(module, inspect.isclass)

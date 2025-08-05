@@ -1,0 +1,47 @@
+#!/bin/bash
+# Shell startup debugging helper
+# This file helps diagnose shell startup issues
+
+if [ "${UBOOTU_DEBUG_SHELL}" = "1" ]; then
+    echo "[UBOOTU DEBUG] Starting shell debug at $(date)" >&2
+    
+    # Debug fd commands
+    if command -v fd; then
+        # Create a wrapper to catch malformed fd commands
+        _fd_debug_wrapper() {
+            echo "[UBOOTU DEBUG] fd called with args: $*" >&2
+            # Check for the 'ype' error
+            for arg in "$@"; do
+                if [[ "$arg" == "ype" ]]; then
+                    echo "[UBOOTU DEBUG] WARNING: Found 'ype' argument to fd!" >&2
+                    echo "[UBOOTU DEBUG] Call stack:" >&2
+                    local frame=0
+                    while caller $frame; do
+                        ((frame++))
+                    done >&2
+                fi
+            done
+            command fd "$@"
+        }
+        alias fd='_fd_debug_wrapper'
+    fi
+    
+    # Debug Python imports
+    export PYTHONWARNINGS="default"
+    
+    # Log when files are sourced
+    _debug_source() {
+        echo "[UBOOTU DEBUG] Sourcing: $1" >&2
+        builtin source "$@"
+    }
+    alias source='_debug_source'
+    alias .='_debug_source'
+fi
+
+# Check for common issues
+if [ -z "${UBOOTU_DEBUG_SHELL}" ]; then
+    # Silently check for the 'ype' issue
+    if env | grep -q "TYPE.*ype"; then
+        echo "[UBOOTU WARNING] Found environment variable with 'ype' value: $(env | grep TYPE.*ype)" >&2
+    fi
+fi

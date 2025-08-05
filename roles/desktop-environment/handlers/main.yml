@@ -13,3 +13,9 @@
   become: yes
   listen: restart display manager
   when: de_hyprland_enabled | default(false)
+
+- name: restart journald
+  ansible.builtin.systemd:
+    name: systemd-journald
+    state: restarted
+  become: yes

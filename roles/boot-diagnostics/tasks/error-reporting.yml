@@ -1,0 +1,56 @@
+---
+# Create boot error reporting tools
+
+- name: Create comprehensive boot report script
+  ansible.builtin.template:
+    src: boot-report.sh.j2
+    dest: "{{ boot_report_path }}"
+    mode: '0755'
+  become: yes
+
+- name: Create desktop shortcut for boot report
+  ansible.builtin.copy:
+    content: |
+      [Desktop Entry]
+      Name=Boot Diagnostics Report
+      Comment=Generate comprehensive boot and system diagnostics report
+      Exec=gnome-terminal -- {{ boot_report_path }}
+      Icon=utilities-system-monitor
+      Terminal=true
+      Type=Application
+      Categories=System;
+    dest: /usr/share/applications/boot-diagnostics.desktop
+    mode: '0644'
+  become: yes
+  when: desktop_environment is defined
+
+- name: Create simplified error viewer script
+  ansible.builtin.copy:
+    content: |
+      #!/bin/bash
+      # Quick boot error viewer
+      
+      echo "=== Recent Boot Errors ==="
+      echo
+      echo "1. Kernel errors:"
+      sudo dmesg | grep -iE "error|fail" | tail -20
+      echo
+      echo "2. Failed services:"
+      systemctl --failed
+      echo
+      echo "3. Journal errors (last boot):"
+      journalctl -b -p err --no-pager | tail -20
+      echo
+      echo "For full report, run: {{ boot_report_path }}"
+      read -p "Press Enter to exit..."
+    dest: /usr/local/bin/boot-errors
+    mode: '0755'
+  become: yes
+
+- name: Add alias for quick error checking
+  ansible.builtin.lineinfile:
+    path: "/home/{{ primary_user }}/.bashrc"
+    line: "alias boot-errors='{{ boot_report_path }}'"
+    create: yes
+  become: yes
+  become_user: "{{ primary_user }}"

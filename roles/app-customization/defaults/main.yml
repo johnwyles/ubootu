@@ -1,0 +1,7 @@
+---
+# defaults file for app-customization role
+
+# Default values for app customization
+firefox_privacy_enabled: true
+vscode_telemetry_disabled: true
+git_config_enabled: true

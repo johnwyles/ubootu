@@ -119,12 +119,47 @@
         state: started
       become: yes
 
-    - name: Set AppArmor to enforce mode
-      ansible.builtin.shell: aa-enforce /etc/apparmor.d/*
+    - name: Get list of AppArmor profiles
+      ansible.builtin.find:
+        paths: /etc/apparmor.d
+        patterns: '*'
+        file_type: file
+        excludes: 
+          - "*.dpkg-*"
+          - "README*"
+          - "tunables"
+          - "abstractions"
+          - "local"
+      register: apparmor_profiles
       become: yes
+
+    - name: Set AppArmor profiles to enforce mode (excluding problematic ones)
+      ansible.builtin.shell: |
+        profile_name=$(basename "{{ item.path }}")
+        # Check if profile should be excluded
+        {% for exclude in apparmor_exclude_profiles %}
+        if [[ "$profile_name" == "{{ exclude }}" ]]; then
+          echo "Skipping {{ exclude }}"
+          exit 0
+        fi
+        {% endfor %}
+        # Enforce the profile
+        aa-enforce "{{ item.path }}"
+      become: yes
+      loop: "{{ apparmor_profiles.files }}"
       register: apparmor_enforce
       failed_when: false
       changed_when: "'Setting' in apparmor_enforce.stdout"
+
+    - name: Set excluded profiles to complain mode
+      ansible.builtin.shell: |
+        if [ -f "/etc/apparmor.d/{{ item }}" ]; then
+          aa-complain "/etc/apparmor.d/{{ item }}"
+        fi
+      become: yes
+      loop: "{{ apparmor_exclude_profiles }}"
+      when: apparmor_exclude_profiles is defined
+      failed_when: false
   when: enable_apparmor | default(true)
 
 - name: Configure login defs

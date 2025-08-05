@@ -47,9 +47,17 @@ bindkey '^[[3~' delete-char
 bindkey '^[3;5~' delete-word
 
 # FZF configuration (if installed)
-if command -v fzf >/dev/null 2>&1; then
+if command -v fzf; then
     export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
-    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+    
+    # Use fd if available, otherwise fall back to find
+    if command -v fd; then
+        export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+    else
+        echo "[UBOOTU INFO] fd not found, using find for FZF" >&2
+        echo "  For better performance, install fd: sudo apt install fd-find" >&2
+        export FZF_DEFAULT_COMMAND='find . -type f -not -path "*/\.git/*"'
+    fi
     export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
     
     # Source FZF zsh integration
@@ -58,13 +66,17 @@ if command -v fzf >/dev/null 2>&1; then
 fi
 
 # Zoxide configuration (if installed)
-if command -v zoxide >/dev/null 2>&1; then
+if command -v zoxide; then
     eval "$(zoxide init zsh)"
+else
+    echo "[UBOOTU INFO] zoxide not installed (smart cd replacement)" >&2
 fi
 
 # McFly configuration (if installed)
-if command -v mcfly >/dev/null 2>&1; then
+if command -v mcfly; then
     eval "$(mcfly init zsh)"
+else
+    echo "[UBOOTU INFO] mcfly not installed (intelligent shell history)" >&2
 fi
 
 # Functions

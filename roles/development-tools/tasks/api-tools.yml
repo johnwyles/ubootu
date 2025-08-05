@@ -45,25 +45,59 @@
 
 - name: Install Insomnia
   block:
-    - name: Add Insomnia GPG key
-      apt_key:
-        url: https://insomnia.rest/keys/debian-public.key.asc
-        state: present
+    - name: Ensure keyrings directory exists
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
       become: yes
+
+    - name: Download Insomnia GPG key
+      ansible.builtin.get_url:
+        url: https://insomnia.rest/keys/debian-public.key.asc
+        dest: /etc/apt/keyrings/insomnia.asc
+        mode: '0644'
+      become: yes
+      register: insomnia_key
+      failed_when: false
+
+    - name: Check if Insomnia repository is still active
+      ansible.builtin.uri:
+        url: https://download.konghq.com/insomnia-ubuntu/dists/default/Release
+        method: HEAD
+        timeout: 10
+      register: insomnia_repo_check
+      failed_when: false
 
     - name: Add Insomnia repository
       apt_repository:
-        repo: "deb [trusted=yes arch=amd64] https://download.konghq.com/insomnia-ubuntu/ default all"
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/insomnia.asc] https://download.konghq.com/insomnia-ubuntu/ default all"
         state: present
         filename: insomnia
       become: yes
+      when: 
+        - insomnia_key is succeeded
+        - insomnia_repo_check.status == 200
 
-    - name: Install Insomnia
+    - name: Install Insomnia via apt
       ansible.builtin.apt:
         name: insomnia
         state: present
         update_cache: yes
       become: yes
+      when: 
+        - insomnia_key is succeeded
+        - insomnia_repo_check.status == 200
+      failed_when: false
+
+    - name: Install Insomnia via snap if apt fails
+      snap:
+        name: insomnia
+        state: present
+      become: yes
+      when: 
+        - insomnia_key is failed or insomnia_repo_check.status != 200
+        - enable_snap | default(true)
   when: "'insomnia' in devtools_api_tools or devtools_install_insomnia"
 
 - name: Install Bruno (lightweight API client)

@@ -43,16 +43,34 @@ def draw_box(stdscr, y: int, x: int, height: int, width: int, title: Optional[st
         pass
 
 
-def draw_centered_text(stdscr, y: int, text: str, bold: bool = False) -> None:
-    """Draw centered text at given y position"""
+def draw_centered_text(stdscr, y: int, text: str, x_offset: int = 0, width: int = 0, bold: bool = False) -> None:
+    """Draw centered text at given y position
+    
+    Args:
+        stdscr: Curses screen object
+        y: Y position
+        text: Text to draw
+        x_offset: Starting X position (default 0)
+        width: Width to center within (default full screen width)
+        bold: Whether to use bold text
+    """
     try:
-        height, width = stdscr.getmaxyx()
-        x = center_text(width, text)
+        screen_height, screen_width = stdscr.getmaxyx()
+        
+        # Use provided width or screen width
+        if width == 0:
+            width = screen_width
+            x_offset = 0
+        
+        # Calculate centered position within the given width
+        text_x = x_offset + center_text(width, text)
         
         if bold:
             stdscr.attron(curses.A_BOLD)
             
-        stdscr.addstr(y, x, text[:width])
+        # Ensure text fits within bounds
+        max_len = min(width, screen_width - text_x)
+        stdscr.addstr(y, text_x, text[:max_len])
         
         if bold:
             stdscr.attroff(curses.A_BOLD)

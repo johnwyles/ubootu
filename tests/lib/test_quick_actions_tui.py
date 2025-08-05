@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, Mock, call, patch
 
 import pytest
 
-import lib.quick_actions_tui
+from lib.tui import quick_actions
 
 
 class TestQuickActionsTui:
@@ -32,12 +32,12 @@ class TestQuickActionsTui:
 
     def test_import(self):
         """Test that module can be imported"""
-        assert lib.quick_actions_tui is not None
+        assert quick_actions is not None
 
     def test_initialization(self, setup):
         """Test component initialization"""
         # Test that main classes/functions exist
-        module = lib.quick_actions_tui
+        module = quick_actions
         assert hasattr(module, "__file__")
 
         # Check for common TUI components
@@ -51,9 +51,9 @@ class TestQuickActionsTui:
         stdscr = setup["stdscr"]
 
         # Test screen is cleared and refreshed
-        if hasattr(lib.quick_actions_tui, "render"):
+        if hasattr(quick_actions, "render"):
             try:
-                lib.quick_actions_tui.render(stdscr)
+                quick_actions.render(stdscr)
                 stdscr.clear.assert_called()
                 stdscr.refresh.assert_called()
             except Exception:
@@ -63,6 +63,6 @@ class TestQuickActionsTui:
     @patch("curses.wrapper")
     def test_curses_wrapper(self, mock_wrapper):
         """Test curses wrapper usage"""
-        if hasattr(lib.quick_actions_tui, "main"):
-            lib.quick_actions_tui.main()
+        if hasattr(quick_actions, "main"):
+            quick_actions.main()
             mock_wrapper.assert_called_once()

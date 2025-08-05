@@ -1,0 +1,62 @@
+---
+# Configure Plymouth boot splash for better error visibility
+
+- name: Check if Plymouth is installed
+  ansible.builtin.stat:
+    path: /usr/sbin/plymouth
+  register: plymouth_installed
+
+- name: Disable Plymouth splash screen
+  block:
+    - name: Remove 'splash' from GRUB command line
+      ansible.builtin.replace:
+        path: /etc/default/grub
+        regexp: '(\s+)splash(\s+|$)'
+        replace: '\1\2'
+      become: yes
+      notify: update grub
+
+    - name: Remove 'quiet' from GRUB command line if showing messages
+      ansible.builtin.replace:
+        path: /etc/default/grub
+        regexp: '(\s+)quiet(\s+|$)'
+        replace: '\1\2'
+      become: yes
+      when: boot_show_messages
+      notify: update grub
+
+    - name: Disable Plymouth services
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: no
+        state: stopped
+      become: yes
+      loop:
+        - plymouth-start.service
+        - plymouth-quit.service
+        - plymouth-quit-wait.service
+      when: boot_disable_plymouth
+      ignore_errors: yes
+  when: plymouth_installed.stat.exists and (boot_show_messages or boot_disable_plymouth)
+
+- name: Configure Plymouth for debugging
+  block:
+    - name: Create Plymouth debug configuration
+      ansible.builtin.copy:
+        content: |
+          [Daemon]
+          ShowDelay=0
+          DeviceTimeout=5
+          # Show boot messages through Plymouth
+          ShowMessages=true
+        dest: /etc/plymouth/plymouthd.conf
+        mode: '0644'
+      become: yes
+      when: boot_show_messages and not boot_disable_plymouth
+
+    - name: Set text theme for better message visibility
+      ansible.builtin.command: plymouth-set-default-theme text
+      become: yes
+      when: boot_show_messages and not boot_disable_plymouth
+      ignore_errors: yes
+  when: plymouth_installed.stat.exists

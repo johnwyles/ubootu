@@ -16,16 +16,16 @@ KEY_BINDINGS = {
     'navigate_down': ['KEY_DOWN', 'j'],
     'navigate_left': ['KEY_LEFT', 'h'],
     'navigate_right': ['KEY_RIGHT', 'l'],
-    'select': [' ', '\n'],  # Both Space and Enter toggle selection
-    'enter': ['\n', 'KEY_RIGHT', ' ', 'l'],  # Enter, Right arrow, and Space enter submenus
+    'select': [' '],  # Space toggles selection
+    'enter': ['\n', 'KEY_RIGHT', 'l'],  # Enter, Right arrow, and 'l' enter submenus
     'back': ['KEY_LEFT', 'ESC', 'h'],
     'quit': ['q', 'Q'],
-    'help': ['KEY_F1', '?', 'H', 'h'],
+    'help': ['KEY_F1', '?', 'H'],  # F1, ?, or H for help (not 'h' to avoid conflict)
     'save': ['s', 'S'],
     'apply': ['p', 'P'],
     'search': ['/'],
     'select_all': ['a', 'A'],
-    'deselect_all': ['n', 'N'],
+    'deselect_all': ['d', 'D'],
     'main_menu': ['m', 'M'],  # Go back to main menu
 }
 
@@ -34,8 +34,8 @@ TITLE = "🚀 Ubootu Configuration"
 SUBTITLE = "Professional Ubuntu Desktop Configuration Tool"
 
 # Help bar text
-HELP_BAR = "↑↓ Navigate  Space/Enter Select/Enter  → Enter Submenu  ← Back  S Save Config  P Apply/Install  Q Quit"
-HELP_BAR_SUBMENU = "↑↓ Navigate  Space Select  ← Back  A/N All/None  S Save  P Apply  Q Quit  H Help"
+HELP_BAR = "↑↓ Navigate  Space Select  Enter/→ Submenu  ← Back  A/D All/None  S Save  P Apply  Q Quit"
+HELP_BAR_SUBMENU = "↑↓ Navigate  Space Select  Enter/→ Submenu  ← Back  A/D All/None  S Save  P Apply  Q Quit"
 
 # Minimum terminal size
 MIN_WIDTH = 80

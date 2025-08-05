@@ -14,6 +14,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "lib"))
 
 from tui.unified_menu import UnifiedMenu  # noqa: E402
 from tui.main_menu import MainMenu  # noqa: E402
+from tui.profile_selector import ProfileSelector  # noqa: E402
+from tui.backup_config import BackupConfig  # noqa: E402
+from tui.history_viewer import HistoryViewer  # noqa: E402
+from tui.quick_actions import QuickActionsMenu  # noqa: E402
+from tui.help_viewer import HelpViewer  # noqa: E402
 
 
 def run_unified_tui(stdscr, selected_sections=None):
@@ -36,19 +41,48 @@ def run_unified_tui(stdscr, selected_sections=None):
             else:
                 return 1  # Configuration cancelled
         elif choice == '3':  # Apply Profile
-            # TODO: Implement profile selection
+            # Show profile selector
+            profile_selector = ProfileSelector(stdscr)
+            selected_profile = profile_selector.run()
+            if selected_profile:
+                # Copy selected profile to config.yml
+                import shutil
+                try:
+                    shutil.copy2(selected_profile, 'config.yml')
+                    # Show success and offer to apply
+                    from tui.dialogs import MessageDialog, ConfirmDialog
+                    msg_dialog = MessageDialog(stdscr)
+                    msg_dialog.show("Success", f"Profile loaded successfully!\n\nWould you like to apply it now?")
+                    confirm_dialog = ConfirmDialog(stdscr)
+                    if confirm_dialog.show("Apply Configuration?", "Run Ansible to apply the loaded profile?"):
+                        # Apply the configuration
+                        config_menu = UnifiedMenu(stdscr)
+                        config_menu.load_menu_structure()
+                        config_menu.load_configuration()
+                        config_menu.apply_configuration()
+                except Exception as e:
+                    msg_dialog = MessageDialog(stdscr)
+                    msg_dialog.show("Error", f"Failed to load profile: {str(e)}", "error")
             continue  # Return to main menu
         elif choice == '4':  # Backup Config
-            # TODO: Implement backup functionality
+            # Show backup tool
+            backup_tool = BackupConfig(stdscr)
+            backup_tool.run()
             continue  # Return to main menu
         elif choice == '5':  # View History
-            # TODO: Implement history viewer
+            # Show history viewer
+            history_viewer = HistoryViewer(stdscr)
+            history_viewer.run()
             continue  # Return to main menu
         elif choice == '6':  # Quick Actions
-            # TODO: Implement quick actions menu
+            # Show quick actions menu
+            quick_actions = QuickActionsMenu(stdscr)
+            quick_actions.run()
             continue  # Return to main menu
         elif choice == '7':  # Help
-            # TODO: Show help
+            # Show help viewer
+            help_viewer = HelpViewer(stdscr)
+            help_viewer.run()
             continue  # Return to main menu
         elif choice == '8':  # Exit
             return 1  # User chose to exit

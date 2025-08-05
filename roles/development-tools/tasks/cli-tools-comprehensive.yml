@@ -107,15 +107,15 @@
     - name: Download .deb packages
       ansible.builtin.get_url:
         url: >
-          {{ item.json.assets |
-             selectattr('name', 'match', '.*amd64\\.deb$') |
-             map(attribute='browser_download_url') | first }}
+          {% set filtered_assets = item.json.assets | selectattr('name', 'match', '.*amd64\\.deb$') | list %}
+          {{ filtered_assets[0].browser_download_url if filtered_assets | length > 0 else '' }}
         dest: "/tmp/{{ item.item.name }}.deb"
         mode: '0644'
       loop: "{{ github_releases.results }}"
       when:
         - not item.failed
         - item.json.assets | selectattr('name', 'match', '.*amd64\\.deb$') | list | length > 0
+        - (item.json.assets | selectattr('name', 'match', '.*amd64\\.deb$') | list)[0].browser_download_url is defined
       loop_control:
         label: "{{ item.item.name }}"
       become: yes

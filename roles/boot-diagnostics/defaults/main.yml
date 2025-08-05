@@ -1,0 +1,27 @@
+---
+# Boot diagnostics configuration defaults
+
+# Plymouth boot splash configuration
+boot_show_messages: false  # Show boot messages instead of splash
+boot_disable_plymouth: false  # Completely disable Plymouth
+
+# GRUB configuration
+grub_timeout: 5  # Seconds to show GRUB menu
+grub_quiet_boot: true  # Hide boot messages by default
+grub_show_recovery: true  # Show recovery options in GRUB
+
+# System health checks
+enable_boot_health_checks: true
+health_check_storage: true  # Check for storage device errors
+health_check_graphics: true  # Check for GPU/graphics errors
+health_check_services: true  # Check for failed services
+
+# Boot performance
+enable_boot_optimization: false
+analyze_boot_time: true  # Run systemd-analyze after boot
+disable_slow_services: []  # List of services to disable for faster boot
+
+# Error reporting
+create_boot_report: true  # Create boot error report script
+boot_report_path: /usr/local/bin/boot-report
+send_boot_alerts: false  # Send alerts on boot errors (requires mail setup)

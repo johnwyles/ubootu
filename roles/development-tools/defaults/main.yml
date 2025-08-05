@@ -485,3 +485,5 @@ devtools_selfhosted_services:
   # - outline        # Knowledge base
   # - wallabag       # Read-it-later
   # - freshrss       # RSS reader
+
+# Note: Variables are already defined above, just ensuring they exist

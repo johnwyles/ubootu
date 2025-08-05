@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, Mock, call, patch
 
 import pytest
 
-import lib.backup_config_tui
+from lib.tui import backup_config
 
 
 class TestBackupConfigTui:
@@ -32,18 +32,18 @@ class TestBackupConfigTui:
 
     def test_import(self):
         """Test that module can be imported"""
-        assert lib.backup_config_tui is not None
+        assert backup_config is not None
 
     def test_initialization(self, setup):
         """Test component initialization"""
         # Test that main classes/functions exist
-        module = lib.backup_config_tui
+        module = backup_config
         assert hasattr(module, "__file__")
 
         # Check for common TUI components
-        for attr in ["render", "handle_input", "display", "show", "run"]:
+        for attr in ["render", "handle_input", "display", "show", "run", "BackupConfig"]:
             if hasattr(module, attr):
-                assert callable(getattr(module, attr))
+                assert callable(getattr(module, attr)) or isinstance(getattr(module, attr), type)
                 break
 
     def test_rendering(self, setup):
@@ -51,9 +51,9 @@ class TestBackupConfigTui:
         stdscr = setup["stdscr"]
 
         # Test screen is cleared and refreshed
-        if hasattr(lib.backup_config_tui, "render"):
+        if hasattr(backup_config, "render"):
             try:
-                lib.backup_config_tui.render(stdscr)
+                backup_config.render(stdscr)
                 stdscr.clear.assert_called()
                 stdscr.refresh.assert_called()
             except Exception:
@@ -63,6 +63,6 @@ class TestBackupConfigTui:
     @patch("curses.wrapper")
     def test_curses_wrapper(self, mock_wrapper):
         """Test curses wrapper usage"""
-        if hasattr(lib.backup_config_tui, "main"):
-            lib.backup_config_tui.main()
+        if hasattr(backup_config, "main"):
+            backup_config.main()
             mock_wrapper.assert_called_once()

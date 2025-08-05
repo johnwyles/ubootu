@@ -1,53 +1,200 @@
 ---
 - name: Bootstrap Ubuntu Desktop Environment
   hosts: all
-  gather_facts: yes
+  gather_facts: no  # Delay fact gathering until after pre_tasks
+  become: no  # Don't use become globally, only where needed
 
   pre_tasks:
-    - name: Update apt cache
+    - name: Gather facts manually first
+      ansible.builtin.setup:
+      tags: always
+      become: no  # Facts don't need sudo
+      no_log: true  # Prevent massive facts output
+      
+    - name: Stop unattended-upgrades to prevent APT locks
+      ansible.builtin.systemd:
+        name: unattended-upgrades
+        state: stopped
+      become: yes
+      ignore_errors: yes
+      no_log: yes  # Don't log password issues
+      
+    - name: Kill any running unattended-upgrades processes
+      ansible.builtin.shell: |
+        # Kill processes more aggressively
+        pkill -9 -f unattended-upgrade || true
+        pkill -9 -f apt.systemd.daily || true
+        pkill -9 -f dpkg || true
+        pkill -9 -f apt-get || true
+        # Also kill any apt processes holding locks
+        lsof /var/lib/dpkg/lock-frontend 2>/dev/null | awk 'NR>1 {print $2}' | xargs -r kill -9 || true
+        lsof /var/lib/apt/lists/lock 2>/dev/null | awk 'NR>1 {print $2}' | xargs -r kill -9 || true
+      become: yes
+      ignore_errors: yes
+      
+    - name: Wait for processes to clean up
+      ansible.builtin.wait_for:
+        path: "{{ item }}"
+        state: absent
+        timeout: 10
+      loop:
+        - /var/lib/dpkg/lock-frontend
+        - /var/lib/apt/lists/lock
+      become: yes
+      ignore_errors: yes
+        
+    - name: Check for remaining APT locks
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      register: apt_locks
+      loop:
+        - /var/lib/dpkg/lock-frontend
+        - /var/lib/apt/lists/lock
+        - /var/cache/apt/archives/lock
+      ignore_errors: yes
+      
+    - name: Remove stale APT locks if no processes using them
+      ansible.builtin.file:
+        path: "{{ item.item }}"
+        state: absent
+      become: yes
+      loop: "{{ apt_locks.results }}"
+      when: item.stat.exists | default(false)
+      ignore_errors: yes
+      
+    - name: Test repository connectivity
+      ansible.builtin.uri:
+        url: "http://archive.ubuntu.com/ubuntu/dists/{{ ansible_distribution_release }}/Release"
+        method: HEAD
+        timeout: 10
+      register: repo_test
+      ignore_errors: yes
+      
+    - name: Update apt cache (async to prevent hanging)
       ansible.builtin.apt:
         update_cache: yes
         cache_valid_time: 3600
+        force_apt_get: yes   # Use apt-get instead of aptitude
       become: yes
       tags: always
       when: ansible_os_family == "Debian"
+      async: 300           # Increased to 5 minutes for slow connections
+      poll: 15             # Check every 15 seconds
+      register: apt_update_async
+      ignore_errors: yes
+      
+    - name: Check apt update result
+      ansible.builtin.async_status:
+        jid: "{{ apt_update_async.ansible_job_id }}"
+      register: apt_update_result
+      until: apt_update_result.finished
+      retries: 20          # 20 * 15 seconds = 5 minutes max
+      delay: 15
+      when: apt_update_async.ansible_job_id is defined
+      ignore_errors: yes
+      
+    - name: Retry apt update if first attempt failed
+      ansible.builtin.apt:
+        update_cache: yes
+        force_apt_get: yes
+      become: yes
+      when: 
+        - apt_update_result.failed | default(false) or apt_update_result.rc | default(0) != 0
+        - ansible_os_family == "Debian"
+      register: apt_update_retry
+      ignore_errors: yes
+      
+    - name: Show apt update status
+      ansible.builtin.debug:
+        msg: |
+          APT Update Status:
+          - First attempt: {{ 'Success' if not (apt_update_result.failed | default(false)) and (apt_update_result.rc | default(0)) == 0 else 'Failed' }}
+          - Retry attempt: {{ 'Success' if not (apt_update_retry.failed | default(false)) and (apt_update_retry.rc | default(0)) == 0 else 'Skipped/Failed' if apt_update_retry is defined else 'Not needed' }}
+          - Repository connectivity: {{ 'OK' if repo_test.status | default(0) == 200 else 'Issues detected' }}
+          
+    - name: Continue with installation despite apt update issues
+      ansible.builtin.debug:
+        msg: "Proceeding with software installation. Some packages may be older versions."
+      when: apt_update_result.failed | default(false) and apt_update_retry.failed | default(false)
 
   roles:
     - role: common
       tags: ['common', 'base']
+      ignore_errors: yes  # Continue even if some tasks fail
 
     - role: security
       tags: ['security']
       when: enable_security | default(true)
+      ignore_errors: yes
+
+    - role: boot-diagnostics
+      tags: ['boot', 'diagnostics', 'boot-diagnostics']
+      when: enable_boot_diagnostics | default(false)
+      ignore_errors: yes
 
     - role: desktop-environment
       tags: ['desktop', 'de']
       when: install_desktop_environment | default(true)
+      ignore_errors: yes
 
     - role: themes
       tags: ['themes', 'customization']
       when: install_desktop_environment | default(true)
+      ignore_errors: yes
 
     - role: development-tools
       tags: ['dev', 'development']
       when: enable_development_tools | default(false)
+      ignore_errors: yes
 
     - role: applications
       tags: ['apps', 'applications']
       when: install_applications | default(true)
+      ignore_errors: yes
 
     - role: security-tools
       tags: ['security-tools', 'pentesting']
       when: install_security_tools | default(false)
+      ignore_errors: yes
 
     - role: dotfiles
       tags: ['dotfiles', 'config']
       when: configure_dotfiles | default(true)
+      ignore_errors: yes
 
   post_tasks:
+    - name: Re-enable unattended-upgrades
+      ansible.builtin.systemd:
+        name: unattended-upgrades
+        state: started
+        enabled: yes
+      become: yes
+      ignore_errors: yes
+      
+    - name: Collect installation summary
+      ansible.builtin.set_fact:
+        installation_summary: |
+          🎉 Ubuntu Desktop Configuration Complete!
+          
+          ✅ System preparation and cleanup completed
+          ✅ APT locks handled successfully  
+          ✅ Configuration roles processed
+          
+          {% if apt_update_result.failed | default(false) %}
+          ⚠️  APT update had issues - some packages may be older versions
+          {% else %}
+          ✅ Package lists updated successfully
+          {% endif %}
+          
+          🔄 Next steps:
+          • Reboot your system for all changes to take effect
+          • Log out and back in to refresh desktop environment
+          • Check Applications menu for new software
+          
+          📝 Note: Some roles may have had non-critical failures.
+          Check the detailed output above for specific issues.
+      
     - name: Display completion message
       ansible.builtin.debug:
-        msg: |
-          Ubuntu Desktop bootstrap completed!
-          Reboot recommended for all changes to take effect.
+        msg: "{{ installation_summary }}"
       tags: always

@@ -7,7 +7,22 @@ import glob
 import os
 import subprocess
 import sys
+import logging
+import warnings
 from typing import List, Tuple
+
+# Suppress all warnings including permission warnings
+warnings.filterwarnings('ignore')
+logging.getLogger().setLevel(logging.ERROR)
+
+# Specifically suppress the apt module warnings if it gets imported
+try:
+    import apt
+    # Disable apt's cache update warnings
+    apt.apt_pkg.config.set("Acquire::http::No-Cache", "true")
+    apt.apt_pkg.config.set("Acquire::http::Pipeline-Depth", "0")
+except ImportError:
+    pass
 
 
 def clean_apt_sources() -> List[str]:
@@ -48,6 +63,9 @@ def clean_apt_sources() -> List[str]:
 
             # Check if .list file has contrib (invalid for Ubuntu)
             try:
+                # Skip files we can't read due to permissions
+                if not os.access(list_file, os.R_OK):
+                    continue
                 with open(list_file, "r") as f:
                     if "contrib" in f.read():
                         os.remove(list_file)
@@ -86,6 +104,9 @@ def clean_apt_sources() -> List[str]:
     ]:
         for file in glob.glob(pattern):
             try:
+                # Skip files we can't read due to permissions
+                if not os.access(file, os.R_OK):
+                    continue
                 with open(file, "r") as f:
                     content = f.read()
                 if "contrib" in content:

@@ -41,18 +41,56 @@ class MessageDialog(BaseDialog):
         self.stdscr.clear()
         self.stdscr.refresh()
         
-        # Calculate dialog size based on message
-        lines = message.split('\n')
-        dialog_width = min(max(len(title) + 4, max(len(line) for line in lines) + 4, 40), self.width - 4)
-        dialog_height = min(len(lines) + 6, self.height - 4)
+        # Calculate ideal dialog width (responsive to terminal size)
+        # For small terminals (80x24), use most of the width
+        if self.width <= 80:
+            max_dialog_width = self.width - 4
+            default_width = self.width - 8
+        else:
+            max_dialog_width = min(self.width - 10, 80)  # Cap at 80 for readability
+            default_width = 60
+        
+        min_dialog_width = max(len(title) + 8, 30)  # Reduced minimum
+        dialog_width = min(max_dialog_width, max(min_dialog_width, default_width))
+        
+        # Wrap text to fit dialog width
+        wrapped_lines = []
+        for paragraph in message.split('\n'):
+            if paragraph.strip():
+                # Wrap non-empty lines
+                wrapped = textwrap.wrap(paragraph, width=dialog_width - 6, 
+                                      break_long_words=False, 
+                                      break_on_hyphens=False)
+                wrapped_lines.extend(wrapped)
+            else:
+                # Preserve empty lines
+                wrapped_lines.append('')
+        
+        # Calculate required height
+        content_height = len(wrapped_lines)
+        dialog_height = min(content_height + 6, self.height - 4)
+        
+        # If content is too tall, we'll need scrolling
+        needs_scrolling = content_height > (dialog_height - 6)
         
         # Draw dialog
         y, x, h, w = self.draw_dialog_box(dialog_height, dialog_width, title)
         
-        # Draw message
-        for i, line in enumerate(lines[:h]):
-            text = truncate_text(line, w)
-            self.stdscr.addstr(y + i, x, text)
+        # Draw message (with potential scrolling)
+        visible_lines = wrapped_lines[:h] if not needs_scrolling else wrapped_lines[:h-1]
+        for i, line in enumerate(visible_lines):
+            try:
+                self.stdscr.addstr(y + i, x, line[:w])
+            except curses.error:
+                pass
+        
+        # Add scroll indicator if needed
+        if needs_scrolling:
+            scroll_text = f"... ({content_height - h + 1} more lines)"
+            try:
+                self.stdscr.addstr(y + h - 1, x, scroll_text, curses.A_DIM)
+            except curses.error:
+                pass
             
         # Draw OK button
         ok_text = "[ OK ]"
@@ -75,18 +113,42 @@ class ConfirmDialog(BaseDialog):
         self.stdscr.clear()
         self.stdscr.refresh()
         
-        # Calculate dialog size
-        lines = message.split('\n')
-        dialog_width = min(max(len(title) + 4, max(len(line) for line in lines) + 4, 50), self.width - 4)
-        dialog_height = min(len(lines) + 7, self.height - 4)
+        # Calculate ideal dialog width (responsive)
+        if self.width <= 80:
+            max_dialog_width = self.width - 4
+            default_width = self.width - 10
+        else:
+            max_dialog_width = min(self.width - 10, 70)
+            default_width = 50
+        
+        min_dialog_width = max(len(title) + 8, 30)
+        dialog_width = min(max_dialog_width, max(min_dialog_width, default_width))
+        
+        # Wrap text
+        wrapped_lines = []
+        for paragraph in message.split('\n'):
+            if paragraph.strip():
+                wrapped = textwrap.wrap(paragraph, width=dialog_width - 6, 
+                                      break_long_words=False,
+                                      break_on_hyphens=False)
+                wrapped_lines.extend(wrapped)
+            else:
+                wrapped_lines.append('')
+        
+        # Calculate height
+        content_height = len(wrapped_lines)
+        dialog_height = min(content_height + 7, self.height - 4)
         
         # Draw dialog
         y, x, h, w = self.draw_dialog_box(dialog_height, dialog_width, title)
         
         # Draw message
-        for i, line in enumerate(lines[:h-2]):
-            text = truncate_text(line, w)
-            self.stdscr.addstr(y + i, x, text)
+        max_message_lines = h - 2  # Leave room for buttons
+        for i, line in enumerate(wrapped_lines[:max_message_lines]):
+            try:
+                self.stdscr.addstr(y + i, x, line[:w])
+            except curses.error:
+                pass
             
         # Draw buttons
         selected = 0 if default else 1

@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-import lib.ubootu_splash
+from lib.tui import splash_screen
 
 
 class TestUbootuSplash:
@@ -20,11 +20,11 @@ class TestUbootuSplash:
 
     def test_import(self):
         """Test that module can be imported"""
-        assert lib.ubootu_splash is not None
+        assert splash_screen is not None
 
     def test_module_attributes(self):
         """Test module has expected attributes"""
-        module = lib.ubootu_splash
+        module = splash_screen
 
         # Check module has some content
         attrs = [a for a in dir(module) if not a.startswith("_")]
@@ -49,7 +49,7 @@ class TestUbootuSplash:
 
     def test_classes(self):
         """Test classes in module"""
-        module = lib.ubootu_splash
+        module = splash_screen
 
         # Find all classes
         classes = inspect.getmembers(module, inspect.isclass)

@@ -62,7 +62,26 @@ alias venv='python3 -m venv'
 alias activate='source venv/bin/activate || source .venv/bin/activate'
 
 # Modern replacements (if installed)
-command -v eza >/dev/null 2>&1 && alias ls='eza'
-command -v bat >/dev/null 2>&1 && alias cat='bat'
-command -v fd >/dev/null 2>&1 && alias find='fd'
-command -v rg >/dev/null 2>&1 && alias grep='rg'
+if command -v eza; then
+    alias ls='eza'
+else
+    echo "[UBOOTU INFO] eza not installed (modern ls replacement)" >&2
+fi
+
+if command -v bat; then
+    alias cat='bat'
+else
+    echo "[UBOOTU INFO] bat not installed (syntax-highlighting cat)" >&2
+fi
+
+if command -v fd; then
+    alias find='fd'
+else
+    echo "[UBOOTU INFO] fd not installed (fast find replacement)" >&2
+fi
+
+if command -v rg; then
+    alias grep='rg'
+else
+    echo "[UBOOTU INFO] ripgrep not installed (fast grep replacement)" >&2
+fi

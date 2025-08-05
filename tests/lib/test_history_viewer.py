@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-import lib.history_viewer
+from lib.tui import history_viewer
 
 
 class TestHistoryViewer:
@@ -20,11 +20,11 @@ class TestHistoryViewer:
 
     def test_import(self):
         """Test that module can be imported"""
-        assert lib.history_viewer is not None
+        assert history_viewer is not None
 
     def test_module_attributes(self):
         """Test module has expected attributes"""
-        module = lib.history_viewer
+        module = history_viewer
 
         # Check module has some content
         attrs = [a for a in dir(module) if not a.startswith("_")]
@@ -49,7 +49,7 @@ class TestHistoryViewer:
 
     def test_classes(self):
         """Test classes in module"""
-        module = lib.history_viewer
+        module = history_viewer
 
         # Find all classes
         classes = inspect.getmembers(module, inspect.isclass)

@@ -72,17 +72,35 @@ eval "$(mcfly init bash)"
 # fzf configuration
 {% if 'fzf' in devtools_modern_cli_tools %}
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
-export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
 
-# fzf preview with bat
-export FZF_DEFAULT_OPTS="--preview 'bat --style=numbers --color=always --line-range :500 {}' --preview-window=right:60%"
+# Check if fd is available and set appropriate commands
+if command -v fd; then
+    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+else
+    echo "[UBOOTU WARNING] fd not found, FZF performance will be limited" >&2
+    echo "  To install fd: sudo apt install fd-find" >&2
+    export FZF_DEFAULT_COMMAND='find . -type f -not -path "*/\.git/*"'
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND='find . -type d -not -path "*/\.git/*"'
+fi
+
+# fzf preview with bat (if available)
+if command -v bat; then
+    export FZF_DEFAULT_OPTS="--preview 'bat --style=numbers --color=always --line-range :500 {}' --preview-window=right:60%"
+else
+    export FZF_DEFAULT_OPTS="--preview 'head -100 {}' --preview-window=right:60%"
+fi
 
 # Useful fzf functions
 fcd() {
   local dir
-  dir=$(fd --type d --hidden --follow --exclude .git | fzf +m) && cd "$dir"
+  if command -v fd; then
+    dir=$(fd --type d --hidden --follow --exclude .git | fzf +m) && cd "$dir"
+  else
+    dir=$(find . -type d -not -path "*/\.git/*" | fzf +m) && cd "$dir"
+  fi
 }
 
 fkill() {

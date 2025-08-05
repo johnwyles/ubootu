@@ -37,3 +37,8 @@
 - name: Configure user desktop
   ansible.builtin.include_tasks: user-config.yml
   tags: ['user-config']
+
+- name: Optimize boot time
+  ansible.builtin.include_tasks: boot-optimization.yml
+  when: de_optimize_boot | default(true)
+  tags: ['boot-optimization']

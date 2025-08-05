@@ -1,8 +1,14 @@
 ---
 # Additional networking tools and utilities
 
+# Include repo codename mapping if not already set
+- name: Ensure repo_codename is set
+  ansible.builtin.set_fact:
+    repo_codename: "{{ repo_codename | default(ansible_distribution_release == 'plucky' | ternary('noble', ansible_distribution_release)) }}"
+  when: repo_codename is not defined
+
 # Network monitoring and analysis tools
-- name: Install network monitoring tools
+- name: Install network monitoring tools (iftop, nethogs, vnstat, etc.)
   ansible.builtin.apt:
     name:
       - iftop         # Display bandwidth usage
@@ -16,19 +22,19 @@
       - tcptrack      # TCP connection monitor
       - iptstate      # IPtables state viewer
       - conntrack     # Connection tracking
-      - ss            # Socket statistics (newer netstat)
+      - iproute2      # Contains ss command - socket statistics (newer netstat)
       - mtr           # My traceroute - network diagnostic
       - nmap          # Network exploration (if not in security-tools)
       - tcpdump       # Packet analyzer
       - tshark        # Terminal Wireshark
       - termshark     # Terminal UI for tshark
-      - bandwhich     # Terminal bandwidth utilization
+      # bandwhich     # Terminal bandwidth utilization - not in Ubuntu repos
       - gping         # Ping with graph
     state: present
   become: yes
 
 # DNS tools
-- name: Install DNS utilities
+- name: Install DNS utilities (dig, nslookup, bind-utils)
   ansible.builtin.apt:
     name:
       - dnsutils      # dig, nslookup, host
@@ -37,32 +43,67 @@
       - dnstracer     # DNS tracing
       - dnsmasq       # DNS forwarder
       - bind9-utils   # DNS utilities
-      - dog           # Command-line DNS client (better dig)
+      # dog will be installed via snap below
     state: present
   become: yes
 
-# Speed test tools
-- name: Install Speedtest CLI (official Ookla)
-  block:
-    - name: Add Speedtest repository key
-      apt_key:
-        url: https://packagecloud.io/ookla/speedtest-cli/gpgkey
-        state: present
-      become: yes
+# Install dog DNS client via snap (not available in apt)
+- name: Install dog DNS client via snap (if 'dog' selected)
+  snap:
+    name: dog
+    state: present
+  become: yes
+  when: "'dog' in selected_items"
 
-    - name: Add Speedtest repository
+# Speed test tools
+- name: Install Speedtest CLI official Ookla version (if speedtest tools selected)
+  block:
+    - name: Check if Speedtest repository supports current Ubuntu version
+      ansible.builtin.uri:
+        url: "https://packagecloud.io/ookla/speedtest-cli/ubuntu/dists/{{ repo_codename | default('noble') }}/Release"
+        method: HEAD
+        timeout: 10
+      register: speedtest_repo_check
+      failed_when: false
+
+    - name: Download Speedtest GPG key
+      ansible.builtin.get_url:
+        url: https://packagecloud.io/ookla/speedtest-cli/gpgkey
+        dest: /tmp/speedtest.asc
+      become: yes
+      when: speedtest_repo_check.status == 200
+
+    - name: Convert and install Speedtest GPG key
+      ansible.builtin.shell: |
+        gpg --dearmor < /tmp/speedtest.asc > /usr/share/keyrings/speedtest.gpg
+        chmod 644 /usr/share/keyrings/speedtest.gpg
+      args:
+        creates: /usr/share/keyrings/speedtest.gpg
+      become: yes
+      when: speedtest_repo_check.status == 200
+
+    - name: Add Speedtest repository with signed-by
       apt_repository:
-        repo: "deb https://packagecloud.io/ookla/speedtest-cli/ubuntu/ {{ ansible_distribution_release }} main"
+        repo: "deb [signed-by=/usr/share/keyrings/speedtest.gpg] https://packagecloud.io/ookla/speedtest-cli/ubuntu/ {{ repo_codename | default('noble') }} main"
         state: present
         filename: speedtest
       become: yes
+      when: speedtest_repo_check.status == 200
 
-    - name: Install Speedtest CLI
+    - name: Install Speedtest CLI from repository
       ansible.builtin.apt:
         name: speedtest
         state: present
         update_cache: yes
       become: yes
+      when: speedtest_repo_check.status == 200
+
+    - name: Install speedtest-cli Python package as fallback
+      ansible.builtin.apt:
+        name: speedtest-cli
+        state: present
+      become: yes
+      when: speedtest_repo_check.status != 200
 
 # Fast.com CLI
 - name: Install fast-cli
@@ -74,7 +115,7 @@
   when: "'nodejs' in development_languages"
 
 # Network discovery and scanning
-- name: Install network discovery tools
+- name: Install network discovery tools (arp-scan, netdiscover, fping)
   ansible.builtin.apt:
     name:
       - arp-scan      # ARP scanner
@@ -89,7 +130,7 @@
   become: yes
 
 # Proxy and tunnel tools
-- name: Install proxy and tunnel tools
+- name: Install proxy and tunnel tools (proxychains, socat, sshuttle)
   ansible.builtin.apt:
     name:
       - proxychains4  # Proxy chains
@@ -104,8 +145,18 @@
     state: present
   become: yes
 
+# Configure sslh to not start automatically (needs proper configuration)
+- name: Disable sslh service until configured
+  ansible.builtin.systemd:
+    name: sslh
+    enabled: no
+    state: stopped
+  become: yes
+  when: "'sslh' in (ansible_facts.packages | default({}))"
+  failed_when: false
+
 # VPN clients
-- name: Install additional VPN clients
+- name: Install additional VPN clients (strongswan, pptp, l2tp)
   ansible.builtin.apt:
     name:
       - strongswan    # IPsec VPN
@@ -122,7 +173,7 @@
   become: yes
 
 # Mesh networking tools
-- name: Install Nebula mesh networking
+- name: Install Nebula mesh networking (if mesh networking selected)
   block:
     - name: Check latest Nebula release
       ansible.builtin.uri:
@@ -130,19 +181,29 @@
         return_content: yes
       register: nebula_release
 
-    - name: Download and extract Nebula
-      ansible.builtin.unarchive:
-        src: >
+    - name: Set Nebula download URL
+      ansible.builtin.set_fact:
+        nebula_url: >
           {{ nebula_release.json.assets |
              selectattr('name', 'match', '.*linux-amd64\\.tar\\.gz$') |
-             map(attribute='browser_download_url') | first }}
+             map(attribute='browser_download_url') | first | default('') }}
+      when: 
+        - nebula_release is succeeded
+        - nebula_release.json.assets is defined
+
+    - name: Download and extract Nebula
+      ansible.builtin.unarchive:
+        src: "{{ nebula_url }}"
         dest: /usr/local/bin
         remote_src: yes
         mode: '0755'
         owner: root
         group: root
       become: yes
-      when: nebula_release is succeeded
+      when: 
+        - nebula_url is defined
+        - nebula_url != ''
+        - nebula_url != '\n'
 
 # Network simulation and testing
 - name: Install network testing tools
@@ -153,12 +214,12 @@
       - netperf       # Network performance benchmark
       - nuttcp        # Network performance measurement
       - lft           # Layer four traceroute
-      - paris-traceroute  # Paris traceroute
+      # paris-traceroute  # Paris traceroute - not in Ubuntu repos
       - moreutils     # Additional Unix utilities
       - ipcalc        # IP address calculator
       - sipcalc       # Advanced IP calculator
       - subnetcalc    # IPv4/IPv6 subnet calculator
-      - whatmask      # Subnet mask notation converter
+      # whatmask      # Subnet mask notation converter - not in Ubuntu repos
     state: present
   become: yes
 
@@ -287,17 +348,33 @@
   become: yes
 
 # Install Python network libraries
-- name: Install Python networking libraries
-  ansible.builtin.pip:
+- name: Install Python networking libraries via apt
+  ansible.builtin.apt:
     name:
-      - scapy         # Packet manipulation
-      - netaddr       # Network address manipulation
-      - netifaces     # Network interface information
-      - python-nmap   # Nmap wrapper
-      - paramiko      # SSH2 protocol library
-      - netmiko       # Multi-vendor network device SSH
-      - napalm        # Network automation
+      - python3-scapy      # Packet manipulation
+      - python3-netaddr    # Network address manipulation
+      - python3-netifaces  # Network interface information
+      - python3-nmap       # Nmap wrapper
+      - python3-paramiko   # SSH2 protocol library
     state: present
-    executable: pip3
   become: yes
   when: "'python' in development_languages"
+
+# Install remaining Python libraries that aren't in apt
+- name: Install pipx for Python packages not in apt
+  ansible.builtin.apt:
+    name: pipx
+    state: present
+  become: yes
+  when: "'python' in development_languages"
+
+- name: Install Python libraries via pipx
+  ansible.builtin.shell: |
+    pipx install {{ item }}
+  loop:
+    - netmiko  # Multi-vendor network device SSH
+    - napalm   # Network automation
+  become: yes
+  become_user: "{{ ansible_user_id }}"
+  when: "'python' in development_languages"
+  failed_when: false

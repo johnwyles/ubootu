@@ -1330,6 +1330,13 @@ Common use cases:
             'parent': 'dev-terminal-emulators',
             'help': 'WezTerm is a GPU-accelerated cross-platform terminal emulator and multiplexer.'
         },
+        {
+            'id': 'ghostty',
+            'label': 'Ghostty',
+            'description': 'Fast, feature-rich terminal with native UI',
+            'parent': 'dev-terminal-emulators',
+            'help': 'Ghostty is a modern, fast, feature-rich terminal emulator that uses platform-native UI and GPU acceleration. Created by Mitchell Hashimoto.'
+        },
     ]
     
     # Shell Enhancements
@@ -3100,6 +3107,34 @@ Supports:
     
     # System items (simplified for now)
     system_items = [
+        {
+            'id': 'boot-diagnostics',
+            'label': 'Boot Diagnostics & Error Visibility',
+            'description': 'Show boot errors and system health checks',
+            'parent': 'system',
+            'default': False,
+            'ansible_var': 'enable_boot_diagnostics',
+            'help': '''Enable boot diagnostics and error visibility tools.
+This will:
+- Add option to disable Plymouth splash screen for troubleshooting
+- Configure GRUB to show boot messages when needed
+- Create system health check scripts that run after boot
+- Install boot error reporting tools
+- Monitor for hardware failures (storage, graphics, etc.)
+- Track boot performance over time
+- Create diagnostic boot menu entry in GRUB
+
+Useful for:
+- Troubleshooting boot problems
+- Detecting failing hardware early
+- Monitoring system health
+- Optimizing boot performance
+
+Access tools with:
+- boot-report: Generate comprehensive diagnostic report
+- boot-errors: Quick view of recent boot errors
+- systemd-analyze: Check boot performance'''
+        },
         {
             'id': 'swappiness',
             'label': 'Swappiness',

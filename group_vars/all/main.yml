@@ -97,6 +97,24 @@ enable_backup: false
 backup_directories: []
 backup_destination: ""
 
+# Ubuntu Version Detection and Repository Compatibility
+ubuntu_release_codename: "{{ ansible_distribution_release | default('noble') }}"
+ubuntu_fallback_codename: >
+  {{
+    'noble' if ubuntu_release_codename in ['plucky', 'oracular'] else
+    'jammy' if ubuntu_release_codename in ['noble', 'mantic'] else
+    'focal' if ubuntu_release_codename in ['jammy', 'kinetic'] else
+    'noble'
+  }}
+
+# Repository compatibility mapping for Ubuntu 25.04
+repo_codename_mapping:
+  tailscale: "{{ ubuntu_fallback_codename }}"  # No plucky support yet
+  speedtest: "{{ ubuntu_fallback_codename }}"  # No plucky support yet  
+  docker: "{{ ubuntu_fallback_codename }}"     # Use stable LTS
+  syncthing: "{{ ubuntu_fallback_codename }}"  # No plucky support yet
+  dbeaver: ""  # Uses generic repository
+
 # Third-party Repositories
 use_third_party_repos: true  # Use official repos when available
 install_github_cli: true

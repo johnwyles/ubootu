@@ -1,4 +1,12 @@
 ---
+- name: Create required groups before adding user to them
+  ansible.builtin.group:
+    name: "{{ item }}"
+    state: present
+  become: yes
+  loop: "{{ common_user_groups | default([]) }}"
+  when: common_user_groups is defined and common_user_groups | length > 0
+
 - name: Ensure user exists
   ansible.builtin.user:
     name: "{{ common_user }}"

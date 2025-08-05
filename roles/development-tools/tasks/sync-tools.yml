@@ -3,15 +3,23 @@
 
 - name: Install Syncthing
   block:
-    - name: Add Syncthing GPG key
-      apt_key:
+    - name: Ensure keyrings directory exists
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+      become: yes
+
+    - name: Download Syncthing GPG key
+      ansible.builtin.get_url:
         url: https://syncthing.net/release-key.gpg
-        state: present
+        dest: /etc/apt/keyrings/syncthing.gpg
+        mode: '0644'
       become: yes
 
     - name: Add Syncthing repository
       apt_repository:
-        repo: "deb https://apt.syncthing.net/ syncthing stable"
+        repo: "deb [signed-by=/etc/apt/keyrings/syncthing.gpg] https://apt.syncthing.net/ syncthing stable"
         state: present
         filename: syncthing
       become: yes
@@ -25,27 +33,41 @@
         update_cache: yes
       become: yes
 
+    - name: Check if Syncthing is installed
+      ansible.builtin.command: dpkg -l syncthing
+      register: syncthing_check
+      changed_when: false
+      failed_when: false
+
     - name: Enable Syncthing service for user
       ansible.builtin.systemd:
         name: "syncthing@{{ primary_user }}"
         enabled: yes
         state: started
-        scope: user
+        daemon_reload: yes
       become: yes
-      become_user: "{{ primary_user }}"
+      when: syncthing_check.rc == 0
   when: "'syncthing' in devtools_sync_tools"
 
 - name: Install Resilio Sync
   block:
-    - name: Add Resilio Sync GPG key
-      apt_key:
+    - name: Ensure keyrings directory exists
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+      become: yes
+
+    - name: Download Resilio Sync GPG key
+      ansible.builtin.get_url:
         url: https://linux-packages.resilio.com/resilio-sync/key.asc
-        state: present
+        dest: /etc/apt/keyrings/resilio-sync.asc
+        mode: '0644'
       become: yes
 
     - name: Add Resilio Sync repository
       apt_repository:
-        repo: "deb http://linux-packages.resilio.com/resilio-sync/deb resilio-sync non-free"
+        repo: "deb [signed-by=/etc/apt/keyrings/resilio-sync.asc] http://linux-packages.resilio.com/resilio-sync/deb resilio-sync non-free"
         state: present
         filename: resilio-sync
       become: yes
@@ -108,22 +130,47 @@
       args:
         creates: /usr/bin/rclone
 
+    - name: Get latest Rclone Browser release
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/kapitainsky/RcloneBrowser/releases/latest
+        timeout: 10
+      register: rclone_browser_release
+      failed_when: false
+
     - name: Install Rclone Browser AppImage
       ansible.builtin.get_url:
-        url: https://github.com/kapitainsky/RcloneBrowser/releases/download/1.8.0/rclone-browser-1.8.0-linux-x86_64.AppImage
+        url: >
+          {{ rclone_browser_release.json.assets |
+             selectattr('name', 'match', '.*linux.*x86_64.*AppImage$') |
+             map(attribute='browser_download_url') | first | default('') }}
         dest: "/home/{{ primary_user }}/.local/bin/rclone-browser.AppImage"
         mode: '0755'
       become: yes
       become_user: "{{ primary_user }}"
+      when: 
+        - rclone_browser_release is succeeded
+        - rclone_browser_release.json.assets | selectattr('name', 'match', '.*linux.*x86_64.*AppImage$') | list | length > 0
 
     - name: Create Rclone Browser desktop entry
-      ansible.builtin.template:
-        src: rclone-browser.desktop.j2
+      ansible.builtin.copy:
+        content: |
+          [Desktop Entry]
+          Version=1.0
+          Type=Application
+          Name=Rclone Browser
+          Comment=GUI for rclone
+          Icon=folder-remote
+          Exec={{ ansible_env.HOME }}/.local/bin/rclone-browser.AppImage
+          Categories=Network;FileTransfer;
+          Terminal=false
         dest: "/home/{{ primary_user }}/.local/share/applications/rclone-browser.desktop"
         owner: "{{ primary_user }}"
         group: "{{ primary_user }}"
         mode: '0644'
       become: yes
+      when: 
+        - rclone_browser_release is succeeded
+        - rclone_browser_release.json.assets | selectattr('name', 'match', '.*linux.*x86_64.*AppImage$') | list | length > 0
   when: "'rclone' in devtools_sync_tools"
 
 - name: Install Grsync (rsync GUI)

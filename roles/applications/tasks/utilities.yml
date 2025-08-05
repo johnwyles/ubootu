@@ -65,3 +65,12 @@
     state: present
   become: yes
   when: terminal_emulator is not defined or terminal_emulator == 'default'
+
+# Install Ghostty terminal emulator
+- name: Install Ghostty terminal emulator
+  snap:
+    name: ghostty
+    classic: yes
+    state: present
+  become: yes
+  when: "'ghostty' in selected_items"

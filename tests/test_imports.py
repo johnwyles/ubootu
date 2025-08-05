@@ -55,9 +55,12 @@ def test_main_script_imports():
 def test_splash_and_ui_imports():
     """Test that splash and UI utility modules can be imported."""
     ui_modules = [
-        "lib.ubootu_splash",
-        "lib.show_profile_templates",
-        # menu_ui has been removed in favor of unified TUI system
+        "lib.tui.splash_screen",
+        "lib.tui.profile_selector",
+        "lib.tui.backup_config",
+        "lib.tui.history_viewer",
+        "lib.tui.quick_actions",
+        "lib.tui.help_viewer",
     ]
 
     errors = []

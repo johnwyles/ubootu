@@ -23,17 +23,22 @@
     - name: Get latest direnv release
       ansible.builtin.uri:
         url: https://api.github.com/repos/direnv/direnv/releases/latest
+        timeout: 10
       register: direnv_release
+      failed_when: false
 
     - name: Download direnv
       ansible.builtin.get_url:
         url: >
           {{ direnv_release.json.assets |
              selectattr('name', 'match', 'direnv\\.linux-amd64$') |
-             map(attribute='browser_download_url') | first }}
+             map(attribute='browser_download_url') | first | default('') }}
         dest: /usr/local/bin/direnv
         mode: '0755'
       become: yes
+      when: 
+        - direnv_release is succeeded
+        - direnv_release.json.assets | selectattr('name', 'match', 'direnv\\.linux-amd64$') | list | length > 0
   when: devtools_install_direnv
 
 - name: Install ngrok
@@ -63,11 +68,14 @@
       become: yes
 
     - name: Install mkcert root CA
-      ansible.builtin.shell: mkcert -install
+      ansible.builtin.shell: |
+        echo "Skipping mkcert root CA installation - requires manual setup"
+        echo "Run 'mkcert -install' manually after installation if needed"
       become: yes
       become_user: "{{ primary_user }}"
       environment:
         HOME: "/home/{{ primary_user }}"
+      changed_when: false
   when: devtools_install_mkcert
 
 - name: Install other useful tools

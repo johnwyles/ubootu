@@ -1,17 +1,31 @@
 ---
 # Install networking and VPN tools
 
-- name: Install Tailscale
+# Include repo codename mapping if not already set
+- name: Ensure repo_codename is set
+  ansible.builtin.set_fact:
+    repo_codename: "{{ repo_codename | default(ansible_distribution_release == 'plucky' | ternary('noble', ansible_distribution_release)) }}"
+  when: repo_codename is not defined
+
+- name: Install Tailscale VPN (if 'tailscale' selected in Development > Networking Tools)
   block:
-    - name: Add Tailscale GPG key
-      apt_key:
-        url: https://pkgs.tailscale.com/stable/ubuntu/{{ ansible_distribution_release }}.noarmor.gpg
-        state: present
+    - name: Create keyring directory
+      ansible.builtin.file:
+        path: /usr/share/keyrings
+        state: directory
+        mode: '0755'
       become: yes
 
-    - name: Add Tailscale repository
+    - name: Download Tailscale GPG key
+      ansible.builtin.get_url:
+        url: https://pkgs.tailscale.com/stable/ubuntu/{{ repo_codename | default('noble') }}.noarmor.gpg
+        dest: /usr/share/keyrings/tailscale.gpg
+        mode: '0644'
+      become: yes
+
+    - name: Add Tailscale repository with signed-by
       apt_repository:
-        repo: "deb https://pkgs.tailscale.com/stable/ubuntu {{ ansible_distribution_release }} main"
+        repo: "deb [signed-by=/usr/share/keyrings/tailscale.gpg] https://pkgs.tailscale.com/stable/ubuntu {{ repo_codename | default('noble') }} main"
         state: present
         filename: tailscale
       become: yes
@@ -31,19 +45,25 @@
       when: enable_flatpak | default(true)
   when: "'tailscale' in devtools_networking_tools"
 
-- name: Install ZeroTier
+- name: Install ZeroTier mesh VPN (if 'zerotier' selected in Development > Networking Tools)
   block:
-    - name: Add ZeroTier GPG key
-      apt_key:
+    - name: Download ZeroTier GPG key
+      ansible.builtin.get_url:
         url: https://raw.githubusercontent.com/zerotier/ZeroTierOne/master/doc/contact%40zerotier.com.gpg
-        state: present
+        dest: /tmp/zerotier.asc
       become: yes
 
-    - name: Add ZeroTier repository
+    - name: Convert and install ZeroTier GPG key
+      ansible.builtin.shell: |
+        gpg --dearmor < /tmp/zerotier.asc > /usr/share/keyrings/zerotier.gpg
+        chmod 644 /usr/share/keyrings/zerotier.gpg
+      args:
+        creates: /usr/share/keyrings/zerotier.gpg
+      become: yes
+
+    - name: Add ZeroTier repository with signed-by
       apt_repository:
-        repo: >
-          deb https://download.zerotier.com/debian/{{ ansible_distribution_release }}
-          {{ ansible_distribution_release }} main
+        repo: "deb [signed-by=/usr/share/keyrings/zerotier.gpg] https://download.zerotier.com/debian/{{ ubuntu_fallback_codename }} {{ ubuntu_fallback_codename }} main"
         state: present
         filename: zerotier
       become: yes
@@ -63,7 +83,7 @@
       when: enable_snap | default(true)
   when: "'zerotier' in devtools_networking_tools"
 
-- name: Install WireGuard and GUI
+- name: Install WireGuard VPN and GUI (if 'wireguard' selected in Development > Networking Tools)
   block:
     - name: Install WireGuard
       ansible.builtin.apt:
@@ -83,7 +103,7 @@
       when: desktop_environment == 'gnome'
   when: "'wireguard' in devtools_networking_tools"
 
-- name: Install NetBird
+- name: Install NetBird mesh VPN (if 'netbird' selected in Development > Networking Tools)
   block:
     - name: Download NetBird installer
       ansible.builtin.get_url:
@@ -99,7 +119,7 @@
         NB_USE_SYSTEM_DAEMON: "yes"
   when: "'netbird' in devtools_networking_tools"
 
-- name: Install OpenVPN and GUI
+- name: Install OpenVPN and GUI (if 'openvpn' selected in Development > Networking Tools)
   block:
     - name: Install OpenVPN
       ansible.builtin.apt:
@@ -111,7 +131,7 @@
       become: yes
   when: "'openvpn' in devtools_networking_tools"
 
-- name: Install Cockpit (Web-based server manager)
+- name: Install Cockpit web-based server manager (if 'cockpit' selected in Development > Networking Tools)
   block:
     - name: Install Cockpit
       ansible.builtin.apt:
@@ -140,17 +160,25 @@
       when: enable_firewall | default(true)
   when: "'cockpit' in devtools_networking_tools"
 
-- name: Install Webmin
+- name: Install Webmin web-based system administration (if 'webmin' selected in Development > Networking Tools)
   block:
-    - name: Add Webmin GPG key
-      apt_key:
+    - name: Download Webmin GPG key
+      ansible.builtin.get_url:
         url: http://www.webmin.com/jcameron-key.asc
-        state: present
+        dest: /tmp/webmin.asc
       become: yes
 
-    - name: Add Webmin repository
+    - name: Convert and install Webmin GPG key
+      ansible.builtin.shell: |
+        gpg --dearmor < /tmp/webmin.asc > /usr/share/keyrings/webmin.gpg
+        chmod 644 /usr/share/keyrings/webmin.gpg
+      args:
+        creates: /usr/share/keyrings/webmin.gpg
+      become: yes
+
+    - name: Add Webmin repository with signed-by
       apt_repository:
-        repo: "deb https://download.webmin.com/download/repository sarge contrib"
+        repo: "deb [signed-by=/usr/share/keyrings/webmin.gpg] https://download.webmin.com/download/repository sarge contrib"
         state: present
         filename: webmin
       become: yes

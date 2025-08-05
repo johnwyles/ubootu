@@ -1,6 +1,15 @@
 ---
 # Configure shell integrations for development tools
 
+- name: Create config directory
+  ansible.builtin.file:
+    path: "/home/{{ primary_user }}/.config"
+    state: directory
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0755'
+  become: yes
+
 - name: Create development PATH configuration
   ansible.builtin.template:
     src: dev-path-config.sh.j2
@@ -9,6 +18,24 @@
     group: "{{ primary_user }}"
     mode: '0644'
   become: yes
+
+- name: Create shell debug helper
+  ansible.builtin.template:
+    src: shell-debug.sh.j2
+    dest: "/home/{{ primary_user }}/.config/ubootu-shell-debug.sh"
+    owner: "{{ primary_user }}"
+    group: "{{ primary_user }}"
+    mode: '0644'
+  become: yes
+
+- name: Source shell debug helper in bashrc (first)
+  ansible.builtin.lineinfile:
+    path: "/home/{{ primary_user }}/.bashrc"
+    line: "[ -f ~/.config/ubootu-shell-debug.sh ] && source ~/.config/ubootu-shell-debug.sh"
+    insertbefore: BOF
+    create: yes
+  become: yes
+  become_user: "{{ primary_user }}"
 
 - name: Source development PATH configuration in bashrc
   ansible.builtin.lineinfile:
@@ -56,12 +83,46 @@
       # SDKMAN
       {% if devtools_install_sdkman %}
       export SDKMAN_DIR="$HOME/.sdkman"
-      [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
+      if [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]]; then
+          # Set SDKMAN to offline mode during shell startup to prevent network calls
+          export SDKMAN_OFFLINE_MODE=true
+          # Define any missing functions that SDKMAN might expect
+          if ! declare -f __sdkman_echo_debug; then
+              __sdkman_echo_debug() { :; }
+              export -f __sdkman_echo_debug
+          fi
+          # Source SDKMAN and capture any errors
+          if ! source "$SDKMAN_DIR/bin/sdkman-init.sh"; then
+              echo "[UBOOTU ERROR] SDKMAN initialization failed. Please check:" >&2
+              echo "  - Is SDKMAN properly installed? Run: curl -s 'https://get.sdkman.io' | bash" >&2
+              echo "  - Check SDKMAN installation: ls -la $SDKMAN_DIR/bin/" >&2
+          fi
+          # Re-enable online mode after initialization
+          unset SDKMAN_OFFLINE_MODE
+      else
+          echo "[UBOOTU WARNING] SDKMAN directory not found at $SDKMAN_DIR" >&2
+          echo "  To install SDKMAN, run: curl -s 'https://get.sdkman.io' | bash" >&2
+      fi
       {% endif %}
 
       # direnv
       {% if devtools_install_direnv %}
-      eval "$(direnv hook bash)"
+      if command -v direnv; then
+          eval "$(direnv hook bash)"
+      else
+          echo "[UBOOTU WARNING] direnv not found in PATH" >&2
+          echo "  To install direnv: sudo apt install direnv" >&2
+      fi
+      {% endif %}
+      
+      # zoxide
+      {% if 'zoxide' in devtools_selected_modern_replacements | default([]) %}
+      if command -v zoxide; then
+          eval "$(zoxide init bash)"
+      else
+          echo "[UBOOTU WARNING] zoxide not found in PATH" >&2
+          echo "  To install zoxide: curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash" >&2
+      fi
       {% endif %}
   become: yes
   become_user: "{{ primary_user }}"
@@ -90,12 +151,40 @@
       # SDKMAN
       {% if devtools_install_sdkman %}
       export SDKMAN_DIR="$HOME/.sdkman"
-      [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
+      if [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]]; then
+          # Set SDKMAN to offline mode during shell startup to prevent network calls
+          export SDKMAN_OFFLINE_MODE=true
+          # Define any missing functions that SDKMAN might expect
+          if ! declare -f __sdkman_echo_debug; then
+              __sdkman_echo_debug() { :; }
+              export -f __sdkman_echo_debug
+          fi
+          # Source SDKMAN and capture any errors
+          if ! source "$SDKMAN_DIR/bin/sdkman-init.sh"; then
+              echo "[UBOOTU ERROR] SDKMAN initialization failed. Please check:" >&2
+              echo "  - Is SDKMAN properly installed? Run: curl -s 'https://get.sdkman.io' | bash" >&2
+              echo "  - Check SDKMAN installation: ls -la $SDKMAN_DIR/bin/" >&2
+          fi
+          # Re-enable online mode after initialization
+          unset SDKMAN_OFFLINE_MODE
+      else
+          echo "[UBOOTU WARNING] SDKMAN directory not found at $SDKMAN_DIR" >&2
+          echo "  To install SDKMAN, run: curl -s 'https://get.sdkman.io' | bash" >&2
+      fi
       {% endif %}
 
       # direnv
       {% if devtools_install_direnv %}
-      eval "$(direnv hook zsh)"
+      if command -v direnv >/dev/null 2>&1; then
+          eval "$(direnv hook zsh)"
+      fi
+      {% endif %}
+      
+      # zoxide
+      {% if 'zoxide' in devtools_selected_modern_replacements | default([]) %}
+      if command -v zoxide >/dev/null 2>&1; then
+          eval "$(zoxide init zsh)"
+      fi
       {% endif %}
   become: yes
   become_user: "{{ primary_user }}"

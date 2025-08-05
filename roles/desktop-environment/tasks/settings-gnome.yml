@@ -97,21 +97,35 @@
       become_user: "{{ primary_user }}"
       when: de_custom_shortcuts | length > 0
 
-    - name: Configure each custom shortcut
+    - name: Configure custom shortcut names
       community.general.dconf:
-        key: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom{{ index }}/{{ item.key }}"
-        value: "'{{ item.value }}'"
+        key: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom{{ ansible_loop.index0 }}/name"
+        value: "'{{ item.name }}'"
         state: present
       become: yes
       become_user: "{{ primary_user }}"
-      loop:
-        - { key: "name", value: "{{ shortcut.name }}" }
-        - { key: "command", value: "{{ shortcut.command }}" }
-        - { key: "binding", value: "{{ shortcut.binding }}" }
-      loop_control:
-        index_var: index
-        loop_var: shortcut
-      with_items: "{{ de_custom_shortcuts }}"
+      loop: "{{ de_custom_shortcuts | default([]) }}"
+      when: de_custom_shortcuts | default([]) | length > 0
+
+    - name: Configure custom shortcut commands
+      community.general.dconf:
+        key: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom{{ ansible_loop.index0 }}/command"
+        value: "'{{ item.command }}'"
+        state: present
+      become: yes
+      become_user: "{{ primary_user }}"
+      loop: "{{ de_custom_shortcuts | default([]) }}"
+      when: de_custom_shortcuts | default([]) | length > 0
+
+    - name: Configure custom shortcut bindings
+      community.general.dconf:
+        key: "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom{{ ansible_loop.index0 }}/binding"
+        value: "'{{ item.binding }}'"
+        state: present
+      become: yes
+      become_user: "{{ primary_user }}"
+      loop: "{{ de_custom_shortcuts | default([]) }}"
+      when: de_custom_shortcuts | default([]) | length > 0
   tags: ['desktop-config', 'keyboard', 'shortcuts']
 
 # Window Management

@@ -5,9 +5,12 @@ After=network.target
 [Service]
 Type=simple
 User={{ primary_user }}
-ExecStart=/usr/local/bin/glances -w -p 61208
+# Try to find glances in common locations
+ExecStart=/bin/bash -c 'exec $(which glances || echo /usr/bin/glances) -w -p 61208'
 Restart=on-failure
 RestartSec=5
+# Show clear error if glances not found
+ExecStartPre=/bin/bash -c 'which glances || (echo "ERROR: glances not found in PATH. Install with: sudo apt install glances" && exit 1)'
 
 [Install]
 WantedBy=multi-user.target

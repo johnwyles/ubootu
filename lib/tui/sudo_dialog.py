@@ -6,6 +6,7 @@ Never drops to console for password input
 
 import curses
 import subprocess
+import textwrap
 from typing import Optional
 
 from .constants import SUDO_DIALOG_WIDTH, SUDO_DIALOG_HEIGHT
@@ -31,21 +32,46 @@ class SudoDialog:
         self.stdscr.clear()
         self.stdscr.refresh()
         
-        # Dialog position
-        dialog_height = SUDO_DIALOG_HEIGHT
-        dialog_width = SUDO_DIALOG_WIDTH
+        # Calculate responsive dialog size
+        if self.width <= 80:
+            dialog_width = min(self.width - 4, 76)  # Leave 4 chars margin
+        else:
+            dialog_width = min(SUDO_DIALOG_WIDTH, 60)
+            
+        # Wrap the message text
+        wrapped_lines = []
+        for paragraph in message.split('\n'):
+            if paragraph.strip():
+                wrapped = textwrap.wrap(paragraph, width=dialog_width - 6, 
+                                      break_long_words=False, 
+                                      break_on_hyphens=False)
+                wrapped_lines.extend(wrapped)
+            else:
+                wrapped_lines.append('')
+        
+        # Calculate required height based on wrapped text
+        message_height = len(wrapped_lines)
+        dialog_height = max(SUDO_DIALOG_HEIGHT, message_height + 8)  # 8 = title + input + padding
+        dialog_height = min(dialog_height, self.height - 4)  # Don't exceed screen
+        
         y, x = get_dialog_position(self.height, self.width, dialog_height, dialog_width)
         
         # Draw dialog box
         draw_box(self.stdscr, y, x, dialog_height, dialog_width, "Authentication Required")
         
-        # Draw message
+        # Draw wrapped message
         msg_y = y + 2
         msg_x = x + 2
-        self.stdscr.addstr(msg_y, msg_x, message[:dialog_width-4])
+        max_msg_lines = dialog_height - 8  # Leave room for input field
         
-        # Password input field
-        input_y = msg_y + 2
+        for i, line in enumerate(wrapped_lines[:max_msg_lines]):
+            try:
+                self.stdscr.addstr(msg_y + i, msg_x, line[:dialog_width-4])
+            except curses.error:
+                pass
+        
+        # Password input field - position after message
+        input_y = msg_y + len(wrapped_lines[:max_msg_lines]) + 1
         input_x = msg_x
         input_width = dialog_width - 6
         

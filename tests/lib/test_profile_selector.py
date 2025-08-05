@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-import lib.profile_selector
+from lib.tui import profile_selector
 
 
 class TestProfileSelector:
@@ -20,11 +20,11 @@ class TestProfileSelector:
 
     def test_import(self):
         """Test that module can be imported"""
-        assert lib.profile_selector is not None
+        assert profile_selector is not None
 
     def test_module_attributes(self):
         """Test module has expected attributes"""
-        module = lib.profile_selector
+        module = profile_selector
 
         # Check module has some content
         attrs = [a for a in dir(module) if not a.startswith("_")]
@@ -49,7 +49,7 @@ class TestProfileSelector:
 
     def test_classes(self):
         """Test classes in module"""
-        module = lib.profile_selector
+        module = profile_selector
 
         # Find all classes
         classes = inspect.getmembers(module, inspect.isclass)
