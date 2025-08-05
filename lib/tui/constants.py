@@ -34,8 +34,8 @@ TITLE = "🚀 Ubootu Configuration"
 SUBTITLE = "Professional Ubuntu Desktop Configuration Tool"
 
 # Help bar text
-HELP_BAR = "↑↓ Navigate  Space Select  Enter/→ Submenu  ← Back  A/D All/None  S Save  P Apply  Q Quit"
-HELP_BAR_SUBMENU = "↑↓ Navigate  Space Select  Enter/→ Submenu  ← Back  A/D All/None  S Save  P Apply  Q Quit"
+HELP_BAR = "↑↓ Nav  Space Select  → Menu  ← Back  S Save  P Apply  ^D Diff  ^S Scan  ^M Mode  Q Quit"
+HELP_BAR_SUBMENU = "↑↓ Nav  Space Select  → Menu  ← Back  A/D All/None  ^D Diff  ^S Scan  ^M Mode  Q Quit"
 
 # Minimum terminal size
 MIN_WIDTH = 80

@@ -585,6 +585,22 @@ class UnifiedMenu:
         elif key_matches(key, KEY_BINDINGS['apply']):
             return 'apply'
         
+        # New commands - Ctrl+D for diff, Ctrl+S for scan, Ctrl+M for mode toggle
+        elif key == 4:  # Ctrl+D
+            self.show_diff_dialog()
+            return 'diff'
+        elif key == 19:  # Ctrl+S
+            self.refresh_system_state()
+            MessageDialog(self.stdscr).show(
+                "System Scan Complete",
+                "Package discovery has been refreshed.\n\nThe display now shows current system state.",
+                "success"
+            )
+            return 'scan'
+        elif key == 13 and items:  # Ctrl+M (only when not on empty line)
+            self.toggle_operation_mode()
+            return 'mode_toggle'
+        
         # If no items, we can't do item-specific navigation
         if not items:
             return None
@@ -849,6 +865,117 @@ class UnifiedMenu:
             self.current_index = 0
             self.breadcrumb.pop()
             
+    def toggle_operation_mode(self) -> None:
+        """Toggle between additive and strict operation modes"""
+        if self.operation_mode == 'additive':
+            # Show warning before switching to strict mode
+            confirm = ConfirmDialog(self.stdscr)
+            if confirm.show(
+                "Enable Strict Mode?",
+                "⚠️ WARNING: Strict mode will REMOVE packages that are not selected!\n\n"
+                "In strict mode:\n"
+                "• Unchecked packages will be uninstalled\n"
+                "• Only Ubootu-managed packages will be removed\n"
+                "• System packages are protected\n\n"
+                "This is useful for maintaining exact configurations.\n\n"
+                "Enable strict mode?"
+            ):
+                self.operation_mode = 'strict'
+                MessageDialog(self.stdscr).show(
+                    "Strict Mode Enabled",
+                    "Package removal is now enabled.\n\nUnchecked packages will be removed on apply.",
+                    "warning"
+                )
+        else:
+            self.operation_mode = 'additive'
+            MessageDialog(self.stdscr).show(
+                "Additive Mode Enabled",
+                "Package removal is disabled.\n\nOnly installations will be performed.",
+                "success"
+            )
+    
+    def show_diff_dialog(self) -> None:
+        """Show differences between config, applied state, and system"""
+        if not self.discovery:
+            MessageDialog(self.stdscr).show(
+                "Discovery Not Available",
+                "System discovery module is not available.\n\nCannot show system differences.",
+                "error"
+            )
+            return
+        
+        # Refresh system state first
+        self.refresh_system_state()
+        
+        # Build current selections set
+        current_selections = set()
+        for item_id, value in self.selections.items():
+            if isinstance(value, set):
+                current_selections.add(item_id)
+                current_selections.update(value)
+            elif value:
+                current_selections.add(item_id)
+        
+        # Get system state
+        to_install = []
+        orphaned = []
+        in_sync = []
+        
+        for item in self.items:
+            if item.get('is_category'):
+                continue
+                
+            item_id = item['id']
+            status = self.get_item_sync_status(item_id)
+            
+            if status == 'needs_install':
+                to_install.append(item['label'])
+            elif status == 'orphaned':
+                orphaned.append(item['label'])
+            elif status in ['synced_selected', 'synced_unselected']:
+                in_sync.append(item['label'])
+        
+        # Build diff message
+        lines = ["SYSTEM vs CONFIGURATION COMPARISON\n"]
+        lines.append("=" * 40 + "\n")
+        
+        if to_install:
+            lines.append(f"\n📦 TO BE INSTALLED ({len(to_install)}):\n")
+            for item in to_install[:10]:
+                lines.append(f"  • {item}\n")
+            if len(to_install) > 10:
+                lines.append(f"  ... and {len(to_install) - 10} more\n")
+        
+        if orphaned:
+            lines.append(f"\n🗑️ ORPHANED PACKAGES ({len(orphaned)}):\n")
+            if self.operation_mode == 'strict':
+                lines.append("  (Will be removed in strict mode)\n")
+            else:
+                lines.append("  (Kept in additive mode)\n")
+            for item in orphaned[:10]:
+                lines.append(f"  • {item}\n")
+            if len(orphaned) > 10:
+                lines.append(f"  ... and {len(orphaned) - 10} more\n")
+        
+        if in_sync:
+            lines.append(f"\n✅ IN SYNC ({len(in_sync)}):\n")
+            lines.append(f"  {len(in_sync)} packages match configuration\n")
+        
+        lines.append("\n" + "=" * 40 + "\n")
+        lines.append(f"Mode: {'STRICT' if self.operation_mode == 'strict' else 'ADDITIVE'}\n")
+        
+        if self.changes_since_apply:
+            lines.append("Status: Configuration has unsaved changes\n")
+        else:
+            lines.append("Status: Configuration is up to date\n")
+        
+        # Show in a dialog
+        MessageDialog(self.stdscr).show(
+            "System Diff",
+            "".join(lines),
+            "info"
+        )
+    
     def get_current_help(self) -> Optional[str]:
         """Get help text for current item"""
         items = self.get_current_items()
@@ -858,6 +985,59 @@ class UnifiedMenu:
         item = items[self.current_index]
         return item.get('help', f"No help available for {item['label']}")
         
+    def get_packages_to_remove(self) -> Dict[str, List[str]]:
+        """Get packages that should be removed based on config changes
+        
+        Returns dict of package_name -> [reasons]
+        """
+        packages_to_remove = {}
+        
+        if self.operation_mode != 'strict':
+            # In additive mode, never remove anything
+            return packages_to_remove
+        
+        if not self.discovery:
+            return packages_to_remove
+        
+        # Load the last applied configuration
+        if not Path(self.applied_state_file).exists():
+            return packages_to_remove
+        
+        try:
+            with open(self.applied_state_file, 'r') as f:
+                last_applied = yaml.safe_load(f) or {}
+            
+            last_selections = set(last_applied.get('selected_items', []))
+            current_selections = set()
+            
+            # Build current selections
+            for item_id, value in self.selections.items():
+                if isinstance(value, set):
+                    current_selections.add(item_id)
+                    current_selections.update(value)
+                elif value:
+                    current_selections.add(item_id)
+            
+            # Find items that were selected but are no longer
+            removed_items = last_selections - current_selections
+            
+            # Map to actual packages
+            for item_id in removed_items:
+                # Check if package is installed and safe to remove
+                if self.system_state.get(item_id) == 'installed':
+                    # Map item_id to package name(s)
+                    for pkg_name, menu_id in self.discovery.package_to_menu_map.items():
+                        if menu_id == item_id:
+                            is_safe, reason = self.discovery.is_safe_to_remove(pkg_name)
+                            if is_safe:
+                                packages_to_remove[pkg_name] = [f"Unchecked from menu: {item_id}"]
+                            
+        except Exception as e:
+            sys.stderr.write(f"[DEBUG] Error getting packages to remove: {e}\n")
+            sys.stderr.flush()
+        
+        return packages_to_remove
+    
     def apply_configuration(self) -> bool:
         """Apply the configuration using Ansible with sudo dialog"""
         # DEBUG: Start of apply_configuration
@@ -865,24 +1045,37 @@ class UnifiedMenu:
         sys.stderr.write(f"\n[DEBUG] apply_configuration called at {time.strftime('%H:%M:%S')}\n")
         sys.stderr.flush()
         
+        # Check for packages to remove in strict mode
+        packages_to_remove = self.get_packages_to_remove()
+        
         # Create sudo dialog
         sudo_dialog = SudoDialog(self.stdscr)
         progress_dialog = ProgressDialog(self.stdscr)
         
-        # Show confirmation
+        # Show confirmation with removal warning if applicable
         confirm = ConfirmDialog(self.stdscr)
-        if not confirm.show(
-            "Install Selected Software?",
-            "This will install and configure all selected items using Ansible.\n\n"
-            "• Requires administrator (sudo) access\n"
-            "• May take several minutes depending on selections\n"
-            "• Internet connection required for downloads\n\n"
-            "The installer will show:\n"
-            "• Current task being performed\n"
-            "• Number of completed tasks\n"
-            "• Detailed output for troubleshooting\n\n"
-            "Continue with installation?"
-        ):
+        
+        confirm_message = "This will install and configure all selected items using Ansible.\n\n"
+        
+        # Add removal warning in strict mode
+        if packages_to_remove:
+            confirm_message += f"⚠️ STRICT MODE - {len(packages_to_remove)} packages will be REMOVED:\n"
+            for pkg in list(packages_to_remove.keys())[:5]:
+                confirm_message += f"  ✗ {pkg}\n"
+            if len(packages_to_remove) > 5:
+                confirm_message += f"  ... and {len(packages_to_remove) - 5} more\n"
+            confirm_message += "\n"
+        
+        confirm_message += ("• Requires administrator (sudo) access\n"
+                           "• May take several minutes depending on selections\n"
+                           "• Internet connection required for downloads\n\n"
+                           "The installer will show:\n"
+                           "• Current task being performed\n"
+                           "• Number of completed tasks\n"
+                           "• Detailed output for troubleshooting\n\n"
+                           "Continue with installation?")
+        
+        if not confirm.show("Install Selected Software?", confirm_message):
             return False
             
         # Check if config.yml exists
@@ -1292,6 +1485,11 @@ localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3
                 selected_items.extend(list(value))
         
         extra_vars['selected_items'] = selected_items
+        
+        # Add packages to remove (if in strict mode)
+        packages_to_remove = self.get_packages_to_remove()
+        extra_vars['packages_to_remove'] = list(packages_to_remove.keys())
+        extra_vars['strict_mode'] = (self.operation_mode == 'strict')
         
         # Add configurable items with proper ansible variable names
         for item_id, value in self.configurable_values.items():

@@ -37,12 +37,12 @@
   become: yes
   when: "'vivaldi' in web_browsers"
 
-- name: Install Opera
+- name: Manage Opera browser
   ansible.builtin.apt:
     name: opera-stable
-    state: present
+    state: "{{ 'absent' if strict_mode|default(false) and 'opera-stable' in packages_to_remove|default([]) else 'present' }}"
   become: yes
-  when: "'opera' in web_browsers"
+  when: "'opera' in web_browsers or ('opera-stable' in packages_to_remove|default([]))"
 
 - name: Install Microsoft Edge
   ansible.builtin.apt:

@@ -1,6 +1,12 @@
 ---
 # Main tasks file for applications role
 
+# Handle package removal first (if in strict mode)
+- name: Handle package removal in strict mode
+  ansible.builtin.include_tasks: package-removal.yml
+  when: strict_mode|default(false)
+  tags: ['package-removal', 'strict-mode']
+
 # Configure APT repositories first
 - name: Configure application repositories
   ansible.builtin.include_tasks: repositories.yml

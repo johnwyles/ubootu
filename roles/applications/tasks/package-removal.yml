@@ -1,0 +1,82 @@
+---
+# Handle package removal in strict mode
+# This task file removes packages that were unchecked by the user
+
+- name: Remove unchecked packages (strict mode)
+  block:
+    - name: Display packages to be removed
+      debug:
+        msg: "Removing {{ packages_to_remove|length }} packages in strict mode"
+      when: packages_to_remove|length > 0
+
+    - name: Remove unchecked packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: absent
+        purge: "{{ purge_removed_packages|default(false) }}"
+      become: yes
+      loop: "{{ packages_to_remove|default([]) }}"
+      when: 
+        - strict_mode|default(false)
+        - item not in never_remove_packages
+      register: package_removal_results
+      
+    - name: Clean up package dependencies
+      ansible.builtin.apt:
+        autoremove: yes
+        autoclean: yes
+      become: yes
+      when: 
+        - strict_mode|default(false)
+        - package_removal_results is changed
+        
+  when: 
+    - strict_mode|default(false)
+    - packages_to_remove is defined
+    - packages_to_remove|length > 0
+  tags:
+    - package-removal
+    - strict-mode
+
+# Define packages that should never be removed
+- name: Set never remove package list
+  set_fact:
+    never_remove_packages:
+      # System essentials
+      - ubuntu-desktop
+      - ubuntu-minimal
+      - ubuntu-standard
+      - systemd
+      - systemd-sysv
+      - init
+      - init-system-helpers
+      # Kernel and boot
+      - linux-image-generic
+      - linux-headers-generic
+      - grub-pc
+      - grub-efi
+      - grub2-common
+      - grub-common
+      # Network
+      - network-manager
+      - networkd-dispatcher
+      - netplan.io
+      - iproute2
+      # Package management
+      - apt
+      - apt-utils
+      - dpkg
+      - software-properties-common
+      # Core utilities
+      - bash
+      - dash
+      - coreutils
+      - util-linux
+      - mount
+      - passwd
+      # Python (needed for Ansible)
+      - python3
+      - python3-minimal
+      - python3-apt
+  tags:
+    - always

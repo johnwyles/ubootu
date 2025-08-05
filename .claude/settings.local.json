@@ -113,7 +113,8 @@
       "Bash(strace:*)",
       "Bash(./test_shell_error_handling.sh:*)",
       "Bash(dmesg:*)",
-      "Bash(coverage report:*)"
+      "Bash(coverage report:*)",
+      "mcp__sequential-thinking__sequentialthinking"
     ],
     "deny": []
   }
