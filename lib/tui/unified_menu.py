@@ -25,6 +25,19 @@ except ImportError:
     def load_menu_structure():
         return []
 
+# Import system discovery for package detection
+try:
+    import sys
+    import os
+    import tempfile
+    from .dialogs import InputDialog, MultiSelectDialog
+    from ..system_discovery import SystemDiscovery
+except ImportError:
+    SystemDiscovery = None
+    import sys
+    import os
+    import tempfile
+
 
 class UnifiedMenu:
     """Unified menu system for entire application"""
@@ -53,6 +66,12 @@ class UnifiedMenu:
         self.applied_config_hash = None  # Hash of last applied config
         self.saved_config_hash = None  # Hash of last saved config
         self.changes_since_apply = False  # Track if any changes made since last apply
+        self.applied_state_file = '.ubootu_applied.yml'  # File to store last applied config
+        
+        # System discovery
+        self.discovery = SystemDiscovery() if SystemDiscovery else None
+        self.system_state = {}  # Current system state
+        self.operation_mode = 'additive'  # 'additive' or 'strict'
         
         # Initialize curses
         try:
@@ -96,6 +115,88 @@ class UnifiedMenu:
             # Load default configurable values
             if item.get('is_configurable') and 'default_value' in item:
                 self.configurable_values[item_id] = item['default_value']
+    
+    def refresh_system_state(self) -> None:
+        """Refresh the system state by scanning installed packages"""
+        if not self.discovery:
+            return
+            
+        try:
+            # Get all menu item IDs
+            all_item_ids = [item['id'] for item in self.items if not item.get('is_category')]
+            # Map to system packages
+            self.system_state = self.discovery.map_to_menu_items(all_item_ids)
+        except Exception as e:
+            sys.stderr.write(f"[DEBUG] Error refreshing system state: {e}\n")
+            sys.stderr.flush()
+            self.system_state = {}
+    
+    def get_item_sync_status(self, item_id: str) -> str:
+        """Get sync status for an item
+        
+        Returns one of:
+        - 'synced_selected' - Selected and installed
+        - 'synced_unselected' - Not selected and not installed  
+        - 'needs_install' - Selected but not installed
+        - 'orphaned' - Installed but not selected
+        """
+        is_selected = self.is_item_selected(item_id)
+        is_installed = self.system_state.get(item_id) == 'installed'
+        
+        if is_selected and is_installed:
+            return 'synced_selected'
+        elif not is_selected and not is_installed:
+            return 'synced_unselected'
+        elif is_selected and not is_installed:
+            return 'needs_install'
+        else:  # not is_selected and is_installed
+            return 'orphaned'
+    
+    def get_status_indicator(self, item_id: str) -> str:
+        """Get visual indicator for item status"""
+        status = self.get_item_sync_status(item_id)
+        
+        indicators = {
+            'synced_selected': '[✓]',     # Checkmark
+            'synced_unselected': '[○]',    # Empty circle
+            'needs_install': '[⚠]',        # Warning
+            'orphaned': '[✗]',             # X mark
+        }
+        
+        return indicators.get(status, '[ ]')
+    
+    def initialize_state_tracking(self) -> None:
+        """Initialize state tracking by comparing config with last applied state"""
+        if Path(self.applied_state_file).exists() and Path(self.config_file).exists():
+            # Compare current config with last applied config
+            current_hash = self._get_file_hash(self.config_file)
+            applied_hash = self._get_file_hash(self.applied_state_file)
+            self.changes_since_apply = (current_hash != applied_hash)
+            self.applied_config_hash = applied_hash
+        elif Path(self.config_file).exists():
+            # Config exists but never applied
+            self.changes_since_apply = True
+            self.applied_config_hash = None
+        else:
+            # No config file yet
+            self.changes_since_apply = False
+            self.applied_config_hash = None
+    
+    def _get_file_hash(self, filepath: str) -> Optional[str]:
+        """Calculate SHA256 hash of a file's contents"""
+        import hashlib
+        
+        if not Path(filepath).exists():
+            return None
+            
+        try:
+            with open(filepath, 'rb') as f:
+                file_hash = hashlib.sha256()
+                while chunk := f.read(8192):
+                    file_hash.update(chunk)
+            return file_hash.hexdigest()
+        except Exception:
+            return None
     
     def load_configuration(self) -> None:
         """Load existing configuration from file"""
@@ -203,6 +304,15 @@ class UnifiedMenu:
             
             # Update saved config hash
             self.saved_config_hash = self._get_config_hash()
+            
+            # Update changes_since_apply by comparing with applied state
+            if self.applied_config_hash:
+                # We have a previously applied config, check if current matches it
+                current_hash = self._get_file_hash(self.config_file)
+                self.changes_since_apply = (current_hash != self.applied_config_hash)
+            else:
+                # Never applied before, so we have changes if there's content
+                self.changes_since_apply = bool(config['selected_items'] or config['configurable_items'])
             
             return True
         except Exception as e:
@@ -315,6 +425,37 @@ class UnifiedMenu:
         # Draw subtitle
         draw_centered_text(self.stdscr, 2, SUBTITLE)
         
+        # Draw status line
+        status_parts = []
+        
+        # Config status
+        if self.changes_since_apply:
+            status_parts.append("Config: Modified")
+        else:
+            status_parts.append("Config: Applied")
+        
+        # System sync status (if discovery available)
+        if self.discovery and self.system_state:
+            needs_install = sum(1 for item_id in self.system_state 
+                               if self.get_item_sync_status(item_id) == 'needs_install')
+            orphaned = sum(1 for item_id in self.system_state 
+                          if self.get_item_sync_status(item_id) == 'orphaned')
+            
+            if needs_install > 0 or orphaned > 0:
+                status_parts.append(f"System: Out of sync ({needs_install} to install, {orphaned} orphaned)")
+            else:
+                status_parts.append("System: In sync")
+        
+        # Operation mode
+        mode_text = "Strict" if self.operation_mode == 'strict' else "Additive"
+        status_parts.append(f"Mode: {mode_text}")
+        
+        status_line = " | ".join(status_parts)
+        try:
+            self.stdscr.addstr(4, 2, status_line[:self.width-4])
+        except curses.error:
+            pass
+        
         # Draw breadcrumb if not at root
         if len(self.breadcrumb) > 1:
             breadcrumb_text = " > ".join(self.breadcrumb)
@@ -370,10 +511,16 @@ class UnifiedMenu:
                     value_text = f"[{current_value}]"
                 text = f"    {item['label']} {value_text}"
             else:
-                # Regular item with checkbox
-                is_selected = self.is_item_selected(item['id'])
-                checkbox = CHECKBOX_SELECTED if is_selected else CHECKBOX_UNSELECTED
-                text = f"  {checkbox} {item['label']}"
+                # Regular item with sync status indicator
+                if self.discovery and self.system_state:
+                    # Show sync status indicator
+                    indicator = self.get_status_indicator(item['id'])
+                    text = f"  {indicator} {item['label']}"
+                else:
+                    # Fallback to simple checkbox if no discovery available
+                    is_selected = self.is_item_selected(item['id'])
+                    checkbox = CHECKBOX_SELECTED if is_selected else CHECKBOX_UNSELECTED
+                    text = f"  {checkbox} {item['label']}"
             
         # Add description on same line if space allows
         description = item.get('description', '')
@@ -516,9 +663,7 @@ class UnifiedMenu:
                     # Select all descendants under this category
                     self.selections[item_id] = descendants.copy()
                 
-                # Mark that changes have been made
-                self.changes_since_apply = True
-                # Auto-save after selection change
+                # Auto-save after selection change (will update changes_since_apply)
                 self.save_configuration(silent=True)
             return
             
@@ -550,9 +695,7 @@ class UnifiedMenu:
                 # Top-level item
                 self.selections[item_id] = True
                 
-        # Mark that changes have been made
-        self.changes_since_apply = True
-        # Auto-save after selection change
+        # Auto-save after selection change (will update changes_since_apply)
         self.save_configuration(silent=True)
                 
     def show_config_dialog(self, item: Dict) -> None:
@@ -610,9 +753,7 @@ class UnifiedMenu:
         # Update value if changed
         if new_value is not None:
             self.configurable_values[item_id] = new_value
-            # Mark that changes have been made
-            self.changes_since_apply = True
-            # Auto-save after configuration change
+            # Auto-save after configuration change (will update changes_since_apply)
             self.save_configuration(silent=True)
                 
     def select_all(self) -> None:
@@ -643,9 +784,7 @@ class UnifiedMenu:
                 # Now add them to the current category
                 self.selections[self.current_menu] = descendants
         
-        # Mark that changes have been made
-        self.changes_since_apply = True
-        # Auto-save after bulk selection
+        # Auto-save after bulk selection (will update changes_since_apply)
         self.save_configuration(silent=True)
         
     def deselect_all(self) -> None:
@@ -677,9 +816,7 @@ class UnifiedMenu:
                     if item['id'] in self.selections:
                         del self.selections[item['id']]
         
-        # Mark that changes have been made
-        self.changes_since_apply = True
-        # Auto-save after bulk deselection
+        # Auto-save after bulk deselection (will update changes_since_apply)
         self.save_configuration(silent=True)
     
     def _clear_category_selections(self, category_id: str) -> None:
@@ -859,6 +996,14 @@ localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3
         sys.stderr.flush()
         
         if result == 0:
+            # Save the applied configuration for future comparison
+            import shutil
+            try:
+                shutil.copy2(self.config_file, self.applied_state_file)
+            except Exception as e:
+                sys.stderr.write(f"[DEBUG] Failed to save applied state: {e}\n")
+                sys.stderr.flush()
+            
             # Update applied config tracking
             self.applied_config_hash = self._get_config_hash()
             self.config_applied = True
@@ -930,6 +1075,12 @@ localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3
         else:
             # No config file, just load defaults
             self.load_defaults()
+        
+        # Initialize state tracking to determine if changes need applying
+        self.initialize_state_tracking()
+        
+        # Refresh system state
+        self.refresh_system_state()
         
         exit_code = 1  # Default to cancelled
         
