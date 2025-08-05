@@ -751,11 +751,14 @@ class UnifiedMenu:
             dialog = SelectDialog(self.stdscr)
             options = item.get('options', [])
             if options:
-                new_value = dialog.show(
+                selected_index = dialog.show(
                     item['label'],
+                    None,  # No message for this dialog
                     options,
                     str(current_value)
                 )
+                # Convert index back to value
+                new_value = options[selected_index] if selected_index is not None else None
         else:
             # Default to text input
             from .dialogs import InputDialog

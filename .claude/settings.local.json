@@ -114,7 +114,8 @@
       "Bash(./test_shell_error_handling.sh:*)",
       "Bash(dmesg:*)",
       "Bash(coverage report:*)",
-      "mcp__sequential-thinking__sequentialthinking"
+      "mcp__sequential-thinking__sequentialthinking",
+      "Bash(./configure_standard_tui.py)"
     ],
     "deny": []
   }

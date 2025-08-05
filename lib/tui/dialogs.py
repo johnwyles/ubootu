@@ -512,27 +512,62 @@ class SpinnerDialog(BaseDialog):
 class SelectDialog(BaseDialog):
     """Dialog for selecting from a list of options"""
     
-    def show(self, title: str, options: List[str], current_value: str = None) -> Optional[str]:
-        """Show selection dialog and return selected option"""
+    def show(self, title: str, message: str = None, options: List[str] = None, current_value: str = None) -> Optional[int]:
+        """Show selection dialog and return selected option index
+        
+        Args:
+            title: Dialog title
+            message: Optional message to display above options (can be a string or None)
+            options: List of options to choose from (can be a list or passed as message if message is actually the list)
+            current_value: Currently selected value (optional)
+            
+        Returns:
+            Index of selected option (0-based) or None if cancelled
+        """
+        # Handle the case where message is actually the options list (backward compatibility)
+        if isinstance(message, list) and options is None:
+            options = message
+            message = None
+        elif isinstance(options, str) and isinstance(message, str):
+            # They passed (title, message, options) correctly but options is a string - swap them
+            message, options = options, [message] if not isinstance(message, list) else message
+        
+        # Ensure options is a list
+        if not isinstance(options, list):
+            options = [str(options)] if options else []
+        
         # Clear and redraw
         self.stdscr.clear()
         self.stdscr.refresh()
         
-        # Dialog dimensions
+        # Calculate dimensions
         max_option_len = max(len(opt) for opt in options) if options else 20
-        dialog_width = min(max(40, max_option_len + 10), self.width - 4)
-        dialog_height = min(len(options) + 6, self.height - 4, 20)
+        message_lines = message.split('\n') if message else []
+        max_message_len = max(len(line) for line in message_lines) if message_lines else 0
+        
+        dialog_width = min(max(50, max_option_len + 10, max_message_len + 10), self.width - 4)
+        message_height = len(message_lines) + 1 if message else 0
+        dialog_height = min(len(options) + message_height + 6, self.height - 4, 20)
         
         # Draw dialog
         y, x, h, w = self.draw_dialog_box(dialog_height, dialog_width, title)
+        
+        # Draw message if provided
+        message_end_y = y
+        if message:
+            for i, line in enumerate(message_lines):
+                if i < h - len(options) - 3:
+                    self.stdscr.addstr(y + i, x + 2, truncate_text(line, w - 4))
+                    message_end_y = y + i + 1
         
         # Find current selection
         current_index = 0
         if current_value and current_value in options:
             current_index = options.index(current_value)
         
-        # Scrolling state
-        visible_items = h - 3
+        # Scrolling state - account for message space
+        message_space = message_end_y - y if message else 0
+        visible_items = h - 3 - message_space
         scroll_offset = 0
         
         while True:
@@ -546,14 +581,15 @@ class SelectDialog(BaseDialog):
             elif current_index >= scroll_offset + visible_items:
                 scroll_offset = current_index - visible_items + 1
             
-            # Draw visible options
+            # Draw visible options (after the message if present)
+            options_start_y = message_end_y if message else y
             for i in range(visible_items):
                 option_index = scroll_offset + i
                 if option_index >= len(options):
                     break
                     
                 option = options[option_index]
-                display_y = y + i + 1
+                display_y = options_start_y + i + 1
                 
                 if option_index == current_index:
                     self.stdscr.attron(curses.A_REVERSE)
@@ -578,7 +614,7 @@ class SelectDialog(BaseDialog):
             key = self.stdscr.getch()
             
             if key == ord('\n'):
-                return options[current_index]
+                return current_index  # Return index instead of string
             elif key == 27:  # ESC
                 return None
             elif key in [curses.KEY_UP, ord('k')]:
