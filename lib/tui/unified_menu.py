@@ -1201,7 +1201,7 @@ localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3
                 sys.stderr.flush()
             
             # Update applied config tracking
-            self.applied_config_hash = self._get_config_hash()
+            self.applied_config_hash = self._get_file_hash(self.applied_state_file)
             self.config_applied = True
             self.changes_since_apply = False  # Reset change tracking after successful apply
             

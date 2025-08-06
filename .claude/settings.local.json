@@ -115,7 +115,8 @@
       "Bash(dmesg:*)",
       "Bash(coverage report:*)",
       "mcp__sequential-thinking__sequentialthinking",
-      "Bash(./configure_standard_tui.py)"
+      "Bash(./configure_standard_tui.py)",
+      "Bash(sha256sum:*)"
     ],
     "deny": []
   }
