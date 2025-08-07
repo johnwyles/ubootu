@@ -113,12 +113,10 @@ jobs:
         run: |
           # Test that main TUI files have proper syntax
           python -m py_compile configure_standard_tui.py
-          python -m py_compile lib/ubootu_splash.py
-          python -m py_compile lib/show_profile_templates.py
-          python -m py_compile lib/menu_ui.py
-          # Test enhanced menu UI modules
-          python -m py_compile lib/enhanced_menu_ui.py
-          python -m py_compile lib/enhanced_menu_ui_old.py
+          # Test main TUI modules
+          python -m py_compile lib/tui/unified_menu.py
+          python -m py_compile lib/tui/menu_items.py
+          python -m py_compile lib/tui/dialogs.py
 
   # Security scan temporarily disabled - permissions issue with SARIF upload
   # security-scan:

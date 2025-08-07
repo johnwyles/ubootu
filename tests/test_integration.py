@@ -38,29 +38,29 @@ class TestIntegration:
         assert validator is not None
 
     @pytest.mark.integration
-    @patch("lib.enhanced_menu_ui.Console")
-    def test_menu_builders_integration(self, mock_console):
-        """Test enhanced menu UI system"""
-        from lib.enhanced_menu_ui import EnhancedMenuUI
+    def test_menu_builders_integration(self):
+        """Test unified menu system"""
+        from lib.tui.menu_items import load_menu_structure
 
-        # Create UI instance
-        ui = EnhancedMenuUI()
+        # Get menu structure
+        menu_items = load_menu_structure()
 
         # Verify we have many items
-        assert len(ui.menu_items) > 100
+        assert len(menu_items) > 100
 
-        # Check some known items exist
-        assert "desktop" in ui.menu_items
-        assert "applications" in ui.menu_items
-        assert "development" in ui.menu_items
-        assert "security" in ui.menu_items
-        assert "system" in ui.menu_items
-        assert "ai-ml" in ui.menu_items  # New AI/ML category
+        # Check some known category IDs exist in the list
+        menu_ids = [item['id'] for item in menu_items if 'id' in item]
+        assert "desktop" in menu_ids
+        assert "applications" in menu_ids
+        assert "development" in menu_ids
+        assert "security" in menu_ids
+        assert "system" in menu_ids
+        assert "ai-ml" in menu_ids  # New AI/ML category
 
-        # Check that AI/ML has subcategories
-        ai_ml = ui.menu_items["ai-ml"]
-        assert ai_ml.is_category
-        assert len(ai_ml.children) > 0
+        # Check that AI/ML has is_category flag
+        ai_ml = next((item for item in menu_items if item.get('id') == 'ai-ml'), None)
+        assert ai_ml is not None
+        assert ai_ml.get('is_category', False)
 
     @pytest.mark.integration
     @patch("curses.initscr")
@@ -134,11 +134,11 @@ class TestIntegration:
     @patch("builtins.open", mock_open())
     def test_backup_config(self, mock_exists):
         """Test backup configuration"""
-        # Module might not export specific classes
-        import lib.backup_config_tui
+        # Module has been moved to lib.tui
+        import lib.tui.backup_config
 
         # Just test that module is importable
-        assert lib.backup_config_tui is not None
+        assert lib.tui.backup_config is not None
 
     @pytest.mark.integration
     def test_menu_dialog(self):
@@ -149,89 +149,70 @@ class TestIntegration:
         # Just test that module is importable
         assert lib.menu_dialog is not None
 
-    @pytest.mark.integration
-    @patch("curses.initscr")
-    def test_tui_components(self, mock_initscr):
-        """Test TUI components"""
-        # Module might not export these specific classes
-        import lib.tui_components
-
-        mock_screen = MagicMock()
-        mock_initscr.return_value = mock_screen
-
-        # Just test that module is importable
-        assert lib.tui_components is not None
+    # test_tui_components removed - module no longer exists
 
     @pytest.mark.integration
     @patch("curses.initscr")
     def test_tui_dialogs(self, mock_initscr):
         """Test TUI dialog functionality"""
-        # Module might not export these specific classes
-        import lib.tui_dialogs
+        # Module is in lib.tui
+        import lib.tui.dialogs
 
         mock_screen = MagicMock()
         mock_screen.getmaxyx.return_value = (50, 100)
         mock_initscr.return_value = mock_screen
 
         # Just test that module is importable
-        assert lib.tui_dialogs is not None
+        assert lib.tui.dialogs is not None
 
     @pytest.mark.integration
     def test_section_selector(self):
         """Test section selector"""
-        # Module might not export SectionSelector class
-        import lib.section_selector
+        # Module has been moved to lib.tui
+        import lib.tui.section_selector
 
         # Just test that module is importable
-        assert lib.section_selector is not None
+        assert lib.tui.section_selector is not None
 
     @pytest.mark.integration
     def test_quick_actions(self):
         """Test quick actions functionality"""
-        # Module might not export these specific classes
-        import lib.quick_actions_tui
+        # Module has been moved to lib.tui
+        import lib.tui.quick_actions
 
         # Just test that module is importable
-        assert lib.quick_actions_tui is not None
+        assert lib.tui.quick_actions is not None
 
     @pytest.mark.integration
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", mock_open(read_data="template content"))
     def test_profile_selector(self, mock_exists):
         """Test profile selector"""
-        # Module might not export ProfileSelector class
-        import lib.profile_selector
+        # Module has been moved to lib.tui
+        import lib.tui.profile_selector
 
         # Just test that module is importable
-        assert lib.profile_selector is not None
+        assert lib.tui.profile_selector is not None
 
-    @pytest.mark.integration
-    @patch("os.path.exists", return_value=True)
-    def test_show_profile_templates(self, mock_exists):
-        """Test profile templates"""
-        # Module might not export these specific classes
-        import lib.show_profile_templates
-
-        # Just test that module is importable
-        assert lib.show_profile_templates is not None
+    # test_show_profile_templates removed - module no longer exists
 
     @pytest.mark.integration
     def test_help_viewer(self):
         """Test help viewer"""
-        # Module might not export these specific classes
-        import lib.help_viewer
+        # Module has been moved to lib.tui
+        import lib.tui.help_viewer
 
         # Just test that module is importable
-        assert lib.help_viewer is not None
+        assert lib.tui.help_viewer is not None
 
     @pytest.mark.integration
     def test_history_viewer(self):
         """Test history viewer"""
-        # Module might not export these specific classes
-        import lib.history_viewer
+        # Module has been moved to lib.tui
+        import lib.tui.history_viewer
 
         # Just test that module is importable
-        assert lib.history_viewer is not None
+        assert lib.tui.history_viewer is not None
 
     @pytest.mark.integration
     @patch("curses.initscr")
@@ -251,25 +232,16 @@ class TestIntegration:
     @patch("curses.wrapper")
     def test_tui_splash(self, mock_wrapper):
         """Test TUI splash screen"""
-        # Module might not export show_splash function
-        import lib.tui_splash
+        # Module has been moved to lib.tui
+        import lib.tui.splash_screen
 
         # Mock the wrapper to avoid curses initialization
         mock_wrapper.side_effect = lambda func: func(MagicMock())
 
         # Just test that module is importable
-        assert lib.tui_splash is not None
+        assert lib.tui.splash_screen is not None
 
-    @pytest.mark.integration
-    @patch("time.sleep")
-    @patch("os.system")
-    def test_ubootu_splash(self, mock_system, mock_sleep):
-        """Test Ubootu splash screen"""
-        # Module might not export AnimatedSplash class
-        import lib.ubootu_splash
-
-        # Just test that module is importable
-        assert lib.ubootu_splash is not None
+    # test_ubootu_splash removed - module no longer exists
 
     @pytest.mark.integration
     def test_app_customization_templates(self):
@@ -305,16 +277,7 @@ class TestIntegration:
         # Test that we can import the validation function
         assert callable(validate_configuration_file)
 
-    @pytest.mark.integration
-    def test_menu_ui_imports(self):
-        """Test menu UI module imports"""
-        try:
-            from lib.menu_ui import MenuUI
-
-            assert MenuUI is not None
-        except ImportError:
-            # Module might have dependencies
-            pass
+    # test_menu_ui_imports removed - module no longer exists
 
 
 if __name__ == "__main__":

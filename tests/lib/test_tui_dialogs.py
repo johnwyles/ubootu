@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, Mock, call, patch
 
 import pytest
 
-import lib.tui_dialogs
+import lib.tui.dialogs as tui_dialogs
 
 
 class TestTuiDialogs:
@@ -32,12 +32,12 @@ class TestTuiDialogs:
 
     def test_import(self):
         """Test that module can be imported"""
-        assert lib.tui_dialogs is not None
+        assert tui_dialogs is not None
 
     def test_initialization(self, setup):
         """Test component initialization"""
         # Test that main classes/functions exist
-        module = lib.tui_dialogs
+        module = tui_dialogs
         assert hasattr(module, "__file__")
 
         # Check for common TUI components
@@ -51,9 +51,9 @@ class TestTuiDialogs:
         stdscr = setup["stdscr"]
 
         # Test screen is cleared and refreshed
-        if hasattr(lib.tui_dialogs, "render"):
+        if hasattr(tui_dialogs, "render"):
             try:
-                lib.tui_dialogs.render(stdscr)
+                tui_dialogs.render(stdscr)
                 stdscr.clear.assert_called()
                 stdscr.refresh.assert_called()
             except Exception:
@@ -63,6 +63,6 @@ class TestTuiDialogs:
     @patch("curses.wrapper")
     def test_curses_wrapper(self, mock_wrapper):
         """Test curses wrapper usage"""
-        if hasattr(lib.tui_dialogs, "main"):
-            lib.tui_dialogs.main()
+        if hasattr(tui_dialogs, "main"):
+            tui_dialogs.main()
             mock_wrapper.assert_called_once()

@@ -10,7 +10,7 @@
       tags: always
       become: no  # Facts don't need sudo
       no_log: true  # Prevent massive facts output
-      
+
     - name: Stop unattended-upgrades to prevent APT locks
       ansible.builtin.systemd:
         name: unattended-upgrades
@@ -18,7 +18,7 @@
       become: yes
       ignore_errors: yes
       no_log: yes  # Don't log password issues
-      
+
     - name: Kill any running unattended-upgrades processes
       ansible.builtin.shell: |
         # Kill processes more aggressively
@@ -31,7 +31,7 @@
         lsof /var/lib/apt/lists/lock 2>/dev/null | awk 'NR>1 {print $2}' | xargs -r kill -9 || true
       become: yes
       ignore_errors: yes
-      
+
     - name: Wait for processes to clean up
       ansible.builtin.wait_for:
         path: "{{ item }}"
@@ -42,7 +42,7 @@
         - /var/lib/apt/lists/lock
       become: yes
       ignore_errors: yes
-        
+
     - name: Check for remaining APT locks
       ansible.builtin.stat:
         path: "{{ item }}"
@@ -52,7 +52,7 @@
         - /var/lib/apt/lists/lock
         - /var/cache/apt/archives/lock
       ignore_errors: yes
-      
+
     - name: Remove stale APT locks if no processes using them
       ansible.builtin.file:
         path: "{{ item.item }}"
@@ -61,7 +61,7 @@
       loop: "{{ apt_locks.results }}"
       when: item.stat.exists | default(false)
       ignore_errors: yes
-      
+
     - name: Test repository connectivity
       ansible.builtin.uri:
         url: "http://archive.ubuntu.com/ubuntu/dists/{{ ansible_distribution_release }}/Release"
@@ -69,7 +69,7 @@
         timeout: 10
       register: repo_test
       ignore_errors: yes
-      
+
     - name: Update apt cache (async to prevent hanging)
       ansible.builtin.apt:
         update_cache: yes
@@ -82,7 +82,7 @@
       poll: 15             # Check every 15 seconds
       register: apt_update_async
       ignore_errors: yes
-      
+
     - name: Check apt update result
       ansible.builtin.async_status:
         jid: "{{ apt_update_async.ansible_job_id }}"
@@ -92,26 +92,29 @@
       delay: 15
       when: apt_update_async.ansible_job_id is defined
       ignore_errors: yes
-      
+
     - name: Retry apt update if first attempt failed
       ansible.builtin.apt:
         update_cache: yes
         force_apt_get: yes
       become: yes
-      when: 
+      when:
         - apt_update_result.failed | default(false) or apt_update_result.rc | default(0) != 0
         - ansible_os_family == "Debian"
       register: apt_update_retry
       ignore_errors: yes
-      
+
     - name: Show apt update status
       ansible.builtin.debug:
         msg: |
           APT Update Status:
-          - First attempt: {{ 'Success' if not (apt_update_result.failed | default(false)) and (apt_update_result.rc | default(0)) == 0 else 'Failed' }}
-          - Retry attempt: {{ 'Success' if not (apt_update_retry.failed | default(false)) and (apt_update_retry.rc | default(0)) == 0 else 'Skipped/Failed' if apt_update_retry is defined else 'Not needed' }}
+          - First attempt: {{ 'Success' if not (apt_update_result.failed | default(false))
+            and (apt_update_result.rc | default(0)) == 0 else 'Failed' }}
+          - Retry attempt: {{ 'Success' if not (apt_update_retry.failed | default(false))
+            and (apt_update_retry.rc | default(0)) == 0
+            else 'Skipped/Failed' if apt_update_retry is defined else 'Not needed' }}
           - Repository connectivity: {{ 'OK' if repo_test.status | default(0) == 200 else 'Issues detected' }}
-          
+
     - name: Continue with installation despite apt update issues
       ansible.builtin.debug:
         msg: "Proceeding with software installation. Some packages may be older versions."
@@ -170,30 +173,30 @@
         enabled: yes
       become: yes
       ignore_errors: yes
-      
+
     - name: Collect installation summary
       ansible.builtin.set_fact:
         installation_summary: |
           🎉 Ubuntu Desktop Configuration Complete!
-          
+
           ✅ System preparation and cleanup completed
-          ✅ APT locks handled successfully  
+          ✅ APT locks handled successfully
           ✅ Configuration roles processed
-          
+
           {% if apt_update_result.failed | default(false) %}
           ⚠️  APT update had issues - some packages may be older versions
           {% else %}
           ✅ Package lists updated successfully
           {% endif %}
-          
+
           🔄 Next steps:
           • Reboot your system for all changes to take effect
           • Log out and back in to refresh desktop environment
           • Check Applications menu for new software
-          
+
           📝 Note: Some roles may have had non-critical failures.
           Check the detailed output above for specific issues.
-      
+
     - name: Display completion message
       ansible.builtin.debug:
         msg: "{{ installation_summary }}"

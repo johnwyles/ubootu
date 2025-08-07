@@ -1,3 +1,4 @@
+---
 configurable_items:
   custom-accent:
     id: custom-accent
@@ -57,44 +58,44 @@ metadata:
   created_by: ubootu_unified_tui
   version: '1.0'
 selected_items:
-- dev-python
-- python
-- dev-javascript
-- nodejs
-- dev-code-editors
-- vscode
-- dev-vcs
-- git
-- dev-containers
-- docker
-- dev-shells
-- bash
-- dev-editor-settings
-- vscode-sticky-scroll
-- app-theme-integration
-- editor-minimap
-- editor-ligatures
-- vscode-bracket-colorization
-- dev-terminal-settings
-- terminal-cursor-blink
-- desktop
-- gnome
-- web-browsers
-- firefox
-- vivaldi
-- text-editors-ides
-- vscode
-- video-streaming
-- vlc
-- productivity-office
-- libreoffice
-- security
-- ufw
-- theme-settings
-- theme-sync-apps
-- system
-- enable-trim
-- gaming
-- gamemode
-- applications
-- timeshift
+  - dev-python
+  - python
+  - dev-javascript
+  - nodejs
+  - dev-code-editors
+  - vscode
+  - dev-vcs
+  - git
+  - dev-containers
+  - docker
+  - dev-shells
+  - bash
+  - dev-editor-settings
+  - vscode-sticky-scroll
+  - app-theme-integration
+  - editor-minimap
+  - editor-ligatures
+  - vscode-bracket-colorization
+  - dev-terminal-settings
+  - terminal-cursor-blink
+  - desktop
+  - gnome
+  - web-browsers
+  - firefox
+  - vivaldi
+  - text-editors-ides
+  - vscode
+  - video-streaming
+  - vlc
+  - productivity-office
+  - libreoffice
+  - security
+  - ufw
+  - theme-settings
+  - theme-sync-apps
+  - system
+  - enable-trim
+  - gaming
+  - gamemode
+  - applications
+  - timeshift

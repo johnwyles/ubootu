@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, Mock, call, patch
 
 import pytest
 
-import lib.tui_splash
+import lib.tui.splash_screen as tui_splash
 
 
 class TestTuiSplash:
@@ -32,12 +32,12 @@ class TestTuiSplash:
 
     def test_import(self):
         """Test that module can be imported"""
-        assert lib.tui_splash is not None
+        assert tui_splash is not None
 
     def test_initialization(self, setup):
         """Test component initialization"""
         # Test that main classes/functions exist
-        module = lib.tui_splash
+        module = tui_splash
         assert hasattr(module, "__file__")
 
         # Check for common TUI components
@@ -51,9 +51,9 @@ class TestTuiSplash:
         stdscr = setup["stdscr"]
 
         # Test screen is cleared and refreshed
-        if hasattr(lib.tui_splash, "render"):
+        if hasattr(tui_splash, "render"):
             try:
-                lib.tui_splash.render(stdscr)
+                tui_splash.render(stdscr)
                 stdscr.clear.assert_called()
                 stdscr.refresh.assert_called()
             except Exception:
@@ -63,7 +63,7 @@ class TestTuiSplash:
     @patch("curses.wrapper")
     def test_curses_wrapper(self, mock_wrapper, mock_stdscr):
         """Test curses wrapper usage"""
-        if hasattr(lib.tui_splash, "main"):
+        if hasattr(tui_splash, "main"):
             # main() requires stdscr argument
-            lib.tui_splash.main(mock_stdscr)
+            tui_splash.main(mock_stdscr)
             # Can't assert wrapper is called since we're calling main directly

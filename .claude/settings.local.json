@@ -116,7 +116,17 @@
       "Bash(coverage report:*)",
       "mcp__sequential-thinking__sequentialthinking",
       "Bash(./configure_standard_tui.py)",
-      "Bash(sha256sum:*)"
+      "Bash(sha256sum:*)",
+      "Bash(.venv/bin/pytest tests/test_integration.py -v --tb=short)",
+      "Bash(.venv/bin/pytest tests/test_integration.py::TestIntegration::test_menu_builders_integration tests/test_integration.py::TestIntegration::test_menu_dialog -xvs)",
+      "Bash(.venv/bin/pytest tests/test_integration.py -x --tb=line)",
+      "Bash(if [ -f .ubootu_applied.yml ])",
+      "Bash(then sed -i '1s/^/---\\n/' .ubootu_applied.yml)",
+      "Bash(fi)",
+      "Bash(.venv/bin/yamllint --format parsable .)",
+      "Bash(.venv/bin/pytest tests/ -x --tb=no -q)",
+      "Bash(.venv/bin/pytest tests/lib/test_tui_components.py -v)",
+      "Bash(.venv/bin/pytest tests/test_integration.py tests/lib/tui/ tests/test_imports.py -q --tb=no)"
     ],
     "deny": []
   }
