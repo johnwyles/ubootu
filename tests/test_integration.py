@@ -49,7 +49,7 @@ class TestIntegration:
         assert len(menu_items) > 100
 
         # Check some known category IDs exist in the list
-        menu_ids = [item['id'] for item in menu_items if 'id' in item]
+        menu_ids = [item["id"] for item in menu_items if "id" in item]
         assert "desktop" in menu_ids
         assert "applications" in menu_ids
         assert "development" in menu_ids
@@ -58,9 +58,9 @@ class TestIntegration:
         assert "ai-ml" in menu_ids  # New AI/ML category
 
         # Check that AI/ML has is_category flag
-        ai_ml = next((item for item in menu_items if item.get('id') == 'ai-ml'), None)
+        ai_ml = next((item for item in menu_items if item.get("id") == "ai-ml"), None)
         assert ai_ml is not None
-        assert ai_ml.get('is_category', False)
+        assert ai_ml.get("is_category", False)
 
     @pytest.mark.integration
     @patch("curses.initscr")

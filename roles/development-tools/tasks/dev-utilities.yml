@@ -36,7 +36,7 @@
         dest: /usr/local/bin/direnv
         mode: '0755'
       become: yes
-      when: 
+      when:
         - direnv_release is succeeded
         - direnv_release.json.assets | selectattr('name', 'match', 'direnv\\.linux-amd64$') | list | length > 0
   when: devtools_install_direnv

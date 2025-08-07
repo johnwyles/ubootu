@@ -10,22 +10,28 @@ from typing import Any, Dict, List, Tuple
 # TODO: Restore these imports when menu_ui module is available
 # from lib.menu_ui import DropdownConfig, MultiSelectConfig, SliderConfig
 
+
 # Temporary stub classes
 @dataclass
 class DropdownConfig:
     """Stub for dropdown configuration"""
+
     options: List[str]
     default: str = None
 
-@dataclass  
+
+@dataclass
 class MultiSelectConfig:
     """Stub for multi-select configuration"""
+
     options: List[str]
     defaults: List[str] = None
+
 
 @dataclass
 class SliderConfig:
     """Stub for slider configuration"""
+
     min_val: int
     max_val: int
     default: int = None

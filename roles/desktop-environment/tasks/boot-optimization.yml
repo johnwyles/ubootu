@@ -10,7 +10,7 @@
         content: |
           [Unit]
           After=graphical.target
-          
+
           [Service]
           Type=idle
         owner: root

@@ -114,7 +114,7 @@
           echo "  To install direnv: sudo apt install direnv" >&2
       fi
       {% endif %}
-      
+
       # zoxide
       {% if 'zoxide' in devtools_selected_modern_replacements | default([]) %}
       if command -v zoxide; then
@@ -179,7 +179,7 @@
           eval "$(direnv hook zsh)"
       fi
       {% endif %}
-      
+
       # zoxide
       {% if 'zoxide' in devtools_selected_modern_replacements | default([]) %}
       if command -v zoxide >/dev/null 2>&1; then

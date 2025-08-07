@@ -110,7 +110,7 @@ ubuntu_fallback_codename: >
 # Repository compatibility mapping for Ubuntu 25.04
 repo_codename_mapping:
   tailscale: "{{ ubuntu_fallback_codename }}"  # No plucky support yet
-  speedtest: "{{ ubuntu_fallback_codename }}"  # No plucky support yet  
+  speedtest: "{{ ubuntu_fallback_codename }}"  # No plucky support yet
   docker: "{{ ubuntu_fallback_codename }}"     # Use stable LTS
   syncthing: "{{ ubuntu_fallback_codename }}"  # No plucky support yet
   dbeaver: ""  # Uses generic repository

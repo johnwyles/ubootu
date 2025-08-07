@@ -540,7 +540,7 @@
         paths: /etc/apparmor.d
         patterns: '*'
         file_type: file
-        excludes: 
+        excludes:
           - "*.dpkg-*"
           - "README*"
           - "tunables"

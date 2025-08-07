@@ -74,18 +74,18 @@
     content: |
       #!/bin/bash
       # Track boot times over time
-      
+
       LOGFILE="/var/log/boot-times.log"
-      
+
       # Get current boot time
       BOOT_TIME=$(systemd-analyze | grep "Startup finished" | grep -o "[0-9.]*s" | head -1)
-      
+
       # Log with timestamp
       echo "$(date '+%Y-%m-%d %H:%M:%S') - Boot time: $BOOT_TIME" >> "$LOGFILE"
-      
+
       # Keep only last 100 entries
       tail -100 "$LOGFILE" > "$LOGFILE.tmp" && mv "$LOGFILE.tmp" "$LOGFILE"
-      
+
       # Show average boot time
       echo "Recent boot times:"
       tail -10 "$LOGFILE"
@@ -99,12 +99,12 @@
       [Unit]
       Description=Track Boot Time
       After=graphical.target
-      
+
       [Service]
       Type=oneshot
       ExecStart=/usr/local/bin/track-boot-time
       RemainAfterExit=yes
-      
+
       [Install]
       WantedBy=graphical.target
     dest: /etc/systemd/system/track-boot-time.service

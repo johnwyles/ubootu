@@ -61,7 +61,7 @@
       #!/bin/sh
       exec tail -n +3 $0
       # Custom menu entry for diagnostic boot
-      
+
       menuentry "Ubuntu (Diagnostic Mode)" {
           recordfail
           load_video

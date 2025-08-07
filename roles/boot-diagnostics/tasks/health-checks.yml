@@ -14,14 +14,14 @@
       [Unit]
       Description=System Health Check After Boot
       After=multi-user.target graphical.target
-      
+
       [Service]
       Type=oneshot
       ExecStart=/usr/local/bin/system-health-check
       RemainAfterExit=yes
       StandardOutput=journal
       StandardError=journal
-      
+
       [Install]
       WantedBy=multi-user.target
     dest: /etc/systemd/system/boot-health-check.service
@@ -40,9 +40,9 @@
     content: |
       #!/bin/bash
       # Check for storage device errors
-      
+
       echo "=== Storage Device Health Check ==="
-      
+
       # Check dmesg for I/O errors
       if dmesg | grep -q "I/O error"; then
           echo "WARNING: I/O errors detected in system log!"
@@ -51,13 +51,13 @@
           echo "Affected devices:"
           dmesg | grep "I/O error" | grep -o "dev [a-z]*" | sort | uniq
       fi
-      
+
       # Check for failed mounts
       if systemctl list-units --failed | grep -q "\.mount"; then
           echo "WARNING: Failed mount points detected!"
           systemctl list-units --failed | grep "\.mount"
       fi
-      
+
       # Check SMART status if available
       if command -v smartctl >/dev/null 2>&1; then
           echo
@@ -77,20 +77,20 @@
     content: |
       #!/bin/bash
       # Check for graphics driver errors
-      
+
       echo "=== Graphics Driver Health Check ==="
-      
+
       # Check for GPU errors in journal
       if journalctl -b 0 | grep -qE "(drm|i915|nvidia|amdgpu).*error"; then
           echo "WARNING: Graphics driver errors detected!"
           journalctl -b 0 | grep -E "(drm|i915|nvidia|amdgpu).*error" | tail -10
       fi
-      
+
       # Check loaded graphics modules
       echo
       echo "Loaded graphics drivers:"
       lsmod | grep -E "i915|nvidia|amdgpu|nouveau|radeon" || echo "No graphics drivers loaded!"
-      
+
       # Check for display connection issues
       if journalctl -b 0 | grep -q "failed to retrieve link info"; then
           echo
@@ -107,9 +107,9 @@
     content: |
       #!/bin/bash
       # Check for failed services
-      
+
       echo "=== Service Health Check ==="
-      
+
       # Check for failed services
       failed_services=$(systemctl --failed --no-pager --no-legend | wc -l)
       if [ "$failed_services" -gt 0 ]; then
@@ -122,7 +122,7 @@
       else
           echo "All services are running successfully."
       fi
-      
+
       # Check for services that are constantly restarting
       echo
       echo "=== Checking for restarting services ==="

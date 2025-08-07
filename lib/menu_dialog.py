@@ -10,16 +10,17 @@ from typing import Callable, List, Optional, Tuple
 
 class KeyHintBar:
     """Simple key hint bar for displaying keyboard shortcuts"""
+
     def __init__(self, stdscr):
         self.stdscr = stdscr
         self.height, self.width = stdscr.getmaxyx()
-    
+
     def draw(self, hints, y):
         """Draw key hints at specified y position"""
         try:
             hint_str = "  ".join([f"{key}:{desc}" for key, desc in hints])
             if len(hint_str) > self.width - 2:
-                hint_str = hint_str[:self.width - 5] + "..."
+                hint_str = hint_str[: self.width - 5] + "..."
             x = max(0, (self.width - len(hint_str)) // 2)
             self.stdscr.addstr(y, x, hint_str, curses.A_DIM)
         except curses.error:
@@ -28,38 +29,39 @@ class KeyHintBar:
 
 class HelpOverlay:
     """Simple help overlay for displaying help text"""
+
     def __init__(self, stdscr):
         self.stdscr = stdscr
         self.height, self.width = stdscr.getmaxyx()
-    
+
     def show(self, title, content):
         """Show help overlay with title and content lines"""
         self.stdscr.clear()
-        
+
         # Draw title
         try:
             self.stdscr.addstr(1, (self.width - len(title)) // 2, title, curses.A_BOLD)
         except curses.error:
             pass
-        
+
         # Draw content
         y = 3
         for line in content:
             if y >= self.height - 2:
                 break
             try:
-                self.stdscr.addstr(y, 2, line[:self.width - 4])
+                self.stdscr.addstr(y, 2, line[: self.width - 4])
             except curses.error:
                 pass
             y += 1
-        
+
         # Draw "Press any key to continue"
         try:
             msg = "Press any key to continue"
             self.stdscr.addstr(self.height - 2, (self.width - len(msg)) // 2, msg, curses.A_DIM)
         except curses.error:
             pass
-        
+
         self.stdscr.refresh()
         self.stdscr.getch()
 

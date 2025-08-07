@@ -43,9 +43,9 @@ def test_main_script_imports():
     """Test that the main configure script can import TUI modules."""
     try:
         # Test importing from the main script's perspective
-        from lib.tui.unified_menu import UnifiedMenu
         from lib.tui.main_menu import MainMenu
         from lib.tui.section_selector import SectionSelector
+        from lib.tui.unified_menu import UnifiedMenu
 
         print("✓ Main TUI functions imported successfully from configure_standard_tui.py perspective")
     except ImportError as e:

@@ -16,21 +16,21 @@
         purge: "{{ purge_removed_packages|default(false) }}"
       become: yes
       loop: "{{ packages_to_remove|default([]) }}"
-      when: 
+      when:
         - strict_mode|default(false)
         - item not in never_remove_packages
       register: package_removal_results
-      
+
     - name: Clean up package dependencies
       ansible.builtin.apt:
         autoremove: yes
         autoclean: yes
       become: yes
-      when: 
+      when:
         - strict_mode|default(false)
         - package_removal_results is changed
-        
-  when: 
+
+  when:
     - strict_mode|default(false)
     - packages_to_remove is defined
     - packages_to_remove|length > 0

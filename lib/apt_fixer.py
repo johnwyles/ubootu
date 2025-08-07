@@ -4,20 +4,21 @@ APT health checker and fixer - prevents common repository issues
 """
 
 import glob
+import logging
 import os
 import subprocess
 import sys
-import logging
 import warnings
 from typing import List, Tuple
 
 # Suppress all warnings including permission warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 logging.getLogger().setLevel(logging.ERROR)
 
 # Specifically suppress the apt module warnings if it gets imported
 try:
     import apt
+
     # Disable apt's cache update warnings
     apt.apt_pkg.config.set("Acquire::http::No-Cache", "true")
     apt.apt_pkg.config.set("Acquire::http::Pipeline-Depth", "0")

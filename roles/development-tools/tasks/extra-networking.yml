@@ -187,7 +187,7 @@
           {{ nebula_release.json.assets |
              selectattr('name', 'match', '.*linux-amd64\\.tar\\.gz$') |
              map(attribute='browser_download_url') | first | default('') }}
-      when: 
+      when:
         - nebula_release is succeeded
         - nebula_release.json.assets is defined
 
@@ -200,7 +200,7 @@
         owner: root
         group: root
       become: yes
-      when: 
+      when:
         - nebula_url is defined
         - nebula_url != ''
         - nebula_url != '\n'

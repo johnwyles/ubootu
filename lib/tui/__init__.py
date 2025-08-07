@@ -4,7 +4,7 @@ Unified TUI system for Ubootu
 Professional curses-based terminal interface
 """
 
-from .unified_menu import UnifiedMenu
 from .sudo_dialog import SudoDialog
+from .unified_menu import UnifiedMenu
 
-__all__ = ['UnifiedMenu', 'SudoDialog']
+__all__ = ["UnifiedMenu", "SudoDialog"]

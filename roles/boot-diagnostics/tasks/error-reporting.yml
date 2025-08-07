@@ -29,7 +29,7 @@
     content: |
       #!/bin/bash
       # Quick boot error viewer
-      
+
       echo "=== Recent Boot Errors ==="
       echo
       echo "1. Kernel errors:"

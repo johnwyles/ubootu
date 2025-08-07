@@ -126,7 +126,12 @@
       "Bash(.venv/bin/yamllint --format parsable .)",
       "Bash(.venv/bin/pytest tests/ -x --tb=no -q)",
       "Bash(.venv/bin/pytest tests/lib/test_tui_components.py -v)",
-      "Bash(.venv/bin/pytest tests/test_integration.py tests/lib/tui/ tests/test_imports.py -q --tb=no)"
+      "Bash(.venv/bin/pytest tests/test_integration.py tests/lib/tui/ tests/test_imports.py -q --tb=no)",
+      "Bash(.venv/bin/yamllint --version)",
+      "Bash(.venv/bin/yamllint roles/boot-diagnostics/tasks/boot-optimization.yml)",
+      "Bash(.venv/bin/black:*)",
+      "Bash(.venv/bin/isort:*)",
+      "Bash(.venv/bin/yamllint:*)"
     ],
     "deny": []
   }
