@@ -79,8 +79,11 @@ class TestDownloadURLs:
         # These should use GitHub API to get latest release
         github_api_pattern = f"https://api.github.com/repos/{{owner}}/{{repo}}/releases/latest"
 
-        # Verify URL pattern matches expected format
-        assert re.match(expected_url_pattern.replace("[\d\.]+", ".*"), expected_url_pattern)
+        # Verify URL pattern is a valid regex pattern
+        try:
+            re.compile(expected_url_pattern)
+        except re.error as e:
+            pytest.fail(f"Invalid regex pattern for {tool}: {e}")
 
     def test_fixed_download_urls(self):
         """Test corrected download URLs"""

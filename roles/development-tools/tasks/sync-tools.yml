@@ -67,7 +67,9 @@
 
     - name: Add Resilio Sync repository
       apt_repository:
-        repo: "deb [signed-by=/etc/apt/keyrings/resilio-sync.asc] http://linux-packages.resilio.com/resilio-sync/deb resilio-sync non-free"
+        repo: >-
+          deb [signed-by=/etc/apt/keyrings/resilio-sync.asc]
+          http://linux-packages.resilio.com/resilio-sync/deb resilio-sync non-free
         state: present
         filename: resilio-sync
       become: yes
@@ -149,7 +151,9 @@
       become_user: "{{ primary_user }}"
       when:
         - rclone_browser_release is succeeded
-        - rclone_browser_release.json.assets | selectattr('name', 'match', '.*linux.*x86_64.*AppImage$') | list | length > 0
+        - >-
+            rclone_browser_release.json.assets | 
+            selectattr('name', 'match', '.*linux.*x86_64.*AppImage$') | list | length > 0
 
     - name: Create Rclone Browser desktop entry
       ansible.builtin.copy:
@@ -170,7 +174,9 @@
       become: yes
       when:
         - rclone_browser_release is succeeded
-        - rclone_browser_release.json.assets | selectattr('name', 'match', '.*linux.*x86_64.*AppImage$') | list | length > 0
+        - >-
+            rclone_browser_release.json.assets | 
+            selectattr('name', 'match', '.*linux.*x86_64.*AppImage$') | list | length > 0
   when: "'rclone' in devtools_sync_tools"
 
 - name: Install Grsync (rsync GUI)

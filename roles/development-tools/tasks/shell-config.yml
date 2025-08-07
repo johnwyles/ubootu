@@ -121,7 +121,7 @@
           eval "$(zoxide init bash)"
       else
           echo "[UBOOTU WARNING] zoxide not found in PATH" >&2
-          echo "  To install zoxide: curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash" >&2
+          echo "  Install: curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash" >&2
       fi
       {% endif %}
   become: yes

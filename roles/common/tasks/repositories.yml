@@ -60,7 +60,10 @@
 
 - name: Check if development tools are enabled
   ansible.builtin.debug:
-    msg: "Development repositories: {{ 'ENABLED' if enable_development_tools | default(false) else 'SKIPPED - Development tools not selected in menu' }}"
+    msg: >-
+      Development repositories:
+      {{ 'ENABLED' if enable_development_tools | default(false)
+         else 'SKIPPED - Development tools not selected in menu' }}
   tags: ['dev-repos']
 
 - name: Configure development repositories (if development tools enabled)

@@ -71,7 +71,9 @@
 
     - name: Add Insomnia repository
       apt_repository:
-        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/insomnia.asc] https://download.konghq.com/insomnia-ubuntu/ default all"
+        repo: >-
+          deb [arch=amd64 signed-by=/etc/apt/keyrings/insomnia.asc]
+          https://download.konghq.com/insomnia-ubuntu/ default all
         state: present
         filename: insomnia
       become: yes

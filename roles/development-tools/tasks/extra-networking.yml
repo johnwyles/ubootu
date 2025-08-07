@@ -4,7 +4,9 @@
 # Include repo codename mapping if not already set
 - name: Ensure repo_codename is set
   ansible.builtin.set_fact:
-    repo_codename: "{{ repo_codename | default(ansible_distribution_release == 'plucky' | ternary('noble', ansible_distribution_release)) }}"
+    repo_codename: >-
+      {{ repo_codename | default(ansible_distribution_release == 'plucky' |
+         ternary('noble', ansible_distribution_release)) }}
   when: repo_codename is not defined
 
 # Network monitoring and analysis tools
@@ -84,7 +86,10 @@
 
     - name: Add Speedtest repository with signed-by
       apt_repository:
-        repo: "deb [signed-by=/usr/share/keyrings/speedtest.gpg] https://packagecloud.io/ookla/speedtest-cli/ubuntu/ {{ repo_codename | default('noble') }} main"
+        repo: >-
+          deb [signed-by=/usr/share/keyrings/speedtest.gpg]
+          https://packagecloud.io/ookla/speedtest-cli/ubuntu/
+          {{ repo_codename | default('noble') }} main
         state: present
         filename: speedtest
       become: yes

@@ -358,7 +358,9 @@
 
 - name: Add Kubernetes repository
   apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/kubernetes-apt-keyring.asc] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /"
+    repo: >-
+      deb [signed-by=/usr/share/keyrings/kubernetes-apt-keyring.asc]
+      https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /
     state: present
     filename: kubernetes
   when: "'kubectl' in selected_items or 'kubernetes' in selected_items"

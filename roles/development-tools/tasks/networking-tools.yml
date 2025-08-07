@@ -4,7 +4,9 @@
 # Include repo codename mapping if not already set
 - name: Ensure repo_codename is set
   ansible.builtin.set_fact:
-    repo_codename: "{{ repo_codename | default(ansible_distribution_release == 'plucky' | ternary('noble', ansible_distribution_release)) }}"
+    repo_codename: >-
+      {{ repo_codename | default(ansible_distribution_release == 'plucky' | 
+         ternary('noble', ansible_distribution_release)) }}
   when: repo_codename is not defined
 
 - name: Install Tailscale VPN (if 'tailscale' selected in Development > Networking Tools)
@@ -25,7 +27,9 @@
 
     - name: Add Tailscale repository with signed-by
       apt_repository:
-        repo: "deb [signed-by=/usr/share/keyrings/tailscale.gpg] https://pkgs.tailscale.com/stable/ubuntu {{ repo_codename | default('noble') }} main"
+        repo: >-
+          deb [signed-by=/usr/share/keyrings/tailscale.gpg]
+          https://pkgs.tailscale.com/stable/ubuntu {{ repo_codename | default('noble') }} main
         state: present
         filename: tailscale
       become: yes
@@ -63,7 +67,10 @@
 
     - name: Add ZeroTier repository with signed-by
       apt_repository:
-        repo: "deb [signed-by=/usr/share/keyrings/zerotier.gpg] https://download.zerotier.com/debian/{{ ubuntu_fallback_codename }} {{ ubuntu_fallback_codename }} main"
+        repo: >-
+          deb [signed-by=/usr/share/keyrings/zerotier.gpg]
+          https://download.zerotier.com/debian/{{ ubuntu_fallback_codename }}
+          {{ ubuntu_fallback_codename }} main
         state: present
         filename: zerotier
       become: yes
@@ -178,7 +185,9 @@
 
     - name: Add Webmin repository with signed-by
       apt_repository:
-        repo: "deb [signed-by=/usr/share/keyrings/webmin.gpg] https://download.webmin.com/download/repository sarge contrib"
+        repo: >-
+          deb [signed-by=/usr/share/keyrings/webmin.gpg]
+          https://download.webmin.com/download/repository sarge contrib
         state: present
         filename: webmin
       become: yes

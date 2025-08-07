@@ -270,6 +270,8 @@ de_accent_color: ""  # Hex color or empty for default
 
 # Hyprland-specific settings
 de_hyprland_enabled: false
+de_sway_enabled: false
+de_i3_enabled: false
 de_hyprland_build_from_source: false  # Use PPA if false
 de_hyprland_animations: true
 de_hyprland_gaps_in: 5

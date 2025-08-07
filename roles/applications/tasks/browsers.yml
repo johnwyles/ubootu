@@ -40,7 +40,9 @@
 - name: Manage Opera browser
   ansible.builtin.apt:
     name: opera-stable
-    state: "{{ 'absent' if strict_mode|default(false) and 'opera-stable' in packages_to_remove|default([]) else 'present' }}"
+    state: >-
+      {{ 'absent' if strict_mode|default(false) and 
+         'opera-stable' in packages_to_remove|default([]) else 'present' }}
   become: yes
   when: "'opera' in web_browsers or ('opera-stable' in packages_to_remove|default([]))"
 
@@ -79,7 +81,10 @@
           Type=Application
           Icon=/opt/firefox/browser/chrome/icons/default/default128.png
           Categories=Network;WebBrowser;
-          MimeType=text/html;text/xml;application/xhtml+xml;application/xml;application/rss+xml;application/rdf+xml;image/gif;image/jpeg;image/png;x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/ftp;x-scheme-handler/chrome;video/webm;application/x-xpinstall;
+          MimeType=text/html;text/xml;application/xhtml+xml;application/xml;
+            application/rss+xml;application/rdf+xml;image/gif;image/jpeg;image/png;
+            x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/ftp;
+            x-scheme-handler/chrome;video/webm;application/x-xpinstall;
           StartupNotify=true
         dest: /usr/share/applications/firefox-developer.desktop
         mode: '0644'
@@ -104,7 +109,9 @@
   block:
     - name: Download Waterfox
       get_url:
-        url: "https://github.com/WaterfoxCo/Waterfox/releases/latest/download/waterfox-G-latest.en-US.linux-x86_64.tar.bz2"
+        url: >-
+          https://github.com/WaterfoxCo/Waterfox/releases/latest/download/
+          waterfox-G-latest.en-US.linux-x86_64.tar.bz2
         dest: /tmp/waterfox.tar.bz2
         mode: '0644'
 
@@ -126,7 +133,10 @@
           Type=Application
           Icon=/opt/waterfox/browser/chrome/icons/default/default128.png
           Categories=Network;WebBrowser;
-          MimeType=text/html;text/xml;application/xhtml+xml;application/xml;application/rss+xml;application/rdf+xml;image/gif;image/jpeg;image/png;x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/ftp;x-scheme-handler/chrome;video/webm;application/x-xpinstall;
+          MimeType=text/html;text/xml;application/xhtml+xml;application/xml;
+            application/rss+xml;application/rdf+xml;image/gif;image/jpeg;image/png;
+            x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/ftp;
+            x-scheme-handler/chrome;video/webm;application/x-xpinstall;
           StartupNotify=true
         dest: /usr/share/applications/waterfox.desktop
         mode: '0644'

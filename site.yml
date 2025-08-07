@@ -199,5 +199,17 @@
 
     - name: Display completion message
       ansible.builtin.debug:
-        msg: "{{ installation_summary }}"
+        msg: |
+          🚀 Ubuntu Configuration Complete!
+
+          Your system has been configured with the selected tools and settings.
+          Some changes may require a logout or restart to take full effect.
+
+          Next steps:
+          • Restart your session for desktop environment changes
+          • Reload your shell for CLI configuration updates
+          • Check Applications menu for new software
+
+          📝 Note: Some roles may have had non-critical failures.
+          Check the detailed output above for specific issues.
       tags: always
