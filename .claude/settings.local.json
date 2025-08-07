@@ -131,7 +131,21 @@
       "Bash(.venv/bin/yamllint roles/boot-diagnostics/tasks/boot-optimization.yml)",
       "Bash(.venv/bin/black:*)",
       "Bash(.venv/bin/isort:*)",
-      "Bash(.venv/bin/yamllint:*)"
+      "Bash(.venv/bin/yamllint:*)",
+      "Bash(.venv/bin/pytest tests/ansible_fixes/test_full_run.py::TestFullAnsibleRun::test_ansible_syntax_check -xvs)",
+      "Bash(.venv/bin/pytest tests/ --no-cov -x -q)",
+      "Bash(.venv/bin/pytest tests/ --cov=lib --cov=configure_standard_tui --cov-report=term --no-cov-on-fail -q)",
+      "Bash(.venv/bin/pytest tests/ -v --tb=short)",
+      "Bash(.venv/bin/pytest tests/test_*_functional.py -v --tb=no --cov=lib --cov-report=term-missing:skip-covered --cov-fail-under=29 -q)",
+      "Bash(.venv/bin/pytest tests/test_*_functional.py --cov=lib --cov-report=term:skip-covered)",
+      "Bash(.venv/bin/pytest tests/test_menu_items_functional.py -v --tb=short)",
+      "Bash(.venv/bin/pytest tests/test_menu_items_functional.py::TestMenuItemsFunctional::test_menu_items_have_required_fields -xvs)",
+      "Bash(.venv/bin/pytest tests/test_menu_items_functional.py -v --tb=no)",
+      "Bash(.venv/bin/pytest tests/test_menu_dialog_functional.py::TestMenuDialog -xvs --tb=line)",
+      "Bash(.venv/bin/pytest tests/test_menu_dialog_functional.py::TestMenuDialog::test_draw_box -xvs)",
+      "Bash(.venv/bin/pytest tests/test_menu_dialog_functional.py -v --tb=no)",
+      "Bash(.venv/bin/pytest tests/test_menu_dialog_functional.py -v --tb=no -q)",
+      "Bash(.venv/bin/pytest tests/test_menu_items_functional.py tests/test_app_defaults_functional.py --cov=lib --cov-report=term --no-cov-on-fail -q)"
     ],
     "deny": []
   }
