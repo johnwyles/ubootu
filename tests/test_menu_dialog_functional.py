@@ -399,7 +399,8 @@ class TestMenuDialog:
         """Test menu with no items"""
         with patch('lib.menu_dialog.curses.curs_set'):
             dialog = MenuDialog(self.stdscr)
-            self.stdscr.getch.return_value = ord('\n')
+            # Empty menu should immediately return None without waiting for input
+            self.stdscr.getch.return_value = 27  # ESC key just in case
         
             result = dialog.show("Empty Menu", [])
         
