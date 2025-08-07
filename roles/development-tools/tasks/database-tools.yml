@@ -64,7 +64,10 @@
 
     - name: Add pgAdmin repository with signed-by
       apt_repository:
-        repo: "deb [signed-by=/usr/share/keyrings/pgadmin.gpg] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/{{ ubuntu_fallback_codename }} pgadmin4 main"
+        repo: >-
+          deb [signed-by=/usr/share/keyrings/pgadmin.gpg]
+          https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/{{ ubuntu_fallback_codename }}
+          pgadmin4 main
         state: present
         filename: pgadmin4
       become: yes

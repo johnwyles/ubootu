@@ -151,7 +151,7 @@ class MenuDialog:
         # Handle empty items list
         if not items:
             return None
-            
+
         current = 0
         scroll_offset = 0
 

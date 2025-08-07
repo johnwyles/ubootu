@@ -158,7 +158,11 @@
       "Bash(.venv/bin/pytest tests/test_terminal_check_functional.py -v --tb=no)",
       "Bash(.venv/bin/pytest tests/test_sudo_dialog_functional.py -v --tb=no -q)",
       "Bash(.venv/bin/pytest tests/test_menu_items_functional.py tests/test_app_defaults_functional.py tests/test_menu_dialog_functional.py tests/test_terminal_check_functional.py tests/test_sudo_dialog_functional.py tests/test_imports.py --cov=lib --cov-report=term --no-cov-on-fail -q)",
-      "Bash(.venv/bin/pytest tests/test_menu_items_functional.py tests/test_app_defaults_functional.py tests/test_menu_dialog_functional.py tests/test_imports.py --cov=lib --cov-report=term:skip-covered -q)"
+      "Bash(.venv/bin/pytest tests/test_menu_items_functional.py tests/test_app_defaults_functional.py tests/test_menu_dialog_functional.py tests/test_imports.py --cov=lib --cov-report=term:skip-covered -q)",
+      "Bash(.venv/bin/pytest tests/test_progress_dialog_functional.py -v --tb=short)",
+      "Bash(.venv/bin/pytest tests/test_menu_dialog_functional.py tests/test_terminal_check_functional.py tests/test_sudo_dialog_functional.py -v --tb=no -q)",
+      "Bash(.venv/bin/pytest tests/ --tb=no -q)",
+      "Bash(.venv/bin/pytest tests/test_imports.py tests/test_menu_dialog_functional.py tests/test_app_defaults_functional.py tests/test_unified_menu_functional.py tests/test_system_discovery_functional.py -q --tb=no)"
     ],
     "deny": []
   }

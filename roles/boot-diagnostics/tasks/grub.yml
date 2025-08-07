@@ -71,7 +71,8 @@
           insmod part_gpt
           insmod ext2
           search --no-floppy --fs-uuid --set=root {{ ansible_cmdline.root | regex_replace('UUID=', '') }}
-          linux /boot/vmlinuz-$(uname -r) root={{ ansible_cmdline.root }} ro systemd.show_status=1 nosplash verbose debug
+          linux /boot/vmlinuz-$(uname -r) root={{ ansible_cmdline.root }} \
+            ro systemd.show_status=1 nosplash verbose debug
           initrd /boot/initrd.img-$(uname -r)
       }
     dest: /etc/grub.d/40_custom_diagnostics
