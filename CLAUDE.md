@@ -29,13 +29,13 @@ tail -f /tmp/debug_tui.log
 - Python 3.8+ compatibility (use `Union[]` not `|`)
 - Tool IDs: kebab-case (`docker-ce`)
 - Always handle `curses.error`
-- Test coverage target: 90% (current: 38%)
+- Test coverage target: 90% (current: 5.10%)
 
 ## Current Issues
 - ✅ Fixed: apt-key usage updated to modern signed-by approach
 - Some packages need snap alternatives  
 - Shell startup errors fixed locally (see git history)
-- Test coverage at 35.74% (target: 90%)
+- Test coverage improving - added new tests for TUI components
 
 ## Workflow
 1. User selects in TUI → saves to config.yml

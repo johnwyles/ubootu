@@ -179,7 +179,18 @@
       "Bash(.venv/bin/pytest tests/ -vv --tb=short --cov --cov-report=xml --cov-report=term-missing)",
       "Bash(.venv/bin/pytest tests/ -x --tb=no --cov-fail-under=29)",
       "Bash(.venv/bin/pytest tests/ --cov --cov-report=xml --cov-report=term-missing --cov-fail-under=29 -x)",
-      "Bash(.venv/bin/pytest tests/ --cov --cov-report=xml --cov-report=term-missing --cov-fail-under=29 -q)"
+      "Bash(.venv/bin/pytest tests/ --cov --cov-report=xml --cov-report=term-missing --cov-fail-under=29 -q)",
+      "Bash(.venv/bin/pytest tests/ --co -q)",
+      "Bash(.venv/bin/pytest tests/ --cov=lib --cov=configure_standard_tui --cov-report=term --no-cov-on-fail -q --tb=no)",
+      "Bash(.venv/bin/pytest tests/ --cov=lib --cov-report=term-missing --tb=no -q)",
+      "Bash(.venv/bin/pytest tests/ -x --tb=no --no-cov -q --timeout=30)",
+      "Bash(.venv/bin/pytest tests/test_imports.py -v --tb=short --timeout=10)",
+      "Bash(.venv/bin/pytest tests/test_imports.py -q --no-cov --timeout=10)",
+      "Bash(.venv/bin/pytest tests/lib/tui/test_constants.py -v --no-cov)",
+      "Bash(.venv/bin/pytest tests/lib/tui/test_utils.py -v --no-cov)",
+      "Bash(.venv/bin/pytest tests/lib/tui/test_sudo_dialog.py -v --no-cov)",
+      "Bash(.venv/bin/pytest tests/lib/tui/test_constants.py tests/lib/tui/test_utils.py tests/lib/tui/test_sudo_dialog.py --cov=lib.tui.constants --cov=lib.tui.utils --cov=lib.tui.sudo_dialog --cov-report=term --no-cov-on-fail -q)",
+      "Bash(git fetch:*)"
     ],
     "deny": []
   }

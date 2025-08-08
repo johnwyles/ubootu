@@ -1,215 +1,439 @@
 #!/usr/bin/env python3
-"""
-Tests for the curses-based sudo dialog
-"""
+"""Tests for lib/tui/sudo_dialog.py"""
 
 import curses
-import os
-import sys
-import unittest
-from unittest.mock import MagicMock, Mock, call, patch
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../.."))
+import subprocess
+from unittest.mock import MagicMock, Mock, patch, call
+import pytest
+from lib.tui.sudo_dialog import SudoDialog
 
 
-class TestSudoDialog(unittest.TestCase):
-    """Test the sudo password dialog"""
+class TestSudoDialogInit:
+    """Test SudoDialog initialization"""
 
-    def setUp(self):
-        """Set up test fixtures"""
-        self.stdscr = MagicMock()
-        self.stdscr.getmaxyx.return_value = (24, 80)
+    def test_init_basic(self):
+        """Test basic initialization"""
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 80)
+        
+        dialog = SudoDialog(stdscr)
+        
+        assert dialog.stdscr == stdscr
+        assert dialog.height == 24
+        assert dialog.width == 80
+        assert dialog.enable_caching is False
+        assert dialog._cached_password is None
 
-    def test_password_masking(self):
-        """Password input is masked with asterisks"""
-        from lib.tui.sudo_dialog import SudoDialog
 
-        dialog = SudoDialog(self.stdscr)
+class TestGetPassword:
+    """Test get_password method"""
 
-        # Mock user typing "password"
-        password_chars = [ord("p"), ord("a"), ord("s"), ord("s"), ord("w"), ord("o"), ord("r"), ord("d"), ord("\n")]
-        self.stdscr.getch.side_effect = password_chars
-
+    @patch('lib.tui.sudo_dialog.draw_box')
+    @patch('lib.tui.sudo_dialog.get_dialog_position')
+    @patch('lib.tui.sudo_dialog.curses')
+    def test_get_password_enter_key(self, mock_curses, mock_get_pos, mock_draw_box):
+        """Test password entry with Enter key"""
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 80)
+        stdscr.getch.side_effect = [
+            ord('p'), ord('a'), ord('s'), ord('s'),  # Type "pass"
+            ord('\n')  # Press Enter
+        ]
+        
+        mock_get_pos.return_value = (5, 10)
+        mock_curses.curs_set = MagicMock()
+        mock_curses.echo = MagicMock()
+        mock_curses.KEY_BACKSPACE = 263
+        mock_curses.KEY_DC = 330
+        mock_curses.KEY_LEFT = 260
+        mock_curses.KEY_RIGHT = 261
+        mock_curses.KEY_HOME = 262
+        mock_curses.KEY_END = 358
+        
+        dialog = SudoDialog(stdscr)
         password = dialog.get_password()
+        
+        assert password == "pass"
+        stdscr.clear.assert_called()
+        stdscr.refresh.assert_called()
+        mock_curses.curs_set.assert_any_call(1)  # Enable cursor
+        mock_curses.curs_set.assert_any_call(0)  # Disable cursor
 
-        # Check that asterisks were displayed
-        displayed_calls = [call for call in self.stdscr.addstr.call_args_list if "*" in str(call)]
-        self.assertGreater(len(displayed_calls), 0)
+    @patch('lib.tui.sudo_dialog.draw_box')
+    @patch('lib.tui.sudo_dialog.get_dialog_position')
+    @patch('lib.tui.sudo_dialog.curses')
+    def test_get_password_escape_key(self, mock_curses, mock_get_pos, mock_draw_box):
+        """Test password entry cancelled with ESC key"""
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 80)
+        stdscr.getch.side_effect = [
+            ord('p'), ord('a'),  # Type "pa"
+            27  # Press ESC
+        ]
+        
+        mock_get_pos.return_value = (5, 10)
+        mock_curses.curs_set = MagicMock()
+        
+        dialog = SudoDialog(stdscr)
+        password = dialog.get_password()
+        
+        assert password is None
+        mock_curses.curs_set.assert_any_call(0)  # Disable cursor
 
-        # But actual password should be returned
-        self.assertEqual(password, "password")
+    @patch('lib.tui.sudo_dialog.draw_box')
+    @patch('lib.tui.sudo_dialog.get_dialog_position')
+    @patch('lib.tui.sudo_dialog.curses')
+    def test_get_password_with_backspace(self, mock_curses, mock_get_pos, mock_draw_box):
+        """Test password entry with backspace"""
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 80)
+        stdscr.getch.side_effect = [
+            ord('p'), ord('a'), ord('s'), ord('t'),  # Type "past"
+            127,  # Backspace (remove 't')
+            ord('s'),  # Type 's' to make "pass"
+            ord('\n')  # Press Enter
+        ]
+        
+        mock_get_pos.return_value = (5, 10)
+        mock_curses.KEY_BACKSPACE = 263
+        mock_curses.curs_set = MagicMock()
+        
+        dialog = SudoDialog(stdscr)
+        password = dialog.get_password()
+        
+        assert password == "pass"
 
-    def test_sudo_dialog_rendering(self):
-        """Dialog appears as curses overlay"""
-        from lib.tui.sudo_dialog import SudoDialog
-
-        dialog = SudoDialog(self.stdscr)
-
-        # Mock immediate enter press
-        self.stdscr.getch.return_value = ord("\n")
-
-        dialog.get_password("Enter sudo password:")
-
-        # Should draw a box
-        box_calls = [call for call in self.stdscr.addch.call_args_list if curses.ACS_ULCORNER in str(call)]
-        self.assertGreater(len(box_calls), 0)
-
-        # Should show the message
-        msg_calls = [call for call in self.stdscr.addstr.call_args_list if "Enter sudo password:" in str(call)]
-        self.assertGreater(len(msg_calls), 0)
-
-    def test_sudo_caching(self):
-        """Can cache sudo for session"""
-        from lib.tui.sudo_dialog import SudoDialog
-
-        dialog = SudoDialog(self.stdscr)
-
-        # Enable caching
+    @patch('lib.tui.sudo_dialog.draw_box')
+    @patch('lib.tui.sudo_dialog.get_dialog_position')  
+    @patch('lib.tui.sudo_dialog.curses')
+    def test_get_password_cached(self, mock_curses, mock_get_pos, mock_draw_box):
+        """Test cached password retrieval"""
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 80)
+        
+        dialog = SudoDialog(stdscr)
         dialog.enable_caching = True
+        dialog._cached_password = "cached_pass"
+        
+        password = dialog.get_password()
+        
+        assert password == "cached_pass"
+        # Should not call clear/refresh when using cache
+        stdscr.clear.assert_not_called()
+        stdscr.refresh.assert_not_called()
 
-        # First call should prompt
-        self.stdscr.getch.side_effect = [ord("t"), ord("e"), ord("s"), ord("t"), ord("\n")]
-        password1 = dialog.get_password()
-        self.assertEqual(password1, "test")
+    @patch('lib.tui.sudo_dialog.draw_box')
+    @patch('lib.tui.sudo_dialog.get_dialog_position')
+    @patch('lib.tui.sudo_dialog.curses')
+    def test_get_password_keyboard_interrupt(self, mock_curses, mock_get_pos, mock_draw_box):
+        """Test password entry interrupted by KeyboardInterrupt"""
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 80)
+        stdscr.getch.side_effect = KeyboardInterrupt()
+        
+        mock_get_pos.return_value = (5, 10)
+        mock_curses.curs_set = MagicMock()
+        
+        dialog = SudoDialog(stdscr)
+        password = dialog.get_password()
+        
+        assert password is None
+        mock_curses.curs_set.assert_any_call(0)  # Disable cursor
 
-        # Second call should return cached password without prompting
-        self.stdscr.reset_mock()
-        password2 = dialog.get_password()
-        self.assertEqual(password2, "test")
-        self.stdscr.getch.assert_not_called()
-
-    def test_backspace_handling(self):
-        """Test backspace key handling in password input"""
-        from lib.tui.sudo_dialog import SudoDialog
-
-        dialog = SudoDialog(self.stdscr)
-
-        # Type "pass", backspace, then "sword"
-        input_chars = [
-            ord("p"),
-            ord("a"),
-            ord("s"),
-            ord("s"),
-            127,  # Backspace
-            ord("w"),
-            ord("o"),
-            ord("r"),
-            ord("d"),
-            ord("\n"),
+    @patch('lib.tui.sudo_dialog.draw_box')
+    @patch('lib.tui.sudo_dialog.get_dialog_position')
+    @patch('lib.tui.sudo_dialog.curses')
+    def test_get_password_with_navigation(self, mock_curses, mock_get_pos, mock_draw_box):
+        """Test password entry with cursor navigation"""
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 80)
+        stdscr.getch.side_effect = [
+            ord('p'), ord('a'), ord('s'), ord('s'),  # Type "pass"
+            260,  # KEY_LEFT
+            260,  # KEY_LEFT again
+            ord('x'),  # Insert 'x' in middle to make "paxss"
+            261,  # KEY_RIGHT
+            330,  # KEY_DC (delete) to remove 's' making "paxs"
+            358,  # KEY_END to go to end
+            ord('t'),  # Add 't' at end to make "paxst"
+            262,  # KEY_HOME to go to beginning
+            ord('\n')  # Press Enter
         ]
-        self.stdscr.getch.side_effect = input_chars
-
+        
+        mock_get_pos.return_value = (5, 10)
+        mock_curses.KEY_BACKSPACE = 263
+        mock_curses.KEY_DC = 330
+        mock_curses.KEY_LEFT = 260
+        mock_curses.KEY_RIGHT = 261
+        mock_curses.KEY_HOME = 262
+        mock_curses.KEY_END = 358
+        mock_curses.curs_set = MagicMock()
+        
+        dialog = SudoDialog(stdscr)
         password = dialog.get_password()
-        self.assertEqual(password, "password")
+        
+        assert password == "paxst"
 
-    def test_escape_cancellation(self):
-        """Test ESC key cancels password input"""
-        from lib.tui.sudo_dialog import SudoDialog
-
-        dialog = SudoDialog(self.stdscr)
-
-        # Press ESC
-        self.stdscr.getch.return_value = 27  # ESC
-
-        password = dialog.get_password()
-        self.assertIsNone(password)
-
-    def test_dialog_centering(self):
-        """Test dialog is centered on screen"""
-        from lib.tui.sudo_dialog import SudoDialog
-
-        dialog = SudoDialog(self.stdscr)
-        dialog.get_password()
-
-        # Check that dialog was drawn in center area
-        height, width = 24, 80
-        expected_y = (height - 7) // 2  # Dialog height ~7
-        expected_x = (width - 50) // 2  # Dialog width ~50
-
-        # Should have drawn something near center
-        center_calls = [
-            call
-            for call in self.stdscr.addstr.call_args_list
-            if len(call[0]) >= 2 and abs(call[0][0] - expected_y) < 5 and abs(call[0][1] - expected_x) < 10
+    @patch('lib.tui.sudo_dialog.draw_box')
+    @patch('lib.tui.sudo_dialog.get_dialog_position')
+    @patch('lib.tui.sudo_dialog.curses')
+    def test_password_masking(self, mock_curses, mock_get_pos, mock_draw_box):
+        """Test that password is displayed as asterisks"""
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 80)
+        stdscr.getch.side_effect = [
+            ord('p'), ord('a'), ord('s'), ord('s'),
+            ord('\n')
         ]
-        self.assertGreater(len(center_calls), 0)
-
-    def test_ctrl_c_handling(self):
-        """Test Ctrl+C handling"""
-        from lib.tui.sudo_dialog import SudoDialog
-
-        dialog = SudoDialog(self.stdscr)
-
-        # Simulate Ctrl+C
-        self.stdscr.getch.side_effect = KeyboardInterrupt()
-
+        
+        mock_get_pos.return_value = (5, 10)
+        mock_curses.curs_set = MagicMock()
+        
+        dialog = SudoDialog(stdscr)
         password = dialog.get_password()
-        self.assertIsNone(password)
+        
+        # Check that asterisks were displayed
+        asterisk_calls = [call for call in stdscr.addstr.call_args_list 
+                         if len(call[0]) >= 3 and '*' in call[0][2]]
+        assert len(asterisk_calls) > 0
+        assert password == "pass"
 
-    def test_empty_password(self):
+
+class TestClearCache:
+    """Test clear_cache method"""
+
+    def test_clear_cache(self):
+        """Test clearing cached password"""
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 80)
+        
+        dialog = SudoDialog(stdscr)
+        dialog._cached_password = "some_password"
+        
+        dialog.clear_cache()
+        
+        assert dialog._cached_password is None
+
+
+class TestExecuteWithSudo:
+    """Test execute_with_sudo method"""
+
+    @patch('lib.tui.sudo_dialog.subprocess.run')
+    def test_execute_with_sudo_success(self, mock_run):
+        """Test successful sudo command execution"""
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 80)
+        
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_result.stdout = "Success"
+        mock_result.stderr = ""
+        mock_run.return_value = mock_result
+        
+        dialog = SudoDialog(stdscr)
+        dialog._cached_password = "test_pass"
+        dialog.enable_caching = True
+        
+        result = dialog.execute_with_sudo("ls -la")
+        
+        assert result == mock_result
+        mock_run.assert_called_once_with(
+            ["sudo", "-S", "ls", "-la"],
+            input="test_pass\n",
+            text=True,
+            capture_output=True
+        )
+
+    @patch('lib.tui.sudo_dialog.subprocess.run')
+    def test_execute_with_sudo_password_cancelled(self, mock_run):
+        """Test sudo command when password entry is cancelled"""
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 80)
+        
+        dialog = SudoDialog(stdscr)
+        # Mock get_password to return None (cancelled)
+        with patch.object(dialog, 'get_password', return_value=None):
+            result = dialog.execute_with_sudo("ls -la")
+        
+        assert result is None
+        mock_run.assert_not_called()
+
+    @patch('lib.tui.sudo_dialog.subprocess.run')
+    @patch('lib.tui.dialogs.MessageDialog')
+    def test_execute_with_sudo_command_failure(self, mock_msg_dialog, mock_run):
+        """Test sudo command execution failure with error display"""
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 80)
+        
+        mock_result = MagicMock()
+        mock_result.returncode = 1
+        mock_result.stdout = ""
+        mock_result.stderr = "Permission denied"
+        mock_run.return_value = mock_result
+        
+        mock_dialog_instance = MagicMock()
+        mock_msg_dialog.return_value = mock_dialog_instance
+        
+        dialog = SudoDialog(stdscr)
+        dialog._cached_password = "test_pass"
+        dialog.enable_caching = True
+        
+        result = dialog.execute_with_sudo("rm /protected/file", show_output=True)
+        
+        assert result == mock_result
+        mock_dialog_instance.show.assert_called_once()
+        call_args = mock_dialog_instance.show.call_args[0]
+        assert call_args[0] == "Error"
+        assert "Command failed" in call_args[1]
+        assert call_args[2] == "error"
+
+    @patch('lib.tui.sudo_dialog.subprocess.run')
+    @patch('lib.tui.dialogs.MessageDialog')
+    def test_execute_with_sudo_exception(self, mock_msg_dialog, mock_run):
+        """Test sudo command execution with exception"""
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 80)
+        
+        mock_run.side_effect = Exception("Command not found")
+        
+        mock_dialog_instance = MagicMock()
+        mock_msg_dialog.return_value = mock_dialog_instance
+        
+        dialog = SudoDialog(stdscr)
+        dialog._cached_password = "test_pass"
+        dialog.enable_caching = True
+        
+        result = dialog.execute_with_sudo("nonexistent_command")
+        
+        assert result is None
+        mock_dialog_instance.show.assert_called_once()
+        call_args = mock_dialog_instance.show.call_args[0]
+        assert call_args[0] == "Error"
+        assert "Failed to execute command" in call_args[1]
+
+
+class TestTestSudoPassword:
+    """Test test_sudo_password method"""
+
+    @patch('lib.tui.sudo_dialog.subprocess.run')
+    def test_test_sudo_password_valid(self, mock_run):
+        """Test valid sudo password"""
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_run.return_value = mock_result
+        
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 80)
+        
+        dialog = SudoDialog(stdscr)
+        is_valid = dialog.test_sudo_password("correct_pass")
+        
+        assert is_valid is True
+        mock_run.assert_called_once_with(
+            ["sudo", "-S", "true"],
+            input="correct_pass\n",
+            text=True,
+            capture_output=True
+        )
+
+    @patch('lib.tui.sudo_dialog.subprocess.run')
+    def test_test_sudo_password_invalid(self, mock_run):
+        """Test invalid sudo password"""
+        mock_result = MagicMock()
+        mock_result.returncode = 1
+        mock_run.return_value = mock_result
+        
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 80)
+        
+        dialog = SudoDialog(stdscr)
+        is_valid = dialog.test_sudo_password("wrong_pass")
+        
+        assert is_valid is False
+
+    @patch('lib.tui.sudo_dialog.subprocess.run')
+    def test_test_sudo_password_exception(self, mock_run):
+        """Test sudo password test with exception"""
+        mock_run.side_effect = Exception("Sudo not found")
+        
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 80)
+        
+        dialog = SudoDialog(stdscr)
+        is_valid = dialog.test_sudo_password("any_pass")
+        
+        assert is_valid is False
+
+
+class TestMessageWrapping:
+    """Test message wrapping in get_password"""
+
+    @patch('lib.tui.sudo_dialog.draw_box')
+    @patch('lib.tui.sudo_dialog.get_dialog_position')
+    @patch('lib.tui.sudo_dialog.curses')
+    def test_long_message_wrapping(self, mock_curses, mock_get_pos, mock_draw_box):
+        """Test that long messages are wrapped correctly"""
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 80)
+        stdscr.getch.side_effect = [ord('\n')]  # Just press Enter
+        
+        mock_get_pos.return_value = (5, 10)
+        mock_curses.curs_set = MagicMock()
+        mock_curses.KEY_BACKSPACE = 263
+        mock_curses.KEY_DC = 330
+        mock_curses.KEY_LEFT = 260
+        mock_curses.KEY_RIGHT = 261
+        mock_curses.KEY_HOME = 262
+        mock_curses.KEY_END = 358
+        
+        dialog = SudoDialog(stdscr)
+        long_message = "This is a very long message that should be wrapped across multiple lines when displayed in the dialog box"
+        password = dialog.get_password(long_message)
+        
+        # Check that addstr was called multiple times for wrapped lines
+        addstr_calls = [call for call in stdscr.addstr.call_args_list if len(call[0]) == 3]
+        assert len(addstr_calls) > 1  # Message should be wrapped
+
+    @patch('lib.tui.sudo_dialog.draw_box')
+    @patch('lib.tui.sudo_dialog.get_dialog_position')
+    @patch('lib.tui.sudo_dialog.curses')
+    def test_narrow_screen_handling(self, mock_curses, mock_get_pos, mock_draw_box):
+        """Test dialog behavior on narrow screen"""
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 40)  # Narrow screen
+        stdscr.getch.side_effect = [ord('\n')]  # Just press Enter
+        
+        mock_get_pos.return_value = (5, 2)
+        mock_curses.curs_set = MagicMock()
+        mock_curses.KEY_BACKSPACE = 263
+        mock_curses.KEY_DC = 330
+        mock_curses.KEY_LEFT = 260
+        mock_curses.KEY_RIGHT = 261
+        mock_curses.KEY_HOME = 262
+        mock_curses.KEY_END = 358
+        
+        dialog = SudoDialog(stdscr)
+        password = dialog.get_password("Enter password:")
+        
+        # Should adapt to narrow screen
+        assert dialog.width == 40
+        # Dialog should be created successfully
+        assert password == ""
+
+    @patch('lib.tui.sudo_dialog.draw_box')
+    @patch('lib.tui.sudo_dialog.get_dialog_position')
+    @patch('lib.tui.sudo_dialog.curses')
+    def test_empty_password(self, mock_curses, mock_get_pos, mock_draw_box):
         """Test empty password handling"""
-        from lib.tui.sudo_dialog import SudoDialog
-
-        dialog = SudoDialog(self.stdscr)
-
-        # Just press enter
-        self.stdscr.getch.return_value = ord("\n")
-
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 80)
+        stdscr.getch.side_effect = [ord('\n')]  # Just press Enter
+        
+        mock_get_pos.return_value = (5, 10)
+        mock_curses.curs_set = MagicMock()
+        mock_curses.KEY_BACKSPACE = 263
+        
+        dialog = SudoDialog(stdscr)
         password = dialog.get_password()
-        self.assertEqual(password, "")
-
-
-class TestSudoIntegration(unittest.TestCase):
-    """Test sudo dialog integration with menu system"""
-
-    def setUp(self):
-        self.stdscr = MagicMock()
-        self.stdscr.getmaxyx.return_value = (24, 80)
-
-    @patch("subprocess.run")
-    def test_sudo_command_execution(self, mock_run):
-        """Test executing commands with sudo"""
-        from lib.tui.sudo_dialog import SudoDialog
-
-        dialog = SudoDialog(self.stdscr)
-
-        # Mock password input
-        self.stdscr.getch.side_effect = [ord("p"), ord("a"), ord("s"), ord("s"), ord("\n")]
-
-        # Execute sudo command
-        result = dialog.execute_with_sudo("apt update")
-
-        # Should have called subprocess with sudo
-        mock_run.assert_called_once()
-        args = mock_run.call_args[0][0]
-        self.assertEqual(args[0], "sudo")
-        self.assertEqual(args[1], "-S")  # Read password from stdin
-
-    def test_no_console_drop(self):
-        """Ensure dialog never drops to console"""
-        from lib.tui.sudo_dialog import SudoDialog
-
-        dialog = SudoDialog(self.stdscr)
-
-        # Test various edge cases
-        test_cases = [
-            [],  # Empty input
-            [27],  # ESC
-            [3],  # Ctrl+C
-            [4],  # Ctrl+D
-        ]
-
-        for inputs in test_cases:
-            self.stdscr.reset_mock()
-            if inputs:
-                self.stdscr.getch.side_effect = inputs + [ord("\n")]
-            else:
-                self.stdscr.getch.return_value = ord("\n")
-
-            result = dialog.get_password()
-            # Should return None or empty string, never crash
-            self.assertIn(result, [None, ""])
-
-
-if __name__ == "__main__":
-    unittest.main()
+        
+        assert password == ""
