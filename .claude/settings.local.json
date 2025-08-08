@@ -193,7 +193,10 @@
       "Bash(git fetch:*)",
       "Bash(git gc:*)",
       "Bash(git remote remove:*)",
-      "Bash(git remote add:*)"
+      "Bash(git remote add:*)",
+      "Bash(ssh-add:*)",
+      "Bash(ssh:*)",
+      "Bash(git remote set-url:*)"
     ],
     "deny": []
   }
