@@ -152,7 +152,7 @@
       when:
         - rclone_browser_release is succeeded
         - >-
-            rclone_browser_release.json.assets | 
+            rclone_browser_release.json.assets |
             selectattr('name', 'match', '.*linux.*x86_64.*AppImage$') | list | length > 0
 
     - name: Create Rclone Browser desktop entry
@@ -175,7 +175,7 @@
       when:
         - rclone_browser_release is succeeded
         - >-
-            rclone_browser_release.json.assets | 
+            rclone_browser_release.json.assets |
             selectattr('name', 'match', '.*linux.*x86_64.*AppImage$') | list | length > 0
   when: "'rclone' in devtools_sync_tools"
 

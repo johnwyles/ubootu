@@ -5,7 +5,7 @@
 - name: Ensure repo_codename is set
   ansible.builtin.set_fact:
     repo_codename: >-
-      {{ repo_codename | default(ansible_distribution_release == 'plucky' | 
+      {{ repo_codename | default(ansible_distribution_release == 'plucky' |
          ternary('noble', ansible_distribution_release)) }}
   when: repo_codename is not defined
 

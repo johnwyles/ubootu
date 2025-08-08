@@ -41,7 +41,7 @@
   ansible.builtin.apt:
     name: opera-stable
     state: >-
-      {{ 'absent' if strict_mode|default(false) and 
+      {{ 'absent' if strict_mode|default(false) and
          'opera-stable' in packages_to_remove|default([]) else 'present' }}
   become: yes
   when: "'opera' in web_browsers or ('opera-stable' in packages_to_remove|default([]))"

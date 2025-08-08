@@ -174,7 +174,12 @@
       "Bash(.venv/bin/pytest tests/ansible_fixes/test_full_run.py::TestErrorMessages::test_no_undefined_variable_errors -xvs --tb=short)",
       "Bash(.venv/bin/pytest tests/ansible_fixes/test_packages.py::TestDownloadURLs::test_github_release_urls -xvs --tb=short)",
       "Bash(.venv/bin/pytest tests/ --tb=no -q --no-cov)",
-      "Bash(.venv/bin/pytest tests/ansible_fixes/ tests/lib/tui/test_menu_structure_complete.py tests/test_imports.py --tb=no -q --no-cov)"
+      "Bash(.venv/bin/pytest tests/ansible_fixes/ tests/lib/tui/test_menu_structure_complete.py tests/test_imports.py --tb=no -q --no-cov)",
+      "Bash(.venv/bin/pytest tests/ -vv --tb=long --cov --cov-report=xml --cov-report=term-missing)",
+      "Bash(.venv/bin/pytest tests/ -vv --tb=short --cov --cov-report=xml --cov-report=term-missing)",
+      "Bash(.venv/bin/pytest tests/ -x --tb=no --cov-fail-under=29)",
+      "Bash(.venv/bin/pytest tests/ --cov --cov-report=xml --cov-report=term-missing --cov-fail-under=29 -x)",
+      "Bash(.venv/bin/pytest tests/ --cov --cov-report=xml --cov-report=term-missing --cov-fail-under=29 -q)"
     ],
     "deny": []
   }

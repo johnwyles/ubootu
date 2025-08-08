@@ -233,7 +233,9 @@ class TestVariableMapping:
         # Verify the mapping exists
         assert hasattr(UnifiedMenu, "_get_ansible_var_name")
 
-        menu = UnifiedMenu(Mock())
+        mock_stdscr = Mock()
+        mock_stdscr.getmaxyx.return_value = (24, 80)
+        menu = UnifiedMenu(mock_stdscr)
         for config_name, ansible_name in mappings.items():
             assert menu._get_ansible_var_name(config_name) == ansible_name
 
