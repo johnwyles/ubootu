@@ -3617,6 +3617,54 @@ Features:
 - Module ecosystem""",
         },
         {
+            "id": "ansible",
+            "label": "Ansible",
+            "description": "IT automation tool",
+            "parent": "cloud-tools",
+            "help": """Ansible automates IT tasks such as configuration management, application deployment, and orchestration.
+Features:
+- Agentless architecture
+- YAML-based playbooks
+- Extensive module library
+- Idempotent operations""",
+        },
+        {
+            "id": "packer",
+            "label": "Packer",
+            "description": "Machine image builder",
+            "parent": "cloud-tools",
+            "help": """Packer automates the creation of machine images for multiple platforms.
+Features:
+- Multi-platform support (AWS, Azure, GCP, VMware, Docker)
+- Configuration as code
+- Parallel builds
+- Provisioner support""",
+        },
+        {
+            "id": "vault",
+            "label": "HashiCorp Vault",
+            "description": "Secrets management tool",
+            "parent": "cloud-tools",
+            "help": """Vault secures, stores, and controls access to tokens, passwords, certificates, and encryption keys.
+Features:
+- Dynamic secrets
+- Data encryption
+- Leasing and renewal
+- Audit logging""",
+        },
+        {
+            "id": "consul",
+            "label": "HashiCorp Consul",
+            "description": "Service mesh and discovery",
+            "parent": "cloud-tools",
+            "help": """Consul provides service discovery, configuration, and segmentation functionality.
+Features:
+- Service discovery
+- Health checking
+- KV store
+- Multi-datacenter support""",
+        },
+        {
             "id": "ansible-cloud",
             "label": "Ansible",
             "description": "Automation platform",
@@ -3800,6 +3848,131 @@ Features:
     items.extend(general_app_items)
     applications_cat = next(cat for cat in categories if cat["id"] == "applications")
     applications_cat["children"] = [item["id"] for item in general_app_items]
+
+    # Additional Development Tools
+    additional_dev_tools = [
+        {"id": "rustup", "label": "Rustup", "description": "Rust toolchain installer", "parent": "dev-languages"},
+        {"id": "cargo", "label": "Cargo", "description": "Rust package manager", "parent": "dev-languages"},
+        {"id": "gradle", "label": "Gradle", "description": "Build automation tool", "parent": "dev-build"},
+        {"id": "maven", "label": "Maven", "description": "Project management tool", "parent": "dev-build"},
+        {"id": "bazel", "label": "Bazel", "description": "Build and test tool", "parent": "dev-build"},
+        {"id": "cmake", "label": "CMake", "description": "Cross-platform build system", "parent": "dev-build"},
+        {"id": "ninja", "label": "Ninja", "description": "Small build system", "parent": "dev-build"},
+        {"id": "scons", "label": "SCons", "description": "Software construction tool", "parent": "dev-build"},
+        {"id": "meson", "label": "Meson", "description": "Build system", "parent": "dev-build"},
+        {"id": "autotools", "label": "Autotools", "description": "GNU build system", "parent": "dev-build"},
+        {"id": "ant", "label": "Apache Ant", "description": "Java build tool", "parent": "dev-build"},
+        {"id": "sbt", "label": "SBT", "description": "Scala build tool", "parent": "dev-build"},
+        {"id": "leiningen", "label": "Leiningen", "description": "Clojure build tool", "parent": "dev-build"},
+        {"id": "stack", "label": "Stack", "description": "Haskell build tool", "parent": "dev-build"},
+        {"id": "cabal", "label": "Cabal", "description": "Haskell package system", "parent": "dev-build"},
+        {"id": "dune", "label": "Dune", "description": "OCaml build system", "parent": "dev-build"},
+        {"id": "rebar3", "label": "Rebar3", "description": "Erlang build tool", "parent": "dev-build"},
+        {"id": "mix", "label": "Mix", "description": "Elixir build tool", "parent": "dev-build"},
+        {"id": "bundler", "label": "Bundler", "description": "Ruby dependency manager", "parent": "dev-languages"},
+        {"id": "rbenv", "label": "rbenv", "description": "Ruby version manager", "parent": "dev-languages"},
+        {"id": "rvm", "label": "RVM", "description": "Ruby Version Manager", "parent": "dev-languages"},
+        {"id": "nvm", "label": "NVM", "description": "Node Version Manager", "parent": "dev-languages"},
+        {"id": "fnm", "label": "FNM", "description": "Fast Node Manager", "parent": "dev-languages"},
+        {"id": "volta", "label": "Volta", "description": "JavaScript tool manager", "parent": "dev-languages"},
+        {"id": "pyenv", "label": "pyenv", "description": "Python version manager", "parent": "dev-languages"},
+        {"id": "pipenv", "label": "Pipenv", "description": "Python packaging tool", "parent": "dev-languages"},
+        {"id": "poetry", "label": "Poetry", "description": "Python packaging and dependency management", "parent": "dev-languages"},
+        {"id": "conda", "label": "Conda", "description": "Package and environment manager", "parent": "dev-languages"},
+        {"id": "miniconda", "label": "Miniconda", "description": "Minimal Conda installer", "parent": "dev-languages"},
+        {"id": "anaconda", "label": "Anaconda", "description": "Python/R data science platform", "parent": "dev-languages"},
+        {"id": "sdkman", "label": "SDKMAN", "description": "Software Development Kit Manager", "parent": "dev-languages"},
+        {"id": "jenv", "label": "jenv", "description": "Java environment manager", "parent": "dev-languages"},
+        {"id": "jabba", "label": "Jabba", "description": "Java version manager", "parent": "dev-languages"},
+        {"id": "gvm", "label": "GVM", "description": "Go version manager", "parent": "dev-languages"},
+        {"id": "g", "label": "g", "description": "Go version manager", "parent": "dev-languages"},
+        {"id": "gimme", "label": "gimme", "description": "Go version manager", "parent": "dev-languages"},
+        {"id": "tfenv", "label": "tfenv", "description": "Terraform version manager", "parent": "dev-cloud"},
+        {"id": "terragrunt", "label": "Terragrunt", "description": "Terraform wrapper", "parent": "dev-cloud"},
+        {"id": "atlantis", "label": "Atlantis", "description": "Terraform pull request automation", "parent": "dev-cloud"},
+        {"id": "checkov", "label": "Checkov", "description": "Infrastructure as code scanner", "parent": "dev-cloud"},
+        {"id": "tflint", "label": "TFLint", "description": "Terraform linter", "parent": "dev-cloud"},
+        {"id": "tfsec", "label": "tfsec", "description": "Terraform security scanner", "parent": "dev-cloud"},
+        {"id": "terrascan", "label": "Terrascan", "description": "IaC security scanner", "parent": "dev-cloud"},
+        {"id": "infracost", "label": "Infracost", "description": "Cloud cost estimates", "parent": "dev-cloud"},
+        {"id": "cloud-nuke", "label": "cloud-nuke", "description": "Remove cloud resources", "parent": "dev-cloud"},
+        {"id": "aws-vault", "label": "aws-vault", "description": "AWS credential storage", "parent": "dev-cloud"},
+        {"id": "chamber", "label": "Chamber", "description": "Secret management for AWS", "parent": "dev-cloud"},
+        {"id": "eksctl", "label": "eksctl", "description": "Amazon EKS CLI", "parent": "dev-cloud"},
+        {"id": "kops", "label": "kOps", "description": "Kubernetes operations", "parent": "dev-cloud"},
+        {"id": "kubectx", "label": "kubectx", "description": "Switch between Kubernetes contexts", "parent": "dev-cloud"},
+        {"id": "kubens", "label": "kubens", "description": "Switch between Kubernetes namespaces", "parent": "dev-cloud"},
+        {"id": "k9s", "label": "k9s", "description": "Kubernetes CLI manager", "parent": "dev-cloud"},
+        {"id": "lens", "label": "Lens", "description": "Kubernetes IDE", "parent": "dev-cloud"},
+        {"id": "okteto", "label": "Okteto", "description": "Kubernetes development platform", "parent": "dev-cloud"},
+        {"id": "skaffold", "label": "Skaffold", "description": "Kubernetes development workflow", "parent": "dev-cloud"},
+        {"id": "tilt", "label": "Tilt", "description": "Kubernetes development environment", "parent": "dev-cloud"},
+        {"id": "garden", "label": "Garden", "description": "Kubernetes development platform", "parent": "dev-cloud"},
+        {"id": "telepresence", "label": "Telepresence", "description": "Local development for Kubernetes", "parent": "dev-cloud"},
+        {"id": "stern", "label": "Stern", "description": "Multi-pod log tailing", "parent": "dev-cloud"},
+        {"id": "kubespy", "label": "kubespy", "description": "Kubernetes resource monitoring", "parent": "dev-cloud"},
+        {"id": "kubeval", "label": "kubeval", "description": "Kubernetes YAML validator", "parent": "dev-cloud"},
+        {"id": "kubescore", "label": "kube-score", "description": "Kubernetes object analysis", "parent": "dev-cloud"},
+        {"id": "polaris", "label": "Polaris", "description": "Kubernetes best practices", "parent": "dev-cloud"},
+        {"id": "goldilocks", "label": "Goldilocks", "description": "Kubernetes resource recommendations", "parent": "dev-cloud"},
+        {"id": "kustomize", "label": "Kustomize", "description": "Kubernetes configuration customization", "parent": "dev-cloud"},
+        {"id": "helmfile", "label": "Helmfile", "description": "Declarative Helm chart management", "parent": "dev-cloud"},
+        {"id": "flux", "label": "Flux", "description": "GitOps for Kubernetes", "parent": "dev-cloud"},
+        {"id": "argocd", "label": "ArgoCD", "description": "Declarative GitOps CD", "parent": "dev-cloud"},
+        {"id": "tekton", "label": "Tekton", "description": "Cloud-native CI/CD", "parent": "dev-cloud"},
+        {"id": "kaniko", "label": "Kaniko", "description": "Container image builder", "parent": "dev-cloud"},
+        {"id": "buildah", "label": "Buildah", "description": "Container image builder", "parent": "dev-cloud"},
+        {"id": "podman", "label": "Podman", "description": "Container management", "parent": "dev-cloud"},
+        {"id": "crictl", "label": "crictl", "description": "Container runtime CLI", "parent": "dev-cloud"},
+        {"id": "containerd", "label": "containerd", "description": "Container runtime", "parent": "dev-cloud"},
+        {"id": "runc", "label": "runc", "description": "Container runtime", "parent": "dev-cloud"},
+        {"id": "cri-o", "label": "CRI-O", "description": "Container runtime", "parent": "dev-cloud"},
+        {"id": "firecracker", "label": "Firecracker", "description": "MicroVM platform", "parent": "dev-cloud"},
+        {"id": "kata-containers", "label": "Kata Containers", "description": "Secure container runtime", "parent": "dev-cloud"},
+        {"id": "gvisor", "label": "gVisor", "description": "Container runtime sandbox", "parent": "dev-cloud"},
+        {"id": "falco", "label": "Falco", "description": "Runtime security", "parent": "security"},
+        {"id": "sysdig", "label": "Sysdig", "description": "Container troubleshooting", "parent": "security"},
+        {"id": "tracee", "label": "Tracee", "description": "Runtime security and forensics", "parent": "security"},
+        {"id": "osquery", "label": "osquery", "description": "SQL-based OS instrumentation", "parent": "security"},
+        {"id": "velociraptor", "label": "Velociraptor", "description": "Endpoint monitoring", "parent": "security"},
+        {"id": "wazuh", "label": "Wazuh", "description": "Security monitoring", "parent": "security"},
+        {"id": "suricata", "label": "Suricata", "description": "Network IDS/IPS", "parent": "security"},
+        {"id": "zeek", "label": "Zeek", "description": "Network security monitor", "parent": "security"},
+        {"id": "snort", "label": "Snort", "description": "Network intrusion prevention", "parent": "security"},
+        {"id": "ossec", "label": "OSSEC", "description": "Host intrusion detection", "parent": "security"},
+        {"id": "aide", "label": "AIDE", "description": "File integrity checker", "parent": "security"},
+        {"id": "samhain", "label": "Samhain", "description": "File integrity monitoring", "parent": "security"},
+        {"id": "tripwire", "label": "Tripwire", "description": "File integrity monitoring", "parent": "security"},
+        {"id": "chkrootkit", "label": "chkrootkit", "description": "Rootkit scanner", "parent": "security"},
+        {"id": "rkhunter", "label": "rkhunter", "description": "Rootkit hunter", "parent": "security"},
+        {"id": "clamav", "label": "ClamAV", "description": "Antivirus engine", "parent": "security"},
+        {"id": "yara", "label": "YARA", "description": "Malware identification", "parent": "security"},
+        {"id": "volatility", "label": "Volatility", "description": "Memory forensics", "parent": "security"},
+        {"id": "sleuthkit", "label": "Sleuth Kit", "description": "Disk forensics", "parent": "security"},
+        {"id": "autopsy", "label": "Autopsy", "description": "Digital forensics platform", "parent": "security"},
+        {"id": "gdb", "label": "GDB", "description": "GNU debugger", "parent": "dev-debug"},
+        {"id": "lldb", "label": "LLDB", "description": "LLVM debugger", "parent": "dev-debug"},
+        {"id": "valgrind", "label": "Valgrind", "description": "Memory debugging", "parent": "dev-debug"},
+        {"id": "strace", "label": "strace", "description": "System call tracer", "parent": "dev-debug"},
+        {"id": "ltrace", "label": "ltrace", "description": "Library call tracer", "parent": "dev-debug"},
+        {"id": "perf", "label": "perf", "description": "Performance analysis", "parent": "dev-debug"},
+        {"id": "dtrace", "label": "DTrace", "description": "Dynamic tracing", "parent": "dev-debug"},
+        {"id": "systemtap", "label": "SystemTap", "description": "System monitoring", "parent": "dev-debug"},
+        {"id": "bpftrace", "label": "bpftrace", "description": "High-level tracing", "parent": "dev-debug"},
+        {"id": "ftrace", "label": "ftrace", "description": "Function tracer", "parent": "dev-debug"},
+        {"id": "oprofile", "label": "OProfile", "description": "System profiler", "parent": "dev-debug"},
+        {"id": "gprof", "label": "gprof", "description": "Performance analysis", "parent": "dev-debug"},
+        {"id": "pprof", "label": "pprof", "description": "Performance profiler", "parent": "dev-debug"},
+        {"id": "heaptrack", "label": "Heaptrack", "description": "Heap memory profiler", "parent": "dev-debug"},
+        {"id": "massif", "label": "Massif", "description": "Heap profiler", "parent": "dev-debug"},
+        {"id": "cachegrind", "label": "Cachegrind", "description": "Cache profiler", "parent": "dev-debug"},
+        {"id": "callgrind", "label": "Callgrind", "description": "Call graph profiler", "parent": "dev-debug"},
+        {"id": "kcachegrind", "label": "KCachegrind", "description": "Profile data visualization", "parent": "dev-debug"},
+        {"id": "flamegraph", "label": "FlameGraph", "description": "Stack trace visualizer", "parent": "dev-debug"},
+        {"id": "parca", "label": "Parca", "description": "Continuous profiling", "parent": "dev-debug"},
+        {"id": "pyroscope", "label": "Pyroscope", "description": "Continuous profiling", "parent": "dev-debug"},
+    ]
+    items.extend(additional_dev_tools)
 
     # Fill in empty categories
     for cat in categories:
