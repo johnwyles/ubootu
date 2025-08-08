@@ -74,8 +74,7 @@ class TestUnifiedMenuFunctional:
         assert self.menu.selections.get("item3") is True
         assert self.menu.configurable_values["conf1"] == "test_value"
 
-    @patch.object(UnifiedMenu, "discovery")
-    def test_refresh_system_state(self, mock_discovery):
+    def test_refresh_system_state(self):
         """Test refreshing system state"""
         self.menu.items = [
             {"id": "firefox", "is_category": False},
@@ -83,7 +82,9 @@ class TestUnifiedMenuFunctional:
             {"id": "dev", "is_category": True},
         ]
 
-        mock_discovery.map_to_menu_items.return_value = {"firefox": "installed", "chrome": "not_installed"}
+        # Mock the discovery instance
+        self.menu.discovery = MagicMock()
+        self.menu.discovery.map_to_menu_items.return_value = {"firefox": "installed", "chrome": "not_installed"}
 
         self.menu.refresh_system_state()
 

@@ -46,7 +46,7 @@ def test_undefined_variables_have_defaults():
                     "name": "Test variable usage",
                     "debug": {"msg": "Testing {{ item }}"},
                     "loop": UNDEFINED_VARIABLES,
-                    "when": f"{item} is defined",
+                    "when": "item is defined",
                 }
             ],
         }
