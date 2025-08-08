@@ -190,7 +190,10 @@
       "Bash(.venv/bin/pytest tests/lib/tui/test_utils.py -v --no-cov)",
       "Bash(.venv/bin/pytest tests/lib/tui/test_sudo_dialog.py -v --no-cov)",
       "Bash(.venv/bin/pytest tests/lib/tui/test_constants.py tests/lib/tui/test_utils.py tests/lib/tui/test_sudo_dialog.py --cov=lib.tui.constants --cov=lib.tui.utils --cov=lib.tui.sudo_dialog --cov-report=term --no-cov-on-fail -q)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(git gc:*)",
+      "Bash(git remote remove:*)",
+      "Bash(git remote add:*)"
     ],
     "deny": []
   }

@@ -2,16 +2,18 @@
 """Tests for lib/tui/utils.py"""
 
 import curses
-from unittest.mock import MagicMock, Mock, patch, call
+from unittest.mock import MagicMock, Mock, call, patch
+
 import pytest
+
 from lib.tui.utils import (
     center_text,
     draw_box,
     draw_centered_text,
-    truncate_text,
     get_dialog_position,
-    parse_key,
     key_matches,
+    parse_key,
+    truncate_text,
 )
 
 
@@ -47,7 +49,7 @@ class TestCenterText:
 class TestDrawBox:
     """Test draw_box function"""
 
-    @patch('lib.tui.utils.curses')
+    @patch("lib.tui.utils.curses")
     def test_draw_box_basic(self, mock_curses):
         """Test basic box drawing"""
         # Set up mock curses constants
@@ -58,7 +60,7 @@ class TestDrawBox:
         mock_curses.ACS_HLINE = 5
         mock_curses.ACS_VLINE = 6
         mock_curses.A_BOLD = 7
-        
+
         stdscr = MagicMock()
         draw_box(stdscr, 1, 1, 5, 10)
 
@@ -68,7 +70,7 @@ class TestDrawBox:
         stdscr.addch.assert_any_call(5, 1, 3)  # LLCORNER
         stdscr.addch.assert_any_call(5, 10, 4)  # LRCORNER
 
-    @patch('lib.tui.utils.curses')
+    @patch("lib.tui.utils.curses")
     def test_draw_box_with_title(self, mock_curses):
         """Test box drawing with title"""
         # Set up mock curses constants
@@ -79,7 +81,7 @@ class TestDrawBox:
         mock_curses.ACS_HLINE = 5
         mock_curses.ACS_VLINE = 6
         mock_curses.A_BOLD = 7
-        
+
         stdscr = MagicMock()
         draw_box(stdscr, 0, 0, 3, 20, title="Test")
 
@@ -88,7 +90,7 @@ class TestDrawBox:
         stdscr.attroff.assert_called_with(7)  # A_BOLD
         stdscr.addstr.assert_called()
 
-    @patch('lib.tui.utils.curses.error', Exception)
+    @patch("lib.tui.utils.curses.error", Exception)
     def test_draw_box_handles_curses_error(self):
         """Test that draw_box handles curses errors gracefully"""
         stdscr = MagicMock()
@@ -96,7 +98,7 @@ class TestDrawBox:
         # Should not raise exception
         draw_box(stdscr, 0, 0, 5, 10)
 
-    @patch('lib.tui.utils.curses')
+    @patch("lib.tui.utils.curses")
     def test_draw_box_lines(self, mock_curses):
         """Test that horizontal and vertical lines are drawn"""
         # Set up mock curses constants
@@ -106,7 +108,7 @@ class TestDrawBox:
         mock_curses.ACS_LRCORNER = 4
         mock_curses.ACS_HLINE = 5
         mock_curses.ACS_VLINE = 6
-        
+
         stdscr = MagicMock()
         draw_box(stdscr, 0, 0, 3, 5)
 
@@ -127,20 +129,20 @@ class TestDrawCenteredText:
         """Test basic centered text drawing"""
         stdscr = MagicMock()
         stdscr.getmaxyx.return_value = (24, 80)
-        
+
         draw_centered_text(stdscr, 10, "Hello")
-        
+
         stdscr.addstr.assert_called_once_with(10, 37, "Hello")
 
-    @patch('lib.tui.utils.curses')
+    @patch("lib.tui.utils.curses")
     def test_draw_centered_text_with_bold(self, mock_curses):
         """Test centered text with bold"""
         mock_curses.A_BOLD = 7
         stdscr = MagicMock()
         stdscr.getmaxyx.return_value = (24, 80)
-        
+
         draw_centered_text(stdscr, 5, "Bold", bold=True)
-        
+
         stdscr.attron.assert_called_with(7)  # A_BOLD
         stdscr.attroff.assert_called_with(7)  # A_BOLD
 
@@ -148,9 +150,9 @@ class TestDrawCenteredText:
         """Test centered text with custom offset and width"""
         stdscr = MagicMock()
         stdscr.getmaxyx.return_value = (24, 80)
-        
+
         draw_centered_text(stdscr, 5, "Hi", x_offset=10, width=20)
-        
+
         # Should center within the 20-char width starting at offset 10
         # center_text(20, "Hi") = 9, so x = 10 + 9 = 19
         stdscr.addstr.assert_called_once_with(5, 19, "Hi")
@@ -159,14 +161,14 @@ class TestDrawCenteredText:
         """Test that long text is truncated"""
         stdscr = MagicMock()
         stdscr.getmaxyx.return_value = (24, 10)
-        
+
         draw_centered_text(stdscr, 5, "This is a very long text")
-        
+
         # Should truncate to fit screen width
         call_args = stdscr.addstr.call_args[0]
         assert len(call_args[2]) <= 10
 
-    @patch('lib.tui.utils.curses.error', Exception)
+    @patch("lib.tui.utils.curses.error", Exception)
     def test_draw_centered_text_handles_curses_error(self):
         """Test that draw_centered_text handles curses errors"""
         stdscr = MagicMock()
@@ -239,20 +241,20 @@ class TestGetDialogPosition:
 class TestParseKey:
     """Test parse_key function"""
 
-    @patch('lib.tui.utils.curses')
+    @patch("lib.tui.utils.curses")
     def test_parse_key_arrow_keys(self, mock_curses):
         """Test parsing arrow keys"""
         mock_curses.KEY_UP = 259
         mock_curses.KEY_DOWN = 258
         mock_curses.KEY_LEFT = 260
         mock_curses.KEY_RIGHT = 261
-        
+
         assert parse_key(259) == "KEY_UP"
         assert parse_key(258) == "KEY_DOWN"
         assert parse_key(260) == "KEY_LEFT"
         assert parse_key(261) == "KEY_RIGHT"
 
-    @patch('lib.tui.utils.curses')
+    @patch("lib.tui.utils.curses")
     def test_parse_key_special_keys(self, mock_curses):
         """Test parsing special keys"""
         mock_curses.KEY_F1 = 265
@@ -279,12 +281,12 @@ class TestParseKey:
 class TestKeyMatches:
     """Test key_matches function"""
 
-    @patch('lib.tui.utils.parse_key')
+    @patch("lib.tui.utils.parse_key")
     def test_key_matches_with_parsed_key(self, mock_parse):
         """Test key matching with parsed key"""
         mock_parse.return_value = "KEY_UP"
         assert key_matches(259, ["KEY_UP", "k"]) is True
-        
+
         mock_parse.return_value = "KEY_DOWN"
         assert key_matches(258, ["KEY_UP", "k"]) is False
 
@@ -304,7 +306,7 @@ class TestKeyMatches:
         assert key_matches(ord("Q"), ["q", "Q"]) is True
         assert key_matches(ord("q"), ["Q"]) is False
 
-    @patch('lib.tui.utils.parse_key')
+    @patch("lib.tui.utils.parse_key")
     def test_key_matches_non_printable(self, mock_parse):
         """Test key matching with non-printable key"""
         mock_parse.return_value = None
